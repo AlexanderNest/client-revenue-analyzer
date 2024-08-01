@@ -1,0 +1,106 @@
+{
+	"info": {
+		"_postman_id": "75222d2d-dd24-47e7-938e-79248e97f6f1",
+		"name": "google-calendar-clients-analyzer",
+		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
+		"_exporter_id": "19227667"
+	},
+	"item": [
+		{
+			"name": "Статусы встреч за выбранный месяц",
+			"protocolProfileBehavior": {
+				"disableBodyPruning": true
+			},
+			"request": {
+				"method": "GET",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "{\r\n    \"monthName\": \"august\"\r\n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "localhost:8080/events/analyzer/getEventsStatusesForMonth",
+					"host": [
+						"localhost"
+					],
+					"port": "8080",
+					"path": [
+						"events",
+						"analyzer",
+						"getEventsStatusesForMonth"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Анализ дохода за выбранный месяц",
+			"protocolProfileBehavior": {
+				"disableBodyPruning": true
+			},
+			"request": {
+				"method": "GET",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "{\r\n    \"monthName\": \"august\"\r\n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "localhost:8080/events/analyzer/getIncomeAnalysisForMonth",
+					"host": [
+						"localhost"
+					],
+					"port": "8080",
+					"path": [
+						"events",
+						"analyzer",
+						"getIncomeAnalysisForMonth"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Анализ клиентов за выбранный месяц",
+			"protocolProfileBehavior": {
+				"disableBodyPruning": true
+			},
+			"request": {
+				"method": "GET",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "{\r\n    \"monthName\": \"august\"\r\n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "localhost:8080/events/analyzer/getClientsStatistics",
+					"host": [
+						"localhost"
+					],
+					"port": "8080",
+					"path": [
+						"events",
+						"analyzer",
+						"getClientsStatistics"
+					]
+				}
+			},
+			"response": []
+		}
+	]
+}
