@@ -6,7 +6,7 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 import ru.nesterov.clientRevenueAnalyzer.controller.request.GetForMonthRequest;
-import ru.nesterov.clientRevenueAnalyzer.dto.EventStatus;
+import ru.nesterov.clientRevenueAnalyzer.service.dto.EventStatus;
 import ru.nesterov.clientRevenueAnalyzer.service.EventsAnalyzerService;
 import ru.nesterov.clientRevenueAnalyzer.service.dto.ClientMeetingsStatistic;
 import ru.nesterov.clientRevenueAnalyzer.service.dto.IncomeAnalysisResult;

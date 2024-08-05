@@ -5,7 +5,7 @@
                    https://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-latest.xsd">
 
     <changeSet id="create-table-parameter" author="Valera">
-        <preConditions>
+        <preConditions onFail="MARK_RAN">
             <not>
                 <tableExists tableName="client"/>
             </not>
@@ -24,7 +24,7 @@
     </changeSet>
 
     <changeSet id="add active row" author="nestrov">
-        <preConditions>
+        <preConditions onFail="MARK_RAN">
             <not>
                 <columnExists tableName="client" columnName="active"></columnExists>
             </not>

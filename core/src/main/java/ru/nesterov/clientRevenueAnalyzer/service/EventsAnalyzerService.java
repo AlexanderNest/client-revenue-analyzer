@@ -1,15 +1,15 @@
 package ru.nesterov.clientRevenueAnalyzer.service;
 
-import com.google.api.client.util.DateTime;
-import com.google.api.services.calendar.model.Event;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import ru.nesterov.clientRevenueAnalyzer.dto.EventColor;
-import ru.nesterov.clientRevenueAnalyzer.dto.EventStatus;
 import ru.nesterov.clientRevenueAnalyzer.entity.Client;
 import ru.nesterov.clientRevenueAnalyzer.exception.AppException;
 import ru.nesterov.clientRevenueAnalyzer.repository.ClientRepository;
 import ru.nesterov.clientRevenueAnalyzer.service.dto.ClientMeetingsStatistic;
+import ru.nesterov.clientRevenueAnalyzer.service.dto.Event;
+import ru.nesterov.clientRevenueAnalyzer.service.dto.EventStatus;
+import ru.nesterov.clientRevenueAnalyzer.service.dto.EventStatusService;
 import ru.nesterov.clientRevenueAnalyzer.service.dto.IncomeAnalysisResult;
 import ru.nesterov.clientRevenueAnalyzer.service.monthHelper.MonthDatesPair;
 import ru.nesterov.clientRevenueAnalyzer.service.monthHelper.MonthHelper;
@@ -27,8 +27,9 @@ import java.util.Map;
 @Service
 @RequiredArgsConstructor
 public class EventsAnalyzerService {
-    private final GoogleCalendarService googleCalendarService;
+    private final CalendarService calendarService;
     private final ClientRepository clientRepository;
+    private EventStatusService eventStatusService;
 
     public Map<String, ClientMeetingsStatistic> getStatisticsOfEachClientMeetings(String monthName) {
         List<Event> events = getEventsByMonth(monthName);
@@ -67,8 +68,9 @@ public class EventsAnalyzerService {
         double expectedIncome = 0;
 
         for (Event event : events) {
-            EventColor eventColor = EventColor.fromColorId(event.getColorId());
-            EventStatus eventStatus = EventStatus.fromColor(eventColor);
+//            EventColor eventColor = EventColor.fromColorId(event.getColorId());
+//            EventStatus eventStatus = EventStatus.fromColor(eventColor);
+            EventStatus eventStatus = eventStatusService.getEventStatus(event.getColorId());
 
             Client client = clientRepository.findClientByName(event.getSummary());
             if (client == null) {
@@ -117,7 +119,7 @@ public class EventsAnalyzerService {
     }
 
     public Map<EventStatus, Integer> getEventStatusesBetweenDates(LocalDateTime leftDate, LocalDateTime rightDate) {
-        List<Event> events = googleCalendarService.getEventsBetweenDates(leftDate, rightDate);
+        List<ru.nesterov.clientRevenueAnalyzer.service.dto.Event> events = calendarService.getEventsBetweenDates(leftDate, rightDate);
 
         Map<EventStatus, Integer> statuses = new HashMap<>();
         for (Event event : events) {
@@ -132,6 +134,6 @@ public class EventsAnalyzerService {
 
     private List<Event> getEventsByMonth(String monthName) {
         MonthDatesPair monthDatesPair = MonthHelper.getFirstAndLastDayOfMonth(monthName);
-        return googleCalendarService.getEventsBetweenDates(monthDatesPair.getFirstDate(), monthDatesPair.getLastDate());
+        return calendarService.getEventsBetweenDates(monthDatesPair.getFirstDate(), monthDatesPair.getLastDate());
     }
 }

@@ -1,4 +1,4 @@
-package ru.nesterov.clientRevenueAnalyzer.properties;
+package ru.nesterov;
 
 import lombok.Data;
 import org.springframework.boot.context.properties.ConfigurationProperties;

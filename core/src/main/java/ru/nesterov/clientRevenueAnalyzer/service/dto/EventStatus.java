@@ -1,4 +1,6 @@
-package ru.nesterov.clientRevenueAnalyzer.dto;
+package ru.nesterov.clientRevenueAnalyzer.service.dto;
+
+import ru.nesterov.clientRevenueAnalyzer.dto.EventColor;
 
 import java.util.List;
 
