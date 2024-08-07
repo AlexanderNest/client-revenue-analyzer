@@ -9,7 +9,4 @@ import ru.nesterov.entity.Client;
 @Repository
 public interface ClientRepository extends JpaRepository<Client, Long> {
     Client findClientByName(String name);
-
-    @Query(value = "FROM Client c where c.name like :name")
-    Client findClientLikeName(String name);
 }

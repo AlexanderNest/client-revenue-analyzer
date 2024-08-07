@@ -26,14 +26,11 @@ import java.util.List;
 @Component
 @ConditionalOnProperty("app.google.calendar.integration.enabled")
 public class GoogleCalendarService implements CalendarService {
-    private final JsonFactory JSON_FACTORY;
     private final Calendar calendar;
-
     private final GoogleCalendarProperties properties;
 
     public GoogleCalendarService(GoogleCalendarProperties properties) {
         this.properties = properties;
-        this.JSON_FACTORY = JacksonFactory.getDefaultInstance();
         this.calendar = createCalendarService();
     }
 
@@ -42,7 +39,7 @@ public class GoogleCalendarService implements CalendarService {
         GoogleCredentials credentials = GoogleCredentials.fromStream(new FileInputStream("C:\\Users\\sasha\\IdeaProjects\\client-revenue-analyzer\\data\\calendar-analyzer-430608-02c908bb7c55.json")) //TODO подставить свои значения
                     .createScoped(List.of(CalendarScopes.CALENDAR_READONLY));
 
-        return new Calendar.Builder(GoogleNetHttpTransport.newTrustedTransport(), JSON_FACTORY, new HttpCredentialsAdapter(credentials))
+        return new Calendar.Builder(GoogleNetHttpTransport.newTrustedTransport(), JacksonFactory.getDefaultInstance(), new HttpCredentialsAdapter(credentials))
                 .setApplicationName(properties.getApplicationName())
                 .build();
     }

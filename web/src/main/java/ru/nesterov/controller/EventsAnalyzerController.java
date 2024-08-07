@@ -1,4 +1,4 @@
-package ru.nesterov;
+package ru.nesterov.controller;
 
 import lombok.RequiredArgsConstructor;
 import org.springframework.web.bind.annotation.GetMapping;
