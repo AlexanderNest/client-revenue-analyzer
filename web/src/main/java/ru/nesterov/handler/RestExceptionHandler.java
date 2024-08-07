@@ -6,7 +6,7 @@ import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
 import ru.nesterov.exception.AppException;
-import ru.nesterov.responses.ErrorResponse;
+import ru.nesterov.controller.responses.ErrorResponse;
 
 
 @RestControllerAdvice

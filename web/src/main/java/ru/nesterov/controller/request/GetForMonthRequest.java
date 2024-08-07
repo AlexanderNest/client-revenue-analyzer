@@ -1,4 +1,4 @@
-package ru.nesterov.request;
+package ru.nesterov.controller.request;
 
 import lombok.Data;
 
