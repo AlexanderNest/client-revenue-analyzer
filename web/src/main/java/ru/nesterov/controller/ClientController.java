@@ -6,8 +6,8 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 import ru.nesterov.controller.request.GetClientScheduleRequest;
+import ru.nesterov.controller.response.EventScheduleResponse;
 import ru.nesterov.service.client.ClientService;
-import ru.nesterov.service.monthHelper.MonthDatesPair;
 
 import java.util.List;
 
@@ -18,7 +18,9 @@ public class ClientController {
     private final ClientService clientService;
 
     @PostMapping("/getSchedule")
-    List<MonthDatesPair> getClientSchedule(@RequestBody GetClientScheduleRequest request) {
-        return clientService.getClientSchedule(request.getClientName(), request.getLeftDate(), request.getRightDate());
+    public List<EventScheduleResponse> getClientSchedule(@RequestBody GetClientScheduleRequest request) {
+        return clientService.getClientSchedule(request.getClientName(), request.getLeftDate(), request.getRightDate()).stream()
+                .map(monthDatesPair -> new EventScheduleResponse(monthDatesPair.getFirstDate(), monthDatesPair.getLastDate()))
+                .toList();
     }
 }
