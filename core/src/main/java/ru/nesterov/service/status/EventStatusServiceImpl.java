@@ -2,6 +2,7 @@ package ru.nesterov.service.status;
 
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
+import ru.nesterov.exception.AppException;
 import ru.nesterov.service.dto.EventStatus;
 
 import java.util.List;
@@ -34,7 +35,7 @@ public class EventStatusServiceImpl implements EventStatusService {
             if(nullWasUsed) {
                 throw new IllegalArgumentException("Default calendar color as null was used already");
             }
-            plannedColorCodes.add(null);
+            cancelledColorCodes.add(null);
             nullWasUsed = true;
         }
         this.requiresShiftColorCodes = requiresShiftColorCodes;
@@ -42,7 +43,7 @@ public class EventStatusServiceImpl implements EventStatusService {
             if(nullWasUsed) {
                 throw new IllegalArgumentException("Default calendar color as null was used already");
             }
-            plannedColorCodes.add(null);
+            requiresShiftColorCodes.add(null);
             nullWasUsed = true;
         }
         this.successColorCodes = successColorCodes;
@@ -50,7 +51,7 @@ public class EventStatusServiceImpl implements EventStatusService {
             if(nullWasUsed) {
                 throw new IllegalArgumentException("Default calendar color as null was used already");
             }
-            plannedColorCodes.add(null);
+            successColorCodes.add(null);
             nullWasUsed = true;
         }
     }
@@ -66,6 +67,6 @@ public class EventStatusServiceImpl implements EventStatusService {
             return EventStatus.REQUIRES_SHIFT;
         }
 
-        throw new RuntimeException("Unknown eventColorId: " + eventColorId);
+        throw new AppException("Неизвестный eventColorId: " + eventColorId);
     }
 }
