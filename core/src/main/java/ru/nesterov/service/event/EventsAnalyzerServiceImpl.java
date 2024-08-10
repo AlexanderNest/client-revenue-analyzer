@@ -38,6 +38,9 @@ public class EventsAnalyzerServiceImpl implements EventsAnalyzerService {
             ClientMeetingsStatistic clientMeetingsStatistic = meetingsStatistics.get(event.getSummary());
             if (clientMeetingsStatistic == null) {
                 Client client = clientRepository.findClientByName(event.getSummary());
+                if (client == null) {
+                    throw new AppException("Клиент с именем " + event.getSummary() + " не найден");
+                }
                 clientMeetingsStatistic = new ClientMeetingsStatistic(client.getPricePerHour());
             }
 

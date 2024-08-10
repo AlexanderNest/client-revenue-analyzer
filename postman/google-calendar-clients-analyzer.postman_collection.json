@@ -8,11 +8,8 @@
 	"item": [
 		{
 			"name": "Статусы встреч за выбранный месяц",
-			"protocolProfileBehavior": {
-				"disableBodyPruning": true
-			},
 			"request": {
-				"method": "GET",
+				"method": "POST",
 				"header": [],
 				"body": {
 					"mode": "raw",
@@ -24,12 +21,13 @@
 					}
 				},
 				"url": {
-					"raw": "localhost:8080/events/analyzer/getEventsStatusesForMonth",
+					"raw": "localhost:8080/revenue-analyzer/events/analyzer/getEventsStatusesForMonth",
 					"host": [
 						"localhost"
 					],
 					"port": "8080",
 					"path": [
+						"revenue-analyzer",
 						"events",
 						"analyzer",
 						"getEventsStatusesForMonth"
@@ -40,11 +38,8 @@
 		},
 		{
 			"name": "Анализ дохода за выбранный месяц",
-			"protocolProfileBehavior": {
-				"disableBodyPruning": true
-			},
 			"request": {
-				"method": "GET",
+				"method": "POST",
 				"header": [],
 				"body": {
 					"mode": "raw",
@@ -56,12 +51,13 @@
 					}
 				},
 				"url": {
-					"raw": "localhost:8080/events/analyzer/getIncomeAnalysisForMonth",
+					"raw": "localhost:8080/revenue-analyzer/events/analyzer/getIncomeAnalysisForMonth",
 					"host": [
 						"localhost"
 					],
 					"port": "8080",
 					"path": [
+						"revenue-analyzer",
 						"events",
 						"analyzer",
 						"getIncomeAnalysisForMonth"
@@ -72,11 +68,8 @@
 		},
 		{
 			"name": "Анализ клиентов за выбранный месяц",
-			"protocolProfileBehavior": {
-				"disableBodyPruning": true
-			},
 			"request": {
-				"method": "GET",
+				"method": "POST",
 				"header": [],
 				"body": {
 					"mode": "raw",
@@ -88,12 +81,13 @@
 					}
 				},
 				"url": {
-					"raw": "localhost:8080/events/analyzer/getClientsStatistics",
+					"raw": "localhost:8080/revenue-analyzer/events/analyzer/getClientsStatistics",
 					"host": [
 						"localhost"
 					],
 					"port": "8080",
 					"path": [
+						"revenue-analyzer",
 						"events",
 						"analyzer",
 						"getClientsStatistics"
@@ -104,11 +98,8 @@
 		},
 		{
 			"name": "Информация по расписанию клиента в заданные даты",
-			"protocolProfileBehavior": {
-				"disableBodyPruning": true
-			},
 			"request": {
-				"method": "GET",
+				"method": "POST",
 				"header": [],
 				"body": {
 					"mode": "raw",
@@ -120,15 +111,15 @@
 					}
 				},
 				"url": {
-					"raw": "localhost:8080/events/analyzer/getClientTimeInfo",
+					"raw": "localhost:8080/revenue-analyzer/client/getSchedule",
 					"host": [
 						"localhost"
 					],
 					"port": "8080",
 					"path": [
-						"events",
-						"analyzer",
-						"getClientTimeInfo"
+						"revenue-analyzer",
+						"client",
+						"getSchedule"
 					]
 				}
 			},

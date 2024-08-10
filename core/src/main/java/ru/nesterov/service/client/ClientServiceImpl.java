@@ -21,7 +21,7 @@ public class ClientServiceImpl implements ClientService {
     public List<MonthDatesPair> getClientSchedule(String clientName, LocalDateTime leftDate, LocalDateTime rightDate) {
         Client client = clientRepository.findClientByName(clientName);
         if (client == null) {
-            throw new AppException("Пользователь с именем " + clientName + " не существует");
+            throw new AppException("Клиент с именем " + clientName + " не существует");
         }
         List<Event> events = calendarService.getEventsBetweenDates(leftDate, rightDate);
 
