@@ -93,20 +93,17 @@ public class EventsAnalyzerServiceImpl implements EventsAnalyzerService {
         return incomeAnalysisResult;
     }
 
-    public Map<String, String> getClientTimeInfo(long clientId, LocalDateTime leftDate, LocalDateTime rightDate) {
+    public List<String> getClientTimeInfo(String clientName, LocalDateTime leftDate, LocalDateTime rightDate) {
+        Client client = clientRepository.findClientByName(clientName);
+        if (client == null) {
+            throw new AppException("Пользователь с именем " + clientName + " не существует");
+        }
         List<Event> events = calendarService.getEventsBetweenDates(leftDate, rightDate);
-        //если события не найдены
-        Optional<Client> client = clientRepository.findById(clientId);
-        //если клиент не найден
-        StringJoiner joiner = new StringJoiner(", ");
-        events.stream()
-                .filter(event -> event.getSummary().equals(client.get().getName()))
-                .forEach(event -> joiner.add(event.getStart().toString()));
 
-        Map<String, String> clientTimeInfo = new HashMap<>();
-        clientTimeInfo.put(client.get().getName(), joiner.toString());
-
-        return clientTimeInfo;
+        return events.stream()
+                .filter(event -> event.getSummary().equals(client.getName()))
+                .map(event -> event.getStart().toString())
+                .toList();
     }
 
     private double getEventDuration(Event event) {

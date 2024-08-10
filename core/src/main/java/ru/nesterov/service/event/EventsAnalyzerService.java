@@ -4,8 +4,8 @@ import ru.nesterov.service.dto.ClientMeetingsStatistic;
 import ru.nesterov.service.dto.EventStatus;
 import ru.nesterov.service.dto.IncomeAnalysisResult;
 
-import java.time.LocalDate;
 import java.time.LocalDateTime;
+import java.util.List;
 import java.util.Map;
 
 public interface EventsAnalyzerService {
@@ -13,5 +13,5 @@ public interface EventsAnalyzerService {
     Map<EventStatus, Integer> getEventStatusesByMonthName(String monthName);
     IncomeAnalysisResult getIncomeAnalysisByMonth(String monthName);
     Map<String, ClientMeetingsStatistic> getStatisticsOfEachClientMeetings(String monthName);
-    Map<String, String> getClientTimeInfo(long clientId, LocalDateTime leftDate, LocalDateTime rightTime);
+    List<String> getClientTimeInfo(String clientName, LocalDateTime leftDate, LocalDateTime rightTime);
 }

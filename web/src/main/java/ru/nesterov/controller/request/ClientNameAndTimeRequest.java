@@ -5,8 +5,8 @@ import lombok.Data;
 import java.time.LocalDateTime;
 
 @Data
-public class ClientIdAndTimeRequest {
-    private Long clientId;
+public class ClientNameAndTimeRequest {
+    private String clientName;
     private LocalDateTime leftDate;
     private LocalDateTime rightDate;
 }
