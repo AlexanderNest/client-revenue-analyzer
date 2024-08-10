@@ -36,7 +36,7 @@ public class GoogleCalendarService implements CalendarService {
 
     @SneakyThrows
     private Calendar createCalendarService() {
-        GoogleCredentials credentials = GoogleCredentials.fromStream(new FileInputStream("C:\\Users\\sasha\\IdeaProjects\\client-revenue-analyzer\\data\\calendar-analyzer-430608-02c908bb7c55.json")) //TODO подставить свои значения
+        GoogleCredentials credentials = GoogleCredentials.fromStream(new FileInputStream("C:\\Users\\Александра\\IdeaProjects\\client-revenue-analyzer\\personalData\\calendar-revenue-analyzer-b1d9088e3615.json")) //TODO подставить свои значения
                     .createScoped(List.of(CalendarScopes.CALENDAR_READONLY));
 
         return new Calendar.Builder(GoogleNetHttpTransport.newTrustedTransport(), JacksonFactory.getDefaultInstance(), new HttpCredentialsAdapter(credentials))

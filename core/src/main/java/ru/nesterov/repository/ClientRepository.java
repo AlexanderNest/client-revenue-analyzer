@@ -4,9 +4,14 @@ import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.stereotype.Repository;
 import ru.nesterov.entity.Client;
+import ru.nesterov.service.dto.ClientDto;
+
+import java.util.List;
 
 
 @Repository
 public interface ClientRepository extends JpaRepository<Client, Long> {
     Client findClientByName(String name);
+
+    List<Client> findAllByNameContaining(String name);
 }
