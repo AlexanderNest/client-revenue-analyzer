@@ -5,7 +5,7 @@ import lombok.Data;
 import java.time.LocalDateTime;
 
 @Data
-public class ClientNameAndTimeRequest {
+public class GetClientScheduleRequest {
     private String clientName;
     private LocalDateTime leftDate;
     private LocalDateTime rightDate;

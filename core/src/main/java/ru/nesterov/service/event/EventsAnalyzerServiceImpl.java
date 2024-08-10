@@ -15,13 +15,10 @@ import ru.nesterov.dto.Event;
 import ru.nesterov.service.CalendarService;
 
 import java.time.Duration;
-import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.Optional;
-import java.util.StringJoiner;
 
 @Service
 @RequiredArgsConstructor
@@ -91,19 +88,6 @@ public class EventsAnalyzerServiceImpl implements EventsAnalyzerService {
         incomeAnalysisResult.setActualIncome(actualIncome);
 
         return incomeAnalysisResult;
-    }
-
-    public List<String> getClientTimeInfo(String clientName, LocalDateTime leftDate, LocalDateTime rightDate) {
-        Client client = clientRepository.findClientByName(clientName);
-        if (client == null) {
-            throw new AppException("Пользователь с именем " + clientName + " не существует");
-        }
-        List<Event> events = calendarService.getEventsBetweenDates(leftDate, rightDate);
-
-        return events.stream()
-                .filter(event -> event.getSummary().equals(client.getName()))
-                .map(event -> event.getStart().toString())
-                .toList();
     }
 
     private double getEventDuration(Event event) {

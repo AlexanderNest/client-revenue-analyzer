@@ -13,5 +13,4 @@ public interface EventsAnalyzerService {
     Map<EventStatus, Integer> getEventStatusesByMonthName(String monthName);
     IncomeAnalysisResult getIncomeAnalysisByMonth(String monthName);
     Map<String, ClientMeetingsStatistic> getStatisticsOfEachClientMeetings(String monthName);
-    List<String> getClientTimeInfo(String clientName, LocalDateTime leftDate, LocalDateTime rightTime);
 }

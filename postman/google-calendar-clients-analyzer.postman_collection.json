@@ -103,7 +103,7 @@
 			"response": []
 		},
 		{
-			"name": "Информация по времени клиента в заданный промежуток времени",
+			"name": "Информация по расписанию клиента в заданные даты",
 			"protocolProfileBehavior": {
 				"disableBodyPruning": true
 			},
