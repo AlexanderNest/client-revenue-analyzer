@@ -1,18 +1,15 @@
 {
 	"info": {
-		"_postman_id": "75222d2d-dd24-47e7-938e-79248e97f6f1",
+		"_postman_id": "9b4c88ae-d2b9-4853-9bb8-22d87502a9f1",
 		"name": "google-calendar-clients-analyzer",
 		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
-		"_exporter_id": "19227667"
+		"_exporter_id": "32540896"
 	},
 	"item": [
 		{
 			"name": "Статусы встреч за выбранный месяц",
-			"protocolProfileBehavior": {
-				"disableBodyPruning": true
-			},
 			"request": {
-				"method": "GET",
+				"method": "POST",
 				"header": [],
 				"body": {
 					"mode": "raw",
@@ -24,12 +21,13 @@
 					}
 				},
 				"url": {
-					"raw": "localhost:8080/events/analyzer/getEventsStatusesForMonth",
+					"raw": "localhost:8080/revenue-analyzer/events/analyzer/getEventsStatusesForMonth",
 					"host": [
 						"localhost"
 					],
 					"port": "8080",
 					"path": [
+						"revenue-analyzer",
 						"events",
 						"analyzer",
 						"getEventsStatusesForMonth"
@@ -40,11 +38,8 @@
 		},
 		{
 			"name": "Анализ дохода за выбранный месяц",
-			"protocolProfileBehavior": {
-				"disableBodyPruning": true
-			},
 			"request": {
-				"method": "GET",
+				"method": "POST",
 				"header": [],
 				"body": {
 					"mode": "raw",
@@ -56,12 +51,13 @@
 					}
 				},
 				"url": {
-					"raw": "localhost:8080/events/analyzer/getIncomeAnalysisForMonth",
+					"raw": "localhost:8080/revenue-analyzer/events/analyzer/getIncomeAnalysisForMonth",
 					"host": [
 						"localhost"
 					],
 					"port": "8080",
 					"path": [
+						"revenue-analyzer",
 						"events",
 						"analyzer",
 						"getIncomeAnalysisForMonth"
@@ -72,11 +68,8 @@
 		},
 		{
 			"name": "Анализ клиентов за выбранный месяц",
-			"protocolProfileBehavior": {
-				"disableBodyPruning": true
-			},
 			"request": {
-				"method": "GET",
+				"method": "POST",
 				"header": [],
 				"body": {
 					"mode": "raw",
@@ -88,15 +81,45 @@
 					}
 				},
 				"url": {
-					"raw": "localhost:8080/events/analyzer/getClientsStatistics",
+					"raw": "localhost:8080/revenue-analyzer/events/analyzer/getClientsStatistics",
 					"host": [
 						"localhost"
 					],
 					"port": "8080",
 					"path": [
+						"revenue-analyzer",
 						"events",
 						"analyzer",
 						"getClientsStatistics"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Информация по расписанию клиента в заданные даты",
+			"request": {
+				"method": "POST",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n    \"clientName\": \"Иван\",\n    \"leftDate\": \"2023-10-01T10:00:00\",\n    \"rightDate\": \"2023-10-31T18:00:00\"\n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "localhost:8080/revenue-analyzer/client/getSchedule",
+					"host": [
+						"localhost"
+					],
+					"port": "8080",
+					"path": [
+						"revenue-analyzer",
+						"client",
+						"getSchedule"
 					]
 				}
 			},
