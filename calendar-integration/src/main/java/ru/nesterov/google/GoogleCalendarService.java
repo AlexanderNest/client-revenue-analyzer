@@ -1,8 +1,7 @@
 package ru.nesterov.google;
 
 import com.google.api.client.googleapis.javanet.GoogleNetHttpTransport;
-import com.google.api.client.json.JsonFactory;
-import com.google.api.client.json.jackson2.JacksonFactory;
+import com.google.api.client.json.gson.GsonFactory;
 import com.google.api.services.calendar.Calendar;
 import com.google.api.services.calendar.CalendarScopes;
 import com.google.api.services.calendar.model.Events;
@@ -12,8 +11,8 @@ import lombok.SneakyThrows;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.stereotype.Component;
-import ru.nesterov.service.CalendarService;
 import ru.nesterov.dto.Event;
+import ru.nesterov.service.CalendarService;
 
 import java.io.FileInputStream;
 import java.time.Instant;
@@ -39,7 +38,7 @@ public class GoogleCalendarService implements CalendarService {
         GoogleCredentials credentials = GoogleCredentials.fromStream(new FileInputStream("C:\\Users\\Александра\\IdeaProjects\\client-revenue-analyzer\\personalData\\calendar-revenue-analyzer-b1d9088e3615.json")) //TODO подставить свои значения
                     .createScoped(List.of(CalendarScopes.CALENDAR_READONLY));
 
-        return new Calendar.Builder(GoogleNetHttpTransport.newTrustedTransport(), JacksonFactory.getDefaultInstance(), new HttpCredentialsAdapter(credentials))
+        return new Calendar.Builder(GoogleNetHttpTransport.newTrustedTransport(), GsonFactory.getDefaultInstance(), new HttpCredentialsAdapter(credentials))
                 .setApplicationName(properties.getApplicationName())
                 .build();
     }

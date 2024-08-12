@@ -9,5 +9,5 @@ public interface ClientService {
 
     List<ClientDto> findAllByNameContaining(String name);
 
-
+    List<MonthDatesPair> getClientSchedule(String clientName, LocalDateTime leftDate, LocalDateTime rightDate);
 }
