@@ -7,5 +7,5 @@ public class CreateClientRequest {
     private String name;
     private int pricePerHour;
     private String description;
-    private boolean generationOfIdNeeded;
+    private boolean idGenerationNeeded;
 }

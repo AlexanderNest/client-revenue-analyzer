@@ -23,7 +23,6 @@ import java.util.List;
 public class ClientServiceImpl implements ClientService {
     private final CalendarService calendarService;
     private final ClientRepository clientRepository;
-    private final ClientMapper mapper;
 
 
     public List<MonthDatesPair> getClientSchedule(String clientName, LocalDateTime leftDate, LocalDateTime rightDate) {
@@ -39,32 +38,15 @@ public class ClientServiceImpl implements ClientService {
                 .toList();
     }
 
-    public ClientDto createClient(ClientDto clientDto, boolean isGenerationOfIdNeeded) throws AppException {
-        List<ClientDto> clientsWithThisName = findAllByNameContaining(clientDto.getName());
-        if (clientsWithThisName.isEmpty()) {
-            return mapper.mapToClientDto(clientRepository.saveAndFlush(mapper.mapToClient(clientDto)));
-        } else if (isGenerationOfIdNeeded) {
-            clientDto.setName(clientDto.getName() + generateUniqueId(clientsWithThisName));
-            return mapper.mapToClientDto(clientRepository.saveAndFlush(mapper.mapToClient(clientDto)));
-        } else {
-            throw new AppException("Клиент с таким именем уже существует");
-        }
-    }
-
-    public List<ClientDto> findAllByNameContaining(String name) {
-        return clientRepository.findAllByNameContaining(name).stream()
-                .map(mapper::mapToClientDto)
+    public ClientDto createClient(ClientDto clientDto, boolean isIdGenerationNeeded) throws AppException {
+        List<Client> clientsWithThisName = clientRepository.findAllByNameContaining(clientDto.getName()).stream()
                 .toList();
-    }
-
-    private long generateUniqueId(List<ClientDto> clients) {
-        List<String> names = clients.stream()
-                .map(ClientDto::getName)
-                .toList();
-        if (names.size() == 1) {
-            return 2;
-        } else {
-            return Long.parseLong(names.get(names.size() - 1).replace(names.get(0), "")) + 1;
+        if (!clientsWithThisName.isEmpty() && !isIdGenerationNeeded) {
+            throw new AppException("Клиент с именем " + clientDto.getName() + " существует");
         }
+        if (!clientsWithThisName.isEmpty()) {
+            clientDto.setName(clientDto.getName() + " " + (clientsWithThisName.size() + 1));
+        }
+        return ClientMapper.mapToClientDto(clientRepository.save(ClientMapper.mapToClient(clientDto)));
     }
 }

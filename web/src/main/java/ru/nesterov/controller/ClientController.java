@@ -10,8 +10,7 @@ import ru.nesterov.controller.response.EventScheduleResponse;
 import ru.nesterov.service.client.ClientService;
 import ru.nesterov.controller.request.CreateClientRequest;
 import ru.nesterov.controller.response.CreateClientResponse;
-import ru.nesterov.mapper.ControllerMapper;
-import ru.nesterov.service.client.ClientService;
+import ru.nesterov.mapper.ClientMapper;
 
 import java.util.List;
 
@@ -20,8 +19,6 @@ import java.util.List;
 @RequestMapping("/client")
 public class ClientController {
     private final ClientService clientService;
-    private final ControllerMapper mapper;
-
 
     @PostMapping("/getSchedule")
     public List<EventScheduleResponse> getClientSchedule(@RequestBody GetClientScheduleRequest request) {
@@ -32,6 +29,6 @@ public class ClientController {
 
     @PostMapping("/create-client")
     public CreateClientResponse createClient(@RequestBody CreateClientRequest createClientRequest) {
-        return mapper.mapToCreateClientResponse(clientService.createClient(mapper.mapToClientDto(createClientRequest), createClientRequest.isGenerationOfIdNeeded()));
+        return ClientMapper.mapToCreateClientResponse(clientService.createClient(ClientMapper.mapToClientDto(createClientRequest), createClientRequest.isIdGenerationNeeded()));
     }
 }
