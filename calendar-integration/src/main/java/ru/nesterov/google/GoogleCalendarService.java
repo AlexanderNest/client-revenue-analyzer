@@ -1,5 +1,6 @@
 package ru.nesterov.google;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
 import com.google.api.client.googleapis.javanet.GoogleNetHttpTransport;
 import com.google.api.client.json.gson.GsonFactory;
 import com.google.api.services.calendar.Calendar;
@@ -12,9 +13,12 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.stereotype.Component;
 import ru.nesterov.dto.Event;
+import ru.nesterov.dto.EventExtension;
+import ru.nesterov.exception.AppException;
 import ru.nesterov.service.CalendarService;
 
 import java.io.FileInputStream;
+import java.io.IOException;
 import java.time.Instant;
 import java.time.LocalDateTime;
 import java.time.ZoneId;
@@ -35,7 +39,7 @@ public class GoogleCalendarService implements CalendarService {
 
     @SneakyThrows
     private Calendar createCalendarService() {
-        GoogleCredentials credentials = GoogleCredentials.fromStream(new FileInputStream("C:\\Users\\Александра\\IdeaProjects\\client-revenue-analyzer\\personalData\\calendar-revenue-analyzer-b1d9088e3615.json")) //TODO подставить свои значения
+        GoogleCredentials credentials = GoogleCredentials.fromStream(new FileInputStream(properties.getServiceAccountFilePath()))
                     .createScoped(List.of(CalendarScopes.CALENDAR_READONLY));
 
         return new Calendar.Builder(GoogleNetHttpTransport.newTrustedTransport(), GsonFactory.getDefaultInstance(), new HttpCredentialsAdapter(credentials))
@@ -59,6 +63,15 @@ public class GoogleCalendarService implements CalendarService {
         return convert(events.getItems());
     }
 
+    private EventExtension parseField(String description) {
+        try {
+            return objectMapper.readValue(description, EventExtension.class);
+        } catch (Exception e) {
+            log.trace("Не удалось считать EventExtension", e);
+            return new EventExtension();
+        }
+    }
+
     private List<Event> convert(List<com.google.api.services.calendar.model.Event> events) {
         return events.stream()
                 .map(event -> Event.builder()
@@ -66,6 +79,7 @@ public class GoogleCalendarService implements CalendarService {
                         .summary(event.getSummary())
                         .start(LocalDateTime.ofInstant(Instant.ofEpochMilli(event.getStart().getDateTime().getValue()), ZoneId.systemDefault()))
                         .end(LocalDateTime.ofInstant(Instant.ofEpochMilli(event.getEnd().getDateTime().getValue()), ZoneId.systemDefault()))
+                        .eventExtension(parseField(event.getDescription()))
                         .build()
                 )
                 .toList();
