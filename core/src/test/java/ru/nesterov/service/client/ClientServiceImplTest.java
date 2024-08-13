@@ -16,13 +16,15 @@ import ru.nesterov.service.monthHelper.MonthDatesPair;
 import java.time.LocalDateTime;
 import java.util.List;
 
-import static org.junit.jupiter.api.Assertions.*;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.when;
 
 @SpringBootTest
 @ContextConfiguration(classes = ClientServiceImpl.class)
-class ClientServiceImplTest {
+public class ClientServiceImplTest {
     @Autowired
     private ClientService clientService;
     @MockBean
@@ -86,48 +88,49 @@ class ClientServiceImplTest {
     }
 
     @Test
-    void shouldReturnScheduleForClient1() {
+    public void shouldReturnScheduleForClient1() {
         LocalDateTime from = LocalDateTime.of(2024, 8, 9, 11, 30);
         LocalDateTime to = LocalDateTime.of(2024, 8, 13, 12, 30);
-        List<MonthDatesPair> clientSchedule = clientService.getClientSchedule("testClient1", from, to);
-
-        validateSchedule(
-                2,
-                clientSchedule,
-                List.of(
+        List<MonthDatesPair> actual = clientService.getClientSchedule("testClient1", from, to);
+        List<MonthDatesPair> expected = List.of(
+                new MonthDatesPair(
                         LocalDateTime.of(2024, 8, 9, 11, 30),
-                        LocalDateTime.of(2024, 8, 10, 11, 30)
+                        LocalDateTime.of(2024, 8, 9, 12, 30)
                 ),
-                List.of(
-                        LocalDateTime.of(2024, 8, 9, 12, 30),
+                new MonthDatesPair(
+                        LocalDateTime.of(2024, 8, 10, 11, 30),
                         LocalDateTime.of(2024, 8, 10, 12, 30)
                 )
         );
+
+        validateSchedule(actual, expected);
     }
 
     @Test
-    void shouldReturnScheduleForClient2() {
+    public void shouldReturnScheduleForClient2() {
         LocalDateTime from = LocalDateTime.of(2024, 8, 9, 11, 30);
         LocalDateTime to = LocalDateTime.of(2024, 8, 13, 12, 30);
-        List<MonthDatesPair> clientSchedule = clientService.getClientSchedule("testClient2", from, to);
-
-        validateSchedule(3,
-                clientSchedule,
-                List.of(
+        List<MonthDatesPair> actual = clientService.getClientSchedule("testClient2", from, to);
+        List<MonthDatesPair> expected = List.of(
+                new MonthDatesPair(
                         LocalDateTime.of(2024, 8, 11, 11, 30),
-                        LocalDateTime.of(2024, 8, 12, 11, 30),
-                        LocalDateTime.of(2024, 8, 13, 11, 30)
+                        LocalDateTime.of(2024, 8, 11, 12, 30)
                 ),
-                List.of(
-                        LocalDateTime.of(2024, 8, 11, 12, 30),
-                        LocalDateTime.of(2024, 8, 12, 12, 30),
+                new MonthDatesPair(
+                        LocalDateTime.of(2024, 8, 12, 11, 30),
+                        LocalDateTime.of(2024, 8, 12, 12, 30)
+                ),
+                new MonthDatesPair(
+                        LocalDateTime.of(2024, 8, 13, 11, 30),
                         LocalDateTime.of(2024, 8, 13, 12, 30)
                 )
         );
+
+        validateSchedule(actual, expected);
     }
 
     @Test
-    void shouldReturnEmptySchedule() {
+    public void shouldReturnEmptySchedule() {
         LocalDateTime from = LocalDateTime.of(2024, 11, 9, 11, 30);
         LocalDateTime to = LocalDateTime.of(2024, 11, 13, 12, 30);
         List<MonthDatesPair> clientSchedule = clientService.getClientSchedule("testClient1", from, to);
@@ -135,7 +138,7 @@ class ClientServiceImplTest {
     }
 
     @Test
-    void shouldThrowAppException() {
+    public void shouldThrowAppException() {
         LocalDateTime from = LocalDateTime.of(2024, 11, 9, 11, 30);
         LocalDateTime to = LocalDateTime.of(2024, 11, 13, 12, 30);
 
@@ -144,17 +147,8 @@ class ClientServiceImplTest {
         });
     }
 
-    private void validateSchedule(long listSize, List<MonthDatesPair> clientSchedule, List<LocalDateTime> firstDates,
-                                  List<LocalDateTime> lastDates) {
-        assertEquals(listSize, clientSchedule.size());
-        List<LocalDateTime> retrievedFirstDates = clientSchedule.stream()
-                .map(MonthDatesPair::getFirstDate)
-                .toList();
-        firstDates.forEach(date -> assertTrue(retrievedFirstDates.contains(date)));
-
-        List<LocalDateTime> retrievedLastDates = clientSchedule.stream()
-                .map(MonthDatesPair::getLastDate)
-                .toList();
-        lastDates.forEach(date -> assertTrue(retrievedLastDates.contains(date)));
+    private void validateSchedule(List<MonthDatesPair> actual, List<MonthDatesPair> expected) {
+        assertEquals(expected.size(), actual.size());
+        assertTrue(actual.containsAll(expected));
     }
 }
