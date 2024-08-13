@@ -1,5 +1,6 @@
 package ru.nesterov.google;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
 import com.google.api.client.googleapis.javanet.GoogleNetHttpTransport;
 import com.google.api.client.json.gson.GsonFactory;
 import com.google.api.services.calendar.Calendar;
@@ -12,9 +13,12 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.stereotype.Component;
 import ru.nesterov.dto.Event;
+import ru.nesterov.dto.EventExtension;
+import ru.nesterov.exception.AppException;
 import ru.nesterov.service.CalendarService;
 
 import java.io.FileInputStream;
+import java.io.IOException;
 import java.time.Instant;
 import java.time.LocalDateTime;
 import java.time.ZoneId;
@@ -27,9 +31,11 @@ import java.util.List;
 public class GoogleCalendarService implements CalendarService {
     private final Calendar calendar;
     private final GoogleCalendarProperties properties;
+    private final ObjectMapper objectMapper;
 
-    public GoogleCalendarService(GoogleCalendarProperties properties) {
+    public GoogleCalendarService(GoogleCalendarProperties properties, ObjectMapper objectMapper) {
         this.properties = properties;
+        this.objectMapper = objectMapper;
         this.calendar = createCalendarService();
     }
 
@@ -59,6 +65,15 @@ public class GoogleCalendarService implements CalendarService {
         return convert(events.getItems());
     }
 
+    private EventExtension parseField(String description) {
+        try {
+            return objectMapper.readValue(description, EventExtension.class);
+        } catch (Exception e) {
+            log.trace("Не удалось считать EventExtension", e);
+            return new EventExtension();
+        }
+    }
+
     private List<Event> convert(List<com.google.api.services.calendar.model.Event> events) {
         return events.stream()
                 .map(event -> Event.builder()
@@ -66,6 +81,7 @@ public class GoogleCalendarService implements CalendarService {
                         .summary(event.getSummary())
                         .start(LocalDateTime.ofInstant(Instant.ofEpochMilli(event.getStart().getDateTime().getValue()), ZoneId.systemDefault()))
                         .end(LocalDateTime.ofInstant(Instant.ofEpochMilli(event.getEnd().getDateTime().getValue()), ZoneId.systemDefault()))
+                        .eventExtension(parseField(event.getDescription()))
                         .build()
                 )
                 .toList();
