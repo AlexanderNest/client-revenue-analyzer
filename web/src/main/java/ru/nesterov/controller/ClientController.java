@@ -23,4 +23,7 @@ public class ClientController {
                 .map(monthDatesPair -> new EventScheduleResponse(monthDatesPair.getFirstDate(), monthDatesPair.getLastDate()))
                 .toList();
     }
+
+//    @PostMapping("/getFilteredClients")
+//    public
 }

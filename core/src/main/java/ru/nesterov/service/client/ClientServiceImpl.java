@@ -30,4 +30,12 @@ public class ClientServiceImpl implements ClientService {
                 .map(event -> new MonthDatesPair(event.getStart(), event.getEnd()))
                 .toList();
     }
+
+    @Override
+    public List<Client> getFilteredByPriceClients(int price) {
+        if (price == 0){
+            throw new RuntimeException("Данные не заполнены");
+        }
+        return null;
+    }
 }
