@@ -12,5 +12,6 @@ public class Event {
     private String summary;
     private LocalDateTime start;
     private LocalDateTime end;
+    private EventExtension eventExtension;
 }
 
