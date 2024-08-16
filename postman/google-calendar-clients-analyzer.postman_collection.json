@@ -124,6 +124,35 @@
 				}
 			},
 			"response": []
+		},
+		{
+			"name": "Создать клиента",
+			"request": {
+				"method": "POST",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n    \"name\": \"Ivan\",\n    \"description\": \"description\",\n    \"pricePerHour\": 2000,\n    \"idGenerationNeeded\": true\n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "http://localhost:8080/revenue-analyzer/client/createClient",
+					"host": [
+						"localhost"
+					],
+					"port": "8080",
+					"path": [
+						"revenue-analyzer",
+						"client",
+						"createClient"
+					]
+				}
+			},
+			"response": []
 		}
 	]
 }
