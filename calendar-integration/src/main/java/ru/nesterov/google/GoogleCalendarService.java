@@ -16,6 +16,7 @@ import ru.nesterov.dto.Event;
 import ru.nesterov.dto.EventExtension;
 import ru.nesterov.service.CalendarService;
 
+import javax.annotation.Nullable;
 import java.io.FileInputStream;
 import java.time.Instant;
 import java.time.LocalDateTime;
@@ -63,15 +64,6 @@ public class GoogleCalendarService implements CalendarService {
         return convert(events.getItems());
     }
 
-    private EventExtension parseField(String description) {
-        try {
-            return objectMapper.readValue(description, EventExtension.class);
-        } catch (Exception e) {
-            log.trace("Не удалось считать EventExtension", e);
-            return new EventExtension();
-        }
-    }
-
     private List<Event> convert(List<com.google.api.services.calendar.model.Event> events) {
         return events.stream()
                 .map(event -> Event.builder()
@@ -79,9 +71,26 @@ public class GoogleCalendarService implements CalendarService {
                         .summary(event.getSummary())
                         .start(LocalDateTime.ofInstant(Instant.ofEpochMilli(event.getStart().getDateTime().getValue()), ZoneId.systemDefault()))
                         .end(LocalDateTime.ofInstant(Instant.ofEpochMilli(event.getEnd().getDateTime().getValue()), ZoneId.systemDefault()))
-                        .eventExtension(parseField(event.getDescription()))
+                        .eventExtension(buildEventExtension(event))
                         .build()
                 )
                 .toList();
+    }
+
+    @Nullable
+    private EventExtension buildEventExtension(com.google.api.services.calendar.model.Event event) {
+        log.trace("Сборка EventExtension для Event с названием [{}] and date [{}]", event.getSummary(), event.getStart());
+
+        if (event.getDescription() == null) {
+            log.trace("Event не содержит EventExtension");
+            return null;
+        }
+
+        try {
+            return objectMapper.readValue(event.getDescription(), EventExtension.class);
+        } catch (Exception e) {
+            log.trace("Не удалось собрать EventExtension, неверный формат", e);
+            return null;
+        }
     }
 }
