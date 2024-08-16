@@ -11,6 +11,7 @@ import ru.nesterov.service.client.ClientService;
 import ru.nesterov.controller.request.CreateClientRequest;
 import ru.nesterov.controller.response.CreateClientResponse;
 import ru.nesterov.mapper.ClientMapper;
+import ru.nesterov.service.dto.ClientDto;
 
 import java.util.List;
 
@@ -29,6 +30,8 @@ public class ClientController {
 
     @PostMapping("/createClient")
     public CreateClientResponse createClient(@RequestBody CreateClientRequest createClientRequest) {
-        return ClientMapper.mapToCreateClientResponse(clientService.createClient(ClientMapper.mapToClientDto(createClientRequest), createClientRequest.isIdGenerationNeeded()));
+        ClientDto clientDto = ClientMapper.mapToClientDto(createClientRequest);
+        ClientDto result = clientService.createClient(clientDto, createClientRequest.isIdGenerationNeeded());
+        return ClientMapper.mapToCreateClientResponse(result);
     }
 }

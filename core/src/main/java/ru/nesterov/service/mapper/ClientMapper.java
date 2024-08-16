@@ -21,6 +21,4 @@ public class ClientMapper {
         client.setPricePerHour(clientDto.getPricePerHour());
         return client;
     }
-
-
 }
