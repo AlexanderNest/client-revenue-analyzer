@@ -103,7 +103,7 @@
 				"header": [],
 				"body": {
 					"mode": "raw",
-					"raw": "{\n    \"clientName\": \"Иван\",\n    \"leftDate\": \"2023-10-01T10:00:00\",\n    \"rightDate\": \"2023-10-31T18:00:00\"\n}",
+					"raw": "{\n    \"clientName\": \"Клиент 1\",\n    \"leftDate\": \"2023-10-01T10:00:00\",\n    \"rightDate\": \"2023-10-31T18:00:00\"\n}",
 					"options": {
 						"raw": {
 							"language": "json"
@@ -120,6 +120,36 @@
 						"revenue-analyzer",
 						"client",
 						"getSchedule"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Неоплаченные встречи",
+			"request": {
+				"method": "POST",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n    \"start\" : \"2024-08-01T10:00:00\",\n    \"end\" : \"2024-08-16T10:00:00\"\n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "localhost:8080/revenue-analyzer/events/analyzer/getUnpaidEvents",
+					"host": [
+						"localhost"
+					],
+					"port": "8080",
+					"path": [
+						"revenue-analyzer",
+						"events",
+						"analyzer",
+						"getUnpaidEvents"
 					]
 				}
 			},
