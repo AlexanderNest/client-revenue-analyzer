@@ -28,7 +28,7 @@ public class ClientController {
                 .toList();
     }
 
-    @PostMapping("/createClient")
+    @PostMapping("/create")
     public CreateClientResponse createClient(@RequestBody CreateClientRequest createClientRequest) {
         ClientDto clientDto = ClientMapper.mapToClientDto(createClientRequest);
         ClientDto result = clientService.createClient(clientDto, createClientRequest.isIdGenerationNeeded());
