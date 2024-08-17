@@ -6,13 +6,12 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 import ru.nesterov.controller.request.GetForMonthRequest;
-import ru.nesterov.dto.Event;
+import ru.nesterov.controller.response.EventResponse;
 import ru.nesterov.service.event.EventsAnalyzerService;
 import ru.nesterov.service.dto.ClientMeetingsStatistic;
 import ru.nesterov.service.dto.EventStatus;
 import ru.nesterov.service.dto.IncomeAnalysisResult;
 
-import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Map;
 
@@ -38,7 +37,9 @@ public class EventsAnalyzerController {
     }
 
     @PostMapping("/getUnpaidEvents")
-    public List<Event> getUnpaidEvents() {
-        return eventsAnalyzerService.getUnpaidEvents();
+    public List<EventResponse> getUnpaidEvents() {
+        return eventsAnalyzerService.getUnpaidEvents().stream()
+                .map(event -> new EventResponse(event.getSummary(), event.getStart()))
+                .toList();
     }
 }

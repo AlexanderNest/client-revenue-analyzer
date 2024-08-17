@@ -27,6 +27,7 @@ public class EventsAnalyzerServiceImpl implements EventsAnalyzerService {
     private final CalendarService calendarService;
     private final ClientRepository clientRepository;
     private final EventStatusService eventStatusService;
+    private final EventsAnalyzerProperties eventsAnalyzerProperties;
 
     public Map<String, ClientMeetingsStatistic> getStatisticsOfEachClientMeetings(String monthName) {
         List<Event> events = getEventsByMonth(monthName);
@@ -103,7 +104,9 @@ public class EventsAnalyzerServiceImpl implements EventsAnalyzerService {
 
     @Override
     public List<Event> getUnpaidEvents() {
-        return getUnpaidEventsBetweenDates(null, LocalDateTime.now());
+        LocalDateTime currentDateTime = LocalDateTime.now();
+        LocalDateTime requiredDateTime = currentDateTime.minusDays(eventsAnalyzerProperties.getUnpaidEventsRange());
+        return getUnpaidEventsBetweenDates(requiredDateTime, LocalDateTime.now());
     }
 
     private double getEventDuration(Event event) {
