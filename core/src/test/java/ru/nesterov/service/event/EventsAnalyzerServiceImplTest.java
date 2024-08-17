@@ -1,10 +1,7 @@
 package ru.nesterov.service.event;
 
-import org.checkerframework.checker.units.qual.C;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
-import org.mockito.InjectMocks;
-import org.mockito.Mock;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
@@ -14,19 +11,11 @@ import ru.nesterov.dto.Event;
 import ru.nesterov.entity.Client;
 import ru.nesterov.google.GoogleCalendarService;
 import ru.nesterov.repository.ClientRepository;
-import ru.nesterov.service.CalendarService;
 import ru.nesterov.service.dto.EventStatus;
 import ru.nesterov.service.dto.IncomeAnalysisResult;
-import ru.nesterov.service.monthHelper.MonthDatesPair;
-import ru.nesterov.service.monthHelper.MonthHelper;
 import ru.nesterov.service.status.EventStatusServiceImpl;
-import ru.nesterov.service.status.EventStatusServiceTest;
 
-import java.time.LocalDate;
 import java.time.LocalDateTime;
-import java.time.YearMonth;
-import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
 
@@ -129,7 +118,7 @@ class EventsAnalyzerServiceImplTest {
     void getUnpaidEvents() {
         LocalDateTime start = LocalDateTime.of(2024, 8, 9, 22, 30);
         LocalDateTime end = LocalDateTime.of(2024, 8, 12, 23, 30);
-        List<Event> actual = eventsAnalyzerService.getUnpaidEvents(start, end);
+        List<Event> actual = eventsAnalyzerService.getUnpaidEventsBetweenDates(start, end);
         assertEquals(1, actual.size());
         assertEquals("6",actual.get(0).getColorId());
         assertEquals("testName",actual.get(0).getSummary());

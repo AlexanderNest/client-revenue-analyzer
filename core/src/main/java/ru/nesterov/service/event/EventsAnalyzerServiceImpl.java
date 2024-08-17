@@ -1,6 +1,7 @@
 package ru.nesterov.service.event;
 
 import lombok.RequiredArgsConstructor;
+import lombok.Value;
 import org.springframework.stereotype.Service;
 import ru.nesterov.entity.Client;
 import ru.nesterov.exception.AppException;
@@ -94,10 +95,15 @@ public class EventsAnalyzerServiceImpl implements EventsAnalyzerService {
     }
 
     @Override
-    public List<Event> getUnpaidEvents(LocalDateTime leftDate, LocalDateTime rightDate) {
+    public List<Event> getUnpaidEventsBetweenDates(LocalDateTime leftDate, LocalDateTime rightDate) {
         return calendarService.getEventsBetweenDates(leftDate, rightDate).stream()
                 .filter(event -> eventStatusService.getEventStatus(event.getColorId()) == EventStatus.PLANNED)
                 .toList();
+    }
+
+    @Override
+    public List<Event> getUnpaidEvents() {
+        return getUnpaidEventsBetweenDates(null, LocalDateTime.now());
     }
 
     private double getEventDuration(Event event) {
