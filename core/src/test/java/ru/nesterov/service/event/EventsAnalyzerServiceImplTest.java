@@ -25,6 +25,8 @@ import ru.nesterov.service.status.EventStatusServiceTest;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.YearMonth;
+import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
 
@@ -121,5 +123,17 @@ class EventsAnalyzerServiceImplTest {
         assertEquals(1, statuses.get(EventStatus.CANCELLED));
         assertEquals(1, statuses.get(EventStatus.PLANNED));
         assertEquals(1, statuses.get(EventStatus.REQUIRES_SHIFT));
+    }
+
+    @Test
+    void getUnpaidEvents() {
+        LocalDateTime start = LocalDateTime.of(2024, 8, 9, 22, 30);
+        LocalDateTime end = LocalDateTime.of(2024, 8, 12, 23, 30);
+        List<Event> actual = eventsAnalyzerService.getUnpaidEvents(start, end);
+        assertEquals(1, actual.size());
+        assertEquals("6",actual.get(0).getColorId());
+        assertEquals("testName",actual.get(0).getSummary());
+        assertEquals(LocalDateTime.of(2024, 8, 9, 22, 30), actual.get(0).getStart());
+        assertEquals(LocalDateTime.of(2024, 8, 9, 23, 30), actual.get(0).getEnd());
     }
 }

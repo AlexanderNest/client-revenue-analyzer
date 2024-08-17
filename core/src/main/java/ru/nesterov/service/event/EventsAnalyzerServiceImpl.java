@@ -93,6 +93,13 @@ public class EventsAnalyzerServiceImpl implements EventsAnalyzerService {
         return incomeAnalysisResult;
     }
 
+    @Override
+    public List<Event> getUnpaidEvents(LocalDateTime leftDate, LocalDateTime rightDate) {
+        return calendarService.getEventsBetweenDates(leftDate, rightDate).stream()
+                .filter(event -> eventStatusService.getEventStatus(event.getColorId()) == EventStatus.PLANNED)
+                .toList();
+    }
+
     private double getEventDuration(Event event) {
         Duration duration = Duration.between(event.getStart(), event.getEnd());
         return duration.toMinutes() / 60.0;
