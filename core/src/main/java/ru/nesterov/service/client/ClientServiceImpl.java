@@ -32,10 +32,7 @@ public class ClientServiceImpl implements ClientService {
     }
 
     @Override
-    public List<Client> getFilteredByPriceClients(int price) {
-        if (price == 0){
-            throw new RuntimeException("Данные не заполнены");
-        }
-        return null;
+    public List<Client> getFilteredByPriceClients(boolean active) {
+        return clientRepository.findClientByActiveOrderByPricePerHourDesc(active);
     }
 }

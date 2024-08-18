@@ -8,5 +8,5 @@ import java.util.List;
 
 public interface ClientService {
     List<MonthDatesPair> getClientSchedule(String clientName, LocalDateTime leftDate, LocalDateTime rightDate);
-    List<Client> getFilteredByPriceClients(int price);
+    List<Client> getFilteredByPriceClients(boolean active);
 }

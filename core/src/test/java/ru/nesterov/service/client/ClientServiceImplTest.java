@@ -151,4 +151,30 @@ public class ClientServiceImplTest {
         assertEquals(expected.size(), actual.size());
         assertTrue(actual.containsAll(expected));
     }
+    @Test
+    public void shouldReturnFilteredClients() {
+        Client client1 = new Client();
+        client1.setActive(true);
+        client1.setName("a");
+        client1.setDescription("aa");
+        client1.setPricePerHour(100);
+        Client client2 = new Client();
+        client2.setActive(true);
+        client2.setName("b");
+        client2.setDescription("bbb");
+        client2.setPricePerHour(200);
+        Client client3 = new Client();
+        client3.setActive(false);
+        client3.setName("c");
+        client3.setDescription("ccc");
+        client3.setPricePerHour(200);
+        List<Client> actual = clientService.getFilteredByPriceClients(true);
+        List<Client> expected = List.of(client1, client2);
+
+        validateClients(actual, expected);
+    }
+    private void validateClients(List<Client> actual, List<Client> expected) {
+        assertEquals(expected.size(), actual.size());
+        assertTrue(actual.containsAll(expected));
+    }
 }

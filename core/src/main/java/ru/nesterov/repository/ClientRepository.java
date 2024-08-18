@@ -5,8 +5,11 @@ import org.springframework.data.jpa.repository.Query;
 import org.springframework.stereotype.Repository;
 import ru.nesterov.entity.Client;
 
+import java.util.List;
+
 
 @Repository
 public interface ClientRepository extends JpaRepository<Client, Long> {
     Client findClientByName(String name);
+    List<Client> findClientByActiveOrderByPricePerHourDesc(boolean active);
 }
