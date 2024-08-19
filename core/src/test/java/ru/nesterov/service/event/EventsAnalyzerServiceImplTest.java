@@ -1,10 +1,7 @@
 package ru.nesterov.service.event;
 
-import org.checkerframework.checker.units.qual.C;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
-import org.mockito.InjectMocks;
-import org.mockito.Mock;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
@@ -14,17 +11,11 @@ import ru.nesterov.dto.Event;
 import ru.nesterov.entity.Client;
 import ru.nesterov.google.GoogleCalendarService;
 import ru.nesterov.repository.ClientRepository;
-import ru.nesterov.service.CalendarService;
 import ru.nesterov.service.dto.EventStatus;
 import ru.nesterov.service.dto.IncomeAnalysisResult;
-import ru.nesterov.service.monthHelper.MonthDatesPair;
-import ru.nesterov.service.monthHelper.MonthHelper;
 import ru.nesterov.service.status.EventStatusServiceImpl;
-import ru.nesterov.service.status.EventStatusServiceTest;
 
-import java.time.LocalDate;
 import java.time.LocalDateTime;
-import java.time.YearMonth;
 import java.util.List;
 import java.util.Map;
 
@@ -35,13 +26,15 @@ import static org.mockito.Mockito.when;
 @SpringBootTest
 @ContextConfiguration(classes = {
         EventsAnalyzerServiceImpl.class,
-        EventStatusServiceImpl.class
+        EventStatusServiceImpl.class,
+        EventsAnalyzerProperties.class
 })
 @TestPropertySource(properties = {
         "app.calendar.color.successful=1,2,3",
         "app.calendar.color.cancelled=4,5",
         "app.calendar.color.requires.shift=",
-        "app.calendar.color.planned=6"
+        "app.calendar.color.planned=6",
+        "app.analyzer.unpaid-events.range=365"
 })
 class EventsAnalyzerServiceImplTest {
     @Autowired
