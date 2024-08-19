@@ -140,7 +140,7 @@
 					}
 				},
 				"url": {
-					"raw": "http://localhost:8080/revenue-analyzer/client/createClient",
+					"raw": "http://localhost:8080/revenue-analyzer/client/create",
 					"host": [
 						"localhost"
 					],
@@ -148,7 +148,7 @@
 					"path": [
 						"revenue-analyzer",
 						"client",
-						"createClient"
+						"create"
 					]
 				}
 			},
