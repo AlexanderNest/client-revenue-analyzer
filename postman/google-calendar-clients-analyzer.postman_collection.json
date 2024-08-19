@@ -128,17 +128,8 @@
 		{
 			"name": "Неоплаченные встречи",
 			"request": {
-				"method": "POST",
+				"method": "GET",
 				"header": [],
-				"body": {
-					"mode": "raw",
-					"raw": "{\n    \"start\" : \"2024-08-01T10:00:00\",\n    \"end\" : \"2024-08-16T10:00:00\"\n}",
-					"options": {
-						"raw": {
-							"language": "json"
-						}
-					}
-				},
 				"url": {
 					"raw": "localhost:8080/revenue-analyzer/events/analyzer/getUnpaidEvents",
 					"host": [

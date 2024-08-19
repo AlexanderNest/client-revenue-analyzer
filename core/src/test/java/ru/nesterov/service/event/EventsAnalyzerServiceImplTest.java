@@ -26,13 +26,15 @@ import static org.mockito.Mockito.when;
 @SpringBootTest
 @ContextConfiguration(classes = {
         EventsAnalyzerServiceImpl.class,
-        EventStatusServiceImpl.class
+        EventStatusServiceImpl.class,
+        EventsAnalyzerProperties.class
 })
 @TestPropertySource(properties = {
         "app.calendar.color.successful=1,2,3",
         "app.calendar.color.cancelled=4,5",
         "app.calendar.color.requires.shift=",
-        "app.calendar.color.planned=6"
+        "app.calendar.color.planned=6",
+        "app.analyzer.unpaid-events.range=365"
 })
 class EventsAnalyzerServiceImplTest {
     @Autowired

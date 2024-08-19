@@ -1,6 +1,5 @@
 package ru.nesterov.controller.response;
 
-import lombok.Data;
 import lombok.Value;
 
 import java.time.LocalDateTime;
