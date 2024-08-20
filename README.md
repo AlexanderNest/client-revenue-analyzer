@@ -13,3 +13,7 @@
 5. В настройке `app.calendar.serviceAccountFileName` указать путь к этому файлу.
 6. Добавить непосредственно в календаре сервисный аккаунт в список тех, кому доступен выбранный календарь, выдав полные права доступа. Делается это в настройках календаря. E-mail сервисного аккаунта взять из Cloud Console.
 7. В настройке `app.calendar.calendarId` указать ID календаря, к которому требуется получить доступ.
+
+
+## Запуск приложения
+1. При запуске передать со своими значениями в VM options -Dapp.google.calendar.service-account-file-path=oauth.json -Dapp.google.calendar.calendar-id=calendar-id
