@@ -1,4 +1,4 @@
-package ru.nesterov.bot.handlers;
+package ru.nesterov.bot.handlers.callback;
 
 import lombok.Data;
 

@@ -1,10 +1,9 @@
-package ru.nesterov.bot.handlers;
+package ru.nesterov.bot.handlers.implementation;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.RequiredArgsConstructor;
 import lombok.SneakyThrows;
 import org.springframework.stereotype.Component;
-import org.telegram.telegrambots.meta.api.methods.AnswerCallbackQuery;
 import org.telegram.telegrambots.meta.api.methods.BotApiMethod;
 import org.telegram.telegrambots.meta.api.methods.send.SendMessage;
 import org.telegram.telegrambots.meta.api.objects.CallbackQuery;
@@ -13,9 +12,13 @@ import org.telegram.telegrambots.meta.api.objects.Update;
 import org.telegram.telegrambots.meta.api.objects.replykeyboard.InlineKeyboardMarkup;
 import org.telegram.telegrambots.meta.api.objects.replykeyboard.buttons.InlineKeyboardButton;
 import ru.nesterov.bot.ClientRevenueAnalyzerIntegrationClient;
+import ru.nesterov.bot.handlers.AbstractHandler;
+import ru.nesterov.bot.handlers.callback.GetMonthStatisticsKeyboardCallback;
 import ru.nesterov.dto.GetIncomeAnalysisForMonthResponse;
+import ru.nesterov.utils.MonthUtil;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 
 @Component
@@ -24,6 +27,15 @@ public class GetMonthStatisticsHandler extends AbstractHandler {
     private final ObjectMapper objectMapper;
     private final ClientRevenueAnalyzerIntegrationClient client;
 
+    private static final String[] months = {
+            "Январь", "Февраль",
+            "Март", "Апрель", "Май",
+            "Июнь", "Июль", "Август",
+            "Сентябрь", "Октябрь", "Ноябрь",
+            "Декабрь"
+    };
+
+    private static final String markSymbol = "\u2B50";
 
     @Override
     public BotApiMethod<?> handle(Update update) {
@@ -34,7 +46,6 @@ public class GetMonthStatisticsHandler extends AbstractHandler {
             sendMessage = sendMonthKeyboard(update.getMessage().getChatId());
         }
 
-
         return sendMessage;
     }
 
@@ -42,7 +53,7 @@ public class GetMonthStatisticsHandler extends AbstractHandler {
     private BotApiMethod<?> sendMonthStatistics(Update update) {
         CallbackQuery callbackQuery = update.getCallbackQuery();
         GetMonthStatisticsKeyboardCallback callback = objectMapper.readValue(callbackQuery.getData(), GetMonthStatisticsKeyboardCallback.class);
-        GetIncomeAnalysisForMonthResponse response = client.getIncomeAnalysisForMonth(callback.getValue());
+        GetIncomeAnalysisForMonthResponse response = client.getIncomeAnalysisForMonth(clearFromMark(callback.getValue()));
 
         return getPlainSendMessage(update.getCallbackQuery().getMessage().getChatId(), formatIncomeAnalysis(response));
     }
@@ -52,14 +63,12 @@ public class GetMonthStatisticsHandler extends AbstractHandler {
         double expectedIncome = response.getExpectedIncoming();
         double lostIncome = response.getLostIncome();
 
-        StringBuilder sb = new StringBuilder();
-        sb.append("Анализ доходов за текущий месяц:\n\n");
+        String sb = "Анализ доходов за текущий месяц:\n\n" +
+                String.format("✅      Фактический доход: %.2f ₽\n", actualIncome) +
+                String.format("🔮      Ожидаемый доход: %.2f ₽\n", expectedIncome) +
+                String.format("⚠️      Потерянный доход: %.2f ₽\n", lostIncome);
 
-        sb.append(String.format("✅      Фактический доход: %.2f ₽\n", actualIncome));
-        sb.append(String.format("🔮      Ожидаемый доход: %.2f ₽\n", expectedIncome));
-        sb.append(String.format("⚠️      Потерянный доход: %.2f ₽\n", lostIncome));
-
-        return sb.toString();
+        return sb;
     }
 
     @SneakyThrows
@@ -71,18 +80,14 @@ public class GetMonthStatisticsHandler extends AbstractHandler {
         InlineKeyboardMarkup keyboardMarkup = new InlineKeyboardMarkup();
         List<List<InlineKeyboardButton>> keyboard = new ArrayList<>();
 
-        // Массив с названиями месяцев
-        String[] months = {"\u2B50 Январь", "Февраль", "Март", "Апрель", "Май", "Июнь",
-                "Июль", "Август", "Сентябрь", "Октябрь", "Ноябрь", "Декабрь"};
-
-        // Создание строк с кнопками
-        for (int i = 0; i < months.length; i += 3) {
+        String[] monthsWithMark = getArrayWithCurrentMonthMark();
+        for (int i = 0; i < monthsWithMark.length; i += 3) {
             List<InlineKeyboardButton> row = new ArrayList<>();
-            for (int j = i; j < i + 3 && j < months.length; j++) {
+            for (int j = i; j < i + 3 && j < monthsWithMark.length; j++) {
                 InlineKeyboardButton button = new InlineKeyboardButton();
-                button.setText(months[j]);
+                button.setText(monthsWithMark[j]);
                 GetMonthStatisticsKeyboardCallback callback = new GetMonthStatisticsKeyboardCallback();
-                callback.setValue(months[j].replace("\u2B50 ", ""));
+                callback.setValue(clearFromMark(monthsWithMark[j]));
                 callback.setCommand("/monthincome");
                 button.setCallbackData(objectMapper.writeValueAsString(callback));
                 row.add(button);
@@ -94,6 +99,19 @@ public class GetMonthStatisticsHandler extends AbstractHandler {
         message.setReplyMarkup(keyboardMarkup);
 
         return message;
+    }
+
+    private String clearFromMark(String string) {
+        return string.replace(markSymbol, "");
+    }
+
+    private String[] getArrayWithCurrentMonthMark() {
+        String[] copy = Arrays.copyOf(months, months.length);
+
+        int currentMonth = MonthUtil.getCurrentMonth();
+        copy[currentMonth] = markSymbol + copy[currentMonth];
+
+        return copy;
     }
 
     @Override
