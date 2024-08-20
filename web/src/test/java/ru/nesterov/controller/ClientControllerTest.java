@@ -23,14 +23,14 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 @SpringBootTest
 @Transactional
 class ClientControllerTest {
-    private static final String CREATE_CLIENT_URL = "/client/create";
     @Autowired
     private MockMvc mockMvc;
-
     @Autowired
     private ObjectMapper objectMapper;
     @MockBean
     private GoogleCalendarService googleCalendarService;
+
+    private static final String CREATE_CLIENT_URL = "/client/create";
 
 
     @Test
