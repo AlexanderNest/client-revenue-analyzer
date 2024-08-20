@@ -103,7 +103,7 @@
 				"header": [],
 				"body": {
 					"mode": "raw",
-					"raw": "{\n    \"clientName\": \"Иван\",\n    \"leftDate\": \"2023-10-01T10:00:00\",\n    \"rightDate\": \"2023-10-31T18:00:00\"\n}",
+					"raw": "{\n    \"clientName\": \"Клиент 1\",\n    \"leftDate\": \"2023-10-01T10:00:00\",\n    \"rightDate\": \"2023-10-31T18:00:00\"\n}",
 					"options": {
 						"raw": {
 							"language": "json"
@@ -126,29 +126,21 @@
 			"response": []
 		},
 		{
-			"name": "Создать клиента",
+			"name": "Неоплаченные встречи",
 			"request": {
-				"method": "POST",
+				"method": "GET",
 				"header": [],
-				"body": {
-					"mode": "raw",
-					"raw": "{\n    \"name\": \"Ivan\",\n    \"description\": \"description\",\n    \"pricePerHour\": 2000,\n    \"idGenerationNeeded\": true\n}",
-					"options": {
-						"raw": {
-							"language": "json"
-						}
-					}
-				},
 				"url": {
-					"raw": "http://localhost:8080/revenue-analyzer/client/create",
+					"raw": "localhost:8080/revenue-analyzer/events/analyzer/getUnpaidEvents",
 					"host": [
 						"localhost"
 					],
 					"port": "8080",
 					"path": [
 						"revenue-analyzer",
-						"client",
-						"create"
+						"events",
+						"analyzer",
+						"getUnpaidEvents"
 					]
 				}
 			},
