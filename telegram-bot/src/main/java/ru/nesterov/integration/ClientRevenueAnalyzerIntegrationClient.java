@@ -1,6 +1,7 @@
 package ru.nesterov.integration;
 
 import lombok.RequiredArgsConstructor;
+import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.stereotype.Component;
 import org.springframework.web.client.RestTemplate;
 import ru.nesterov.dto.GetForMonthRequest;
@@ -9,6 +10,7 @@ import ru.nesterov.properties.RevenueAnalyzerProperties;
 
 @Component
 @RequiredArgsConstructor
+@ConditionalOnProperty("bot.enabled")
 public class ClientRevenueAnalyzerIntegrationClient {
     private final RestTemplate restTemplate;
     private final RevenueAnalyzerProperties revenueAnalyzerProperties;

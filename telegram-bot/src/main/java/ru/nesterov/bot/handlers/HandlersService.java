@@ -4,6 +4,7 @@ import jakarta.annotation.Nullable;
 import jakarta.annotation.PostConstruct;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.stereotype.Component;
 import org.telegram.telegrambots.meta.api.objects.Update;
 import ru.nesterov.bot.handlers.implementation.GetMonthStatisticsHandler;
@@ -14,6 +15,7 @@ import java.util.List;
 @Component
 @Slf4j
 @RequiredArgsConstructor
+@ConditionalOnProperty("bot.enabled")
 public class HandlersService {
     private final GetMonthStatisticsHandler getMonthStatisticsHandler;
 
