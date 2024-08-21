@@ -23,6 +23,7 @@
         <module>calendar-integration</module>
         <module>web</module>
         <module>commons</module>
+        <module>telegram-bot</module>
     </modules>
     <properties>
         <java.version>17</java.version>
