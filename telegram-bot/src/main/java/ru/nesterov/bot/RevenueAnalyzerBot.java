@@ -8,18 +8,18 @@ import org.telegram.telegrambots.meta.api.objects.Update;
 import org.telegram.telegrambots.meta.exceptions.TelegramApiException;
 import ru.nesterov.bot.handlers.CommandHandler;
 import ru.nesterov.bot.handlers.HandlersService;
+import ru.nesterov.properties.BotProperties;
 
 @Service
 @Slf4j
 public class RevenueAnalyzerBot extends TelegramLongPollingBot {
-    private final ClientRevenueAnalyzerIntegrationClient client;
-
     private final HandlersService handlersService;
+    private final BotProperties botProperties;
 
-    public RevenueAnalyzerBot(ClientRevenueAnalyzerIntegrationClient client, HandlersService handlersService) {
-        super("7377383101:AAGq1kkEcnqsL1xkUN-u4A4SxMKlCEQ1cv4");
-        this.client = client;
+    public RevenueAnalyzerBot(BotProperties botProperties, HandlersService handlersService) {
+        super(botProperties.getApiToken());
         this.handlersService = handlersService;
+        this.botProperties = botProperties;
     }
 
     @Override
@@ -36,7 +36,7 @@ public class RevenueAnalyzerBot extends TelegramLongPollingBot {
 
     @Override
     public String getBotUsername() {
-        return "analyzer bot";
+        return botProperties.getUsername();
     }
 
     private void sendMessage(BotApiMethod<?> message) {

@@ -11,10 +11,10 @@ import org.telegram.telegrambots.meta.api.objects.Message;
 import org.telegram.telegrambots.meta.api.objects.Update;
 import org.telegram.telegrambots.meta.api.objects.replykeyboard.InlineKeyboardMarkup;
 import org.telegram.telegrambots.meta.api.objects.replykeyboard.buttons.InlineKeyboardButton;
-import ru.nesterov.bot.ClientRevenueAnalyzerIntegrationClient;
 import ru.nesterov.bot.handlers.AbstractHandler;
 import ru.nesterov.bot.handlers.callback.GetMonthStatisticsKeyboardCallback;
 import ru.nesterov.dto.GetIncomeAnalysisForMonthResponse;
+import ru.nesterov.integration.ClientRevenueAnalyzerIntegrationClient;
 import ru.nesterov.utils.MonthUtil;
 
 import java.util.ArrayList;
@@ -63,12 +63,10 @@ public class GetMonthStatisticsHandler extends AbstractHandler {
         double expectedIncome = response.getExpectedIncoming();
         double lostIncome = response.getLostIncome();
 
-        String sb = "Анализ доходов за текущий месяц:\n\n" +
+        return "Анализ доходов за текущий месяц:\n\n" +
                 String.format("✅      Фактический доход: %.2f ₽\n", actualIncome) +
                 String.format("🔮      Ожидаемый доход: %.2f ₽\n", expectedIncome) +
                 String.format("⚠️      Потерянный доход: %.2f ₽\n", lostIncome);
-
-        return sb;
     }
 
     @SneakyThrows
