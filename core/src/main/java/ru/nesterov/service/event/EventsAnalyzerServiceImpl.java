@@ -1,11 +1,11 @@
 package ru.nesterov.service.event;
 
 import lombok.RequiredArgsConstructor;
-import lombok.Value;
 import org.springframework.stereotype.Service;
 import ru.nesterov.entity.Client;
 import ru.nesterov.exception.AppException;
 import ru.nesterov.repository.ClientRepository;
+import ru.nesterov.service.CalendarService;
 import ru.nesterov.service.dto.ClientMeetingsStatistic;
 import ru.nesterov.service.dto.EventStatus;
 import ru.nesterov.service.dto.IncomeAnalysisResult;
@@ -13,7 +13,7 @@ import ru.nesterov.service.monthHelper.MonthDatesPair;
 import ru.nesterov.service.monthHelper.MonthHelper;
 import ru.nesterov.service.status.EventStatusService;
 import ru.nesterov.dto.Event;
-import ru.nesterov.service.CalendarService;
+import ru.nesterov.service.CalendarClient;
 
 import java.time.Duration;
 import java.time.LocalDateTime;

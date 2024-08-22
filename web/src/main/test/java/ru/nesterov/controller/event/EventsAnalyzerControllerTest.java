@@ -11,7 +11,7 @@ import org.springframework.test.web.servlet.MockMvc;
 import ru.nesterov.dto.Event;
 import ru.nesterov.entity.Client;
 import ru.nesterov.repository.ClientRepository;
-import ru.nesterov.service.CalendarService;
+import ru.nesterov.service.CalendarClient;
 
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
@@ -32,7 +32,7 @@ class EventsAnalyzerControllerTest {
     @MockBean
     private ClientRepository clientRepository;
     @MockBean
-    private CalendarService calendarService;
+    private CalendarClient calendarService;
 
 
     @BeforeEach

@@ -10,7 +10,7 @@ import ru.nesterov.dto.Event;
 import ru.nesterov.entity.Client;
 import ru.nesterov.exception.AppException;
 import ru.nesterov.repository.ClientRepository;
-import ru.nesterov.service.CalendarService;
+import ru.nesterov.service.CalendarClient;
 import ru.nesterov.service.monthHelper.MonthDatesPair;
 
 import java.time.LocalDateTime;
@@ -30,7 +30,7 @@ public class ClientServiceImplTest {
     @MockBean
     private ClientRepository clientRepository;
     @MockBean
-    private CalendarService calendarService;
+    private CalendarClient calendarService;
 
     @BeforeEach
     public void init() {

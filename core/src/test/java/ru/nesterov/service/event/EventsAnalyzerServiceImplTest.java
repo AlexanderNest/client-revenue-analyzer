@@ -9,6 +9,7 @@ import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.TestPropertySource;
 import ru.nesterov.dto.Event;
 import ru.nesterov.entity.Client;
+import ru.nesterov.google.GoogleCalendarClient;
 import ru.nesterov.google.GoogleCalendarService;
 import ru.nesterov.repository.ClientRepository;
 import ru.nesterov.service.dto.EventStatus;
@@ -30,7 +31,7 @@ import static org.mockito.Mockito.when;
         EventsAnalyzerProperties.class
 })
 @TestPropertySource(properties = {
-        "app.calendar.color.successful=1,2,3",
+        "app.google.calendar.cancelled-calendar-enabled",
         "app.calendar.color.cancelled=4,5",
         "app.calendar.color.requires.shift=",
         "app.calendar.color.planned=6",

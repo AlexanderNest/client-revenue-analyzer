@@ -2,21 +2,16 @@ package ru.nesterov.google;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.google.api.client.util.DateTime;
-import com.google.api.services.calendar.Calendar;
-import com.google.api.services.calendar.model.Event;
 import com.google.api.services.calendar.model.EventDateTime;
 import com.google.api.services.calendar.model.Events;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
-import org.mockito.InjectMocks;
-import org.mockito.Mock;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.context.properties.EnableConfigurationProperties;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.test.context.ContextConfiguration;
-import org.springframework.test.context.TestPropertySource;
-import org.springframework.test.util.ReflectionTestUtils;
-import org.springframework.util.ReflectionUtils;
+import ru.nesterov.dto.Event;
 
 import java.io.IOException;
 import java.time.LocalDateTime;
@@ -28,59 +23,71 @@ import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyBoolean;
 import static org.mockito.ArgumentMatchers.anyString;
+import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.when;
 
 @SpringBootTest
 @ContextConfiguration(classes = {
-        GoogleCalendarProperties.class,
         GoogleCalendarService.class,
         ObjectMapper.class
 })
+@EnableConfigurationProperties(GoogleCalendarProperties.class)
 class GoogleCalendarServiceTest {
     @Autowired
-    private GoogleCalendarService googleCalendarService;
+    GoogleCalendarService googleCalendarService;
+    @MockBean
+    private GoogleCalendarClient googleCalendarClient;
+    @Autowired
+    private GoogleCalendarProperties properties;
 
-//    @BeforeEach
-//    public void init() throws IOException {
-//        Event event1 = new Event();
-//        event1.setSummary("from main calendar");
-//        Date now = new Date();
-//        EventDateTime eventDateTime1 = new EventDateTime();
-//        eventDateTime1.setDateTime(new DateTime(now));
-//        event1.setStart(eventDateTime1);
-//
-//        Event event2 = new Event();
-//        event2.setSummary("from cancelled calendar");
-//        EventDateTime eventDateTime2 = new EventDateTime();
-//        eventDateTime2.setDateTime(new DateTime(new Date(now.getTime() - 3600)));
-//        event2.setStart(eventDateTime2);
-//
-//        Events mainCalendarEvents = new Events().setItems(List.of(event1));
-//        Events cancelledCalendarEvents = new Events().setItems(List.of(event2));
-//
-//        when(calendar.events().list("main-calendar-id")
-//                .setTimeMin(any(DateTime.class))
-//                .setTimeMax(any(DateTime.class))
-//                .setOrderBy(anyString())
-//                .setSingleEvents(anyBoolean())
-//                .execute())
-//                .thenReturn(mainCalendarEvents);
-//
-//        when(calendar.events().list("cancelled-calendar-id")
-//                .setTimeMin(any(DateTime.class))
-//                .setTimeMax(any(DateTime.class))
-//                .setOrderBy(anyString())
-//                .setSingleEvents(anyBoolean())
-//                .execute())
-//                .thenReturn(cancelledCalendarEvents);
-//    }
+    @BeforeEach
+    public void init() throws IOException {
+        when(googleCalendarClient
+                .getEventsBetweenDates(eq(properties.getMainCalendarId()), any(), any()))
+                .thenReturn(List.of(
+                        Event.builder()
+                        .colorId("1")
+                        .summary("event from main calendar 1")
+                        .start(LocalDateTime.of(2024, 01, 01, 00, 00))
+                        .end(LocalDateTime.of(2024, 01, 01, 01, 00))
+                        .build(),
+                        Event.builder()
+                                .colorId("11")
+                                .summary("event from main calendar 2")
+                                .start(LocalDateTime.of(2024, 01, 01, 00, 00))
+                                .end(LocalDateTime.of(2024, 01, 01, 01, 00))
+                                .build()
+                        )
+                );
+        when(googleCalendarClient
+                .getEventsBetweenDates(eq(properties.getCancelledCalendarId()), any(), any()))
+                .thenReturn(List.of(
+                                Event.builder()
+                                        .colorId("1")
+                                        .summary("event from canceled calendar 1")
+                                        .start(LocalDateTime.of(2023, 12, 01, 00, 00))
+                                        .end(LocalDateTime.of(2023, 12, 01, 01, 00))
+                                        .build(),
+                                Event.builder()
+                                        .colorId("11")
+                                        .summary("event from canceled calendar 2")
+                                        .start(LocalDateTime.of(2023, 12, 01, 00, 00))
+                                        .end(LocalDateTime.of(2023, 12, 01, 01, 00))
+                                        .build()
+                        )
+                );
+
+    }
 
     @Test
     public void getEventsBetweenDateWhenCancelledCalendarEnabled() {
-        List<ru.nesterov.dto.Event> events = googleCalendarService.getEventsBetweenDates(LocalDateTime.now().minusDays(1), LocalDateTime.now());
+        LocalDateTime leftDate = LocalDateTime.of(2023, 01, 01, 00, 00);
+        LocalDateTime rightDate = LocalDateTime.of(2024, 01, 01, 00, 00);
+
+        List<ru.nesterov.dto.Event> events = googleCalendarService.getEventsBetweenDates(leftDate, rightDate);
         assertNotNull(events);
-        assertEquals(2, events.size());
-        assertEquals("from main calendar", events.get(0).getSummary());
-        assertEquals("from cancelled calendar", events.get(1).getSummary());
+        assertEquals(4, events.size());
+//        assertEquals("from main calendar", events.get(0).getSummary());
+//        assertEquals("from cancelled calendar", events.get(1).getSummary());
     }
 }

@@ -6,7 +6,7 @@ import ru.nesterov.dto.Event;
 import ru.nesterov.entity.Client;
 import ru.nesterov.exception.AppException;
 import ru.nesterov.repository.ClientRepository;
-import ru.nesterov.service.CalendarService;
+import ru.nesterov.service.CalendarClient;
 import ru.nesterov.service.monthHelper.MonthDatesPair;
 
 import java.time.LocalDateTime;
@@ -15,7 +15,7 @@ import java.util.List;
 @Service
 @RequiredArgsConstructor
 public class ClientServiceImpl implements ClientService {
-    private final CalendarService calendarService;
+    private final CalendarClient calendarService;
     private final ClientRepository clientRepository;
 
     public List<MonthDatesPair> getClientSchedule(String clientName, LocalDateTime leftDate, LocalDateTime rightDate) {
