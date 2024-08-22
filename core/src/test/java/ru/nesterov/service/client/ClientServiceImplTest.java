@@ -10,7 +10,7 @@ import ru.nesterov.dto.Event;
 import ru.nesterov.entity.Client;
 import ru.nesterov.exception.AppException;
 import ru.nesterov.repository.ClientRepository;
-import ru.nesterov.service.CalendarClient;
+import ru.nesterov.service.CalendarService;
 import ru.nesterov.service.monthHelper.MonthDatesPair;
 
 import java.time.LocalDateTime;
@@ -19,7 +19,6 @@ import java.util.List;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
-import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.when;
 
 @SpringBootTest
@@ -30,7 +29,7 @@ public class ClientServiceImplTest {
     @MockBean
     private ClientRepository clientRepository;
     @MockBean
-    private CalendarClient calendarService;
+    private CalendarService calendarService;
 
     @BeforeEach
     public void init() {
