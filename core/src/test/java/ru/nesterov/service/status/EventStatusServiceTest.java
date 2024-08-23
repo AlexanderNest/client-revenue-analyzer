@@ -4,7 +4,6 @@ import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.test.context.ContextConfiguration;
-import org.springframework.test.context.TestPropertySource;
 import ru.nesterov.service.dto.EventStatus;
 
 import java.util.ArrayList;
@@ -15,12 +14,6 @@ import static org.junit.jupiter.api.Assertions.assertThrows;
 
 @SpringBootTest
 @ContextConfiguration(classes = EventStatusServiceImpl.class)
-@TestPropertySource(properties = {
-        "app.calendar.color.successful=1,2,3",
-        "app.calendar.color.cancelled=4,5",
-        "app.calendar.color.requires.shift=",
-        "app.calendar.color.planned=6"
-})
 public class EventStatusServiceTest {
     @Autowired
     private EventStatusServiceImpl eventStatusService;
