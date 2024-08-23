@@ -8,6 +8,7 @@ import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.TestPropertySource;
 import ru.nesterov.dto.Event;
+import ru.nesterov.dto.EventExtension;
 import ru.nesterov.entity.Client;
 import ru.nesterov.google.GoogleCalendarService;
 import ru.nesterov.repository.ClientRepository;
@@ -27,7 +28,8 @@ import static org.mockito.Mockito.when;
 @ContextConfiguration(classes = {
         EventsAnalyzerServiceImpl.class,
         EventStatusServiceImpl.class,
-        EventsAnalyzerProperties.class
+        EventsAnalyzerProperties.class,
+        EventService.class
 })
 @TestPropertySource(properties = {
         "app.calendar.color.successful=1,2,3",
@@ -39,11 +41,15 @@ import static org.mockito.Mockito.when;
 class EventsAnalyzerServiceImplTest {
     @Autowired
     private EventsAnalyzerServiceImpl eventsAnalyzerService;
+    @Autowired
+    private EventService eventService;
 
     @MockBean
     private ClientRepository clientRepository;
     @MockBean
     private GoogleCalendarService googleCalendarService;
+
+
 
     @BeforeEach
     public void init() {
@@ -91,7 +97,17 @@ class EventsAnalyzerServiceImplTest {
                 .end(end)
                 .build();
 
-        when(googleCalendarService.getEventsBetweenDates(any(), any())).thenReturn(List.of(event1, event2, event3, event4, event5));
+        EventExtension eventExtension = new EventExtension();
+        eventExtension.setIncome(2500);
+        Event event6 = Event.builder()
+                .summary("testName")
+                .start(start)
+                .end(end)
+                .eventExtension(eventExtension)
+                .colorId("1")
+                .build();
+
+        when(googleCalendarService.getEventsBetweenDates(any(), any())).thenReturn(List.of(event1, event2, event3, event4, event5, event6));
     }
 
     @Test
@@ -102,15 +118,15 @@ class EventsAnalyzerServiceImplTest {
     void getIncomeAnalysisByMonth() {
         IncomeAnalysisResult incomeAnalysisResult = eventsAnalyzerService.getIncomeAnalysisByMonth("august");
         assertEquals(1000, incomeAnalysisResult.getLostIncome());
-        assertEquals(2000, incomeAnalysisResult.getActualIncome());
-        assertEquals(5000, incomeAnalysisResult.getExpectedIncoming());
+        assertEquals(4500, incomeAnalysisResult.getActualIncome());
+        assertEquals(7500, incomeAnalysisResult.getExpectedIncoming());
     }
 
     @Test
     void getEventStatusesByMonthName() {
         Map<EventStatus, Integer> statuses = eventsAnalyzerService.getEventStatusesByMonthName("august");
         assertEquals(4, statuses.size());
-        assertEquals(2, statuses.get(EventStatus.SUCCESS));
+        assertEquals(3, statuses.get(EventStatus.SUCCESS));
         assertEquals(1, statuses.get(EventStatus.CANCELLED));
         assertEquals(1, statuses.get(EventStatus.PLANNED));
         assertEquals(1, statuses.get(EventStatus.REQUIRES_SHIFT));

@@ -1,7 +1,8 @@
 package ru.nesterov.service.event;
 
 import lombok.RequiredArgsConstructor;
-import lombok.Value;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
 import ru.nesterov.entity.Client;
 import ru.nesterov.exception.AppException;
@@ -28,6 +29,8 @@ public class EventsAnalyzerServiceImpl implements EventsAnalyzerService {
     private final ClientRepository clientRepository;
     private final EventStatusService eventStatusService;
     private final EventsAnalyzerProperties eventsAnalyzerProperties;
+    private final EventService eventService;
+    private final Logger logger = LoggerFactory.getLogger(EventsAnalyzerServiceImpl.class);
 
     public Map<String, ClientMeetingsStatistic> getStatisticsOfEachClientMeetings(String monthName) {
         List<Event> events = getEventsByMonth(monthName);
@@ -46,7 +49,7 @@ public class EventsAnalyzerServiceImpl implements EventsAnalyzerService {
                 clientMeetingsStatistic = new ClientMeetingsStatistic(client.getPricePerHour());
             }
 
-            double eventDuration = getEventDuration(event);
+            double eventDuration = eventService.getEventDuration(event);
             if (eventStatus == EventStatus.SUCCESS) {
                 clientMeetingsStatistic.increaseSuccessful(eventDuration);
             } else if (eventStatus == EventStatus.CANCELLED) {
@@ -69,13 +72,7 @@ public class EventsAnalyzerServiceImpl implements EventsAnalyzerService {
         for (Event event : events) {
             EventStatus eventStatus = eventStatusService.getEventStatus(event.getColorId());
 
-            Client client = clientRepository.findClientByName(event.getSummary());
-            if (client == null) {
-                throw new AppException("Пользователь с именем '" + event.getSummary() + "' от даты " + event.getStart() + " не найден в базе");
-            }
-
-            double eventPrice = getEventDuration(event) * client.getPricePerHour();
-
+            double eventPrice = eventService.getEventIncome(event);
             expectedIncome += eventPrice;
 
             if (eventStatus == EventStatus.SUCCESS) {
@@ -108,12 +105,6 @@ public class EventsAnalyzerServiceImpl implements EventsAnalyzerService {
         LocalDateTime requiredDateTime = currentDateTime.minusDays(eventsAnalyzerProperties.getUnpaidEventsRange());
         return getUnpaidEventsBetweenDates(requiredDateTime, LocalDateTime.now());
     }
-
-    private double getEventDuration(Event event) {
-        Duration duration = Duration.between(event.getStart(), event.getEnd());
-        return duration.toMinutes() / 60.0;
-    }
-
 
     public Map<EventStatus, Integer> getEventStatusesByMonthName(String monthName) {
         MonthDatesPair monthDatesPair = MonthHelper.getFirstAndLastDayOfMonth(monthName);
