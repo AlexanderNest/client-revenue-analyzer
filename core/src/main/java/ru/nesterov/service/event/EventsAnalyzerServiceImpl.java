@@ -1,19 +1,18 @@
 package ru.nesterov.service.event;
 
 import lombok.RequiredArgsConstructor;
-import lombok.Value;
 import org.springframework.stereotype.Service;
+import ru.nesterov.dto.Event;
 import ru.nesterov.entity.Client;
 import ru.nesterov.exception.AppException;
 import ru.nesterov.repository.ClientRepository;
+import ru.nesterov.service.CalendarService;
 import ru.nesterov.service.dto.ClientMeetingsStatistic;
 import ru.nesterov.service.dto.EventStatus;
 import ru.nesterov.service.dto.IncomeAnalysisResult;
 import ru.nesterov.service.monthHelper.MonthDatesPair;
 import ru.nesterov.service.monthHelper.MonthHelper;
 import ru.nesterov.service.status.EventStatusService;
-import ru.nesterov.dto.Event;
-import ru.nesterov.service.CalendarService;
 
 import java.time.Duration;
 import java.time.LocalDateTime;
@@ -98,7 +97,10 @@ public class EventsAnalyzerServiceImpl implements EventsAnalyzerService {
     @Override
     public List<Event> getUnpaidEventsBetweenDates(LocalDateTime leftDate, LocalDateTime rightDate) {
         return calendarService.getEventsBetweenDates(leftDate, rightDate).stream()
-                .filter(event -> eventStatusService.getEventStatus(event.getColorId()) == EventStatus.PLANNED)
+                .filter(event -> {
+                    EventStatus eventStatus = eventStatusService.getEventStatus(event.getColorId());
+                    return eventStatus == EventStatus.PLANNED || eventStatus == EventStatus.REQUIRES_SHIFT;
+                })
                 .toList();
     }
 
