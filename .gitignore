@@ -33,5 +33,7 @@ build/
 .vscode/
 /data/google_calendar_clients_analyzer.mv.db
 /data/google_calendar_clients_analyzer.trace.db
+/personalData/
+/data/
 /data/
 /core/data/
