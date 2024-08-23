@@ -50,35 +50,35 @@ class EventsAnalyzerServiceImplTest {
 
         Event event1 = Event.builder()
                 .summary("testName")
-                .colorId("1")
+                .colorId("2")
                 .start(start)
                 .end(end)
                 .build();
 
         Event event2 = Event.builder()
                 .summary("testName")
-                .colorId("1")
+                .colorId("10")
                 .start(start)
                 .end(end)
                 .build();
 
         Event event3 = Event.builder()
                 .summary("testName")
-                .colorId("4")
+                .colorId(null)
                 .start(start)
                 .end(end)
                 .build();
 
         Event event4 = Event.builder()
                 .summary("testName")
-                .colorId(null)
+                .colorId("5")
                 .start(start)
                 .end(end)
                 .build();
 
         Event event5 = Event.builder()
                 .summary("testName")
-                .colorId("6")
+                .colorId("11")
                 .start(start)
                 .end(end)
                 .build();
