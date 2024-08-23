@@ -6,7 +6,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.test.context.ContextConfiguration;
-import org.springframework.test.context.TestPropertySource;
 import ru.nesterov.dto.Event;
 import ru.nesterov.entity.Client;
 import ru.nesterov.google.GoogleCalendarService;
@@ -19,7 +18,7 @@ import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Map;
 
-import static org.junit.jupiter.api.Assertions.*;
+import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.when;
 
@@ -28,12 +27,6 @@ import static org.mockito.Mockito.when;
         EventsAnalyzerServiceImpl.class,
         EventStatusServiceImpl.class,
         EventsAnalyzerProperties.class
-})
-@TestPropertySource(properties = {
-        "app.calendar.color.successful=1,2",
-        "app.calendar.color.planned=",
-        "app.calendar.color.requires.shift=3,4",
-        "app.calendar.color.cancelled=5,6"
 })
 class EventsAnalyzerServiceImplTest {
     @Autowired

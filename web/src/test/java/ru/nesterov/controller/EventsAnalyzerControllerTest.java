@@ -1,7 +1,6 @@
 package ru.nesterov.controller;
 
 import org.junit.jupiter.api.BeforeEach;
-import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.context.SpringBootTest;
@@ -10,8 +9,8 @@ import org.springframework.http.MediaType;
 import org.springframework.test.web.servlet.MockMvc;
 import ru.nesterov.dto.Event;
 import ru.nesterov.entity.Client;
-import ru.nesterov.google.GoogleCalendarClient;
 import ru.nesterov.repository.ClientRepository;
+import ru.nesterov.service.CalendarService;
 
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
@@ -26,14 +25,13 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 
 @SpringBootTest
 @AutoConfigureMockMvc
-class EventsAnalyzerControllerTest {
+public class EventsAnalyzerControllerTest {
     @Autowired
     private MockMvc mockMvc;
     @MockBean
     private ClientRepository clientRepository;
     @MockBean
-    private GoogleCalendarClient calendarClient;
-
+    private CalendarService calendarService;
 
     @BeforeEach
     void init() {
@@ -44,63 +42,67 @@ class EventsAnalyzerControllerTest {
         when(clientRepository.findClientByName("testName1")).thenReturn(client1);
 
         Client client2 = new Client();
-        client2.setId(2);
+        client2.setId(1);
         client2.setName("testName2");
         client2.setPricePerHour(1000);
         when(clientRepository.findClientByName("testName2")).thenReturn(client2);
 
         Event event1 = Event.builder()
-                .summary("testName1")
-                .colorId("2")
+                .summary("unpaid1")
+                .colorId(null)
                 .start(LocalDateTime.of(2024, 8, 9, 11, 30))
                 .end(LocalDateTime.of(2024, 8, 9, 12, 30))
                 .build();
 
         Event event2 = Event.builder()
-                .summary("testName1")
-                .colorId("2")
+                .summary("unpaid2")
+                .colorId(null)
                 .start(LocalDateTime.of(2024, 8, 10, 11, 30))
                 .end(LocalDateTime.of(2024, 8, 10, 12, 30))
                 .build();
 
         Event event3 = Event.builder()
-                .summary("testName2")
-                .colorId(null)
+                .summary("paid1")
+                .colorId("2")
                 .start(LocalDateTime.of(2024, 8, 11, 11, 30))
                 .end(LocalDateTime.of(2024, 8, 11, 12, 30))
                 .build();
 
         Event event4 = Event.builder()
-                .summary("testName1")
-                .colorId(null)
+                .summary("requires shift unpaid")
+                .colorId("5")
                 .start(LocalDateTime.of(2024, 8, 12, 11, 30))
                 .end(LocalDateTime.of(2024, 8, 12, 12, 30))
                 .build();
 
         Event event5 = Event.builder()
-                .summary("testClient2")
-                .colorId("4")
+                .summary("cancelled")
+                .colorId("11")
                 .start(LocalDateTime.of(2024, 8, 13, 11, 30))
                 .end(LocalDateTime.of(2024, 8, 13, 12, 30))
                 .build();
 
-        when(calendarClient.getEventsBetweenDates(any(), any(), any())).thenReturn(List.of(event1, event2, event3, event4, event5));
+        when(calendarService.getEventsBetweenDates(any(), any())).thenReturn(List.of(event1, event2, event3, event4, event5));
     }
 
-    @Test
-    void getUnpaidEvents() throws Exception {
-        LocalDateTime expectedEventStart1 = LocalDateTime.of(2024, 8, 11, 11, 30, 00);
-        LocalDateTime expectedEventStart2 = LocalDateTime.of(2024, 8, 12, 11, 30, 00);
+    @org.junit.jupiter.api.Test
+    public void getUnpaidEvents() throws Exception {
+        LocalDateTime expectedEventStart1 = LocalDateTime.of(2024, 8, 9, 11, 30);
+        LocalDateTime expectedEventStart2 = LocalDateTime.of(2024, 8, 10, 11, 30);
+        LocalDateTime expectedEventStart3 = LocalDateTime.of(2024, 8, 12, 11, 30);
+
         DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd'T'HH:mm:ss");
 
         mockMvc.perform(get("/events/analyzer/getUnpaidEvents")
                         .contentType(MediaType.APPLICATION_JSON)
                 )
                 .andExpect(status().isOk())
-                .andExpect(jsonPath("$", hasSize(2)))
-                .andExpect(jsonPath("$[0].summary").value("testName2"))
+                .andExpect(jsonPath("$", hasSize(3)))
+                .andExpect(jsonPath("$[0].summary").value("unpaid1"))
                 .andExpect(jsonPath("$[0].eventStart").value(expectedEventStart1.format(formatter)))
-                .andExpect(jsonPath("$[1].summary").value("testName1"))
-                .andExpect(jsonPath("$[1].eventStart").value(expectedEventStart2.format(formatter)));
+                .andExpect(jsonPath("$[1].summary").value("unpaid2"))
+                .andExpect(jsonPath("$[1].eventStart").value(expectedEventStart2.format(formatter)))
+                .andExpect(jsonPath("$[2].summary").value("requires shift unpaid"))
+                .andExpect(jsonPath("$[2].eventStart").value(expectedEventStart3.format(formatter)));
     }
 }

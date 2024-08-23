@@ -8,7 +8,6 @@ import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.http.MediaType;
 import org.springframework.test.web.servlet.MockMvc;
-import org.springframework.transaction.annotation.Transactional;
 import ru.nesterov.controller.request.CreateClientRequest;
 import ru.nesterov.google.GoogleCalendarClient;
 
@@ -18,7 +17,6 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 
 @AutoConfigureMockMvc
 @SpringBootTest
-@Transactional
 class ClientControllerTest {
     @Autowired
     private MockMvc mockMvc;
@@ -36,10 +34,12 @@ class ClientControllerTest {
         createClientRequest.setName("Oleg");
         createClientRequest.setPricePerHour(100);
         createClientRequest.setIdGenerationNeeded(false);
+
         mockMvc.perform(
-                post(CREATE_CLIENT_URL)
+                    post(CREATE_CLIENT_URL)
                         .contentType(MediaType.APPLICATION_JSON)
-                        .content(objectMapper.writeValueAsString(createClientRequest)))
+                        .content(objectMapper.writeValueAsString(createClientRequest))
+                )
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.id").isNotEmpty())
                 .andExpect(jsonPath("$.name").value("Oleg"))
@@ -59,15 +59,19 @@ class ClientControllerTest {
         createClientRequest2.setName("Masha");
         createClientRequest2.setPricePerHour(1000);
         createClientRequest2.setIdGenerationNeeded(false);
+
         mockMvc.perform(
-                post(CREATE_CLIENT_URL)
+                    post(CREATE_CLIENT_URL)
                         .contentType(MediaType.APPLICATION_JSON)
-                        .content(objectMapper.writeValueAsString(createClientRequest)))
+                        .content(objectMapper.writeValueAsString(createClientRequest))
+                )
                 .andExpect(status().isOk());
+
         mockMvc.perform(
-                post(CREATE_CLIENT_URL)
+                    post(CREATE_CLIENT_URL)
                         .contentType(MediaType.APPLICATION_JSON)
-                        .content(objectMapper.writeValueAsString(createClientRequest2)))
+                        .content(objectMapper.writeValueAsString(createClientRequest2))
+                )
                 .andExpect(status().is5xxServerError());
     }
 
@@ -84,9 +88,10 @@ class ClientControllerTest {
         createClientRequest2.setPricePerHour(1000);
         createClientRequest2.setIdGenerationNeeded(true);
         mockMvc.perform(
-                        post(CREATE_CLIENT_URL)
-                                .contentType(MediaType.APPLICATION_JSON)
-                                .content(objectMapper.writeValueAsString(createClientRequest)))
+                    post(CREATE_CLIENT_URL)
+                            .contentType(MediaType.APPLICATION_JSON)
+                            .content(objectMapper.writeValueAsString(createClientRequest))
+                )
                 .andExpect(status().isOk());
         mockMvc.perform(
                         post(CREATE_CLIENT_URL)
