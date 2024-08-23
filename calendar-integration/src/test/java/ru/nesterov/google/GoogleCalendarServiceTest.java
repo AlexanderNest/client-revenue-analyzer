@@ -40,13 +40,13 @@ class GoogleCalendarServiceTest {
                 .getEventsBetweenDates(eq(properties.getMainCalendarId()), any(), any()))
                 .thenReturn(List.of(
                         Event.builder()
-                        .colorId("1")
+                        .colorId("2")
                         .summary("event from main calendar 1")
                         .start(LocalDateTime.of(2024, 01, 01, 00, 00))
                         .end(LocalDateTime.of(2024, 01, 01, 01, 00))
                         .build(),
                         Event.builder()
-                                .colorId("4")
+                                .colorId("10")
                                 .summary("event from main calendar 2")
                                 .start(LocalDateTime.of(2024, 01, 01, 00, 00))
                                 .end(LocalDateTime.of(2024, 01, 01, 01, 00))
@@ -57,13 +57,13 @@ class GoogleCalendarServiceTest {
                 .getEventsBetweenDates(eq(properties.getCancelledCalendarId()), any(), any()))
                 .thenReturn(List.of(
                                 Event.builder()
-                                        .colorId("5")
+                                        .colorId("11")
                                         .summary("event from cancelled calendar 1")
                                         .start(LocalDateTime.of(2023, 12, 01, 00, 00))
                                         .end(LocalDateTime.of(2023, 12, 01, 01, 00))
                                         .build(),
                                 Event.builder()
-                                        .colorId("6")
+                                        .colorId("11")
                                         .summary("event from cancelled calendar 2")
                                         .start(LocalDateTime.of(2023, 12, 01, 00, 00))
                                         .end(LocalDateTime.of(2023, 12, 01, 01, 00))
@@ -82,10 +82,10 @@ class GoogleCalendarServiceTest {
         assertNotNull(events);
         assertEquals(4, events.size());
 
-        assertEquals("1", events.get(0).getColorId());
-        assertEquals("4", events.get(1).getColorId());
-        assertEquals("5", events.get(2).getColorId());
-        assertEquals("6", events.get(3).getColorId());
+        assertEquals("2", events.get(0).getColorId());
+        assertEquals("10", events.get(1).getColorId());
+        assertEquals("11", events.get(2).getColorId());
+        assertEquals("11", events.get(3).getColorId());
 
         assertEquals("event from main calendar 1", events.get(0).getSummary());
         assertEquals("event from main calendar 2", events.get(1).getSummary());
@@ -115,8 +115,8 @@ class GoogleCalendarServiceTest {
         assertNotNull(events);
         assertEquals(2, events.size());
 
-        assertEquals("1", events.get(0).getColorId());
-        assertEquals("4", events.get(1).getColorId());
+        assertEquals("2", events.get(0).getColorId());
+        assertEquals("10", events.get(1).getColorId());
 
         assertEquals("event from main calendar 1", events.get(0).getSummary());
         assertEquals("event from main calendar 2", events.get(1).getSummary());
