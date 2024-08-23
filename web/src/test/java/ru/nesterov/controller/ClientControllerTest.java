@@ -1,19 +1,16 @@
 package ru.nesterov.controller;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.google.api.client.json.Json;
-import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
-import org.springframework.context.annotation.Profile;
 import org.springframework.http.MediaType;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.transaction.annotation.Transactional;
 import ru.nesterov.controller.request.CreateClientRequest;
-import ru.nesterov.google.GoogleCalendarService;
+import ru.nesterov.google.GoogleCalendarClient;
 
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
@@ -28,10 +25,9 @@ class ClientControllerTest {
     @Autowired
     private ObjectMapper objectMapper;
     @MockBean
-    private GoogleCalendarService googleCalendarService;
+    private GoogleCalendarClient googleCalendarService;
 
     private static final String CREATE_CLIENT_URL = "/client/create";
-
 
     @Test
     void createClientWithoutIdGeneration() throws Exception {

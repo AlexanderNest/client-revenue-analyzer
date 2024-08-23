@@ -7,11 +7,8 @@ import ru.nesterov.exception.AppException;
 import ru.nesterov.repository.ClientRepository;
 import ru.nesterov.service.dto.ClientDto;
 import ru.nesterov.service.mapper.ClientMapper;
-import org.springframework.stereotype.Service;
 import ru.nesterov.dto.Event;
 import ru.nesterov.entity.Client;
-import ru.nesterov.exception.AppException;
-import ru.nesterov.repository.ClientRepository;
 import ru.nesterov.service.CalendarService;
 import ru.nesterov.service.monthHelper.MonthDatesPair;
 

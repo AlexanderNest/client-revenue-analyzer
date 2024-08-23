@@ -1,4 +1,4 @@
-package ru.nesterov.controller.event;
+package ru.nesterov.controller;
 
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -10,8 +10,8 @@ import org.springframework.http.MediaType;
 import org.springframework.test.web.servlet.MockMvc;
 import ru.nesterov.dto.Event;
 import ru.nesterov.entity.Client;
+import ru.nesterov.google.GoogleCalendarClient;
 import ru.nesterov.repository.ClientRepository;
-import ru.nesterov.service.CalendarClient;
 
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
@@ -32,7 +32,7 @@ class EventsAnalyzerControllerTest {
     @MockBean
     private ClientRepository clientRepository;
     @MockBean
-    private CalendarClient calendarService;
+    private GoogleCalendarClient calendarClient;
 
 
     @BeforeEach
@@ -44,35 +44,35 @@ class EventsAnalyzerControllerTest {
         when(clientRepository.findClientByName("testName1")).thenReturn(client1);
 
         Client client2 = new Client();
-        client2.setId(1);
+        client2.setId(2);
         client2.setName("testName2");
         client2.setPricePerHour(1000);
         when(clientRepository.findClientByName("testName2")).thenReturn(client2);
 
         Event event1 = Event.builder()
                 .summary("testName1")
-                .colorId("1")
+                .colorId("2")
                 .start(LocalDateTime.of(2024, 8, 9, 11, 30))
                 .end(LocalDateTime.of(2024, 8, 9, 12, 30))
                 .build();
 
         Event event2 = Event.builder()
                 .summary("testName1")
-                .colorId("1")
+                .colorId("2")
                 .start(LocalDateTime.of(2024, 8, 10, 11, 30))
                 .end(LocalDateTime.of(2024, 8, 10, 12, 30))
                 .build();
 
         Event event3 = Event.builder()
                 .summary("testName2")
-                .colorId("6")
+                .colorId(null)
                 .start(LocalDateTime.of(2024, 8, 11, 11, 30))
                 .end(LocalDateTime.of(2024, 8, 11, 12, 30))
                 .build();
 
         Event event4 = Event.builder()
                 .summary("testName1")
-                .colorId("6")
+                .colorId(null)
                 .start(LocalDateTime.of(2024, 8, 12, 11, 30))
                 .end(LocalDateTime.of(2024, 8, 12, 12, 30))
                 .build();
@@ -84,7 +84,7 @@ class EventsAnalyzerControllerTest {
                 .end(LocalDateTime.of(2024, 8, 13, 12, 30))
                 .build();
 
-        when(calendarService.getEventsBetweenDates(any(), any(), any())).thenReturn(List.of(event1, event2, event3, event4, event5));
+        when(calendarClient.getEventsBetweenDates(any(), any(), any())).thenReturn(List.of(event1, event2, event3, event4, event5));
     }
 
     @Test

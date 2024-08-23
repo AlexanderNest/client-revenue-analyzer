@@ -28,7 +28,7 @@ import static org.mockito.Mockito.when;
 @EnableConfigurationProperties(GoogleCalendarProperties.class)
 class GoogleCalendarServiceTest {
     @Autowired
-    GoogleCalendarService googleCalendarService;
+    private GoogleCalendarService googleCalendarService;
     @MockBean
     private GoogleCalendarClient googleCalendarClient;
     @Autowired
