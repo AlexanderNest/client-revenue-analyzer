@@ -84,7 +84,7 @@ class EventsAnalyzerControllerTest {
                 .end(LocalDateTime.of(2024, 8, 13, 12, 30))
                 .build();
 
-        when(calendarService.getEventsBetweenDates(any(), any())).thenReturn(List.of(event1, event2, event3, event4, event5));
+        when(calendarService.getEventsBetweenDates(any(), any(), any())).thenReturn(List.of(event1, event2, event3, event4, event5));
     }
 
     @Test
