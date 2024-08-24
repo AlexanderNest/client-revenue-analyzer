@@ -1,37 +1,26 @@
 package ru.nesterov.controller;
 
-import lombok.RequiredArgsConstructor;
+import io.swagger.annotations.Api;
+import io.swagger.annotations.ApiOperation;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
-import ru.nesterov.controller.request.GetClientScheduleRequest;
-import ru.nesterov.controller.response.EventScheduleResponse;
-import ru.nesterov.service.client.ClientService;
 import ru.nesterov.controller.request.CreateClientRequest;
+import ru.nesterov.controller.request.GetClientScheduleRequest;
 import ru.nesterov.controller.response.CreateClientResponse;
-import ru.nesterov.mapper.ClientMapper;
-import ru.nesterov.service.dto.ClientDto;
+import ru.nesterov.controller.response.EventScheduleResponse;
 
 import java.util.List;
 
-@RestController
-@RequiredArgsConstructor
+@Api(tags = "Управление клиентами")
 @RequestMapping("/client")
-public class ClientController {
-    private final ClientService clientService;
+public interface ClientController {
 
+    @ApiOperation(value = "Получить расписание клиента", notes = "Возвращает расписание событий для указанного клиента")
     @PostMapping("/getSchedule")
-    public List<EventScheduleResponse> getClientSchedule(@RequestBody GetClientScheduleRequest request) {
-        return clientService.getClientSchedule(request.getClientName(), request.getLeftDate(), request.getRightDate()).stream()
-                .map(monthDatesPair -> new EventScheduleResponse(monthDatesPair.getFirstDate(), monthDatesPair.getLastDate()))
-                .toList();
-    }
+    List<EventScheduleResponse> getClientSchedule(@RequestBody GetClientScheduleRequest request);
 
+    @ApiOperation(value = "Создать клиента", notes = "Создает нового клиента и возвращает информацию о нем")
     @PostMapping("/create")
-    public CreateClientResponse createClient(@RequestBody CreateClientRequest createClientRequest) {
-        ClientDto clientDto = ClientMapper.mapToClientDto(createClientRequest);
-        ClientDto result = clientService.createClient(clientDto, createClientRequest.isIdGenerationNeeded());
-        return ClientMapper.mapToCreateClientResponse(result);
-    }
+    CreateClientResponse createClient(@RequestBody CreateClientRequest createClientRequest);
 }
