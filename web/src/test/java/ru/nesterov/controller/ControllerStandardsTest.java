@@ -93,37 +93,9 @@ public class ControllerStandardsTest {
     @Test
     @DisplayName("Проверка, что все эндпоинты контроллеров содержатся в Postman коллекции")
     public void testAllControllerEndpointsInPostmanCollection() throws IOException {
-        final String POSTMAN_COLLECTION_PATH = System.getProperty("user.dir");
-        Path dir = Paths.get(POSTMAN_COLLECTION_PATH).getParent();
-        Path postmanCollectionPath = Paths.get("postman", "google-calendar-clients-analyzer.postman_collection.json");
-        Path postmanPath = dir.resolve(postmanCollectionPath);
+        Set<EndpointInfo> postmanEndpoints = getEndpointsFromPostman();
 
-        Set<EndpointInfo> postmanEndpoints = new HashSet<>();
-        ObjectMapper objectMapper = new ObjectMapper();
-        JsonNode rootNode = objectMapper.readTree(new File(postmanPath.toString()));
-        JsonNode itemsNode = rootNode.get("item");
-
-        if (itemsNode.isArray()) {
-            for (JsonNode itemNode : itemsNode) {
-                JsonNode requestNode = itemNode.get("request");
-                String method = requestNode.get("method").asText();
-                JsonNode urlNode = requestNode.get("url");
-
-                StringBuilder stringBuilder = new StringBuilder();
-                ArrayList<String> list = new ArrayList<>();
-                for(JsonNode p : urlNode.get("path")) {
-                    list.add(p.toString().replace("\"", ""));
-                }
-
-                String path = String.join("/", list);
-
-                EndpointInfo endpointInfo = new EndpointInfo();
-                endpointInfo.endpoint = path;
-                endpointInfo.method = method;
-                postmanEndpoints.add(endpointInfo);
-            }
-        }
-
+        // Проверка, что все эндпоинты контроллеров содержатся в Postman коллекции
         Reflections reflections = new Reflections(new ConfigurationBuilder()
                 .forPackages("ru.nesterov.controller")
                 .addScanners(Scanners.TypesAnnotated, Scanners.MethodsAnnotated));
@@ -139,6 +111,49 @@ public class ControllerStandardsTest {
         }
     }
 
+    private Set<EndpointInfo> getEndpointsFromPostman() throws IOException {
+        final String POSTMAN_COLLECTION_PATH = System.getProperty("user.dir");
+        Path dir = Paths.get(POSTMAN_COLLECTION_PATH).getParent();
+        Path postmanCollectionPath = Paths.get("postman", "google-calendar-clients-analyzer.postman_collection.json");
+        Path postmanPath = dir.resolve(postmanCollectionPath);
+
+        Set<EndpointInfo> postmanEndpoints = new HashSet<>();
+        ObjectMapper objectMapper = new ObjectMapper();
+        JsonNode rootNode = objectMapper.readTree(new File(postmanPath.toString()));
+        JsonNode itemsNode = rootNode.get("item");
+
+        if (itemsNode.isArray()) {
+            extractEndpoints(itemsNode, postmanEndpoints);
+        }
+
+        return postmanEndpoints;
+    }
+
+    private void extractEndpoints(JsonNode itemsNode, Set<EndpointInfo> postmanEndpoints) {
+        for (JsonNode itemNode : itemsNode) {
+            if (itemNode.has("item")) {
+                // Рекурсивно обрабатываем вложенные элементы
+                extractEndpoints(itemNode.get("item"), postmanEndpoints);
+            } else {
+                JsonNode requestNode = itemNode.get("request");
+                String method = requestNode.get("method").asText();
+                JsonNode urlNode = requestNode.get("url");
+
+                ArrayList<String> list = new ArrayList<>();
+                for (JsonNode p : urlNode.get("path")) {
+                    list.add(p.toString().replace("\"", ""));
+                }
+
+                String path = String.join("/", list);
+
+                EndpointInfo endpointInfo = new EndpointInfo();
+                endpointInfo.endpoint = path;
+                endpointInfo.method = method;
+                postmanEndpoints.add(endpointInfo);
+            }
+        }
+    }
+
     private boolean hasEndpointEndsWith(Set<EndpointInfo> postmanEndpoints, EndpointInfo endpointInfo) {
         for (EndpointInfo postmanEndpoint : postmanEndpoints) {
             if (postmanEndpoint.method.equals(endpointInfo.method) && postmanEndpoint.endpoint.endsWith(endpointInfo.endpoint)) {
@@ -147,8 +162,6 @@ public class ControllerStandardsTest {
         }
 
         return false;
-//        return postmanEndpoints.stream()
-//                .anyMatch(ep -> ep.endsWith(endpoint));
     }
 
     private EndpointInfo getEndpoint(Method method, Class<?> controllerInterface) {
