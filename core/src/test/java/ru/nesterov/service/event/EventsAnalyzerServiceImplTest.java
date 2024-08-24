@@ -10,9 +10,9 @@ import ru.nesterov.dto.Event;
 import ru.nesterov.entity.Client;
 import ru.nesterov.google.GoogleCalendarService;
 import ru.nesterov.repository.ClientRepository;
-import ru.nesterov.service.dto.EventStatus;
+import ru.nesterov.dto.EventStatus;
 import ru.nesterov.service.dto.IncomeAnalysisResult;
-import ru.nesterov.service.status.EventStatusServiceImpl;
+import ru.nesterov.google.EventStatusServiceImpl;
 
 import java.time.LocalDateTime;
 import java.util.List;
@@ -50,35 +50,35 @@ class EventsAnalyzerServiceImplTest {
 
         Event event1 = Event.builder()
                 .summary("testName")
-                .colorId("1")
+                .status(EventStatus.SUCCESS)
                 .start(start)
                 .end(end)
                 .build();
 
         Event event2 = Event.builder()
                 .summary("testName")
-                .colorId("1")
+                .status(EventStatus.SUCCESS)
                 .start(start)
                 .end(end)
                 .build();
 
         Event event3 = Event.builder()
                 .summary("testName")
-                .colorId("4")
+                .status(EventStatus.PLANNED)
                 .start(start)
                 .end(end)
                 .build();
 
         Event event4 = Event.builder()
                 .summary("testName")
-                .colorId(null)
+                .status(EventStatus.REQUIRES_SHIFT)
                 .start(start)
                 .end(end)
                 .build();
 
         Event event5 = Event.builder()
                 .summary("testName")
-                .colorId("6")
+                .status(EventStatus.CANCELLED)
                 .start(start)
                 .end(end)
                 .build();

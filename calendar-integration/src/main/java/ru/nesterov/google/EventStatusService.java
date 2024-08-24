@@ -1,6 +1,6 @@
-package ru.nesterov.service.status;
+package ru.nesterov.google;
 
-import ru.nesterov.service.dto.EventStatus;
+import ru.nesterov.dto.EventStatus;
 
 public interface EventStatusService {
     EventStatus getEventStatus(String eventColorId);

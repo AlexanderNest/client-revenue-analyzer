@@ -4,7 +4,8 @@ import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.test.context.ContextConfiguration;
-import ru.nesterov.service.dto.EventStatus;
+import ru.nesterov.dto.EventStatus;
+import ru.nesterov.google.EventStatusServiceImpl;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -25,33 +26,31 @@ public class EventStatusServiceTest {
 
     @Test
     public void getSuccessStatusTest() {
-        EventStatus status1 = eventStatusService.getEventStatus("1");
-        EventStatus status3 = eventStatusService.getEventStatus("3");
+        EventStatus status2 = eventStatusService.getEventStatus("2");
+        EventStatus status10 = eventStatusService.getEventStatus("10");
 
-        assertEquals(EventStatus.SUCCESS, status1);
-        assertEquals(EventStatus.SUCCESS, status3);
+        assertEquals(EventStatus.SUCCESS, status2);
+        assertEquals(EventStatus.SUCCESS, status10);
     }
 
     @Test
     public void getCancelledStatusTest() {
-        EventStatus status4 = eventStatusService.getEventStatus("4");
-        EventStatus status5 = eventStatusService.getEventStatus("5");
+        EventStatus status11 = eventStatusService.getEventStatus("11");
 
-        assertEquals(EventStatus.CANCELLED, status4);
-        assertEquals(EventStatus.CANCELLED, status5);
+        assertEquals(EventStatus.CANCELLED, status11);
     }
 
     @Test
     public void getRequiresShiftStatusTest() {
-        EventStatus statusNull = eventStatusService.getEventStatus(null);
+        EventStatus status5 = eventStatusService.getEventStatus("5");
 
-        assertEquals(EventStatus.REQUIRES_SHIFT, statusNull);
+        assertEquals(EventStatus.REQUIRES_SHIFT, status5);
     }
 
     @Test
     public void getPlannedStatusTest() {
-        EventStatus status6 = eventStatusService.getEventStatus("6");
+        EventStatus statusNull = eventStatusService.getEventStatus(null);
 
-        assertEquals(EventStatus.PLANNED, status6);
+        assertEquals(EventStatus.PLANNED, statusNull);
     }
 }

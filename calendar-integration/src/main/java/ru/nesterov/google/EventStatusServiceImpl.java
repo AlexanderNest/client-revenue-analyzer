@@ -1,9 +1,9 @@
-package ru.nesterov.service.status;
+package ru.nesterov.google;
 
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import ru.nesterov.exception.AppException;
-import ru.nesterov.service.dto.EventStatus;
+import ru.nesterov.dto.EventStatus;
 
 import java.util.List;
 

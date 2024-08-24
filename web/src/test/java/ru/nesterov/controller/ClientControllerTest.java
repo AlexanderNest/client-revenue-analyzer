@@ -9,7 +9,7 @@ import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.http.MediaType;
 import org.springframework.test.web.servlet.MockMvc;
 import ru.nesterov.controller.request.CreateClientRequest;
-import ru.nesterov.google.GoogleCalendarService;
+import ru.nesterov.google.GoogleCalendarClient;
 
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
@@ -23,7 +23,7 @@ class ClientControllerTest {
     @Autowired
     private ObjectMapper objectMapper;
     @MockBean
-    private GoogleCalendarService googleCalendarService;
+    private GoogleCalendarClient googleCalendarService;
 
     private static final String CREATE_CLIENT_URL = "/client/create";
 
