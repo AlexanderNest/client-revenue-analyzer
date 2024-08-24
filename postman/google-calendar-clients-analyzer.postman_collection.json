@@ -1,9 +1,9 @@
 {
 	"info": {
-		"_postman_id": "9b4c88ae-d2b9-4853-9bb8-22d87502a9f1",
+		"_postman_id": "9a1a5867-ed5c-4212-a4ae-da67d805067e",
 		"name": "google-calendar-clients-analyzer",
 		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
-		"_exporter_id": "32540896"
+		"_exporter_id": "19227667"
 	},
 	"item": [
 		{
@@ -141,6 +141,41 @@
 						"events",
 						"analyzer",
 						"getUnpaidEvents"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Создать клиента",
+			"request": {
+				"method": "POST",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "{\r\n    \"name\" : \"Client 1\",\r\n    \"pricePerHour\": 100,\r\n    \"description\" : null,\r\n    \"idGenerationNeeded\": false\r\n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "localhost:8080/revenue-analyzer/client/create?",
+					"host": [
+						"localhost"
+					],
+					"port": "8080",
+					"path": [
+						"revenue-analyzer",
+						"client",
+						"create"
+					],
+					"query": [
+						{
+							"key": "",
+							"value": null
+						}
 					]
 				}
 			},
