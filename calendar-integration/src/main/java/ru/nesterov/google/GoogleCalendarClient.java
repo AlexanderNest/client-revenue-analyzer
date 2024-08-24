@@ -16,6 +16,7 @@ import org.springframework.stereotype.Component;
 import ru.nesterov.dto.Event;
 import ru.nesterov.dto.EventExtension;
 import ru.nesterov.dto.EventStatus;
+import ru.nesterov.exception.AppException;
 import ru.nesterov.service.CalendarClient;
 
 import javax.annotation.Nullable;
@@ -76,15 +77,24 @@ public class GoogleCalendarClient implements CalendarClient {
 
     private List<Event> convert(List<com.google.api.services.calendar.model.Event> events, boolean isCancelledCalendar) {
         return events.stream()
-                .map(event -> Event.builder()
-                        .status(isCancelledCalendar ? EventStatus.CANCELLED : eventStatusService.getEventStatus(event.getColorId()))
-                        .summary(event.getSummary())
-                        .start(LocalDateTime.ofInstant(Instant.ofEpochMilli(event.getStart().getDateTime().getValue()), ZoneId.systemDefault()))
-                        .end(LocalDateTime.ofInstant(Instant.ofEpochMilli(event.getEnd().getDateTime().getValue()), ZoneId.systemDefault()))
-                        .eventExtension(buildEventExtension(event))
-                        .build()
-                )
+                .map(event -> buildEvent(event, isCancelledCalendar))
                 .toList();
+    }
+
+    private Event buildEvent(com.google.api.services.calendar.model.Event event, boolean isCancelledCalendar) {
+        try {
+            return Event.builder()
+                    .status(isCancelledCalendar ? EventStatus.CANCELLED : eventStatusService.getEventStatus(event))
+                    .summary(event.getSummary())
+                    .start(LocalDateTime.ofInstant(Instant.ofEpochMilli(event.getStart().getDateTime().getValue()), ZoneId.systemDefault()))
+                    .end(LocalDateTime.ofInstant(Instant.ofEpochMilli(event.getEnd().getDateTime().getValue()), ZoneId.systemDefault()))
+                    .eventExtension(buildEventExtension(event))
+                    .build();
+        } catch (Exception e) {
+            log.error(e.getMessage(), e);
+            throw new AppException("Не удалось собрать Event [" + event.getSummary() + "] с датой [" + event.getStart() + "]");
+        }
+
     }
 
     @Nullable

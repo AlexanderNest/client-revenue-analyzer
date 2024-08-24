@@ -1,5 +1,6 @@
 package ru.nesterov.service.status;
 
+import com.google.api.services.calendar.model.Event;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
@@ -26,8 +27,14 @@ public class EventStatusServiceTest {
 
     @Test
     public void getSuccessStatusTest() {
-        EventStatus status2 = eventStatusService.getEventStatus("2");
-        EventStatus status10 = eventStatusService.getEventStatus("10");
+        Event event2 = new Event();
+        event2.setColorId("2");
+        EventStatus status2 = eventStatusService.getEventStatus(event2);
+
+        Event event10 = new Event();
+        event2.setColorId("10");
+
+        EventStatus status10 = eventStatusService.getEventStatus(event10);
 
         assertEquals(EventStatus.SUCCESS, status2);
         assertEquals(EventStatus.SUCCESS, status10);
@@ -35,21 +42,29 @@ public class EventStatusServiceTest {
 
     @Test
     public void getCancelledStatusTest() {
-        EventStatus status11 = eventStatusService.getEventStatus("11");
+        Event event11 = new Event();
+        event11.setColorId("11");
+
+        EventStatus status11 = eventStatusService.getEventStatus(event11);
 
         assertEquals(EventStatus.CANCELLED, status11);
     }
 
     @Test
     public void getRequiresShiftStatusTest() {
-        EventStatus status5 = eventStatusService.getEventStatus("5");
+        Event event5 = new Event();
+        event5.setColorId("5");
+
+        EventStatus status5 = eventStatusService.getEventStatus(event5);
 
         assertEquals(EventStatus.REQUIRES_SHIFT, status5);
     }
 
     @Test
     public void getPlannedStatusTest() {
-        EventStatus statusNull = eventStatusService.getEventStatus(null);
+        Event event = new Event();
+
+        EventStatus statusNull = eventStatusService.getEventStatus(event);
 
         assertEquals(EventStatus.PLANNED, statusNull);
     }

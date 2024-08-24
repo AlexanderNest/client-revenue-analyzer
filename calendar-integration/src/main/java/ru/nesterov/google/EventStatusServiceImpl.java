@@ -1,9 +1,10 @@
 package ru.nesterov.google;
 
+import com.google.api.services.calendar.model.Event;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
-import ru.nesterov.exception.AppException;
 import ru.nesterov.dto.EventStatus;
+import ru.nesterov.exception.AppException;
 
 import java.util.List;
 
@@ -56,7 +57,8 @@ public class EventStatusServiceImpl implements EventStatusService {
         }
     }
 
-    public EventStatus getEventStatus(String eventColorId) {
+    public EventStatus getEventStatus(Event event) {
+        String eventColorId = event.getColorId();
         if (successColorCodes.contains(eventColorId)) {
             return EventStatus.SUCCESS;
         } else if (plannedColorCodes.contains(eventColorId)) {
@@ -67,6 +69,6 @@ public class EventStatusServiceImpl implements EventStatusService {
             return EventStatus.REQUIRES_SHIFT;
         }
 
-        throw new AppException("Неизвестный eventColorId: " + eventColorId);
+        throw new AppException("Неизвестный eventColorId [" + eventColorId + "] у Event [" + event.getSummary() + "] с датой [" + event.getStart() + "]");
     }
 }
