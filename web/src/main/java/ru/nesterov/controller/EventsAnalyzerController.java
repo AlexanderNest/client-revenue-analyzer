@@ -10,7 +10,7 @@ import ru.nesterov.controller.request.GetForMonthRequest;
 import ru.nesterov.controller.response.EventResponse;
 import ru.nesterov.service.event.EventsAnalyzerService;
 import ru.nesterov.service.dto.ClientMeetingsStatistic;
-import ru.nesterov.service.dto.EventStatus;
+import ru.nesterov.dto.EventStatus;
 import ru.nesterov.service.dto.IncomeAnalysisResult;
 
 import java.util.List;

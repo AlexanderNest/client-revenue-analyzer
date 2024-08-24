@@ -8,11 +8,11 @@ import ru.nesterov.exception.AppException;
 import ru.nesterov.repository.ClientRepository;
 import ru.nesterov.service.CalendarService;
 import ru.nesterov.service.dto.ClientMeetingsStatistic;
-import ru.nesterov.service.dto.EventStatus;
+import ru.nesterov.dto.EventStatus;
 import ru.nesterov.service.dto.IncomeAnalysisResult;
 import ru.nesterov.service.monthHelper.MonthDatesPair;
 import ru.nesterov.service.monthHelper.MonthHelper;
-import ru.nesterov.service.status.EventStatusService;
+import ru.nesterov.google.EventStatusService;
 
 import java.time.Duration;
 import java.time.LocalDateTime;
@@ -34,7 +34,7 @@ public class EventsAnalyzerServiceImpl implements EventsAnalyzerService {
         Map<String, ClientMeetingsStatistic> meetingsStatistics = new HashMap<>();
 
         for (Event event : events) {
-            EventStatus eventStatus = eventStatusService.getEventStatus(event.getColorId());
+            EventStatus eventStatus = event.getStatus();
 
             ClientMeetingsStatistic clientMeetingsStatistic = meetingsStatistics.get(event.getSummary());
             if (clientMeetingsStatistic == null) {
@@ -66,7 +66,7 @@ public class EventsAnalyzerServiceImpl implements EventsAnalyzerService {
         double expectedIncome = 0;
 
         for (Event event : events) {
-            EventStatus eventStatus = eventStatusService.getEventStatus(event.getColorId());
+            EventStatus eventStatus = event.getStatus();
 
             Client client = clientRepository.findClientByName(event.getSummary());
             if (client == null) {
@@ -98,7 +98,7 @@ public class EventsAnalyzerServiceImpl implements EventsAnalyzerService {
     public List<Event> getUnpaidEventsBetweenDates(LocalDateTime leftDate, LocalDateTime rightDate) {
         return calendarService.getEventsBetweenDates(leftDate, rightDate).stream()
                 .filter(event -> {
-                    EventStatus eventStatus = eventStatusService.getEventStatus(event.getColorId());
+                    EventStatus eventStatus = event.getStatus();
                     return eventStatus == EventStatus.PLANNED || eventStatus == EventStatus.REQUIRES_SHIFT;
                 })
                 .toList();
@@ -127,7 +127,7 @@ public class EventsAnalyzerServiceImpl implements EventsAnalyzerService {
 
         Map<EventStatus, Integer> statuses = new HashMap<>();
         for (Event event : events) {
-            EventStatus eventStatus = eventStatusService.getEventStatus(event.getColorId());
+            EventStatus eventStatus = event.getStatus();
 
             statuses.put(eventStatus, statuses.getOrDefault(eventStatus, 0) + 1);
         }

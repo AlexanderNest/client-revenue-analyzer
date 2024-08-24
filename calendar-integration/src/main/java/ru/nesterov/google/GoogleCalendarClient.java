@@ -15,6 +15,7 @@ import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.stereotype.Component;
 import ru.nesterov.dto.Event;
 import ru.nesterov.dto.EventExtension;
+import ru.nesterov.dto.EventStatus;
 import ru.nesterov.service.CalendarClient;
 
 import javax.annotation.Nullable;
@@ -33,10 +34,12 @@ public class GoogleCalendarClient implements CalendarClient {
     private final Calendar calendar;
     private final GoogleCalendarProperties properties;
     private final ObjectMapper objectMapper;
+    private final EventStatusService eventStatusService;
 
-    public GoogleCalendarClient(GoogleCalendarProperties properties, ObjectMapper objectMapper) {
+    public GoogleCalendarClient(GoogleCalendarProperties properties, ObjectMapper objectMapper, EventStatusService eventStatusService) {
         this.properties = properties;
         this.objectMapper = objectMapper;
+        this.eventStatusService = eventStatusService;
         this.calendar = createCalendarService();
     }
 
@@ -51,12 +54,12 @@ public class GoogleCalendarClient implements CalendarClient {
     }
 
     @SneakyThrows
-    public List<Event> getEventsBetweenDates(String calendarId, LocalDateTime leftDate, LocalDateTime rightDate) {
+    public List<Event> getEventsBetweenDates(String calendarId, boolean isCancelledCalendar, LocalDateTime leftDate, LocalDateTime rightDate) {
         Date startTime = Date.from(leftDate.atZone(ZoneId.systemDefault()).toInstant());
         Date endTime = Date.from(rightDate.atZone(ZoneId.systemDefault()).toInstant());
 
         Events events = getEventsBetweenDates(calendarId, startTime, endTime);
-        return convert(events.getItems());
+        return convert(events.getItems(), isCancelledCalendar);
     }
 
     private Events getEventsBetweenDates(String calendarId, Date startTime, Date endTime) throws IOException {
@@ -71,10 +74,10 @@ public class GoogleCalendarClient implements CalendarClient {
         return events;
     }
 
-    private List<Event> convert(List<com.google.api.services.calendar.model.Event> events) {
+    private List<Event> convert(List<com.google.api.services.calendar.model.Event> events, boolean isCancelledCalendar) {
         return events.stream()
                 .map(event -> Event.builder()
-                        .colorId(event.getColorId())
+                        .status(isCancelledCalendar ? EventStatus.CANCELLED : eventStatusService.getEventStatus(event.getColorId()))
                         .summary(event.getSummary())
                         .start(LocalDateTime.ofInstant(Instant.ofEpochMilli(event.getStart().getDateTime().getValue()), ZoneId.systemDefault()))
                         .end(LocalDateTime.ofInstant(Instant.ofEpochMilli(event.getEnd().getDateTime().getValue()), ZoneId.systemDefault()))

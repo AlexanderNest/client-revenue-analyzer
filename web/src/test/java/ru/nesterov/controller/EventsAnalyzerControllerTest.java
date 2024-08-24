@@ -8,6 +8,7 @@ import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.http.MediaType;
 import org.springframework.test.web.servlet.MockMvc;
 import ru.nesterov.dto.Event;
+import ru.nesterov.dto.EventStatus;
 import ru.nesterov.entity.Client;
 import ru.nesterov.repository.ClientRepository;
 import ru.nesterov.service.CalendarClient;
@@ -52,35 +53,35 @@ public class EventsAnalyzerControllerTest {
 
         Event event1 = Event.builder()
                 .summary("unpaid1")
-                .colorId(null)
+                .status(EventStatus.PLANNED)
                 .start(LocalDateTime.of(2024, 8, 9, 11, 30))
                 .end(LocalDateTime.of(2024, 8, 9, 12, 30))
                 .build();
 
         Event event2 = Event.builder()
                 .summary("unpaid2")
-                .colorId(null)
+                .status(EventStatus.PLANNED)
                 .start(LocalDateTime.of(2024, 8, 10, 11, 30))
                 .end(LocalDateTime.of(2024, 8, 10, 12, 30))
                 .build();
 
         Event event3 = Event.builder()
                 .summary("paid1")
-                .colorId("2")
+                .status(EventStatus.SUCCESS)
                 .start(LocalDateTime.of(2024, 8, 11, 11, 30))
                 .end(LocalDateTime.of(2024, 8, 11, 12, 30))
                 .build();
 
         Event event4 = Event.builder()
                 .summary("requires shift unpaid")
-                .colorId("5")
+                .status(EventStatus.REQUIRES_SHIFT)
                 .start(LocalDateTime.of(2024, 8, 12, 11, 30))
                 .end(LocalDateTime.of(2024, 8, 12, 12, 30))
                 .build();
 
         Event event5 = Event.builder()
                 .summary("cancelled")
-                .colorId("11")
+                .status(EventStatus.CANCELLED)
                 .start(LocalDateTime.of(2024, 8, 13, 11, 30))
                 .end(LocalDateTime.of(2024, 8, 13, 12, 30))
                 .build();

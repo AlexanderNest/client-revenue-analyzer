@@ -2,7 +2,7 @@ package ru.nesterov.service.event;
 
 import ru.nesterov.dto.Event;
 import ru.nesterov.service.dto.ClientMeetingsStatistic;
-import ru.nesterov.service.dto.EventStatus;
+import ru.nesterov.dto.EventStatus;
 import ru.nesterov.service.dto.IncomeAnalysisResult;
 
 import java.time.LocalDateTime;
