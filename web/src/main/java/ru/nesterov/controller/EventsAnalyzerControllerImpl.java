@@ -15,7 +15,7 @@ import java.util.Map;
 
 @RestController
 @RequiredArgsConstructor
-public class EventsAnalyzerControllerImpl {
+public class EventsAnalyzerControllerImpl implements EventsAnalyzerController {
     private final EventsAnalyzerService eventsAnalyzerService;
 
     public Map<String, ClientMeetingsStatistic> getClientStatistics(@RequestBody GetForMonthRequest request) {

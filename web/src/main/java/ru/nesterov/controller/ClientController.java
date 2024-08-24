@@ -1,9 +1,12 @@
 package ru.nesterov.controller;
 
-import io.swagger.annotations.Api;
-import io.swagger.annotations.ApiOperation;
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.media.Content;
+import io.swagger.v3.oas.annotations.media.Schema;
+import io.swagger.v3.oas.annotations.parameters.RequestBody;
+import io.swagger.v3.oas.annotations.responses.ApiResponse;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import ru.nesterov.controller.request.CreateClientRequest;
 import ru.nesterov.controller.request.GetClientScheduleRequest;
@@ -12,15 +15,39 @@ import ru.nesterov.controller.response.EventScheduleResponse;
 
 import java.util.List;
 
-@Api(tags = "Управление клиентами")
+@Tag(name = "Управление клиентами", description = "API для управления клиентами")
 @RequestMapping("/client")
 public interface ClientController {
 
-    @ApiOperation(value = "Получить расписание клиента", notes = "Возвращает расписание событий для указанного клиента")
+    @Operation(
+            summary = "Получить расписание клиента",
+            description = "Возвращает расписание событий для указанного клиента",
+            requestBody = @RequestBody(
+                    description = "Запрос для получения расписания клиента",
+                    required = true,
+                    content = @Content(schema = @Schema(implementation = GetClientScheduleRequest.class))
+            ),
+            responses = {
+                    @ApiResponse(responseCode = "200", description = "Успешный ответ"),
+                    @ApiResponse(responseCode = "500", description = "Внутренняя ошибка сервера")
+            }
+    )
     @PostMapping("/getSchedule")
     List<EventScheduleResponse> getClientSchedule(@RequestBody GetClientScheduleRequest request);
 
-    @ApiOperation(value = "Создать клиента", notes = "Создает нового клиента и возвращает информацию о нем")
+    @Operation(
+            summary = "Создать клиента",
+            description = "Создает нового клиента и возвращает информацию о нем",
+            requestBody = @RequestBody(
+                    description = "Запрос для создания нового клиента",
+                    required = true,
+                    content = @Content(schema = @Schema(implementation = CreateClientRequest.class))
+            ),
+            responses = {
+                    @ApiResponse(responseCode = "200", description = "Успешный ответ"),
+                    @ApiResponse(responseCode = "500", description = "Внутренняя ошибка сервера")
+            }
+    )
     @PostMapping("/create")
     CreateClientResponse createClient(@RequestBody CreateClientRequest createClientRequest);
 }
