@@ -16,7 +16,7 @@ import org.springframework.stereotype.Component;
 import ru.nesterov.dto.Event;
 import ru.nesterov.dto.EventExtension;
 import ru.nesterov.dto.EventStatus;
-import ru.nesterov.exception.AppException;
+import ru.nesterov.google.exception.CannotBuildEventException;
 
 import javax.annotation.Nullable;
 import java.io.FileInputStream;
@@ -90,10 +90,8 @@ public class GoogleCalendarClient implements CalendarClient {
                     .eventExtension(buildEventExtension(event))
                     .build();
         } catch (Exception e) {
-            log.error(e.getMessage(), e);
-            throw new AppException("Не удалось собрать Event [" + event.getSummary() + "] с датой [" + event.getStart() + "]");
+            throw new CannotBuildEventException(event.getSummary(), event.getStart(), e);
         }
-
     }
 
     @Nullable

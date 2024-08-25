@@ -9,7 +9,7 @@ import org.springframework.test.context.ContextConfiguration;
 import ru.nesterov.dto.Event;
 import ru.nesterov.dto.EventStatus;
 import ru.nesterov.entity.Client;
-import ru.nesterov.exception.AppException;
+import ru.nesterov.exception.ClientNotFoundException;
 import ru.nesterov.repository.ClientRepository;
 import ru.nesterov.service.CalendarService;
 import ru.nesterov.service.monthHelper.MonthDatesPair;
@@ -17,9 +17,7 @@ import ru.nesterov.service.monthHelper.MonthDatesPair;
 import java.time.LocalDateTime;
 import java.util.List;
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertThrows;
-import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.Mockito.when;
 
 @SpringBootTest
@@ -138,11 +136,11 @@ public class ClientServiceImplTest {
     }
 
     @Test
-    public void shouldThrowAppException() {
+    public void getScheduleForNotCreatedClientShouldThrowAppException() {
         LocalDateTime from = LocalDateTime.of(2024, 11, 9, 11, 30);
         LocalDateTime to = LocalDateTime.of(2024, 11, 13, 12, 30);
 
-        assertThrows(AppException.class, () -> {
+        assertThrows(ClientNotFoundException.class, () -> {
             clientService.getClientSchedule("Client", from, to);
         });
     }

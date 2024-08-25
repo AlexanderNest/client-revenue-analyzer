@@ -4,7 +4,7 @@ import com.google.api.services.calendar.model.Event;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import ru.nesterov.dto.EventStatus;
-import ru.nesterov.exception.AppException;
+import ru.nesterov.google.exception.UnknownEventColorIdException;
 
 import java.util.List;
 
@@ -69,6 +69,6 @@ public class EventStatusServiceImpl implements EventStatusService {
             return EventStatus.REQUIRES_SHIFT;
         }
 
-        throw new AppException("Неизвестный eventColorId [" + eventColorId + "] у Event [" + event.getSummary() + "] с датой [" + event.getStart() + "]");
+        throw new UnknownEventColorIdException(eventColorId, event.getSummary(), event.getStart());
     }
 }
