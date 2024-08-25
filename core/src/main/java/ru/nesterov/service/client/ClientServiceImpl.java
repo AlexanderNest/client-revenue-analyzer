@@ -1,15 +1,14 @@
 package ru.nesterov.service.client;
 
 import lombok.RequiredArgsConstructor;
-
 import org.springframework.stereotype.Service;
-import ru.nesterov.exception.AppException;
-import ru.nesterov.repository.ClientRepository;
-import ru.nesterov.service.dto.ClientDto;
-import ru.nesterov.service.mapper.ClientMapper;
 import ru.nesterov.dto.Event;
 import ru.nesterov.entity.Client;
+import ru.nesterov.exception.AppException;
+import ru.nesterov.repository.ClientRepository;
 import ru.nesterov.service.CalendarService;
+import ru.nesterov.service.dto.ClientDto;
+import ru.nesterov.service.mapper.ClientMapper;
 import ru.nesterov.service.monthHelper.MonthDatesPair;
 
 import java.time.LocalDateTime;
@@ -51,13 +50,7 @@ public class ClientServiceImpl implements ClientService {
     @Override
     public List<ClientDto> getActiveClients() {
         return clientRepository.findClientByActiveOrderByPricePerHourDesc(true).stream()
-                .map(client -> ClientDto.builder()
-                        .description(client.getDescription())
-                        .id(client.getId())
-                        .name(client.getName())
-                        .pricePerHour(client.getPricePerHour())
-                        .active(client.isActive())
-                        .build())
+                .map(ClientMapper::mapToClientDto)
                 .toList();
     }
 }
