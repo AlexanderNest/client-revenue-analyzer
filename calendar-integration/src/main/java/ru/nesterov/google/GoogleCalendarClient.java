@@ -17,7 +17,6 @@ import ru.nesterov.dto.Event;
 import ru.nesterov.dto.EventExtension;
 import ru.nesterov.dto.EventStatus;
 import ru.nesterov.exception.AppException;
-import ru.nesterov.service.CalendarClient;
 
 import javax.annotation.Nullable;
 import java.io.FileInputStream;

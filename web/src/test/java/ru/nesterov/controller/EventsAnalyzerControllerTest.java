@@ -10,8 +10,8 @@ import org.springframework.test.web.servlet.MockMvc;
 import ru.nesterov.dto.Event;
 import ru.nesterov.dto.EventStatus;
 import ru.nesterov.entity.Client;
+import ru.nesterov.google.CalendarClient;
 import ru.nesterov.repository.ClientRepository;
-import ru.nesterov.service.CalendarClient;
 import ru.nesterov.service.CalendarService;
 
 import java.time.LocalDateTime;

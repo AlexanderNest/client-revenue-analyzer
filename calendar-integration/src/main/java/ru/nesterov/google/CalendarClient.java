@@ -1,4 +1,4 @@
-package ru.nesterov.service;
+package ru.nesterov.google;
 
 import ru.nesterov.dto.Event;
 
