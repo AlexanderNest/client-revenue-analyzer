@@ -1,9 +1,9 @@
 {
 	"info": {
-		"_postman_id": "9a1a5867-ed5c-4212-a4ae-da67d805067e",
+		"_postman_id": "2d9da355-9e80-4944-a42a-e890370d8722",
 		"name": "google-calendar-clients-analyzer",
 		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
-		"_exporter_id": "19227667"
+		"_exporter_id": "31542889"
 	},
 	"item": [
 		{
@@ -99,6 +99,26 @@
 								"events",
 								"analyzer",
 								"getClientsStatistics"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Вывод информации об активных клиентах",
+					"request": {
+						"method": "POST",
+						"header": [],
+						"url": {
+							"raw": "localhost:8080/revenue-analyzer/client/getActiveClients",
+							"host": [
+								"localhost"
+							],
+							"port": "8080",
+							"path": [
+								"revenue-analyzer",
+								"client",
+								"getActiveClients"
 							]
 						}
 					},
