@@ -32,7 +32,7 @@ public class EventStatusServiceTest {
         EventStatus status2 = eventStatusService.getEventStatus(event2);
 
         Event event10 = new Event();
-        event2.setColorId("10");
+        event10.setColorId("10");
 
         EventStatus status10 = eventStatusService.getEventStatus(event10);
 
