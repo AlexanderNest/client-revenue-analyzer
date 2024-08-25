@@ -5,7 +5,7 @@ import lombok.Data;
 
 @Data
 @Builder
-public class GetActiveClientsResponse {
+public class ClientResponse {
     private long id;
     private String name;
     private int pricePerHour;

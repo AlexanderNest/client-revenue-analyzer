@@ -44,12 +44,13 @@ public class ClientServiceImpl implements ClientService {
         if (!clientsWithThisName.isEmpty()) {
             clientDto.setName(clientDto.getName() + " " + (clientsWithThisName.size() + 1));
         }
-        return ClientMapper.mapToClientDto(clientRepository.save(ClientMapper.mapToClient(clientDto)));
+        Client client = clientRepository.save(ClientMapper.mapToClient(clientDto));
+        return ClientMapper.mapToClientDto(client);
     }
 
     @Override
-    public List<ClientDto> getActiveClients(boolean active) {
-        return clientRepository.findClientByActiveOrderByPricePerHourDesc(active).stream()
+    public List<ClientDto> getActiveClients() {
+        return clientRepository.findClientByActiveOrderByPricePerHourDesc(true).stream()
                 .map(client -> ClientDto.builder()
                         .description(client.getDescription())
                         .id(client.getId())

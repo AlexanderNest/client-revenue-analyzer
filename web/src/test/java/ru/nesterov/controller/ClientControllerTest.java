@@ -55,6 +55,7 @@ class ClientControllerTest {
                 .andExpect(jsonPath("$.id").isNotEmpty())
                 .andExpect(jsonPath("$.name").value("Oleg"))
                 .andExpect(jsonPath("$.description").value("desc"))
+                .andExpect(jsonPath("$.active").value(true))
                 .andExpect(jsonPath("$.pricePerHour").value(100));
     }
 
@@ -112,6 +113,7 @@ class ClientControllerTest {
                 .andExpect(jsonPath("$.id").isNotEmpty())
                 .andExpect(jsonPath("$.name").value("Misha 2"))
                 .andExpect(jsonPath("$.description").value("desc"))
+                .andExpect(jsonPath("$.active").value(true))
                 .andExpect(jsonPath("$.pricePerHour").value(1000));
     }
 

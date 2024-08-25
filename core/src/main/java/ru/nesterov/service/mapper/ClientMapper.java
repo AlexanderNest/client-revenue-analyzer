@@ -10,6 +10,7 @@ public class ClientMapper {
                 .pricePerHour(client.getPricePerHour())
                 .name(client.getName())
                 .id(client.getId())
+                .active(client.isActive())
                 .build();
     }
 
@@ -19,6 +20,7 @@ public class ClientMapper {
         client.setId(clientDto.getId());
         client.setName(clientDto.getName());
         client.setPricePerHour(clientDto.getPricePerHour());
+        client.setActive(clientDto.isActive());
         return client;
     }
 }

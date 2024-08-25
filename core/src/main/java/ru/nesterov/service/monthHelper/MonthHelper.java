@@ -46,8 +46,4 @@ public class MonthHelper {
 
         return new MonthDatesPair(firstDay, lastDay);
     }
-
-    public static String getCurrentMonthName() {
-        return LocalDate.now().getMonth().name();
-    }
 }

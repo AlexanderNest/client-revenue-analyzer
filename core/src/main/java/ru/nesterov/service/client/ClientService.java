@@ -11,5 +11,5 @@ public interface ClientService {
 
     List<MonthDatesPair> getClientSchedule(String clientName, LocalDateTime leftDate, LocalDateTime rightDate);
 
-    List<ClientDto> getActiveClients(boolean active);
+    List<ClientDto> getActiveClients();
 }
