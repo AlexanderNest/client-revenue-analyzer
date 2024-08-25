@@ -4,7 +4,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import ru.nesterov.dto.Event;
 import ru.nesterov.entity.Client;
-import ru.nesterov.exception.AppException;
+import ru.nesterov.exception.ClientNotFoundException;
 import ru.nesterov.repository.ClientRepository;
 import ru.nesterov.service.CalendarService;
 import ru.nesterov.service.dto.ClientDto;
@@ -24,7 +24,7 @@ public class ClientServiceImpl implements ClientService {
     public List<MonthDatesPair> getClientSchedule(String clientName, LocalDateTime leftDate, LocalDateTime rightDate) {
         Client client = clientRepository.findClientByName(clientName);
         if (client == null) {
-            throw new AppException("Клиент с именем " + clientName + " не существует");
+            throw new ClientNotFoundException(clientName);
         }
         List<Event> events = calendarService.getEventsBetweenDates(leftDate, rightDate);
 
@@ -34,11 +34,11 @@ public class ClientServiceImpl implements ClientService {
                 .toList();
     }
 
-    public ClientDto createClient(ClientDto clientDto, boolean isIdGenerationNeeded) throws AppException {
+    public ClientDto createClient(ClientDto clientDto, boolean isIdGenerationNeeded) throws ClientNotFoundException {
         List<Client> clientsWithThisName = clientRepository.findAllByNameContaining(clientDto.getName()).stream()
                 .toList();
         if (!clientsWithThisName.isEmpty() && !isIdGenerationNeeded) {
-            throw new AppException("Клиент с именем " + clientDto.getName() + " существует");
+            throw new ClientNotFoundException(clientDto.getName());
         }
         if (!clientsWithThisName.isEmpty()) {
             clientDto.setName(clientDto.getName() + " " + (clientsWithThisName.size() + 1));

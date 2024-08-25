@@ -3,16 +3,17 @@ package ru.nesterov.service.event;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import ru.nesterov.dto.Event;
+import ru.nesterov.dto.EventStatus;
 import ru.nesterov.entity.Client;
-import ru.nesterov.exception.AppException;
+import ru.nesterov.exception.ClientNotFoundException;
+import ru.nesterov.exception.UnknownEventStatusException;
+import ru.nesterov.google.EventStatusService;
 import ru.nesterov.repository.ClientRepository;
 import ru.nesterov.service.CalendarService;
 import ru.nesterov.service.dto.ClientMeetingsStatistic;
-import ru.nesterov.dto.EventStatus;
 import ru.nesterov.service.dto.IncomeAnalysisResult;
 import ru.nesterov.service.monthHelper.MonthDatesPair;
 import ru.nesterov.service.monthHelper.MonthHelper;
-import ru.nesterov.google.EventStatusService;
 
 import java.time.Duration;
 import java.time.LocalDateTime;
@@ -40,7 +41,7 @@ public class EventsAnalyzerServiceImpl implements EventsAnalyzerService {
             if (clientMeetingsStatistic == null) {
                 Client client = clientRepository.findClientByName(event.getSummary());
                 if (client == null) {
-                    throw new AppException("Клиент с именем " + event.getSummary() + " не найден");
+                    throw new ClientNotFoundException(event.getSummary());
                 }
                 clientMeetingsStatistic = new ClientMeetingsStatistic(client.getPricePerHour());
             }
@@ -70,7 +71,7 @@ public class EventsAnalyzerServiceImpl implements EventsAnalyzerService {
 
             Client client = clientRepository.findClientByName(event.getSummary());
             if (client == null) {
-                throw new AppException("Пользователь с именем '" + event.getSummary() + "' от даты " + event.getStart() + " не найден в базе");
+                throw new ClientNotFoundException(event.getSummary(), event.getStart());
             }
 
             double eventPrice = getEventDuration(event) * client.getPricePerHour();
@@ -82,7 +83,7 @@ public class EventsAnalyzerServiceImpl implements EventsAnalyzerService {
             } else if (eventStatus == EventStatus.CANCELLED) {
                 lostIncome += eventPrice;
             } else if (eventStatus != EventStatus.PLANNED && eventStatus != EventStatus.REQUIRES_SHIFT) {
-                throw new AppException("Обнаружен неизвестный EventStatus " + eventStatus);
+                throw new UnknownEventStatusException(eventStatus);
             }
         }
 
