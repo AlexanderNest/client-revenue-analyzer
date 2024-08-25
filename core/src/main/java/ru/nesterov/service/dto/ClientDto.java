@@ -1,12 +1,15 @@
-package ru.nesterov.controller.response;
+package ru.nesterov.service.dto;
 
+import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
-import lombok.RequiredArgsConstructor;
+import lombok.NoArgsConstructor;
 
 @Data
 @Builder
-public class GetFilteredClientsResponse {
+@AllArgsConstructor
+@NoArgsConstructor
+public class ClientDto {
     private long id;
     private String name;
     private int pricePerHour;

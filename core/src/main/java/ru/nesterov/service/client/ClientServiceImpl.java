@@ -7,6 +7,7 @@ import ru.nesterov.entity.Client;
 import ru.nesterov.exception.AppException;
 import ru.nesterov.repository.ClientRepository;
 import ru.nesterov.service.CalendarService;
+import ru.nesterov.service.dto.ClientDto;
 import ru.nesterov.service.monthHelper.MonthDatesPair;
 
 import java.time.LocalDateTime;
@@ -32,7 +33,15 @@ public class ClientServiceImpl implements ClientService {
     }
 
     @Override
-    public List<Client> getFilteredByPriceClients(boolean active) {
-        return clientRepository.findClientByActiveOrderByPricePerHourDesc(active);
+    public List<ClientDto> getFilteredByPriceClients(boolean active) {
+        return clientRepository.findClientByActiveOrderByPricePerHourDesc(active).stream()
+                .map(client -> ClientDto.builder()
+                        .description(client.getDescription())
+                        .id(client.getId())
+                        .name(client.getName())
+                        .pricePerHour(client.getPricePerHour())
+                        .active(client.isActive())
+                        .build())
+                .toList();
     }
 }

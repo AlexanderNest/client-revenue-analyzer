@@ -30,7 +30,15 @@ public class ClientController {
     }
 
     @PostMapping("/getFilteredClients")
-    public List<Client> getFilteredClients(){
-        return clientRepository.findClientByActiveOrderByPricePerHourDesc(true);
+    public List<GetFilteredClientsResponse> getFilteredClients() {
+        return clientService.getFilteredByPriceClients(true).stream()
+                .map(client -> GetFilteredClientsResponse.builder()
+                        .description(client.getDescription())
+                        .id(client.getId())
+                        .name(client.getName())
+                        .pricePerHour(client.getPricePerHour())
+                        .active(client.isActive())
+                        .build())
+                .toList();
     }
 }
