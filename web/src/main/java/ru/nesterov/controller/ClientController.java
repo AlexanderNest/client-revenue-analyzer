@@ -10,7 +10,7 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import ru.nesterov.controller.request.CreateClientRequest;
 import ru.nesterov.controller.request.GetClientScheduleRequest;
-import ru.nesterov.controller.response.CreateClientResponse;
+import ru.nesterov.controller.response.ClientResponse;
 import ru.nesterov.controller.response.EventScheduleResponse;
 
 import java.util.List;
@@ -49,5 +49,16 @@ public interface ClientController {
             }
     )
     @PostMapping("/create")
-    CreateClientResponse createClient(@RequestBody CreateClientRequest createClientRequest);
+    ClientResponse createClient(@RequestBody CreateClientRequest createClientRequest);
+
+    @Operation(
+            summary = "Вывод информации об активных клиентах",
+            description = "Возвращает всю информацию об активных клиентах в указанном порядке сортировки",
+            responses = {
+                    @ApiResponse(responseCode = "200", description = "Успешный ответ"),
+                    @ApiResponse(responseCode = "500", description = "Внутренняя ошибка сервера")
+            }
+    )
+    @PostMapping("/getActiveClients")
+    List<ClientResponse> getActiveClients();
 }

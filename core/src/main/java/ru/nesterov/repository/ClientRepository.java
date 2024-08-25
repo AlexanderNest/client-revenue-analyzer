@@ -12,4 +12,8 @@ public interface ClientRepository extends JpaRepository<Client, Long> {
     Client findClientByName(String name);
 
     List<Client> findAllByNameContaining(String name);
+
+    List<Client> findClientByActiveOrderByPricePerHourDesc(boolean active);
+
+    int deleteClientByName(String name);
 }

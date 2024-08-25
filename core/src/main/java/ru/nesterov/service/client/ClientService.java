@@ -10,4 +10,6 @@ public interface ClientService {
     ClientDto createClient(ClientDto clientDto, boolean isGenerationOfIdNeeded);
 
     List<MonthDatesPair> getClientSchedule(String clientName, LocalDateTime leftDate, LocalDateTime rightDate);
+
+    List<ClientDto> getActiveClients();
 }

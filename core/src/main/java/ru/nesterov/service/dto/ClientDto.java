@@ -10,4 +10,5 @@ public class ClientDto {
     private String name;
     private int pricePerHour;
     private String description;
+    private boolean active;
 }
