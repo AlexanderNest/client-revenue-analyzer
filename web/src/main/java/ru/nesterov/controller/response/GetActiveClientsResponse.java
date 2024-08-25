@@ -1,11 +1,11 @@
-package ru.nesterov.service.dto;
+package ru.nesterov.controller.response;
 
 import lombok.Builder;
 import lombok.Data;
 
 @Data
 @Builder
-public class ClientDto {
+public class GetActiveClientsResponse {
     private long id;
     private String name;
     private int pricePerHour;

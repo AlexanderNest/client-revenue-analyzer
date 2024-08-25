@@ -46,4 +46,17 @@ public class ClientServiceImpl implements ClientService {
         }
         return ClientMapper.mapToClientDto(clientRepository.save(ClientMapper.mapToClient(clientDto)));
     }
+
+    @Override
+    public List<ClientDto> getActiveClients(boolean active) {
+        return clientRepository.findClientByActiveOrderByPricePerHourDesc(active).stream()
+                .map(client -> ClientDto.builder()
+                        .description(client.getDescription())
+                        .id(client.getId())
+                        .name(client.getName())
+                        .pricePerHour(client.getPricePerHour())
+                        .active(client.isActive())
+                        .build())
+                .toList();
+    }
 }

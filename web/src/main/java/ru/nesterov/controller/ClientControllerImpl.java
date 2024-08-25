@@ -7,6 +7,7 @@ import ru.nesterov.controller.request.CreateClientRequest;
 import ru.nesterov.controller.request.GetClientScheduleRequest;
 import ru.nesterov.controller.response.CreateClientResponse;
 import ru.nesterov.controller.response.EventScheduleResponse;
+import ru.nesterov.controller.response.GetActiveClientsResponse;
 import ru.nesterov.mapper.ClientMapper;
 import ru.nesterov.service.client.ClientService;
 import ru.nesterov.service.dto.ClientDto;
@@ -28,5 +29,18 @@ public class ClientControllerImpl implements ClientController {
         ClientDto clientDto = ClientMapper.mapToClientDto(createClientRequest);
         ClientDto result = clientService.createClient(clientDto, createClientRequest.isIdGenerationNeeded());
         return ClientMapper.mapToCreateClientResponse(result);
+    }
+
+    @Override
+    public List<GetActiveClientsResponse> getActiveClients() {
+        return clientService.getActiveClients(true).stream()
+                .map(client -> GetActiveClientsResponse.builder()
+                        .description(client.getDescription())
+                        .id(client.getId())
+                        .name(client.getName())
+                        .pricePerHour(client.getPricePerHour())
+                        .active(client.isActive())
+                        .build())
+                .toList();
     }
 }
