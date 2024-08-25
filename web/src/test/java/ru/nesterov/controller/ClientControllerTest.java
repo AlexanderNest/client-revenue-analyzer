@@ -8,6 +8,7 @@ import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.http.MediaType;
 import org.springframework.test.web.servlet.MockMvc;
+import org.springframework.transaction.annotation.Transactional;
 import ru.nesterov.controller.request.CreateClientRequest;
 import ru.nesterov.entity.Client;
 import ru.nesterov.google.GoogleCalendarClient;
@@ -39,6 +40,7 @@ class ClientControllerTest {
     private static final String GET_ACTIVE_CLIENTS_URL = "/client/getActiveClients";
 
     @Test
+    @Transactional
     void createClientWithoutIdGeneration() throws Exception {
         CreateClientRequest createClientRequest = new CreateClientRequest();
         createClientRequest.setDescription("desc");
@@ -57,9 +59,12 @@ class ClientControllerTest {
                 .andExpect(jsonPath("$.description").value("desc"))
                 .andExpect(jsonPath("$.active").value(true))
                 .andExpect(jsonPath("$.pricePerHour").value(100));
+
+        clientRepository.deleteClientByName(createClientRequest.getName());
     }
 
     @Test
+    @Transactional
     void createClientWithTheSameNameWithoutIdGeneration() throws Exception {
         CreateClientRequest createClientRequest = new CreateClientRequest();
         createClientRequest.setDescription("desc");
@@ -84,10 +89,13 @@ class ClientControllerTest {
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(objectMapper.writeValueAsString(createClientRequest2))
                 )
-                .andExpect(status().is5xxServerError());
+                .andExpect(status().isInternalServerError());
+
+        clientRepository.deleteClientByName(createClientRequest.getName());
     }
 
     @Test
+    @Transactional
     void createClientWithTheSameNameWithIdGeneration() throws Exception {
         CreateClientRequest createClientRequest = new CreateClientRequest();
         createClientRequest.setDescription("desc");
@@ -115,9 +123,13 @@ class ClientControllerTest {
                 .andExpect(jsonPath("$.description").value("desc"))
                 .andExpect(jsonPath("$.active").value(true))
                 .andExpect(jsonPath("$.pricePerHour").value(1000));
+
+        clientRepository.deleteClientByName(createClientRequest.getName());
+        clientRepository.deleteClientByName(createClientRequest2.getName());
     }
 
     @Test
+    @Transactional
     void getActiveClients() throws Exception {
         Client client1 = new Client();
         client1.setActive(true);
@@ -156,5 +168,10 @@ class ClientControllerTest {
                 .andExpect(jsonPath("$[1].description").value(client1.getDescription()))
                 .andExpect(jsonPath("$[1].pricePerHour").value(client1.getPricePerHour()))
                 .andExpect(jsonPath("$[1].active").value(client1.isActive()));
+
+        clientRepository.deleteClientByName(client1.getName());
+        clientRepository.deleteClientByName(client2.getName());
+        clientRepository.deleteClientByName(client3.getName());
     }
+
 }
