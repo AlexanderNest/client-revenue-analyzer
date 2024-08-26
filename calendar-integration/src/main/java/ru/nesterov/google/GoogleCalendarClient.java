@@ -51,6 +51,7 @@ public class GoogleCalendarClient implements CalendarClient {
         return new Calendar.Builder(GoogleNetHttpTransport.newTrustedTransport(), GsonFactory.getDefaultInstance(), new HttpCredentialsAdapter(credentials))
                 .setApplicationName(properties.getApplicationName())
                 .build();
+
     }
 
     @SneakyThrows
