@@ -33,8 +33,6 @@ import static org.mockito.Mockito.when;
 class EventsAnalyzerServiceImplTest {
     @Autowired
     private EventsAnalyzerServiceImpl eventsAnalyzerService;
-    @Autowired
-    private EventService eventService;
 
     @MockBean
     private ClientRepository clientRepository;
