@@ -1,150 +1,223 @@
 {
 	"info": {
-		"_postman_id": "9b4c88ae-d2b9-4853-9bb8-22d87502a9f1",
+		"_postman_id": "2d9da355-9e80-4944-a42a-e890370d8722",
 		"name": "google-calendar-clients-analyzer",
 		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
-		"_exporter_id": "32540896"
+		"_exporter_id": "31542889"
 	},
 	"item": [
 		{
-			"name": "Статусы встреч за выбранный месяц",
-			"request": {
-				"method": "POST",
-				"header": [],
-				"body": {
-					"mode": "raw",
-					"raw": "{\r\n    \"monthName\": \"august\"\r\n}",
-					"options": {
-						"raw": {
-							"language": "json"
+			"name": "Клиенты",
+			"item": [
+				{
+					"name": "Создать клиента",
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n    \"name\" : \"Client 1\",\r\n    \"pricePerHour\": 100,\r\n    \"description\" : null,\r\n    \"idGenerationNeeded\": false\r\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "localhost:8080/revenue-analyzer/client/create",
+							"host": [
+								"localhost"
+							],
+							"port": "8080",
+							"path": [
+								"revenue-analyzer",
+								"client",
+								"create"
+							],
+							"query": [
+								{
+									"key": "",
+									"value": null,
+									"disabled": true
+								}
+							]
 						}
-					}
+					},
+					"response": []
 				},
-				"url": {
-					"raw": "localhost:8080/revenue-analyzer/events/analyzer/getEventsStatusesForMonth",
-					"host": [
-						"localhost"
-					],
-					"port": "8080",
-					"path": [
-						"revenue-analyzer",
-						"events",
-						"analyzer",
-						"getEventsStatusesForMonth"
-					]
+				{
+					"name": "Информация по расписанию клиента в заданные даты",
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"clientName\": \"Клиент 1\",\n    \"leftDate\": \"2023-10-01T10:00:00\",\n    \"rightDate\": \"2023-10-31T18:00:00\"\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "localhost:8080/revenue-analyzer/client/getSchedule",
+							"host": [
+								"localhost"
+							],
+							"port": "8080",
+							"path": [
+								"revenue-analyzer",
+								"client",
+								"getSchedule"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Анализ клиентов за выбранный месяц",
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n    \"monthName\": \"august\"\r\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "localhost:8080/revenue-analyzer/events/analyzer/getClientsStatistics",
+							"host": [
+								"localhost"
+							],
+							"port": "8080",
+							"path": [
+								"revenue-analyzer",
+								"events",
+								"analyzer",
+								"getClientsStatistics"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Вывод информации об активных клиентах",
+					"request": {
+						"method": "POST",
+						"header": [],
+						"url": {
+							"raw": "localhost:8080/revenue-analyzer/client/getActiveClients",
+							"host": [
+								"localhost"
+							],
+							"port": "8080",
+							"path": [
+								"revenue-analyzer",
+								"client",
+								"getActiveClients"
+							]
+						}
+					},
+					"response": []
 				}
-			},
-			"response": []
+			],
+			"description": "Функционал управления клиентами, вывод информации по отдельному клиенту"
 		},
 		{
-			"name": "Анализ дохода за выбранный месяц",
-			"request": {
-				"method": "POST",
-				"header": [],
-				"body": {
-					"mode": "raw",
-					"raw": "{\r\n    \"monthName\": \"august\"\r\n}",
-					"options": {
-						"raw": {
-							"language": "json"
+			"name": "Анализ встреч за выбранный месяц",
+			"item": [
+				{
+					"name": "Статусы встреч за выбранный месяц",
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n    \"monthName\": \"august\"\r\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "localhost:8080/revenue-analyzer/events/analyzer/getEventsStatusesForMonth",
+							"host": [
+								"localhost"
+							],
+							"port": "8080",
+							"path": [
+								"revenue-analyzer",
+								"events",
+								"analyzer",
+								"getEventsStatusesForMonth"
+							]
 						}
-					}
+					},
+					"response": []
 				},
-				"url": {
-					"raw": "localhost:8080/revenue-analyzer/events/analyzer/getIncomeAnalysisForMonth",
-					"host": [
-						"localhost"
-					],
-					"port": "8080",
-					"path": [
-						"revenue-analyzer",
-						"events",
-						"analyzer",
-						"getIncomeAnalysisForMonth"
-					]
+				{
+					"name": "Анализ дохода за выбранный месяц",
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n    \"monthName\": \"august\"\r\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "localhost:8080/revenue-analyzer/events/analyzer/getIncomeAnalysisForMonth",
+							"host": [
+								"localhost"
+							],
+							"port": "8080",
+							"path": [
+								"revenue-analyzer",
+								"events",
+								"analyzer",
+								"getIncomeAnalysisForMonth"
+							]
+						}
+					},
+					"response": []
 				}
-			},
-			"response": []
+			],
+			"description": "Запросы, которые принимают название месяца и отдают информацию за один месяц в текущем году"
 		},
 		{
-			"name": "Анализ клиентов за выбранный месяц",
-			"request": {
-				"method": "POST",
-				"header": [],
-				"body": {
-					"mode": "raw",
-					"raw": "{\r\n    \"monthName\": \"august\"\r\n}",
-					"options": {
-						"raw": {
-							"language": "json"
+			"name": "Информация за весь период",
+			"item": [
+				{
+					"name": "Неоплаченные встречи",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "localhost:8080/revenue-analyzer/events/analyzer/getUnpaidEvents",
+							"host": [
+								"localhost"
+							],
+							"port": "8080",
+							"path": [
+								"revenue-analyzer",
+								"events",
+								"analyzer",
+								"getUnpaidEvents"
+							]
 						}
-					}
-				},
-				"url": {
-					"raw": "localhost:8080/revenue-analyzer/events/analyzer/getClientsStatistics",
-					"host": [
-						"localhost"
-					],
-					"port": "8080",
-					"path": [
-						"revenue-analyzer",
-						"events",
-						"analyzer",
-						"getClientsStatistics"
-					]
+					},
+					"response": []
 				}
-			},
-			"response": []
-		},
-		{
-			"name": "Информация по расписанию клиента в заданные даты",
-			"request": {
-				"method": "POST",
-				"header": [],
-				"body": {
-					"mode": "raw",
-					"raw": "{\n    \"clientName\": \"Клиент 1\",\n    \"leftDate\": \"2023-10-01T10:00:00\",\n    \"rightDate\": \"2023-10-31T18:00:00\"\n}",
-					"options": {
-						"raw": {
-							"language": "json"
-						}
-					}
-				},
-				"url": {
-					"raw": "localhost:8080/revenue-analyzer/client/getSchedule",
-					"host": [
-						"localhost"
-					],
-					"port": "8080",
-					"path": [
-						"revenue-analyzer",
-						"client",
-						"getSchedule"
-					]
-				}
-			},
-			"response": []
-		},
-		{
-			"name": "Неоплаченные встречи",
-			"request": {
-				"method": "GET",
-				"header": [],
-				"url": {
-					"raw": "localhost:8080/revenue-analyzer/events/analyzer/getUnpaidEvents",
-					"host": [
-						"localhost"
-					],
-					"port": "8080",
-					"path": [
-						"revenue-analyzer",
-						"events",
-						"analyzer",
-						"getUnpaidEvents"
-					]
-				}
-			},
-			"response": []
+			]
 		}
 	]
 }

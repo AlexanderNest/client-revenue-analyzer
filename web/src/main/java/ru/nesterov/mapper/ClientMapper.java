@@ -1,7 +1,7 @@
 package ru.nesterov.mapper;
 
 import ru.nesterov.controller.request.CreateClientRequest;
-import ru.nesterov.controller.response.CreateClientResponse;
+import ru.nesterov.controller.response.ClientResponse;
 import ru.nesterov.service.dto.ClientDto;
 
 public class ClientMapper {
@@ -11,16 +11,19 @@ public class ClientMapper {
                 .pricePerHour(request.getPricePerHour())
                 .name(request.getName())
                 .pricePerHour(request.getPricePerHour())
+                .active(true)
                 .build();
     }
 
-    public static CreateClientResponse mapToCreateClientResponse(ClientDto clientDto) {
-        return CreateClientResponse.builder()
+    public static ClientResponse mapToClientResponse(ClientDto clientDto) {
+        return ClientResponse.builder()
                 .id(clientDto.getId())
                 .name(clientDto.getName())
                 .description(clientDto.getDescription())
                 .pricePerHour(clientDto.getPricePerHour())
+                .active(clientDto.isActive())
                 .build();
     }
+
 }
 

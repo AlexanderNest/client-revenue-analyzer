@@ -5,17 +5,18 @@ import lombok.extern.slf4j.Slf4j;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
+import ru.nesterov.dto.Event;
+import ru.nesterov.dto.EventStatus;
 import ru.nesterov.entity.Client;
-import ru.nesterov.exception.AppException;
+import ru.nesterov.exception.ClientNotFoundException;
+import ru.nesterov.exception.UnknownEventStatusException;
+import ru.nesterov.google.EventStatusService;
 import ru.nesterov.repository.ClientRepository;
+import ru.nesterov.service.CalendarService;
 import ru.nesterov.service.dto.ClientMeetingsStatistic;
-import ru.nesterov.service.dto.EventStatus;
 import ru.nesterov.service.dto.IncomeAnalysisResult;
 import ru.nesterov.service.monthHelper.MonthDatesPair;
 import ru.nesterov.service.monthHelper.MonthHelper;
-import ru.nesterov.service.status.EventStatusService;
-import ru.nesterov.dto.Event;
-import ru.nesterov.service.CalendarService;
 
 import java.time.Duration;
 import java.time.LocalDateTime;
@@ -39,13 +40,13 @@ public class EventsAnalyzerServiceImpl implements EventsAnalyzerService {
         Map<String, ClientMeetingsStatistic> meetingsStatistics = new HashMap<>();
 
         for (Event event : events) {
-            EventStatus eventStatus = eventStatusService.getEventStatus(event.getColorId());
+            EventStatus eventStatus = event.getStatus();
 
             ClientMeetingsStatistic clientMeetingsStatistic = meetingsStatistics.get(event.getSummary());
             if (clientMeetingsStatistic == null) {
                 Client client = clientRepository.findClientByName(event.getSummary());
                 if (client == null) {
-                    throw new AppException("Клиент с именем " + event.getSummary() + " не найден");
+                    throw new ClientNotFoundException(event.getSummary());
                 }
                 clientMeetingsStatistic = new ClientMeetingsStatistic(client.getPricePerHour());
             }
@@ -73,6 +74,11 @@ public class EventsAnalyzerServiceImpl implements EventsAnalyzerService {
         for (Event event : events) {
             EventStatus eventStatus = eventStatusService.getEventStatus(event.getColorId());
 
+            Client client = clientRepository.findClientByName(event.getSummary());
+            if (client == null) {
+                throw new ClientNotFoundException(event.getSummary(), event.getStart());
+            }
+
             double eventPrice = eventService.getEventIncome(event);
             expectedIncome += eventPrice;
 
@@ -96,7 +102,10 @@ public class EventsAnalyzerServiceImpl implements EventsAnalyzerService {
     @Override
     public List<Event> getUnpaidEventsBetweenDates(LocalDateTime leftDate, LocalDateTime rightDate) {
         return calendarService.getEventsBetweenDates(leftDate, rightDate).stream()
-                .filter(event -> eventStatusService.getEventStatus(event.getColorId()) == EventStatus.PLANNED)
+                .filter(event -> {
+                    EventStatus eventStatus = event.getStatus();
+                    return eventStatus == EventStatus.PLANNED || eventStatus == EventStatus.REQUIRES_SHIFT;
+                })
                 .toList();
     }
 
@@ -117,7 +126,7 @@ public class EventsAnalyzerServiceImpl implements EventsAnalyzerService {
 
         Map<EventStatus, Integer> statuses = new HashMap<>();
         for (Event event : events) {
-            EventStatus eventStatus = eventStatusService.getEventStatus(event.getColorId());
+            EventStatus eventStatus = event.getStatus();
 
             statuses.put(eventStatus, statuses.getOrDefault(eventStatus, 0) + 1);
         }

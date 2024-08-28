@@ -8,7 +8,7 @@ import java.time.LocalDateTime;
 @Builder
 @Getter
 public class Event {
-    private String colorId;
+    private EventStatus status;
     private String summary;
     private LocalDateTime start;
     private LocalDateTime end;

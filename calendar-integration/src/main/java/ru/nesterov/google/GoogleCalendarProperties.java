@@ -12,5 +12,7 @@ import org.springframework.stereotype.Component;
 public class GoogleCalendarProperties {
     private String applicationName;
     private String serviceAccountFilePath;
-    private String calendarId;
+    private String mainCalendarId;
+    private String cancelledCalendarId;
+    private Boolean cancelledCalendarEnabled;
 }

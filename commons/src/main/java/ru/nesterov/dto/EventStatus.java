@@ -1,6 +1,4 @@
-package ru.nesterov.service.dto;
-
-import java.util.List;
+package ru.nesterov.dto;
 
 public enum EventStatus {
     SUCCESS,

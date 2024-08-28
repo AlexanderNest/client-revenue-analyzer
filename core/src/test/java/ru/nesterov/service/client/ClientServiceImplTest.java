@@ -7,8 +7,9 @@ import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.test.context.ContextConfiguration;
 import ru.nesterov.dto.Event;
+import ru.nesterov.dto.EventStatus;
 import ru.nesterov.entity.Client;
-import ru.nesterov.exception.AppException;
+import ru.nesterov.exception.ClientNotFoundException;
 import ru.nesterov.repository.ClientRepository;
 import ru.nesterov.service.CalendarService;
 import ru.nesterov.service.monthHelper.MonthDatesPair;
@@ -16,10 +17,7 @@ import ru.nesterov.service.monthHelper.MonthDatesPair;
 import java.time.LocalDateTime;
 import java.util.List;
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertThrows;
-import static org.junit.jupiter.api.Assertions.assertTrue;
-import static org.mockito.ArgumentMatchers.any;
+import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.Mockito.when;
 
 @SpringBootTest
@@ -48,35 +46,35 @@ public class ClientServiceImplTest {
 
         Event event1 = Event.builder()
                 .summary("testClient1")
-                .colorId("1")
+                .status(EventStatus.SUCCESS)
                 .start(LocalDateTime.of(2024, 8, 9, 11, 30))
                 .end(LocalDateTime.of(2024, 8, 9, 12, 30))
                 .build();
 
         Event event2 = Event.builder()
                 .summary("testClient1")
-                .colorId("1")
+                .status(EventStatus.SUCCESS)
                 .start(LocalDateTime.of(2024, 8, 10, 11, 30))
                 .end(LocalDateTime.of(2024, 8, 10, 12, 30))
                 .build();
 
         Event event3 = Event.builder()
                 .summary("testClient2")
-                .colorId("4")
+                .status(EventStatus.REQUIRES_SHIFT)
                 .start(LocalDateTime.of(2024, 8, 11, 11, 30))
                 .end(LocalDateTime.of(2024, 8, 11, 12, 30))
                 .build();
 
         Event event4 = Event.builder()
                 .summary("testClient2")
-                .colorId(null)
+                .status(EventStatus.PLANNED)
                 .start(LocalDateTime.of(2024, 8, 12, 11, 30))
                 .end(LocalDateTime.of(2024, 8, 12, 12, 30))
                 .build();
 
         Event event5 = Event.builder()
                 .summary("testClient2")
-                .colorId("6")
+                .status(EventStatus.CANCELLED)
                 .start(LocalDateTime.of(2024, 8, 13, 11, 30))
                 .end(LocalDateTime.of(2024, 8, 13, 12, 30))
                 .build();
@@ -138,11 +136,11 @@ public class ClientServiceImplTest {
     }
 
     @Test
-    public void shouldThrowAppException() {
+    public void getScheduleForNotCreatedClientShouldThrowAppException() {
         LocalDateTime from = LocalDateTime.of(2024, 11, 9, 11, 30);
         LocalDateTime to = LocalDateTime.of(2024, 11, 13, 12, 30);
 
-        assertThrows(AppException.class, () -> {
+        assertThrows(ClientNotFoundException.class, () -> {
             clientService.getClientSchedule("Client", from, to);
         });
     }

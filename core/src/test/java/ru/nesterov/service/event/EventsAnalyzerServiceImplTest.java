@@ -6,21 +6,20 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.test.context.ContextConfiguration;
-import org.springframework.test.context.TestPropertySource;
 import ru.nesterov.dto.Event;
 import ru.nesterov.dto.EventExtension;
 import ru.nesterov.entity.Client;
 import ru.nesterov.google.GoogleCalendarService;
 import ru.nesterov.repository.ClientRepository;
-import ru.nesterov.service.dto.EventStatus;
+import ru.nesterov.dto.EventStatus;
 import ru.nesterov.service.dto.IncomeAnalysisResult;
-import ru.nesterov.service.status.EventStatusServiceImpl;
+import ru.nesterov.google.EventStatusServiceImpl;
 
 import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Map;
 
-import static org.junit.jupiter.api.Assertions.*;
+import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.when;
 
@@ -30,13 +29,6 @@ import static org.mockito.Mockito.when;
         EventStatusServiceImpl.class,
         EventsAnalyzerProperties.class,
         EventService.class
-})
-@TestPropertySource(properties = {
-        "app.calendar.color.successful=1,2,3",
-        "app.calendar.color.cancelled=4,5",
-        "app.calendar.color.requires.shift=",
-        "app.calendar.color.planned=6",
-        "app.analyzer.unpaid-events.range=365"
 })
 class EventsAnalyzerServiceImplTest {
     @Autowired
@@ -64,35 +56,35 @@ class EventsAnalyzerServiceImplTest {
 
         Event event1 = Event.builder()
                 .summary("testName")
-                .colorId("1")
+                .status(EventStatus.SUCCESS)
                 .start(start)
                 .end(end)
                 .build();
 
         Event event2 = Event.builder()
                 .summary("testName")
-                .colorId("1")
+                .status(EventStatus.SUCCESS)
                 .start(start)
                 .end(end)
                 .build();
 
         Event event3 = Event.builder()
                 .summary("testName")
-                .colorId("4")
+                .status(EventStatus.PLANNED)
                 .start(start)
                 .end(end)
                 .build();
 
         Event event4 = Event.builder()
                 .summary("testName")
-                .colorId(null)
+                .status(EventStatus.REQUIRES_SHIFT)
                 .start(start)
                 .end(end)
                 .build();
 
         Event event5 = Event.builder()
                 .summary("testName")
-                .colorId("6")
+                .status(EventStatus.CANCELLED)
                 .start(start)
                 .end(end)
                 .build();
