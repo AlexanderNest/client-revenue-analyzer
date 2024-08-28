@@ -8,9 +8,8 @@ import org.springframework.stereotype.Service;
 import ru.nesterov.dto.Event;
 import ru.nesterov.dto.EventStatus;
 import ru.nesterov.entity.Client;
+import ru.nesterov.exception.AppException;
 import ru.nesterov.exception.ClientNotFoundException;
-import ru.nesterov.exception.UnknownEventStatusException;
-import ru.nesterov.google.EventStatusService;
 import ru.nesterov.repository.ClientRepository;
 import ru.nesterov.service.CalendarService;
 import ru.nesterov.service.dto.ClientMeetingsStatistic;
@@ -18,7 +17,6 @@ import ru.nesterov.service.dto.IncomeAnalysisResult;
 import ru.nesterov.service.monthHelper.MonthDatesPair;
 import ru.nesterov.service.monthHelper.MonthHelper;
 
-import java.time.Duration;
 import java.time.LocalDateTime;
 import java.util.HashMap;
 import java.util.List;
@@ -30,7 +28,6 @@ import java.util.Map;
 public class EventsAnalyzerServiceImpl implements EventsAnalyzerService {
     private final CalendarService calendarService;
     private final ClientRepository clientRepository;
-    private final EventStatusService eventStatusService;
     private final EventsAnalyzerProperties eventsAnalyzerProperties;
     private final EventService eventService;
 
@@ -72,7 +69,7 @@ public class EventsAnalyzerServiceImpl implements EventsAnalyzerService {
         double expectedIncome = 0;
 
         for (Event event : events) {
-            EventStatus eventStatus = eventStatusService.getEventStatus(event.getColorId());
+            EventStatus eventStatus = event.getStatus();
 
             Client client = clientRepository.findClientByName(event.getSummary());
             if (client == null) {
