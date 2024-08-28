@@ -20,17 +20,19 @@ public class GoogleCalendarService implements CalendarService {
     private final GoogleCalendarProperties properties;
 
     public List<Event> getEventsBetweenDates(LocalDateTime leftDate, LocalDateTime rightDate) {
-        List<Event> eventsFromMainCalendar = googleCalendarClient.getEventsBetweenDates(properties.getMainCalendarId(), false,leftDate, rightDate);
-        List<Event> eventsFromCancelledCalendar = googleCalendarClient.getEventsBetweenDates(properties.getCancelledCalendarId(), true, leftDate, rightDate);
+        List<Event> eventsFromMainCalendar = googleCalendarClient.getEventsBetweenDates(properties.getMainCalendarId(), false, leftDate, rightDate);
+        if (properties.getCancelledCalendarEnabled()) {
+            List<Event> eventsFromCancelledCalendar = googleCalendarClient.getEventsBetweenDates(properties.getCancelledCalendarId(), true, leftDate, rightDate);
+            return mergeEvents(eventsFromMainCalendar, eventsFromCancelledCalendar);
+        }
 
-        return mergeEvents(eventsFromMainCalendar, eventsFromCancelledCalendar);
+        return eventsFromMainCalendar;
     }
 
     private List<Event> mergeEvents(List<Event> eventsFromMainCalendar, List<Event> eventsFromCancelledCalendar) {
         List<Event> events = new ArrayList<>(eventsFromMainCalendar);
-        if (properties.getCancelledCalendarEnabled()) {
-            events.addAll(eventsFromCancelledCalendar);
-        }
+        events.addAll(eventsFromCancelledCalendar);
+
         return events;
     }
 }
