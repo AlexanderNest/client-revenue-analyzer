@@ -41,8 +41,6 @@ class EventsAnalyzerServiceImplTest {
     @MockBean
     private GoogleCalendarService googleCalendarService;
 
-
-
     @BeforeEach
     public void init() {
         Client client = new Client();

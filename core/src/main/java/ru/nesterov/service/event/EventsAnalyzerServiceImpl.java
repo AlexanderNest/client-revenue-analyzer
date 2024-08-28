@@ -10,6 +10,7 @@ import ru.nesterov.dto.EventStatus;
 import ru.nesterov.entity.Client;
 import ru.nesterov.exception.AppException;
 import ru.nesterov.exception.ClientNotFoundException;
+import ru.nesterov.exception.UnknownEventStatusException;
 import ru.nesterov.repository.ClientRepository;
 import ru.nesterov.service.CalendarService;
 import ru.nesterov.service.dto.ClientMeetingsStatistic;
@@ -84,7 +85,7 @@ public class EventsAnalyzerServiceImpl implements EventsAnalyzerService {
             } else if (eventStatus == EventStatus.CANCELLED) {
                 lostIncome += eventPrice;
             } else if (eventStatus != EventStatus.PLANNED && eventStatus != EventStatus.REQUIRES_SHIFT) {
-                throw new AppException("Обнаружен неизвестный EventStatus " + eventStatus);
+                throw new UnknownEventStatusException(eventStatus);
             }
         }
 
