@@ -1,6 +1,7 @@
 package ru.nesterov.service.event;
 
 import lombok.AllArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
@@ -13,10 +14,10 @@ import ru.nesterov.repository.ClientRepository;
 import java.time.Duration;
 
 @Service
+@Slf4j
 @AllArgsConstructor
 public class EventService {
     private final ClientRepository clientRepository;
-    private final Logger logger = LoggerFactory.getLogger(EventService.class);
 
     public double getEventIncome(Event event) {
         Client client = clientRepository.findClientByName(event.getSummary());

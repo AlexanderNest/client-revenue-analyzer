@@ -1,6 +1,7 @@
 package ru.nesterov.service.event;
 
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
@@ -23,6 +24,7 @@ import java.util.List;
 import java.util.Map;
 
 @Service
+@Slf4j
 @RequiredArgsConstructor
 public class EventsAnalyzerServiceImpl implements EventsAnalyzerService {
     private final CalendarService calendarService;
@@ -30,7 +32,6 @@ public class EventsAnalyzerServiceImpl implements EventsAnalyzerService {
     private final EventStatusService eventStatusService;
     private final EventsAnalyzerProperties eventsAnalyzerProperties;
     private final EventService eventService;
-    private final Logger logger = LoggerFactory.getLogger(EventsAnalyzerServiceImpl.class);
 
     public Map<String, ClientMeetingsStatistic> getStatisticsOfEachClientMeetings(String monthName) {
         List<Event> events = getEventsByMonth(monthName);
