@@ -96,7 +96,7 @@ class EventsAnalyzerServiceImplTest {
                 .start(start)
                 .end(end)
                 .eventExtension(eventExtension)
-                .colorId("1")
+                .status(EventStatus.SUCCESS)
                 .build();
 
         when(googleCalendarService.getEventsBetweenDates(any(), any())).thenReturn(List.of(event1, event2, event3, event4, event5, event6));
