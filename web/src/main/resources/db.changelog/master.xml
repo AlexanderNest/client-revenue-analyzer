@@ -13,13 +13,14 @@
         <sql>
             CREATE SEQUENCE client_seq START WITH 1 INCREMENT BY 1;
 
-            CREATE TABLE CLIENT (
-                ID BIGINT DEFAULT NEXT VALUE FOR client_seq PRIMARY KEY,
-                NAME VARCHAR(255),
-                DESCRIPTION VARCHAR(255),
+            CREATE TABLE CLIENT
+            (
+                ID             BIGINT DEFAULT NEXT VALUE FOR client_seq PRIMARY KEY,
+                NAME           VARCHAR(255),
+                DESCRIPTION    VARCHAR(255),
                 PRICE_PER_HOUR INT
             );
-            CREATE INDEX IDX_CLIENT_ID ON CLIENT(ID);
+            CREATE INDEX IDX_CLIENT_ID ON CLIENT (ID);
         </sql>
     </changeSet>
 
@@ -32,6 +33,39 @@
         <addColumn tableName="client">
             <column name="active" type="boolean" defaultValue="true"></column>
         </addColumn>
+    </changeSet>
+
+    <changeSet id="task-#42-create-table-user" author="Valera">
+        <preConditions>
+            <not>
+                <tableExists tableName="user"/>
+            </not>
+        </preConditions>
+        <sql>
+            CREATE TABLE "user"
+            (
+                id                 BIGSERIAL PRIMARY KEY NOT NULL,
+                username           VARCHAR(20)           NOT NULL,
+                main_calendar      VARCHAR(200)          NOT NULL,
+                cancelled_calender VARCHAR(200)
+            )
+        </sql>
+    </changeSet>
+
+    <changeSet id="task-#42-add-column-user_id-to-table-CLIENT" author="Valera">
+        <preConditions>
+            <and>
+                <tableExists tableName="CLIENT"/>
+                <tableExists tableName="user"/>
+                <not>
+                    <columnExists tableName="CLIENT" columnName="user_id"/>
+                </not>
+            </and>
+        </preConditions>
+        <sql>
+            ALTER TABLE CLIENT
+            ADD user_id BIGINT REFERENCES "user"(id) NOT NULL
+        </sql>
     </changeSet>
 
 </databaseChangeLog>

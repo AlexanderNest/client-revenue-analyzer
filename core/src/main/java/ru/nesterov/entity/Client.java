@@ -15,4 +15,7 @@ public class Client {
     private int pricePerHour;
     private String description;
     private boolean active;
+
+    @Column(name = "user_id", nullable = false)
+    private Long userId;
 }
