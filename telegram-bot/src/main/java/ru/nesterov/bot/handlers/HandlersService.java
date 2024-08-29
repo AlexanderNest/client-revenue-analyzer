@@ -7,7 +7,8 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.stereotype.Component;
 import org.telegram.telegrambots.meta.api.objects.Update;
-import ru.nesterov.bot.handlers.implementation.GetMonthStatisticsHandler;
+import ru.nesterov.bot.handlers.implementation.GetClientScheduleHandlerClientRevenue;
+import ru.nesterov.bot.handlers.implementation.GetMonthStatisticsHandlerClientRevenue;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -17,13 +18,15 @@ import java.util.List;
 @RequiredArgsConstructor
 @ConditionalOnProperty("bot.enabled")
 public class HandlersService {
-    private final GetMonthStatisticsHandler getMonthStatisticsHandler;
+    private final GetMonthStatisticsHandlerClientRevenue getMonthStatisticsHandler;
+    private final GetClientScheduleHandlerClientRevenue getClientScheduleHandler;
 
     private final List<CommandHandler> commandHandlers = new ArrayList<>();
 
     @PostConstruct
     private void init() {
         commandHandlers.add(getMonthStatisticsHandler);
+        commandHandlers.add(getClientScheduleHandler);
     }
 
     @Nullable

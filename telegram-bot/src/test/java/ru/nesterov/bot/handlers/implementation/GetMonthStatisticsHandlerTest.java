@@ -17,7 +17,7 @@ import org.telegram.telegrambots.meta.api.objects.Update;
 import org.telegram.telegrambots.meta.api.objects.replykeyboard.InlineKeyboardMarkup;
 import org.telegram.telegrambots.meta.api.objects.replykeyboard.ReplyKeyboard;
 import org.telegram.telegrambots.meta.api.objects.replykeyboard.buttons.InlineKeyboardButton;
-import ru.nesterov.bot.handlers.callback.GetMonthStatisticsKeyboardCallback;
+import ru.nesterov.bot.handlers.callback.ButtonCallback;
 import ru.nesterov.dto.GetIncomeAnalysisForMonthResponse;
 import ru.nesterov.integration.ClientRevenueAnalyzerIntegrationClient;
 import ru.nesterov.utils.MonthUtil;
@@ -31,13 +31,13 @@ import static org.mockito.Mockito.when;
 
 @SpringBootTest
 @ContextConfiguration(classes = {
-        GetMonthStatisticsHandler.class,
+        GetMonthStatisticsHandlerClientRevenue.class,
         ObjectMapper.class
 })
 class GetMonthStatisticsHandlerTest {
     private static final String markSymbol = "\u2B50";
     @Autowired
-    private GetMonthStatisticsHandler handler;
+    private GetMonthStatisticsHandlerClientRevenue handler;
     @Autowired
     private ObjectMapper objectMapper;
     @MockBean
@@ -68,7 +68,7 @@ class GetMonthStatisticsHandlerTest {
         Update update = new Update();
         CallbackQuery callbackQuery = new CallbackQuery();
         callbackQuery.setId(String.valueOf(1));
-        GetMonthStatisticsKeyboardCallback callback = new GetMonthStatisticsKeyboardCallback();
+        ButtonCallback callback = new ButtonCallback();
         callback.setCommand("/monthincome");
         callback.setValue(markSymbol + "august");
         callbackQuery.setMessage(message);
