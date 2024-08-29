@@ -2,6 +2,7 @@ package ru.nesterov.controller;
 
 import lombok.RequiredArgsConstructor;
 import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestHeader;
 import org.springframework.web.bind.annotation.RestController;
 import ru.nesterov.controller.request.GetForMonthRequest;
 import ru.nesterov.controller.response.EventResponse;
@@ -18,20 +19,20 @@ import java.util.Map;
 public class EventsAnalyzerControllerImpl implements EventsAnalyzerController {
     private final EventsAnalyzerService eventsAnalyzerService;
 
-    public Map<String, ClientMeetingsStatistic> getClientStatistics(@RequestBody GetForMonthRequest request) {
-        return eventsAnalyzerService.getStatisticsOfEachClientMeetings(request.getMonthName());
+    public Map<String, ClientMeetingsStatistic> getClientStatistics(@RequestHeader(name = "username") String username, @RequestBody GetForMonthRequest request) {
+        return eventsAnalyzerService.getStatisticsOfEachClientMeetings(username, request.getMonthName());
     }
 
-    public Map<EventStatus, Integer> getEventsStatusesForMonth(@RequestBody GetForMonthRequest request) {
-        return eventsAnalyzerService.getEventStatusesByMonthName(request.getMonthName());
+    public Map<EventStatus, Integer> getEventsStatusesForMonth(@RequestHeader(name = "username") String username, @RequestBody GetForMonthRequest request) {
+        return eventsAnalyzerService.getEventStatusesByMonthName(username, request.getMonthName());
     }
 
-    public IncomeAnalysisResult getIncomeAnalysisForMonth(@RequestBody GetForMonthRequest request) {
-        return eventsAnalyzerService.getIncomeAnalysisByMonth(request.getMonthName());
+    public IncomeAnalysisResult getIncomeAnalysisForMonth(@RequestHeader(name = "username") String username, @RequestBody GetForMonthRequest request) {
+        return eventsAnalyzerService.getIncomeAnalysisByMonth(username, request.getMonthName());
     }
 
-    public List<EventResponse> getUnpaidEvents() {
-        return eventsAnalyzerService.getUnpaidEvents().stream()
+    public List<EventResponse> getUnpaidEvents(@RequestHeader(name = "username") String username) {
+        return eventsAnalyzerService.getUnpaidEvents(username).stream()
                 .map(event -> new EventResponse(event.getSummary(), event.getStart()))
                 .toList();
     }

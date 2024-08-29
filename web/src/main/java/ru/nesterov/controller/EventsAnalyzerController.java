@@ -8,6 +8,7 @@ import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestHeader;
 import org.springframework.web.bind.annotation.RequestMapping;
 import ru.nesterov.controller.request.GetForMonthRequest;
 import ru.nesterov.controller.response.EventResponse;
@@ -37,7 +38,7 @@ public interface EventsAnalyzerController {
             }
     )
     @PostMapping("/getClientsStatistics")
-    Map<String, ClientMeetingsStatistic> getClientStatistics(@RequestBody GetForMonthRequest request);
+    Map<String, ClientMeetingsStatistic> getClientStatistics(@RequestHeader(name = "username") String username, @RequestBody GetForMonthRequest request);
 
     @Operation(
             summary = "Получить статусы событий за месяц",
@@ -54,7 +55,7 @@ public interface EventsAnalyzerController {
             }
     )
     @PostMapping("/getEventsStatusesForMonth")
-    Map<EventStatus, Integer> getEventsStatusesForMonth(@RequestBody GetForMonthRequest request);
+    Map<EventStatus, Integer> getEventsStatusesForMonth(@RequestHeader(name = "username") String username, @RequestBody GetForMonthRequest request);
 
     @Operation(
             summary = "Получить анализ доходов за месяц",
@@ -70,7 +71,7 @@ public interface EventsAnalyzerController {
             }
     )
     @PostMapping("/getIncomeAnalysisForMonth")
-    IncomeAnalysisResult getIncomeAnalysisForMonth(@RequestBody GetForMonthRequest request);
+    IncomeAnalysisResult getIncomeAnalysisForMonth(@RequestHeader(name = "username") String username, @RequestBody GetForMonthRequest request);
 
     @Operation(
             summary = "Получить неоплаченные события",
@@ -81,5 +82,5 @@ public interface EventsAnalyzerController {
             }
     )
     @GetMapping("/getUnpaidEvents")
-    List<EventResponse> getUnpaidEvents();
+    List<EventResponse> getUnpaidEvents(@RequestHeader(name = "username") String username);
 }

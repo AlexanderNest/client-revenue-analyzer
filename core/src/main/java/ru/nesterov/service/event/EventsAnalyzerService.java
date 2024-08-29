@@ -10,10 +10,10 @@ import java.util.List;
 import java.util.Map;
 
 public interface EventsAnalyzerService {
-    Map<EventStatus, Integer> getEventStatusesBetweenDates(LocalDateTime leftDate, LocalDateTime rightDate);
-    Map<EventStatus, Integer> getEventStatusesByMonthName(String monthName);
-    IncomeAnalysisResult getIncomeAnalysisByMonth(String monthName);
-    Map<String, ClientMeetingsStatistic> getStatisticsOfEachClientMeetings(String monthName);
-    List<Event> getUnpaidEventsBetweenDates(LocalDateTime leftDate, LocalDateTime rightDate);
-    List<Event> getUnpaidEvents();
+    Map<EventStatus, Integer> getEventStatusesBetweenDates(String mainCalendar, String cancelledCalendar, LocalDateTime leftDate, LocalDateTime rightDate);
+    Map<EventStatus, Integer> getEventStatusesByMonthName(String username, String monthName);
+    IncomeAnalysisResult getIncomeAnalysisByMonth(String username, String monthName);
+    Map<String, ClientMeetingsStatistic> getStatisticsOfEachClientMeetings(String username, String monthName);
+    List<Event> getUnpaidEventsBetweenDates(String mainCalendar, String cancelledCalendar, LocalDateTime leftDate, LocalDateTime rightDate);
+    List<Event> getUnpaidEvents(String username);
 }
