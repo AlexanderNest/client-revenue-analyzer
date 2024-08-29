@@ -33,7 +33,8 @@ public class EventsAnalyzerServiceImpl implements EventsAnalyzerService {
     private final UserRepository userRepository;
 
     public Map<String, ClientMeetingsStatistic> getStatisticsOfEachClientMeetings(String username, String monthName) {
-        List<Event> events = getEventsByMonth(username, monthName);
+        User user = userRepository.findByUsername(username);
+        List<Event> events = getEventsByMonth(user, monthName);
 
         Map<String, ClientMeetingsStatistic> meetingsStatistics = new HashMap<>();
 
@@ -42,7 +43,7 @@ public class EventsAnalyzerServiceImpl implements EventsAnalyzerService {
 
             ClientMeetingsStatistic clientMeetingsStatistic = meetingsStatistics.get(event.getSummary());
             if (clientMeetingsStatistic == null) {
-                Client client = clientRepository.findClientByNameAndUserId(event.getSummary(), 1L);
+                Client client = clientRepository.findClientByNameAndUserId(event.getSummary(), user.getId());
                 if (client == null) {
                     throw new ClientNotFoundException(event.getSummary());
                 }
@@ -63,7 +64,8 @@ public class EventsAnalyzerServiceImpl implements EventsAnalyzerService {
     }
 
     public IncomeAnalysisResult getIncomeAnalysisByMonth(String username, String monthName) {
-        List<Event> events = getEventsByMonth(username, monthName);
+        User user = userRepository.findByUsername(username);
+        List<Event> events = getEventsByMonth(user, monthName);
 
         double actualIncome = 0;
         double lostIncome = 0;
@@ -72,7 +74,7 @@ public class EventsAnalyzerServiceImpl implements EventsAnalyzerService {
         for (Event event : events) {
             EventStatus eventStatus = event.getStatus();
 
-            Client client = clientRepository.findClientByNameAndUserId(event.getSummary(), 1L);
+            Client client = clientRepository.findClientByNameAndUserId(event.getSummary(), user.getId());
             if (client == null) {
                 throw new ClientNotFoundException(event.getSummary(), event.getStart());
             }
@@ -141,9 +143,8 @@ public class EventsAnalyzerServiceImpl implements EventsAnalyzerService {
         return statuses;
     }
 
-    private List<Event> getEventsByMonth(String username, String monthName) {
+    private List<Event> getEventsByMonth(User user, String monthName) {
         MonthDatesPair monthDatesPair = MonthHelper.getFirstAndLastDayOfMonth(monthName);
-        User user = userRepository.findByUsername(username);
         return calendarService.getEventsBetweenDates(user.getMainCalendar(), user.getCancelledCalendar(), monthDatesPair.getFirstDate(), monthDatesPair.getLastDate());
     }
 }
