@@ -1,6 +1,7 @@
 package ru.nesterov.controller;
 
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RestController;
 import ru.nesterov.controller.request.CreateClientRequest;
@@ -15,6 +16,7 @@ import java.util.List;
 
 @RestController
 @RequiredArgsConstructor
+@Slf4j
 public class ClientControllerImpl implements ClientController {
     private final ClientService clientService;
 
@@ -27,6 +29,7 @@ public class ClientControllerImpl implements ClientController {
     public ClientResponse createClient(@RequestBody CreateClientRequest createClientRequest) {
         ClientDto clientDto = ClientMapper.mapToClientDto(createClientRequest);
         ClientDto result = clientService.createClient(clientDto, createClientRequest.isIdGenerationNeeded());
+        log.info("client id", clientDto.getId());
         return ClientMapper.mapToClientResponse(result);
     }
 

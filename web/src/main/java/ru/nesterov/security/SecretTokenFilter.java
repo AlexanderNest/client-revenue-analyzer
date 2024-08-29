@@ -39,8 +39,8 @@ public class SecretTokenFilter implements Filter {
         String header = request.getHeader(HEADER);
         if (!token.equals(header)) {
             response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
+        } else {
+            filterChain.doFilter(request, response);
         }
-
-        filterChain.doFilter(request, response);
     }
 }
