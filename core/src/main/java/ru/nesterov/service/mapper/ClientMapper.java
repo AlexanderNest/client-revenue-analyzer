@@ -11,6 +11,7 @@ public class ClientMapper {
                 .name(client.getName())
                 .id(client.getId())
                 .active(client.isActive())
+                .userId(client.getUserId())
                 .build();
     }
 
@@ -21,6 +22,7 @@ public class ClientMapper {
         client.setName(clientDto.getName());
         client.setPricePerHour(clientDto.getPricePerHour());
         client.setActive(clientDto.isActive());
+        client.setUserId(clientDto.getUserId());
         return client;
     }
 }

@@ -7,9 +7,9 @@ import java.time.LocalDateTime;
 import java.util.List;
 
 public interface ClientService {
-    ClientDto createClient(ClientDto clientDto, boolean isGenerationOfIdNeeded);
+    ClientDto createClient(String username, ClientDto clientDto, boolean isGenerationOfIdNeeded);
 
-    List<MonthDatesPair> getClientSchedule(String clientName, LocalDateTime leftDate, LocalDateTime rightDate);
+    List<MonthDatesPair> getClientSchedule(String username, String clientName, LocalDateTime leftDate, LocalDateTime rightDate);
 
-    List<ClientDto> getActiveClients();
+    List<ClientDto> getActiveClients(String username);
 }

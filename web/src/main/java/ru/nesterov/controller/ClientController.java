@@ -7,6 +7,7 @@ import io.swagger.v3.oas.annotations.parameters.RequestBody;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestHeader;
 import org.springframework.web.bind.annotation.RequestMapping;
 import ru.nesterov.controller.request.CreateClientRequest;
 import ru.nesterov.controller.request.GetClientScheduleRequest;
@@ -33,7 +34,7 @@ public interface ClientController {
             }
     )
     @PostMapping("/getSchedule")
-    List<EventScheduleResponse> getClientSchedule(@RequestBody GetClientScheduleRequest request);
+    List<EventScheduleResponse> getClientSchedule(@RequestHeader(name = "username") String username, @RequestBody GetClientScheduleRequest request);
 
     @Operation(
             summary = "Создать клиента",
@@ -49,7 +50,7 @@ public interface ClientController {
             }
     )
     @PostMapping("/create")
-    ClientResponse createClient(@RequestBody CreateClientRequest createClientRequest);
+    ClientResponse createClient(@RequestHeader(name = "username") String username, @RequestBody CreateClientRequest createClientRequest);
 
     @Operation(
             summary = "Вывод информации об активных клиентах",
@@ -60,5 +61,5 @@ public interface ClientController {
             }
     )
     @PostMapping("/getActiveClients")
-    List<ClientResponse> getActiveClients();
+    List<ClientResponse> getActiveClients(@RequestHeader(name = "username") String username);
 }

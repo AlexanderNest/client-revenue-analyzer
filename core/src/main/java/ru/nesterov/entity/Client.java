@@ -17,5 +17,5 @@ public class Client {
     private boolean active;
 
     @Column(name = "user_id", nullable = false)
-    private Long userId;
+    private long userId;
 }

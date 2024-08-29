@@ -4,8 +4,10 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import ru.nesterov.dto.Event;
 import ru.nesterov.entity.Client;
+import ru.nesterov.entity.User;
 import ru.nesterov.exception.ClientNotFoundException;
 import ru.nesterov.repository.ClientRepository;
+import ru.nesterov.repository.UserRepository;
 import ru.nesterov.service.CalendarService;
 import ru.nesterov.service.dto.ClientDto;
 import ru.nesterov.service.mapper.ClientMapper;
@@ -19,14 +21,17 @@ import java.util.List;
 public class ClientServiceImpl implements ClientService {
     private final CalendarService calendarService;
     private final ClientRepository clientRepository;
+    private final UserRepository userRepository;
 
 
-    public List<MonthDatesPair> getClientSchedule(String clientName, LocalDateTime leftDate, LocalDateTime rightDate) {
-        Client client = clientRepository.findClientByName(clientName);
+    public List<MonthDatesPair> getClientSchedule(String username, String clientName, LocalDateTime leftDate, LocalDateTime rightDate) {
+        User user = userRepository.findByUsername(username);
+
+        Client client = clientRepository.findClientByNameAndUserId(clientName, user.getId());
         if (client == null) {
             throw new ClientNotFoundException(clientName);
         }
-        List<Event> events = calendarService.getEventsBetweenDates(leftDate, rightDate);
+        List<Event> events = calendarService.getEventsBetweenDates(user.getMainCalendar(), user.getCancelledCalendar(), leftDate, rightDate);
 
         return events.stream()
                 .filter(event -> event.getSummary().equals(client.getName()))
@@ -34,8 +39,11 @@ public class ClientServiceImpl implements ClientService {
                 .toList();
     }
 
-    public ClientDto createClient(ClientDto clientDto, boolean isIdGenerationNeeded) throws ClientNotFoundException {
-        List<Client> clientsWithThisName = clientRepository.findAllByNameContaining(clientDto.getName()).stream()
+    public ClientDto createClient(String username, ClientDto clientDto, boolean isIdGenerationNeeded) throws ClientNotFoundException {
+        User user = userRepository.findByUsername(username);
+        clientDto.setUserId(user.getId());
+
+        List<Client> clientsWithThisName = clientRepository.findAllByNameContainingAndUserId(clientDto.getName(), user.getId()).stream()
                 .toList();
         if (!clientsWithThisName.isEmpty() && !isIdGenerationNeeded) {
             throw new ClientNotFoundException(clientDto.getName());
@@ -48,8 +56,10 @@ public class ClientServiceImpl implements ClientService {
     }
 
     @Override
-    public List<ClientDto> getActiveClients() {
-        return clientRepository.findClientByActiveOrderByPricePerHourDesc(true).stream()
+    public List<ClientDto> getActiveClients(String username) {
+        User user = userRepository.findByUsername(username);
+
+        return clientRepository.findClientByUserIdAndActiveOrderByPricePerHourDesc(user.getId(),true).stream()
                 .map(ClientMapper::mapToClientDto)
                 .toList();
     }
