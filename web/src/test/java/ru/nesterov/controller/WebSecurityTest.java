@@ -26,10 +26,13 @@ public class WebSecurityTest {
     @MockBean
     private CalendarClient calendarClient;
 
+    private final String TEST_URL = "/events/analyzer/getUnpaidEvents";
+    private final String HEADER = "X-secret-token";
+
     @Test
     @Transactional
     public void securityTestUnauthorized() throws Exception {
-        mockMvc.perform(get("/events/analyzer/getUnpaidEvents")
+        mockMvc.perform(get(TEST_URL)
                         .contentType(MediaType.APPLICATION_JSON)
                 )
                 .andExpect(status().is(401));
@@ -38,7 +41,7 @@ public class WebSecurityTest {
     @Test
     @Transactional
     public void securityTestAuthorized() throws Exception {
-        mockMvc.perform(get("/events/analyzer/getUnpaidEvents").header("X-secret-token", "secret-token")
+        mockMvc.perform(get(TEST_URL).header(HEADER, "secret-token")
                 .contentType(MediaType.APPLICATION_JSON)
             )
                     .andExpect(status().isOk());
