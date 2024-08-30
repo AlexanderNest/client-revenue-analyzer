@@ -8,9 +8,6 @@ import jakarta.servlet.ServletResponse;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
-import org.springframework.security.core.context.SecurityContextHolder;
-import org.springframework.security.web.authentication.preauth.PreAuthenticatedAuthenticationToken;
 import org.springframework.stereotype.Component;
 
 import java.io.IOException;
@@ -30,12 +27,13 @@ public class SecretTokenFilter implements Filter {
 
     @Override
     public void doFilter(ServletRequest servletRequest, ServletResponse servletResponse, FilterChain filterChain) throws IOException, ServletException {
-        if (!secretTokenEnabled) {
-            return;
-        }
         HttpServletRequest request = (HttpServletRequest) servletRequest;
         HttpServletResponse response = (HttpServletResponse) servletResponse;
 
+        if (!secretTokenEnabled) {
+            filterChain.doFilter(request, response);
+            return;
+        }
         String header = request.getHeader(HEADER);
         if (!token.equals(header)) {
             response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);

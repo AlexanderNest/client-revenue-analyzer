@@ -29,7 +29,6 @@ public class ClientControllerImpl implements ClientController {
     public ClientResponse createClient(@RequestBody CreateClientRequest createClientRequest) {
         ClientDto clientDto = ClientMapper.mapToClientDto(createClientRequest);
         ClientDto result = clientService.createClient(clientDto, createClientRequest.isIdGenerationNeeded());
-        log.info("client id", clientDto.getId());
         return ClientMapper.mapToClientResponse(result);
     }
 
