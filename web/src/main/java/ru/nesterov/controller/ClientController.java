@@ -34,7 +34,7 @@ public interface ClientController {
             }
     )
     @PostMapping("/getSchedule")
-    List<EventScheduleResponse> getClientSchedule(@RequestHeader(name = "username") String username, @RequestBody GetClientScheduleRequest request);
+    List<EventScheduleResponse> getClientSchedule(@RequestHeader(name = "X-username") String username, @RequestBody GetClientScheduleRequest request);
 
     @Operation(
             summary = "Создать клиента",
@@ -50,7 +50,7 @@ public interface ClientController {
             }
     )
     @PostMapping("/create")
-    ClientResponse createClient(@RequestHeader(name = "username") String username, @RequestBody CreateClientRequest createClientRequest);
+    ClientResponse createClient(@RequestHeader(name = "X-username") String username, @RequestBody CreateClientRequest createClientRequest);
 
     @Operation(
             summary = "Вывод информации об активных клиентах",
@@ -61,5 +61,5 @@ public interface ClientController {
             }
     )
     @PostMapping("/getActiveClients")
-    List<ClientResponse> getActiveClients(@RequestHeader(name = "username") String username);
+    List<ClientResponse> getActiveClients(@RequestHeader(name = "X-username") String username);
 }

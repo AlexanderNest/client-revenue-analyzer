@@ -45,7 +45,7 @@
             CREATE TABLE "user"
             (
                 id                 BIGSERIAL PRIMARY KEY NOT NULL,
-                username           VARCHAR(20)           NOT NULL,
+                username           VARCHAR(20) UNIQUE    NOT NULL,
                 main_calendar      VARCHAR(200)          NOT NULL,
                 cancelled_calender VARCHAR(200)
             )
@@ -64,7 +64,7 @@
         </preConditions>
         <sql>
             ALTER TABLE CLIENT
-            ADD user_id BIGINT REFERENCES "user"(id) NOT NULL
+                ADD user_id BIGINT REFERENCES "user" (id) NOT NULL
         </sql>
     </changeSet>
 

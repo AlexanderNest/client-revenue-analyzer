@@ -9,11 +9,11 @@ import java.util.List;
 
 @Repository
 public interface ClientRepository extends JpaRepository<Client, Long> {
-    Client findClientByNameAndUserId(String name, long id);
+    Client findClientByNameAndUserId(String name, long userId);
 
-    List<Client> findAllByNameContainingAndUserId(String name, long id);
+    List<Client> findAllByNameContainingAndUserId(String name, long userId);
 
     List<Client> findClientByUserIdAndActiveOrderByPricePerHourDesc(long userId, boolean active);
 
-    int deleteClientByName(String name);
+    int deleteClientByNameAndUserId(String name, long userId);
 }

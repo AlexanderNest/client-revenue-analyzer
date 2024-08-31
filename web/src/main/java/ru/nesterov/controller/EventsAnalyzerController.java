@@ -38,7 +38,7 @@ public interface EventsAnalyzerController {
             }
     )
     @PostMapping("/getClientsStatistics")
-    Map<String, ClientMeetingsStatistic> getClientStatistics(@RequestHeader(name = "username") String username, @RequestBody GetForMonthRequest request);
+    Map<String, ClientMeetingsStatistic> getClientStatistics(@RequestHeader(name = "X-username") String username, @RequestBody GetForMonthRequest request);
 
     @Operation(
             summary = "Получить статусы событий за месяц",
@@ -55,7 +55,7 @@ public interface EventsAnalyzerController {
             }
     )
     @PostMapping("/getEventsStatusesForMonth")
-    Map<EventStatus, Integer> getEventsStatusesForMonth(@RequestHeader(name = "username") String username, @RequestBody GetForMonthRequest request);
+    Map<EventStatus, Integer> getEventsStatusesForMonth(@RequestHeader(name = "X-username") String username, @RequestBody GetForMonthRequest request);
 
     @Operation(
             summary = "Получить анализ доходов за месяц",
@@ -71,7 +71,7 @@ public interface EventsAnalyzerController {
             }
     )
     @PostMapping("/getIncomeAnalysisForMonth")
-    IncomeAnalysisResult getIncomeAnalysisForMonth(@RequestHeader(name = "username") String username, @RequestBody GetForMonthRequest request);
+    IncomeAnalysisResult getIncomeAnalysisForMonth(@RequestHeader(name = "X-username") String username, @RequestBody GetForMonthRequest request);
 
     @Operation(
             summary = "Получить неоплаченные события",
@@ -82,5 +82,5 @@ public interface EventsAnalyzerController {
             }
     )
     @GetMapping("/getUnpaidEvents")
-    List<EventResponse> getUnpaidEvents(@RequestHeader(name = "username") String username);
+    List<EventResponse> getUnpaidEvents(@RequestHeader(name = "X-username") String username);
 }

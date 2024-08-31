@@ -33,8 +33,7 @@ public class EventsAnalyzerServiceImpl implements EventsAnalyzerService {
     private final UserRepository userRepository;
 
     public Map<String, ClientMeetingsStatistic> getStatisticsOfEachClientMeetings(String username, String monthName) {
-        User user = userRepository.findByUsername(username);
-        List<Event> events = getEventsByMonth(user, monthName);
+        List<Event> events = getEventsByMonth(username, monthName);
 
         Map<String, ClientMeetingsStatistic> meetingsStatistics = new HashMap<>();
 
@@ -43,7 +42,7 @@ public class EventsAnalyzerServiceImpl implements EventsAnalyzerService {
 
             ClientMeetingsStatistic clientMeetingsStatistic = meetingsStatistics.get(event.getSummary());
             if (clientMeetingsStatistic == null) {
-                Client client = clientRepository.findClientByNameAndUserId(event.getSummary(), user.getId());
+                Client client = clientRepository.findClientByNameAndUserId(event.getSummary(), event.getUserId());
                 if (client == null) {
                     throw new ClientNotFoundException(event.getSummary());
                 }
@@ -64,8 +63,7 @@ public class EventsAnalyzerServiceImpl implements EventsAnalyzerService {
     }
 
     public IncomeAnalysisResult getIncomeAnalysisByMonth(String username, String monthName) {
-        User user = userRepository.findByUsername(username);
-        List<Event> events = getEventsByMonth(user, monthName);
+        List<Event> events = getEventsByMonth(username, monthName);
 
         double actualIncome = 0;
         double lostIncome = 0;
@@ -74,7 +72,7 @@ public class EventsAnalyzerServiceImpl implements EventsAnalyzerService {
         for (Event event : events) {
             EventStatus eventStatus = event.getStatus();
 
-            Client client = clientRepository.findClientByNameAndUserId(event.getSummary(), user.getId());
+            Client client = clientRepository.findClientByNameAndUserId(event.getSummary(), event.getUserId());
             if (client == null) {
                 throw new ClientNotFoundException(event.getSummary(), event.getStart());
             }
@@ -126,12 +124,13 @@ public class EventsAnalyzerServiceImpl implements EventsAnalyzerService {
 
     public Map<EventStatus, Integer> getEventStatusesByMonthName(String username, String monthName) {
         MonthDatesPair monthDatesPair = MonthHelper.getFirstAndLastDayOfMonth(monthName);
-        User user = userRepository.findByUsername(username);
-        return getEventStatusesBetweenDates(user.getMainCalendar(), user.getCancelledCalendar(), monthDatesPair.getFirstDate(), monthDatesPair.getLastDate());
+        return getEventStatusesBetweenDates(username, monthDatesPair.getFirstDate(), monthDatesPair.getLastDate());
     }
 
-    public Map<EventStatus, Integer> getEventStatusesBetweenDates(String mainCalendar, String cancelledCalendar, LocalDateTime leftDate, LocalDateTime rightDate) {
-        List<Event> events = calendarService.getEventsBetweenDates(mainCalendar, cancelledCalendar, leftDate, rightDate);
+    public Map<EventStatus, Integer> getEventStatusesBetweenDates(String username, LocalDateTime leftDate, LocalDateTime rightDate) {
+        User user = userRepository.findByUsername(username);
+
+        List<Event> events = calendarService.getEventsBetweenDates(user.getMainCalendar(), user.getCancelledCalendar(), leftDate, rightDate);
 
         Map<EventStatus, Integer> statuses = new HashMap<>();
         for (Event event : events) {
@@ -143,8 +142,15 @@ public class EventsAnalyzerServiceImpl implements EventsAnalyzerService {
         return statuses;
     }
 
-    private List<Event> getEventsByMonth(User user, String monthName) {
+    private List<Event> getEventsByMonth(String username, String monthName) {
+        User user = userRepository.findByUsername(username);
         MonthDatesPair monthDatesPair = MonthHelper.getFirstAndLastDayOfMonth(monthName);
-        return calendarService.getEventsBetweenDates(user.getMainCalendar(), user.getCancelledCalendar(), monthDatesPair.getFirstDate(), monthDatesPair.getLastDate());
+        List<Event> events = calendarService.getEventsBetweenDates(user.getMainCalendar(), user.getCancelledCalendar(), monthDatesPair.getFirstDate(), monthDatesPair.getLastDate());
+
+        for (Event event : events) {
+            event.setUserId(user.getId());
+        }
+
+        return events;
     }
 }

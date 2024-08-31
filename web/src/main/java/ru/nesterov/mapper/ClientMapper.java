@@ -22,9 +22,7 @@ public class ClientMapper {
                 .description(clientDto.getDescription())
                 .pricePerHour(clientDto.getPricePerHour())
                 .active(clientDto.isActive())
-                .userId(clientDto.getUserId())
                 .build();
     }
-
 }
 

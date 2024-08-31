@@ -19,20 +19,20 @@ import java.util.List;
 public class ClientControllerImpl implements ClientController {
     private final ClientService clientService;
 
-    public List<EventScheduleResponse> getClientSchedule(@RequestHeader(name = "username") String username, @RequestBody GetClientScheduleRequest request) {
+    public List<EventScheduleResponse> getClientSchedule(@RequestHeader(name = "X-username") String username, @RequestBody GetClientScheduleRequest request) {
         return clientService.getClientSchedule(username, request.getClientName(), request.getLeftDate(), request.getRightDate()).stream()
                 .map(monthDatesPair -> new EventScheduleResponse(monthDatesPair.getFirstDate(), monthDatesPair.getLastDate()))
                 .toList();
     }
 
-    public ClientResponse createClient(@RequestHeader(name = "username") String username, @RequestBody CreateClientRequest createClientRequest) {
+    public ClientResponse createClient(@RequestHeader(name = "X-username") String username, @RequestBody CreateClientRequest createClientRequest) {
         ClientDto clientDto = ClientMapper.mapToClientDto(createClientRequest);
         ClientDto result = clientService.createClient(username, clientDto, createClientRequest.isIdGenerationNeeded());
         return ClientMapper.mapToClientResponse(result);
     }
 
     @Override
-    public List<ClientResponse> getActiveClients(@RequestHeader(name = "username") String username) {
+    public List<ClientResponse> getActiveClients(@RequestHeader(name = "X-username") String username) {
         return clientService.getActiveClients(username).stream()
                 .map(ClientMapper::mapToClientResponse)
                 .toList();

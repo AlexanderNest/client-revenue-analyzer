@@ -19,19 +19,19 @@ import java.util.Map;
 public class EventsAnalyzerControllerImpl implements EventsAnalyzerController {
     private final EventsAnalyzerService eventsAnalyzerService;
 
-    public Map<String, ClientMeetingsStatistic> getClientStatistics(@RequestHeader(name = "username") String username, @RequestBody GetForMonthRequest request) {
+    public Map<String, ClientMeetingsStatistic> getClientStatistics(@RequestHeader(name = "X-username") String username, @RequestBody GetForMonthRequest request) {
         return eventsAnalyzerService.getStatisticsOfEachClientMeetings(username, request.getMonthName());
     }
 
-    public Map<EventStatus, Integer> getEventsStatusesForMonth(@RequestHeader(name = "username") String username, @RequestBody GetForMonthRequest request) {
+    public Map<EventStatus, Integer> getEventsStatusesForMonth(@RequestHeader(name = "X-username") String username, @RequestBody GetForMonthRequest request) {
         return eventsAnalyzerService.getEventStatusesByMonthName(username, request.getMonthName());
     }
 
-    public IncomeAnalysisResult getIncomeAnalysisForMonth(@RequestHeader(name = "username") String username, @RequestBody GetForMonthRequest request) {
+    public IncomeAnalysisResult getIncomeAnalysisForMonth(@RequestHeader(name = "X-username") String username, @RequestBody GetForMonthRequest request) {
         return eventsAnalyzerService.getIncomeAnalysisByMonth(username, request.getMonthName());
     }
 
-    public List<EventResponse> getUnpaidEvents(@RequestHeader(name = "username") String username) {
+    public List<EventResponse> getUnpaidEvents(@RequestHeader(name = "X-username") String username) {
         return eventsAnalyzerService.getUnpaidEvents(username).stream()
                 .map(event -> new EventResponse(event.getSummary(), event.getStart()))
                 .toList();
