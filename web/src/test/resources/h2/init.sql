@@ -1,8 +1,9 @@
 CREATE TABLE "user"
 (
-    id            int auto_increment PRIMARY KEY,
-    username      VARCHAR(30)  NOT NULL,
-    main_calendar VARCHAR(100) NOT NULL
+    id                 int auto_increment PRIMARY KEY,
+    username           VARCHAR(30) UNIQUE NOT NULL,
+    main_calendar      VARCHAR(100)       NOT NULL,
+    cancelled_calendar VARCHAR(100)
 );
 
 CREATE TABLE Client

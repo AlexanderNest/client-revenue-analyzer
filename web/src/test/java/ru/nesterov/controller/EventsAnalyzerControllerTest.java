@@ -57,20 +57,6 @@ public class EventsAnalyzerControllerTest {
         when(userRepository.findByUsername("testUser1")).thenReturn(user1);
         when(clientRepository.findClientByNameAndUserId("testName1", 1)).thenReturn(client1);
 
-        User user2 = new User();
-        user2.setId(2);
-        user2.setUsername("testUser2");
-        user2.setMainCalendar("someCalendar2");
-
-        Client client2 = new Client();
-        client2.setId(1);
-        client2.setName("testName2");
-        client2.setPricePerHour(1000);
-        client2.setUserId(2);
-
-        when(userRepository.findByUsername("testUser2")).thenReturn(user2);
-        when(clientRepository.findClientByNameAndUserId("testName2", 2)).thenReturn(client2);
-
         Event event1 = Event.builder()
                 .summary("unpaid1")
                 .status(EventStatus.PLANNED)
@@ -118,7 +104,7 @@ public class EventsAnalyzerControllerTest {
         DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd'T'HH:mm:ss");
 
         mockMvc.perform(get("/events/analyzer/getUnpaidEvents")
-                        .header("username", "testUser1")
+                        .header("X-username", "testUser1")
                         .contentType(MediaType.APPLICATION_JSON)
                 )
                 .andExpect(status().isOk())
