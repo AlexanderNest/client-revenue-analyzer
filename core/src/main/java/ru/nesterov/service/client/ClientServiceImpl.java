@@ -4,6 +4,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import ru.nesterov.dto.Event;
 import ru.nesterov.entity.Client;
+import ru.nesterov.exception.ClientIsAlreadyCreatedException;
 import ru.nesterov.exception.ClientNotFoundException;
 import ru.nesterov.repository.ClientRepository;
 import ru.nesterov.service.CalendarService;
@@ -34,11 +35,23 @@ public class ClientServiceImpl implements ClientService {
                 .toList();
     }
 
-    public ClientDto createClient(ClientDto clientDto, boolean isIdGenerationNeeded) throws ClientNotFoundException {
-        List<Client> clientsWithThisName = clientRepository.findAllByNameContaining(clientDto.getName()).stream()
+//    public ClientDto createClient(ClientDto clientDto, boolean isIdGenerationNeeded) throws ClientNotFoundException {
+//        List<Client> clientsWithThisName = clientRepository.findAllByNameContaining(clientDto.getName()).stream()
+//                .toList();
+//        if (!clientsWithThisName.isEmpty() && !isIdGenerationNeeded) {
+//            throw new ClientNotFoundException(clientDto.getName());
+//        }
+//        if (!clientsWithThisName.isEmpty()) {
+//            clientDto.setName(clientDto.getName() + " " + (clientsWithThisName.size() + 1));
+//        }
+//        Client client = clientRepository.save(ClientMapper.mapToClient(clientDto));
+//        return ClientMapper.mapToClientDto(client);
+//    }
+    public ClientDto createClient(ClientDto clientDto, boolean isIdGenerationNeeded) throws ClientIsAlreadyCreatedException {
+        List<Client> clientsWithThisName = clientRepository.findAllByNameEquals(clientDto.getName()).stream()
                 .toList();
         if (!clientsWithThisName.isEmpty() && !isIdGenerationNeeded) {
-            throw new ClientNotFoundException(clientDto.getName());
+            throw new ClientIsAlreadyCreatedException(clientDto.getName());
         }
         if (!clientsWithThisName.isEmpty()) {
             clientDto.setName(clientDto.getName() + " " + (clientsWithThisName.size() + 1));
