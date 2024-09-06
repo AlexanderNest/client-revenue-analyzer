@@ -1,0 +1,26 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<databaseChangeLog xmlns="http://www.liquibase.org/xml/ns/dbchangelog"
+                   xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+                   xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog
+                   https://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-latest.xsd">
+
+    <changeSet id="create-table-parameter" author="Sasha">
+        <preConditions onFail="MARK_RAN">
+            <not>
+                <tableExists tableName="user"/>
+            </not>
+        </preConditions>
+        <sql>
+            CREATE SEQUENCE user_seq START WITH 1 INCREMENT BY 1;
+
+            CREATE TABLE CLIENT (
+                                    ID BIGINT DEFAULT NEXT VALUE FOR user_seq PRIMARY KEY,
+                                    TELEGRAMID VARCHAR(255),
+                                    CALENDARID VARCHAR(255),
+                                    ACTIVE BOOLEAN
+            );
+            CREATE INDEX IDX_USER_ID ON CLIENT(TELEGRAMID);
+        </sql>
+    </changeSet>
+
+</databaseChangeLog>
