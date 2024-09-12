@@ -16,8 +16,6 @@ import ru.nesterov.entity.User;
 import ru.nesterov.integration.ClientRevenueAnalyzerIntegrationClient;
 import ru.nesterov.repository.UserRepository;
 
-import java.util.Optional;
-
 @Component
 @RequiredArgsConstructor
 @ConditionalOnProperty("bot.enabled")
