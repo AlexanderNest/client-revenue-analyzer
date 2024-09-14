@@ -56,18 +56,6 @@ public class ClientServiceImpl implements ClientService {
 
         return ClientMapper.mapToClientDto(client);
     }
-//    public ClientDto createClient(ClientDto clientDto, boolean isIdGenerationNeeded) throws ClientIsAlreadyCreatedException {
-//        List<Client> clientsWithThisName = clientRepository.findAllByNameEquals(clientDto.getName()).stream()
-//                .toList();
-//        if (!clientsWithThisName.isEmpty() && !isIdGenerationNeeded) {
-//            throw new ClientIsAlreadyCreatedException(clientDto.getName());
-//        }
-//        if (!clientsWithThisName.isEmpty()) {
-//            clientDto.setName(clientDto.getName() + " " + (clientsWithThisName.size() + 1));
-//        }
-//        Client client = clientRepository.save(ClientMapper.mapToClient(clientDto));
-//        return ClientMapper.mapToClientDto(client);
-//    }
 
     @Override
     public List<ClientDto> getActiveClients() {

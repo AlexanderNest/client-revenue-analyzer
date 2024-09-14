@@ -49,9 +49,9 @@ class ClientControllerTest {
         createClientRequest.setIdGenerationNeeded(false);
 
         mockMvc.perform(
-                    post(CREATE_CLIENT_URL)
-                        .contentType(MediaType.APPLICATION_JSON)
-                        .content(objectMapper.writeValueAsString(createClientRequest))
+                        post(CREATE_CLIENT_URL)
+                                .contentType(MediaType.APPLICATION_JSON)
+                                .content(objectMapper.writeValueAsString(createClientRequest))
                 )
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.id").isNotEmpty())
@@ -78,16 +78,16 @@ class ClientControllerTest {
         createClientRequest2.setIdGenerationNeeded(false);
 
         mockMvc.perform(
-                    post(CREATE_CLIENT_URL)
-                        .contentType(MediaType.APPLICATION_JSON)
-                        .content(objectMapper.writeValueAsString(createClientRequest))
+                        post(CREATE_CLIENT_URL)
+                                .contentType(MediaType.APPLICATION_JSON)
+                                .content(objectMapper.writeValueAsString(createClientRequest))
                 )
                 .andExpect(status().isOk());
 
         mockMvc.perform(
-                    post(CREATE_CLIENT_URL)
-                        .contentType(MediaType.APPLICATION_JSON)
-                        .content(objectMapper.writeValueAsString(createClientRequest2))
+                        post(CREATE_CLIENT_URL)
+                                .contentType(MediaType.APPLICATION_JSON)
+                                .content(objectMapper.writeValueAsString(createClientRequest2))
                 )
                 .andExpect(status().isInternalServerError());
 
@@ -109,9 +109,9 @@ class ClientControllerTest {
         createClientRequest2.setPricePerHour(1000);
         createClientRequest2.setIdGenerationNeeded(true);
         mockMvc.perform(
-                    post(CREATE_CLIENT_URL)
-                            .contentType(MediaType.APPLICATION_JSON)
-                            .content(objectMapper.writeValueAsString(createClientRequest))
+                        post(CREATE_CLIENT_URL)
+                                .contentType(MediaType.APPLICATION_JSON)
+                                .content(objectMapper.writeValueAsString(createClientRequest))
                 )
                 .andExpect(status().isOk());
         mockMvc.perform(
@@ -128,6 +128,7 @@ class ClientControllerTest {
         clientRepository.deleteClientByName(createClientRequest.getName());
         clientRepository.deleteClientByName(createClientRequest2.getName());
     }
+
     @Test
     @Transactional
     void createClientWithDifferentNamesWithIdGeneration() throws Exception {
@@ -161,6 +162,7 @@ class ClientControllerTest {
         clientRepository.deleteClientByName(createClientRequest.getName());
         clientRepository.deleteClientByName(createClientRequest2.getName());
     }
+
     @Test
     @Transactional
     void createClientWithDifferentNamesWithoutIdGeneration() throws Exception {
