@@ -1,6 +1,7 @@
 package ru.nesterov.service.client;
 
 import lombok.RequiredArgsConstructor;
+import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.stereotype.Service;
 import ru.nesterov.dto.Event;
 import ru.nesterov.entity.Client;
@@ -35,11 +36,31 @@ public class ClientServiceImpl implements ClientService {
                 .toList();
     }
 
-//    public ClientDto createClient(ClientDto clientDto, boolean isIdGenerationNeeded) throws ClientNotFoundException {
-//        List<Client> clientsWithThisName = clientRepository.findAllByNameContaining(clientDto.getName()).stream()
+    public ClientDto createClient(ClientDto clientDto, boolean isIdGenerationNeeded) throws ClientIsAlreadyCreatedException {
+        List<Client> clientsWithThisName = clientRepository.findAllByExactNameOrNameStartingWithAndEndingWithNumber(clientDto.getName()).stream()
+                .toList();
+
+        if (!clientsWithThisName.isEmpty() && !isIdGenerationNeeded) {
+            throw new ClientIsAlreadyCreatedException(clientDto.getName());
+        }
+        if (!clientsWithThisName.isEmpty()) {
+            clientDto.setName(clientDto.getName() + " " + (clientsWithThisName.size() + 1));
+        }
+
+        Client client;
+        try {
+            client = clientRepository.save(ClientMapper.mapToClient(clientDto));
+        } catch (DataIntegrityViolationException exception) {
+            throw new ClientIsAlreadyCreatedException(clientDto.getName());
+        }
+
+        return ClientMapper.mapToClientDto(client);
+    }
+//    public ClientDto createClient(ClientDto clientDto, boolean isIdGenerationNeeded) throws ClientIsAlreadyCreatedException {
+//        List<Client> clientsWithThisName = clientRepository.findAllByNameEquals(clientDto.getName()).stream()
 //                .toList();
 //        if (!clientsWithThisName.isEmpty() && !isIdGenerationNeeded) {
-//            throw new ClientNotFoundException(clientDto.getName());
+//            throw new ClientIsAlreadyCreatedException(clientDto.getName());
 //        }
 //        if (!clientsWithThisName.isEmpty()) {
 //            clientDto.setName(clientDto.getName() + " " + (clientsWithThisName.size() + 1));
@@ -47,18 +68,6 @@ public class ClientServiceImpl implements ClientService {
 //        Client client = clientRepository.save(ClientMapper.mapToClient(clientDto));
 //        return ClientMapper.mapToClientDto(client);
 //    }
-    public ClientDto createClient(ClientDto clientDto, boolean isIdGenerationNeeded) throws ClientIsAlreadyCreatedException {
-        List<Client> clientsWithThisName = clientRepository.findAllByNameEquals(clientDto.getName()).stream()
-                .toList();
-        if (!clientsWithThisName.isEmpty() && !isIdGenerationNeeded) {
-            throw new ClientIsAlreadyCreatedException(clientDto.getName());
-        }
-        if (!clientsWithThisName.isEmpty()) {
-            clientDto.setName(clientDto.getName() + " " + (clientsWithThisName.size() + 1));
-        }
-        Client client = clientRepository.save(ClientMapper.mapToClient(clientDto));
-        return ClientMapper.mapToClientDto(client);
-    }
 
     @Override
     public List<ClientDto> getActiveClients() {
