@@ -40,6 +40,9 @@
             <and>
                 <tableExists tableName="client"/>
                 <columnExists tableName="client" columnName="name"/>
+                <not>
+                    <uniqueConstraintExists tableName="client" constraintName="client_unique_name"/>
+                </not>
             </and>
         </preConditions>
         <sql>

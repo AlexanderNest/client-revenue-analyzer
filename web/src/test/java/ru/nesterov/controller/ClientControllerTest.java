@@ -45,9 +45,9 @@ class ClientControllerTest {
         createClientRequest.setIdGenerationNeeded(false);
 
         mockMvc.perform(
-                        post(CREATE_CLIENT_URL)
-                                .contentType(MediaType.APPLICATION_JSON)
-                                .content(objectMapper.writeValueAsString(createClientRequest))
+                post(CREATE_CLIENT_URL)
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(objectMapper.writeValueAsString(createClientRequest))
                 )
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.id").isNotEmpty())
@@ -106,11 +106,18 @@ class ClientControllerTest {
     @Test
     @Transactional
     void createClientWithTheSameNameWithIdGeneration() throws Exception {
-        CreateClientRequest createClientRequest = new CreateClientRequest();
-        createClientRequest.setDescription("desc");
-        createClientRequest.setName("Maria");
-        createClientRequest.setPricePerHour(100);
-        createClientRequest.setIdGenerationNeeded(false);
+        CreateClientRequest createClientRequest0 = new CreateClientRequest();
+        createClientRequest0.setDescription("desc");
+        createClientRequest0.setName("Maria Petrova");
+        createClientRequest0.setPricePerHour(100);
+        createClientRequest0.setIdGenerationNeeded(true);
+
+        CreateClientRequest createClientRequest1 = new CreateClientRequest();
+        createClientRequest1.setDescription("desc");
+        createClientRequest1.setName("Maria");
+        createClientRequest1.setPricePerHour(100);
+        createClientRequest1.setIdGenerationNeeded(true);
+
         CreateClientRequest createClientRequest2 = new CreateClientRequest();
         createClientRequest2.setDescription("desc");
         createClientRequest2.setName("Maria");
@@ -121,19 +128,42 @@ class ClientControllerTest {
         createClientRequest3.setName("Maria");
         createClientRequest3.setPricePerHour(1000);
         createClientRequest3.setIdGenerationNeeded(true);
+
         mockMvc.perform(
                         post(CREATE_CLIENT_URL)
                                 .contentType(MediaType.APPLICATION_JSON)
-                                .content(objectMapper.writeValueAsString(createClientRequest))
+                                .content(objectMapper.writeValueAsString(createClientRequest0))
                 )
-                .andExpect(status().isOk());
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.id").isNumber())
+                .andExpect(jsonPath("$.name").value("Maria Petrova"))
+                .andExpect(jsonPath("$.description").value("desc"))
+                .andExpect(jsonPath("$.active").value(true))
+                .andExpect(jsonPath("$.pricePerHour").value(100));
+
+        mockMvc.perform(
+                        post(CREATE_CLIENT_URL)
+                                .contentType(MediaType.APPLICATION_JSON)
+                                .content(objectMapper.writeValueAsString(createClientRequest1))
+                )
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.id").isNotEmpty())
+                .andExpect(jsonPath("$.name").value("Maria"))
+                .andExpect(jsonPath("$.description").value("desc"))
+                .andExpect(jsonPath("$.active").value(true))
+                .andExpect(jsonPath("$.pricePerHour").value(100));
 
         mockMvc.perform(
                         post(CREATE_CLIENT_URL)
                                 .contentType(MediaType.APPLICATION_JSON)
                                 .content(objectMapper.writeValueAsString(createClientRequest2))
                 )
-                .andExpect(status().isOk());
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.id").isNotEmpty())
+                .andExpect(jsonPath("$.name").value("Maria 2"))
+                .andExpect(jsonPath("$.description").value("desc"))
+                .andExpect(jsonPath("$.active").value(true))
+                .andExpect(jsonPath("$.pricePerHour").value(1000));
 
         mockMvc.perform(
                         post(CREATE_CLIENT_URL)
@@ -146,7 +176,8 @@ class ClientControllerTest {
                 .andExpect(jsonPath("$.active").value(true))
                 .andExpect(jsonPath("$.pricePerHour").value(1000));
 
-        clientRepository.deleteClientByName(createClientRequest.getName());
+        clientRepository.deleteClientByName(createClientRequest0.getName());
+        clientRepository.deleteClientByName(createClientRequest1.getName());
         clientRepository.deleteClientByName(createClientRequest2.getName());
         clientRepository.deleteClientByName(createClientRequest3.getName());
     }

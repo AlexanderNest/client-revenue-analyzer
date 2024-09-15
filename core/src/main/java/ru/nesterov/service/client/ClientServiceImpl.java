@@ -37,8 +37,7 @@ public class ClientServiceImpl implements ClientService {
     }
 
     public ClientDto createClient(ClientDto clientDto, boolean isIdGenerationNeeded) throws ClientIsAlreadyCreatedException {
-        List<Client> clientsWithThisName = clientRepository.findAllByExactNameOrNameStartingWithAndEndingWithNumber(clientDto.getName()).stream()
-                .toList();
+        List<Client> clientsWithThisName = clientRepository.findAllByExactNameOrNameStartingWithAndEndingWithNumber(clientDto.getName());
 
         if (!clientsWithThisName.isEmpty() && !isIdGenerationNeeded) {
             throw new ClientIsAlreadyCreatedException(clientDto.getName());
