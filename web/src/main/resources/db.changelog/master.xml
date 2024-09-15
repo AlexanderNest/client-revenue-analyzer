@@ -51,5 +51,69 @@
         </sql>
     </changeSet>
 
+    <changeSet id="#51 add start_date column" author="Uenay">
+        <preConditions onFail="MARK_RAN">
+            <and>
+                <tableExists tableName="client"/>
+                <not>
+                    <columnExists tableName="client" columnName="start_date"/>
+                </not>
+            </and>
+        </preConditions>
+        <addColumn tableName="client">
+            <column name="start_date" type="TIMESTAMP(6)" defaultValueComputed="CURRENT_TIMESTAMP"></column>
+        </addColumn>
+    </changeSet>
+
+
+    <changeSet id="#51 add phone" author="Uenay">
+        <preConditions>
+            <and>
+                <tableExists tableName="client"/>
+                <not>
+                    <columnExists tableName="client" columnName="phone"/>
+                </not>
+            </and>
+        </preConditions>
+        <addColumn tableName="client">
+            <column name="phone" type="VARCHAR"></column>
+        </addColumn>
+    </changeSet>
+
+    <changeSet id="make client_unique_phone unique" author="Uenay">
+        <preConditions onFail="MARK_RAN">
+            <and>
+                <tableExists tableName="client"/>
+                <columnExists tableName="client" columnName="phone"/>
+                <not>
+                    <uniqueConstraintExists tableName="client" constraintName="client_unique_phone"/>
+                </not>
+            </and>
+        </preConditions>
+        <sql>
+            ALTER TABLE CLIENT
+                ADD CONSTRAINT client_unique_phone UNIQUE (phone);
+        </sql>
+    </changeSet>
+
+    <changeSet id="#51 create table price_change_history" author="Uenay">
+        <preConditions>
+            <and>
+                <tableExists tableName="client"/>
+                <not>
+                    <tableExists tableName="price_change_history"/>
+                </not>
+            </and>
+        </preConditions>
+        <sql>
+            CREATE TABLE PRICE_CHANGE_HISTORY
+            (
+                client_id BIGINT REFERENCES client (id),
+                previous_price INT,
+                current_price INT,
+                date_of_change DATE
+            );
+        </sql>
+    </changeSet>
 
 </databaseChangeLog>

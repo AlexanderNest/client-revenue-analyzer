@@ -22,6 +22,8 @@ public class ClientMapper {
                 .description(clientDto.getDescription())
                 .pricePerHour(clientDto.getPricePerHour())
                 .active(clientDto.isActive())
+                .startDate(clientDto.getStartDate())
+                .phone(clientDto.getPhone())
                 .build();
     }
 

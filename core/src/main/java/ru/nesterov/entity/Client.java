@@ -2,6 +2,9 @@ package ru.nesterov.entity;
 
 import jakarta.persistence.*;
 import lombok.Data;
+import org.hibernate.annotations.CreationTimestamp;
+
+import java.util.Date;
 
 @Entity
 @Data
@@ -15,4 +18,6 @@ public class Client {
     private int pricePerHour;
     private String description;
     private boolean active;
+    private Date startDate;
+    private String phone;
 }
