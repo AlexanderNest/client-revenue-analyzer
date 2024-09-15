@@ -141,7 +141,7 @@ class ClientControllerTest {
                                 .content(objectMapper.writeValueAsString(createClientRequest3)))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.id").isNotEmpty())
-                .andExpect(jsonPath("$.name").value("Misha 3"))
+                .andExpect(jsonPath("$.name").value("Maria 3"))
                 .andExpect(jsonPath("$.description").value("desc"))
                 .andExpect(jsonPath("$.active").value(true))
                 .andExpect(jsonPath("$.pricePerHour").value(1000));
