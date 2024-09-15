@@ -30,7 +30,6 @@ public class WebSecurityTest {
     private final String HEADER = "X-secret-token";
 
     @Test
-    @Transactional
     public void securityTestUnauthorized() throws Exception {
         mockMvc.perform(get(TEST_URL)
                         .contentType(MediaType.APPLICATION_JSON)
@@ -39,7 +38,6 @@ public class WebSecurityTest {
     }
 
     @Test
-    @Transactional
     public void securityTestAuthorized() throws Exception {
         mockMvc.perform(get(TEST_URL).header(HEADER, "secret-token")
                 .contentType(MediaType.APPLICATION_JSON)
