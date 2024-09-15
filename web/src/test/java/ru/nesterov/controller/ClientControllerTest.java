@@ -14,10 +14,6 @@ import ru.nesterov.entity.Client;
 import ru.nesterov.google.GoogleCalendarClient;
 import ru.nesterov.repository.ClientRepository;
 
-import java.util.Arrays;
-import java.util.List;
-
-import static org.hamcrest.Matchers.containsInAnyOrder;
 import static org.hamcrest.Matchers.hasSize;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
@@ -49,7 +45,7 @@ class ClientControllerTest {
         createClientRequest.setIdGenerationNeeded(false);
 
         mockMvc.perform(
-                    post(CREATE_CLIENT_URL)
+                post(CREATE_CLIENT_URL)
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(objectMapper.writeValueAsString(createClientRequest))
                 )
@@ -68,65 +64,124 @@ class ClientControllerTest {
     void createClientWithTheSameNameWithoutIdGeneration() throws Exception {
         CreateClientRequest createClientRequest = new CreateClientRequest();
         createClientRequest.setDescription("desc");
-        createClientRequest.setName("Masha");
+        createClientRequest.setName("Maria");
         createClientRequest.setPricePerHour(100);
         createClientRequest.setIdGenerationNeeded(false);
         CreateClientRequest createClientRequest2 = new CreateClientRequest();
         createClientRequest2.setDescription("desc");
-        createClientRequest2.setName("Masha");
+        createClientRequest2.setName("Maria Petrova");
         createClientRequest2.setPricePerHour(1000);
         createClientRequest2.setIdGenerationNeeded(false);
+        CreateClientRequest createClientRequest3 = new CreateClientRequest();
+        createClientRequest3.setDescription("desc");
+        createClientRequest3.setName("Maria");
+        createClientRequest3.setPricePerHour(2000);
+        createClientRequest3.setIdGenerationNeeded(false);
 
         mockMvc.perform(
-                    post(CREATE_CLIENT_URL)
-                        .contentType(MediaType.APPLICATION_JSON)
-                        .content(objectMapper.writeValueAsString(createClientRequest))
+                        post(CREATE_CLIENT_URL)
+                                .contentType(MediaType.APPLICATION_JSON)
+                                .content(objectMapper.writeValueAsString(createClientRequest))
                 )
                 .andExpect(status().isOk());
 
         mockMvc.perform(
-                    post(CREATE_CLIENT_URL)
-                        .contentType(MediaType.APPLICATION_JSON)
-                        .content(objectMapper.writeValueAsString(createClientRequest2))
+                        post(CREATE_CLIENT_URL)
+                                .contentType(MediaType.APPLICATION_JSON)
+                                .content(objectMapper.writeValueAsString(createClientRequest2))
+                )
+                .andExpect(status().isOk());
+
+        mockMvc.perform(
+                        post(CREATE_CLIENT_URL)
+                                .contentType(MediaType.APPLICATION_JSON)
+                                .content(objectMapper.writeValueAsString(createClientRequest3))
                 )
                 .andExpect(status().isInternalServerError());
 
         clientRepository.deleteClientByName(createClientRequest.getName());
     }
 
+
     @Test
     @Transactional
     void createClientWithTheSameNameWithIdGeneration() throws Exception {
-        CreateClientRequest createClientRequest = new CreateClientRequest();
-        createClientRequest.setDescription("desc");
-        createClientRequest.setName("Misha");
-        createClientRequest.setPricePerHour(100);
-        createClientRequest.setIdGenerationNeeded(false);
+        CreateClientRequest createClientRequest0 = new CreateClientRequest();
+        createClientRequest0.setDescription("desc");
+        createClientRequest0.setName("Maria Petrova");
+        createClientRequest0.setPricePerHour(100);
+        createClientRequest0.setIdGenerationNeeded(true);
+
+        CreateClientRequest createClientRequest1 = new CreateClientRequest();
+        createClientRequest1.setDescription("desc");
+        createClientRequest1.setName("Maria");
+        createClientRequest1.setPricePerHour(100);
+        createClientRequest1.setIdGenerationNeeded(true);
+
         CreateClientRequest createClientRequest2 = new CreateClientRequest();
         createClientRequest2.setDescription("desc");
-        createClientRequest2.setName("Misha");
+        createClientRequest2.setName("Maria");
         createClientRequest2.setPricePerHour(1000);
         createClientRequest2.setIdGenerationNeeded(true);
-        mockMvc.perform(
-                    post(CREATE_CLIENT_URL)
-                            .contentType(MediaType.APPLICATION_JSON)
-                            .content(objectMapper.writeValueAsString(createClientRequest))
-                )
-                .andExpect(status().isOk());
+        CreateClientRequest createClientRequest3 = new CreateClientRequest();
+        createClientRequest3.setDescription("desc");
+        createClientRequest3.setName("Maria");
+        createClientRequest3.setPricePerHour(1000);
+        createClientRequest3.setIdGenerationNeeded(true);
+
         mockMvc.perform(
                         post(CREATE_CLIENT_URL)
                                 .contentType(MediaType.APPLICATION_JSON)
-                                .content(objectMapper.writeValueAsString(createClientRequest2)))
+                                .content(objectMapper.writeValueAsString(createClientRequest0))
+                )
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.id").isNumber())
+                .andExpect(jsonPath("$.name").value("Maria Petrova"))
+                .andExpect(jsonPath("$.description").value("desc"))
+                .andExpect(jsonPath("$.active").value(true))
+                .andExpect(jsonPath("$.pricePerHour").value(100));
+
+        mockMvc.perform(
+                        post(CREATE_CLIENT_URL)
+                                .contentType(MediaType.APPLICATION_JSON)
+                                .content(objectMapper.writeValueAsString(createClientRequest1))
+                )
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.id").isNotEmpty())
-                .andExpect(jsonPath("$.name").value("Misha 2"))
+                .andExpect(jsonPath("$.name").value("Maria"))
+                .andExpect(jsonPath("$.description").value("desc"))
+                .andExpect(jsonPath("$.active").value(true))
+                .andExpect(jsonPath("$.pricePerHour").value(100));
+
+        mockMvc.perform(
+                        post(CREATE_CLIENT_URL)
+                                .contentType(MediaType.APPLICATION_JSON)
+                                .content(objectMapper.writeValueAsString(createClientRequest2))
+                )
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.id").isNotEmpty())
+                .andExpect(jsonPath("$.name").value("Maria 2"))
                 .andExpect(jsonPath("$.description").value("desc"))
                 .andExpect(jsonPath("$.active").value(true))
                 .andExpect(jsonPath("$.pricePerHour").value(1000));
 
-        clientRepository.deleteClientByName(createClientRequest.getName());
+        mockMvc.perform(
+                        post(CREATE_CLIENT_URL)
+                                .contentType(MediaType.APPLICATION_JSON)
+                                .content(objectMapper.writeValueAsString(createClientRequest3)))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.id").isNotEmpty())
+                .andExpect(jsonPath("$.name").value("Maria 3"))
+                .andExpect(jsonPath("$.description").value("desc"))
+                .andExpect(jsonPath("$.active").value(true))
+                .andExpect(jsonPath("$.pricePerHour").value(1000));
+
+        clientRepository.deleteClientByName(createClientRequest0.getName());
+        clientRepository.deleteClientByName(createClientRequest1.getName());
         clientRepository.deleteClientByName(createClientRequest2.getName());
+        clientRepository.deleteClientByName(createClientRequest3.getName());
     }
+
 
     @Test
     @Transactional
