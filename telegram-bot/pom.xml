@@ -41,7 +41,11 @@
             <groupId>jakarta.persistence</groupId>
             <artifactId>jakarta.persistence-api</artifactId>
         </dependency>
-
+        <dependency>
+            <groupId>ru.nesterov</groupId>
+            <artifactId>calendar-integration</artifactId>
+            <version>0.0.1-SNAPSHOT</version>
+        </dependency>
 
     </dependencies>
 

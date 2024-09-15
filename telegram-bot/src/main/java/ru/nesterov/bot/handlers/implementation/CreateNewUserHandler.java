@@ -11,6 +11,7 @@ import org.telegram.telegrambots.meta.api.objects.CallbackQuery;
 import org.telegram.telegrambots.meta.api.objects.Message;
 import org.telegram.telegrambots.meta.api.objects.Update;
 import ru.nesterov.bot.handlers.CommandHandler;
+import ru.nesterov.bot.handlers.callback.CreateNewUserCallback;
 import ru.nesterov.bot.handlers.callback.GetMonthStatisticsKeyboardCallback;
 import ru.nesterov.entity.User;
 import ru.nesterov.integration.ClientRevenueAnalyzerIntegrationClient;
@@ -70,7 +71,7 @@ public class CreateNewUserHandler implements CommandHandler {
         boolean isCommand = message != null && "/createuser".equals(message.getText());
 
         CallbackQuery callbackQuery = update.getCallbackQuery();
-        boolean isCallback = callbackQuery != null && "/createuser".equals(objectMapper.readValue(callbackQuery.getData(), GetMonthStatisticsKeyboardCallback.class).getCommand());
+        boolean isCallback = callbackQuery != null && "/createuser".equals(objectMapper.readValue(callbackQuery.getData(), CreateNewUserCallback.class).getCommand());
 
         return isCommand || isCallback;
     }

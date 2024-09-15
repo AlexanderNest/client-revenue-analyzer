@@ -1,6 +1,7 @@
 package ru.nesterov.bot;
 
 import jakarta.persistence.EntityManagerFactory;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.beans.factory.annotation.Value;
@@ -16,6 +17,7 @@ import org.springframework.transaction.PlatformTransactionManager;
 
 import javax.sql.DataSource;
 
+@Slf4j
 @Configuration
 @EnableJpaRepositories(entityManagerFactoryRef = "botEntityManagerFactory", transactionManagerRef = "botTransactionManager", basePackages = "ru.nesterov.user-repository")
 public class BotDataSourceConfig {
@@ -23,6 +25,7 @@ public class BotDataSourceConfig {
     @ConfigurationProperties("spring.datasource.bot")
     public LocalContainerEntityManagerFactoryBean botEntityManagerFactory(EntityManagerFactoryBuilder builder, @Value(("${spring.datasource.bot.url}")) String url,
                                                                           @Value("${spring.datasource.bot.username}") String username, @Value("${spring.datasource.bot.password}") String password, @Value("${spring.datasource.bot.driver-class-name}") String driverClassName) {
+        log.info("Подключение к базе данных с пользователями");
         DataSource dataSource = DataSourceBuilder.create()
                 .url(url)
                 .driverClassName(driverClassName)

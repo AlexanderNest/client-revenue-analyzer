@@ -1,7 +1,6 @@
 package ru.nesterov.repository;
 
 import jakarta.persistence.EntityManagerFactory;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.context.properties.ConfigurationProperties;
@@ -41,7 +40,7 @@ public class ClientAnalyzerDataSourceConfig {
     }
 
     @Bean(name = "clientAnalyzerTransactionManager")
-    public PlatformTransactionManager clientAnalyzerTransationManager(@Qualifier("clientAnalyzerEntityManagerFactory") EntityManagerFactory clientAnalyzerEntityManagerFactory) {
+    public PlatformTransactionManager clientAnalyzerTransaсtionManager(@Qualifier("clientAnalyzerEntityManagerFactory") EntityManagerFactory clientAnalyzerEntityManagerFactory) {
         return new JpaTransactionManager(clientAnalyzerEntityManagerFactory);
     }
 }
