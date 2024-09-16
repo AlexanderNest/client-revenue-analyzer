@@ -22,7 +22,6 @@ public class User {
     @SequenceGenerator(name = "user_seq_gen", sequenceName = "user_seq")
     private long id;
     private String telegramId;
-    private boolean active;
-    //todo
     private String mainCalendarId;
+    private String cancelledCalendarId;
 }

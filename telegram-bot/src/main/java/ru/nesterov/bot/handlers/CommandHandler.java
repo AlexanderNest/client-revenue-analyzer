@@ -7,4 +7,5 @@ import org.telegram.telegrambots.meta.api.objects.Update;
 public interface CommandHandler {
     BotApiMethod<?> handle(Update update);
     boolean isApplicable(Update update);
+    boolean isFinished(Long userId);
 }

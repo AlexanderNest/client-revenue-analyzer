@@ -23,4 +23,9 @@ public abstract class AbstractHandler implements CommandHandler {
 
         return answerCallbackQuery;
     }
+
+    @Override
+    public boolean isFinished() {
+        return true;
+    }
 }

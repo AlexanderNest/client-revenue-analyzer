@@ -10,28 +10,31 @@ import org.telegram.telegrambots.meta.api.methods.send.SendMessage;
 import org.telegram.telegrambots.meta.api.objects.CallbackQuery;
 import org.telegram.telegrambots.meta.api.objects.Message;
 import org.telegram.telegrambots.meta.api.objects.Update;
+import ru.nesterov.bot.handlers.AbstractHandler;
 import ru.nesterov.bot.handlers.CommandHandler;
 import ru.nesterov.bot.handlers.callback.CreateNewUserCallback;
-import ru.nesterov.bot.handlers.callback.GetMonthStatisticsKeyboardCallback;
+import ru.nesterov.dto.CreateUserRequest;
 import ru.nesterov.entity.User;
 import ru.nesterov.integration.ClientRevenueAnalyzerIntegrationClient;
 import ru.nesterov.repository.UserRepository;
 
+import java.util.HashMap;
+import java.util.Map;
+
 @Component
 @RequiredArgsConstructor
 @ConditionalOnProperty("bot.enabled")
-public class CreateNewUserHandler implements CommandHandler {
+public class CreateUserHandler extends AbstractHandler {
+    private final Map<Long, CreateUserRequest> createUserRequests = new HashMap<>(); // надо сделать потокобезопасным
     private final ObjectMapper objectMapper;
     private final ClientRevenueAnalyzerIntegrationClient client;
     private final UserRepository userRepository;
     @Override
     public BotApiMethod<?> handle(Update update) {
         long chatId = update.getMessage().getChatId();
-        String userData = update.getMessage().getText();
-        if (userData != null && !userData.isEmpty()) {
-            return registerUser(chatId, userData);
-        } else {
-            return requireNewUserData(chatId);
+        CreateUserRequest createUserRequest = createUserRequests.get(update.getMessage().getFrom().getId());
+        if (createUserRequest == null) {
+            getPlainSendMessage(chatId, "")
         }
     }
 
@@ -42,7 +45,6 @@ public class CreateNewUserHandler implements CommandHandler {
             return createResponseMessage(chatId, "Вы уже зарегистрированы.");
         }
         User user = User.builder()
-                    .active(true)
                     .telegramId(String.valueOf(chatId))
                     .mainCalendarId(googleCalendarId)
                     .build();
@@ -68,11 +70,17 @@ public class CreateNewUserHandler implements CommandHandler {
     @SneakyThrows
     public boolean isApplicable(Update update) {
         Message message = update.getMessage();
-        boolean isCommand = message != null && "/createuser".equals(message.getText());
 
-        CallbackQuery callbackQuery = update.getCallbackQuery();
-        boolean isCallback = callbackQuery != null && "/createuser".equals(objectMapper.readValue(callbackQuery.getData(), CreateNewUserCallback.class).getCommand());
+        return message != null && "/register".equals(message.getText());
+    }
 
-        return isCommand || isCallback;
+    @Override
+    public boolean isFinished(Long userId) {
+        return createUserRequests.get(userId).getMainCalendarId() != null && createUserRequests.get(userId).getCancelledCalendarId() != null &&
+    }
+
+    @Override
+    public boolean isFinished() {
+        return super.isFinished();
     }
 }
