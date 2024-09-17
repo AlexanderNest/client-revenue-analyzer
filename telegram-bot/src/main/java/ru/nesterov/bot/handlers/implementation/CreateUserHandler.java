@@ -32,9 +32,11 @@ public class CreateUserHandler extends AbstractHandler {
             return getPlainSendMessage(chatId, "Чтобы зарегистрироваться в Анализаторе клиентов, понадобится " +
                     "id основного календаря и календаря, в котором будут сохраняться отмененные мероприятия.\n\n Пришлите id основного календаря: " );
             } else {
-                createUserRequest = new CreateUserRequest();
-                createUserRequest.setMainCalendarId(text);
-                createUserRequest.setUserIdentifier(String.valueOf(update.getMessage().getFrom().getId()));
+                createUserRequest = CreateUserRequest.builder()
+                        .userIdentifier(String.valueOf(userId))
+                        .mainCalendarId(text)
+                        .build();
+
                 createUserRequests.put(userId, createUserRequest);
                 return getPlainSendMessage(chatId, "Пришлите id календаря, в котором будут храниться отмененные мероприятия: ");
             }
