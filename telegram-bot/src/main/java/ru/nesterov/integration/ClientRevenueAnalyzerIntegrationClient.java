@@ -8,6 +8,7 @@ import org.springframework.http.HttpHeaders;
 import org.springframework.stereotype.Component;
 import org.springframework.web.client.RestTemplate;
 import ru.nesterov.dto.CreateUserRequest;
+import ru.nesterov.dto.CreateUserResponse;
 import ru.nesterov.dto.GetForMonthRequest;
 import ru.nesterov.dto.GetIncomeAnalysisForMonthResponse;
 import ru.nesterov.properties.BotProperties;
@@ -28,8 +29,8 @@ public class ClientRevenueAnalyzerIntegrationClient {
         return post(getForMonthRequest, "/revenue-analyzer/events/analyzer/getIncomeAnalysisForMonth", GetIncomeAnalysisForMonthResponse.class);
     }
 
-    public String createUser(CreateUserRequest createUserRequest) {
-        return post(createUserRequest, "/revenue-analyzer/events/analyzer/createUser", String.class);
+    public CreateUserResponse createUser(CreateUserRequest createUserRequest) {
+        return post(createUserRequest, "/revenue-analyzer/events/analyzer/createUser", CreateUserResponse.class);
     }
 
     private <T> T post(Object request, String endpoint, Class<T> responseType) {

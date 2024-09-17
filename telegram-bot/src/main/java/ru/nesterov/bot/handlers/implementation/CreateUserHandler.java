@@ -9,6 +9,7 @@ import org.telegram.telegrambots.meta.api.objects.Message;
 import org.telegram.telegrambots.meta.api.objects.Update;
 import ru.nesterov.bot.handlers.AbstractHandler;
 import ru.nesterov.dto.CreateUserRequest;
+import ru.nesterov.dto.CreateUserResponse;
 import ru.nesterov.integration.ClientRevenueAnalyzerIntegrationClient;
 
 import java.util.HashMap;
@@ -27,19 +28,17 @@ public class CreateUserHandler extends AbstractHandler {
         long userId = update.getMessage().getFrom().getId();
         String text = update.getMessage().getText();
         CreateUserRequest createUserRequest = createUserRequests.get(userId);
-        if (createUserRequest == null) {
-            if (Objects.equals(text, "/register")) {
+        if (text.equals("/register")) {
             return getPlainSendMessage(chatId, "Чтобы зарегистрироваться в Анализаторе клиентов, понадобится " +
                     "id основного календаря и календаря, в котором будут сохраняться отмененные мероприятия.\n\n Пришлите id основного календаря: " );
-            } else {
-                createUserRequest = CreateUserRequest.builder()
-                        .userIdentifier(String.valueOf(userId))
-                        .mainCalendarId(text)
-                        .build();
+        } else if (createUserRequest == null) {
+            createUserRequest = CreateUserRequest.builder()
+                    .userIdentifier(String.valueOf(userId))
+                    .mainCalendarId(text)
+                    .build();
+            createUserRequests.put(userId, createUserRequest);
 
-                createUserRequests.put(userId, createUserRequest);
-                return getPlainSendMessage(chatId, "Пришлите id календаря, в котором будут храниться отмененные мероприятия: ");
-            }
+            return getPlainSendMessage(chatId, "Пришлите id календаря, в котором будут храниться отмененные мероприятия: ");
         } else {
             createUserRequest.setCancelledCalendarId(text);
 
@@ -48,9 +47,15 @@ public class CreateUserHandler extends AbstractHandler {
     }
 
     private BotApiMethod<?> registerUser(long chatId, CreateUserRequest createUserRequest) {
-        String response = client.createUser(createUserRequest);
+        CreateUserResponse response = client.createUser(createUserRequest);
 
-        return getPlainSendMessage(chatId, response);
+        return getPlainSendMessage(chatId, formatCreateUserResponse(response));
+    }
+
+    private String formatCreateUserResponse(CreateUserResponse createUserResponse) {
+        return "Вы успешно зарегистрированы!\n\nUSER ID: " + createUserResponse.getUserId() +
+                "\n\nMAIN CALENDAR ID: " + createUserResponse.getMainCalendarId() +
+                "\n\nCANCELLED CALENDAR ID: " + createUserResponse.getCancelledCalendarId();
     }
 
     @Override
