@@ -6,6 +6,7 @@ import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.stereotype.Component;
 import org.telegram.telegrambots.meta.api.methods.BotApiMethod;
 import org.telegram.telegrambots.meta.api.methods.send.SendMessage;
+import org.telegram.telegrambots.meta.api.methods.updatingmessages.EditMessageText;
 import org.telegram.telegrambots.meta.api.objects.CallbackQuery;
 import org.telegram.telegrambots.meta.api.objects.Update;
 import org.telegram.telegrambots.meta.api.objects.replykeyboard.InlineKeyboardMarkup;
@@ -37,24 +38,29 @@ public class GetMonthStatisticsHandlerClientRevenue extends ClientRevenueAbstrac
     }
 
     @Override
-    public BotApiMethod<?> handle(Update update) {
-        BotApiMethod<?> sendMessage;
+    public List<BotApiMethod<?>> handle(Update update) {
+        List<BotApiMethod<?>> sendMessage = new ArrayList<>();
         if (update.getMessage() == null) {
-            sendMessage = sendMonthStatistics(update);
+            sendMessage.addAll(sendMonthStatistics(update));
         } else {
-            sendMessage = sendMonthKeyboard(update.getMessage().getChatId());
+            sendMessage.add(sendMonthKeyboard(update.getMessage().getChatId()));
         }
 
         return sendMessage;
     }
 
     @SneakyThrows
-    private BotApiMethod<?> sendMonthStatistics(Update update) {
+    private List<BotApiMethod<?>> sendMonthStatistics(Update update) {
         CallbackQuery callbackQuery = update.getCallbackQuery();
         ButtonCallback callback = objectMapper.readValue(callbackQuery.getData(), ButtonCallback.class);
         GetIncomeAnalysisForMonthResponse response = client.getIncomeAnalysisForMonth(clearFromMark(callback.getValue()));
 
-        return getPlainSendMessage(update.getCallbackQuery().getMessage().getChatId(), formatIncomeAnalysis(response));
+        EditMessageText editMessageText = new EditMessageText();
+        editMessageText.setChatId(String.valueOf(callbackQuery.getMessage().getChatId()));
+        editMessageText.setMessageId(callbackQuery.getMessage().getMessageId());
+        editMessageText.setText(formatIncomeAnalysis(response));
+
+        return List.of(editMessageText);
     }
 
     private String formatIncomeAnalysis(GetIncomeAnalysisForMonthResponse response) {

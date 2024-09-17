@@ -11,6 +11,8 @@ import ru.nesterov.bot.handlers.CommandHandler;
 import ru.nesterov.bot.handlers.HandlersService;
 import ru.nesterov.properties.BotProperties;
 
+import java.util.List;
+
 @Service
 @Slf4j
 @ConditionalOnProperty("bot.enabled")
@@ -32,8 +34,8 @@ public class RevenueAnalyzerBot extends TelegramLongPollingBot {
             return;
         }
 
-        BotApiMethod<?> sendMessage = commandHandler.handle(update);
-        sendMessage(sendMessage);
+        List<BotApiMethod<?>> sendMessage = commandHandler.handle(update);
+        sendMessage.forEach(this::sendMessage);
     }
 
     @Override
