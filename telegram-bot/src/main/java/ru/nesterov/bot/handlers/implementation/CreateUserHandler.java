@@ -7,14 +7,11 @@ import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.stereotype.Component;
 import org.telegram.telegrambots.meta.api.methods.BotApiMethod;
 import org.telegram.telegrambots.meta.api.methods.send.SendMessage;
-import org.telegram.telegrambots.meta.api.objects.CallbackQuery;
 import org.telegram.telegrambots.meta.api.objects.Message;
 import org.telegram.telegrambots.meta.api.objects.Update;
+import ru.nesterov.bot.BotConfig;
 import ru.nesterov.bot.handlers.AbstractHandler;
-import ru.nesterov.bot.handlers.CommandHandler;
-import ru.nesterov.bot.handlers.callback.CreateNewUserCallback;
 import ru.nesterov.dto.CreateUserRequest;
-import ru.nesterov.entity.User;
 import ru.nesterov.integration.ClientRevenueAnalyzerIntegrationClient;
 import ru.nesterov.repository.UserRepository;
 
@@ -26,44 +23,34 @@ import java.util.Map;
 @ConditionalOnProperty("bot.enabled")
 public class CreateUserHandler extends AbstractHandler {
     private final Map<Long, CreateUserRequest> createUserRequests = new HashMap<>(); // надо сделать потокобезопасным
-    private final ObjectMapper objectMapper;
     private final ClientRevenueAnalyzerIntegrationClient client;
-    private final UserRepository userRepository;
     @Override
     public BotApiMethod<?> handle(Update update) {
         long chatId = update.getMessage().getChatId();
+        String text = update.getMessage().getText();
         CreateUserRequest createUserRequest = createUserRequests.get(update.getMessage().getFrom().getId());
         if (createUserRequest == null) {
-            getPlainSendMessage(chatId, "")
+            if (text == null) {
+            return getPlainSendMessage(chatId, "Чтобы зарегистрироваться в Анализаторе клиентов, понадобится " +
+                    "id основного календаря и календаря, в котором будут сохраняться отмененные мероприятия.\n\n Пришлите id основного календаря: " );
+            } else {
+                createUserRequest = new CreateUserRequest();
+                createUserRequest.setMainCalendarId(text);
+                createUserRequest.setUserIdentifier(String.valueOf(update.getMessage().getFrom().getId()));
+                return getPlainSendMessage(chatId, "Пришлите id календаря, в котором будут храниться отмененные мероприятия: ");
+            }
+        } else {
+            createUserRequest.setCancelledCalendarId(text);
+
+            return registerUser(chatId, createUserRequest);
         }
     }
 
-    private SendMessage registerUser(long chatId, String googleCalendarId) {
-        String userId = String.valueOf(chatId);
-        User existingUser = userRepository.findUserByTelegramId(userId);
-        if (existingUser != null) {
-            return createResponseMessage(chatId, "Вы уже зарегистрированы.");
-        }
-        User user = User.builder()
-                    .telegramId(String.valueOf(chatId))
-                    .mainCalendarId(googleCalendarId)
-                    .build();
-        userRepository.save(user);
-        return createResponseMessage(chatId, "Вы успешно зарегистрированы!");
-    }
+    // если это стринг просто
+    private BotApiMethod<?> registerUser(long chatId, CreateUserRequest createUserRequest) {
+        String response = client.createUser(createUserRequest);
 
-    private SendMessage createResponseMessage(long chatId, String text) {
-        SendMessage message = new SendMessage();
-        message.setChatId(String.valueOf(chatId));
-        message.setText(text);
-        return message;
-    }
-
-    private SendMessage requireNewUserData(long chatId) {
-        SendMessage message = new SendMessage();
-        message.setChatId(String.valueOf(chatId));
-        message.setText("Чтобы зарегистрироваться в Анализаторе клиентов, пришлите id вашего Google календаря:");
-        return message;
+        return getPlainSendMessage(chatId, response);
     }
 
     @Override
@@ -76,11 +63,7 @@ public class CreateUserHandler extends AbstractHandler {
 
     @Override
     public boolean isFinished(Long userId) {
-        return createUserRequests.get(userId).getMainCalendarId() != null && createUserRequests.get(userId).getCancelledCalendarId() != null &&
+        return createUserRequests.get(userId).getMainCalendarId() != null && createUserRequests.get(userId).getCancelledCalendarId() != null && createUserRequests.get(userId).getUserIdentifier() != null;
     }
 
-    @Override
-    public boolean isFinished() {
-        return super.isFinished();
-    }
 }

@@ -7,6 +7,7 @@ import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpHeaders;
 import org.springframework.stereotype.Component;
 import org.springframework.web.client.RestTemplate;
+import ru.nesterov.dto.CreateUserRequest;
 import ru.nesterov.dto.GetForMonthRequest;
 import ru.nesterov.dto.GetIncomeAnalysisForMonthResponse;
 import ru.nesterov.properties.BotProperties;
@@ -26,6 +27,10 @@ public class ClientRevenueAnalyzerIntegrationClient {
         getForMonthRequest.setMonthName(monthName);
 
         return post(getForMonthRequest, "/revenue-analyzer/events/analyzer/getIncomeAnalysisForMonth", GetIncomeAnalysisForMonthResponse.class);
+    }
+
+    public String createUser(CreateUserRequest createUserRequest) {
+        return post(createUserRequest, "/revenue-analyzer/events/analyzer/createUser", String.class);
     }
 
     private <T> T post(Object request, String endpoint, Class<T> responseType) {

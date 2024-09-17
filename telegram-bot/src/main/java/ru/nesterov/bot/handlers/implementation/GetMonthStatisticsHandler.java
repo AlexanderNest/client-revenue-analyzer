@@ -125,4 +125,9 @@ public class GetMonthStatisticsHandler extends AbstractHandler {
 
         return isCommand || isCallback;
     }
+
+    @Override
+    public boolean isFinished(Long userId) {
+        return true;
+    }
 }
