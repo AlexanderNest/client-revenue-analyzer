@@ -35,13 +35,15 @@ public class HandlersService {
 
     @Nullable
     public CommandHandler getHandler(Update update) {
-        CommandHandler userHandler = userHandlers.get(update.getMessage().getFrom().getId());
+        long userId = update.getMessage().getFrom().getId();
+        CommandHandler userHandler = userHandlers.get(userId);
         if (userHandler != null) {
             return userHandler;
         }
 
         for (CommandHandler commandHandler : commandHandlers) {
             if (commandHandler.isApplicable(update)) {
+                userHandlers.put(userId, commandHandler);
                 return commandHandler;
             }
         }

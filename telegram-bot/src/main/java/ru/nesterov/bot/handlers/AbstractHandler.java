@@ -23,8 +23,4 @@ public abstract class AbstractHandler implements CommandHandler {
 
         return answerCallbackQuery;
     }
-
-    public boolean isFinished() {
-        return true;
-    }
 }

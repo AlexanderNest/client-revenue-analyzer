@@ -13,7 +13,6 @@ import ru.nesterov.dto.GetIncomeAnalysisForMonthResponse;
 import ru.nesterov.properties.BotProperties;
 import ru.nesterov.properties.RevenueAnalyzerProperties;
 
-
 @Component
 @RequiredArgsConstructor
 @ConditionalOnProperty("bot.enabled")

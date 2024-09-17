@@ -29,7 +29,7 @@ public class RevenueAnalyzerBot extends TelegramLongPollingBot {
         long userId = update.getMessage().getFrom().getId();
         CommandHandler commandHandler = handlersService.getHandler(update);
         if (commandHandler == null) {
-            log.error("Не удалось обраборать сообщение");
+            log.error("Не удалось обработать сообщение");
             return;
         }
 
