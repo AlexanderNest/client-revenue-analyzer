@@ -3,6 +3,8 @@ package ru.nesterov.entity;
 import jakarta.persistence.*;
 import lombok.Data;
 
+import java.util.List;
+
 @Entity
 @Data
 @Table(name = "\"user\"")
@@ -17,4 +19,7 @@ public class User {
     private String mainCalendar;
     @Column(name = "cancelled_calender")
     private String cancelledCalendar;
+
+    @OneToMany(mappedBy = "user")
+    private List<Client> clients;
 }

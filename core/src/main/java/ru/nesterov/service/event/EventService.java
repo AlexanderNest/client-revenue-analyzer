@@ -8,6 +8,7 @@ import ru.nesterov.dto.EventExtension;
 import ru.nesterov.entity.Client;
 import ru.nesterov.exception.AppException;
 import ru.nesterov.repository.ClientRepository;
+import ru.nesterov.service.dto.UserDto;
 
 import java.time.Duration;
 
@@ -17,8 +18,8 @@ import java.time.Duration;
 public class EventService {
     private final ClientRepository clientRepository;
 
-    public double getEventIncome(Event event) {
-        Client client = clientRepository.findClientByNameAndUserId(event.getSummary(), event.getUserId());
+    public double getEventIncome(UserDto userDto, Event event) {
+        Client client = clientRepository.findClientByNameAndUserId(event.getSummary(), userDto.getId());
         if (client == null) {
             throw new AppException("Пользователь с именем '" + event.getSummary() + "' от даты " + event.getStart() + " не найден в базе");
         }

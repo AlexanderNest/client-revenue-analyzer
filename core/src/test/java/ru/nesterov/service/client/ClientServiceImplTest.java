@@ -14,13 +14,13 @@ import ru.nesterov.exception.ClientNotFoundException;
 import ru.nesterov.repository.ClientRepository;
 import ru.nesterov.repository.UserRepository;
 import ru.nesterov.service.CalendarService;
+import ru.nesterov.service.dto.UserDto;
 import ru.nesterov.service.monthHelper.MonthDatesPair;
 
 import java.time.LocalDateTime;
 import java.util.List;
 
 import static org.junit.jupiter.api.Assertions.*;
-import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.when;
 
 @SpringBootTest
@@ -37,21 +37,26 @@ public class ClientServiceImplTest {
 
     @BeforeEach
     public void init() {
-        when(userRepository.findByUsername("testUser")).thenReturn(createUser());
+        User user = new User();
+        user.setId(1);
+        user.setCancelledCalendar("cancelledCalendar");
+        user.setMainCalendar("mainCalendar");
+        user.setUsername("testUser");
+        when(userRepository.findByUsername(user.getUsername())).thenReturn(user);
 
         Client client1 = new Client();
         client1.setId(1);
         client1.setName("testClient1");
         client1.setPricePerHour(1000);
-        client1.setUserId(1);
-        when(clientRepository.findClientByNameAndUserId("testClient1", 1)).thenReturn(client1);
+        client1.setUser(user);
+        when(clientRepository.findClientByNameAndUserId(client1.getName(), user.getId())).thenReturn(client1);
 
         Client client2 = new Client();
         client2.setId(1);
         client2.setName("testClient2");
         client2.setPricePerHour(1000);
-        client2.setUserId(1);
-        when(clientRepository.findClientByNameAndUserId("testClient2", 1)).thenReturn(client2);
+        client2.setUser(user);
+        when(clientRepository.findClientByNameAndUserId(client2.getName(), user.getId())).thenReturn(client2);
 
         Event event1 = Event.builder()
                 .summary("testClient1")
@@ -91,14 +96,19 @@ public class ClientServiceImplTest {
         LocalDateTime from = LocalDateTime.of(2024, 8, 9, 11, 30);
         LocalDateTime to = LocalDateTime.of(2024, 8, 13, 12, 30);
 
-        when(calendarService.getEventsBetweenDates("mainCalendar", null, from, to)).thenReturn(List.of(event1, event2, event3, event4, event5));
+        when(calendarService.getEventsBetweenDates(user.getMainCalendar(), user.getCancelledCalendar(), from, to))
+                .thenReturn(List.of(event1, event2, event3, event4, event5));
     }
 
     @Test
     public void shouldReturnScheduleForClient1() {
+        UserDto userDto = createUserDto();
+
         LocalDateTime from = LocalDateTime.of(2024, 8, 9, 11, 30);
         LocalDateTime to = LocalDateTime.of(2024, 8, 13, 12, 30);
-        List<MonthDatesPair> actual = clientService.getClientSchedule("testUser", "testClient1", from, to);
+
+        List<MonthDatesPair> actual = clientService.getClientSchedule(userDto, "testClient1", from, to);
+
         List<MonthDatesPair> expected = List.of(
                 new MonthDatesPair(
                         LocalDateTime.of(2024, 8, 9, 11, 30),
@@ -115,9 +125,11 @@ public class ClientServiceImplTest {
 
     @Test
     public void shouldReturnScheduleForClient2() {
+        UserDto userDto = createUserDto();
+
         LocalDateTime from = LocalDateTime.of(2024, 8, 9, 11, 30);
         LocalDateTime to = LocalDateTime.of(2024, 8, 13, 12, 30);
-        List<MonthDatesPair> actual = clientService.getClientSchedule("testUser","testClient2", from, to);
+        List<MonthDatesPair> actual = clientService.getClientSchedule(userDto,"testClient2", from, to);
         List<MonthDatesPair> expected = List.of(
                 new MonthDatesPair(
                         LocalDateTime.of(2024, 8, 11, 11, 30),
@@ -138,19 +150,26 @@ public class ClientServiceImplTest {
 
     @Test
     public void shouldReturnEmptySchedule() {
+        UserDto userDto = createUserDto();
+
         LocalDateTime from = LocalDateTime.of(2024, 11, 9, 11, 30);
         LocalDateTime to = LocalDateTime.of(2024, 11, 13, 12, 30);
-        List<MonthDatesPair> clientSchedule = clientService.getClientSchedule("testUser","testClient1", from, to);
+        List<MonthDatesPair> clientSchedule = clientService.getClientSchedule(userDto,"testClient1", from, to);
         assertTrue(clientSchedule.isEmpty());
     }
 
     @Test
     public void getScheduleForNotCreatedClientShouldThrowAppException() {
+        UserDto userDto = UserDto.builder()
+                .username("testUser")
+                .id(1)
+                .build();
+
         LocalDateTime from = LocalDateTime.of(2024, 11, 9, 11, 30);
         LocalDateTime to = LocalDateTime.of(2024, 11, 13, 12, 30);
 
         assertThrows(ClientNotFoundException.class, () -> {
-            clientService.getClientSchedule("testUser","Client", from, to);
+            clientService.getClientSchedule(userDto,"Client", from, to);
         });
     }
 
@@ -159,11 +178,12 @@ public class ClientServiceImplTest {
         assertTrue(actual.containsAll(expected));
     }
 
-    private User createUser() {
-        User user = new User();
-        user.setUsername("testUser");
-        user.setId(1);
-        user.setMainCalendar("mainCalendar");
-        return user;
+    private UserDto createUserDto() {
+        return UserDto.builder()
+                .username("testUser")
+                .cancelledCalendar("cancelledCalendar")
+                .mainCalendar("mainCalendar")
+                .id(1)
+                .build();
     }
 }

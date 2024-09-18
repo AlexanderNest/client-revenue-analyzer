@@ -14,6 +14,7 @@ import ru.nesterov.repository.UserRepository;
 import ru.nesterov.service.CalendarService;
 import ru.nesterov.service.dto.ClientMeetingsStatistic;
 import ru.nesterov.service.dto.IncomeAnalysisResult;
+import ru.nesterov.service.dto.UserDto;
 import ru.nesterov.service.monthHelper.MonthDatesPair;
 import ru.nesterov.service.monthHelper.MonthHelper;
 
@@ -33,8 +34,8 @@ public class EventsAnalyzerServiceImpl implements EventsAnalyzerService {
     private final EventService eventService;
     private final UserRepository userRepository;
 
-    public Map<String, ClientMeetingsStatistic> getStatisticsOfEachClientMeetings(String username, String monthName) {
-        List<Event> events = getEventsByMonth(username, monthName);
+    public Map<String, ClientMeetingsStatistic> getStatisticsOfEachClientMeetings(UserDto userDto, String monthName) {
+        List<Event> events = getEventsByMonth(userDto.getUsername(), monthName);
 
         Map<String, ClientMeetingsStatistic> meetingsStatistics = new HashMap<>();
 
@@ -43,7 +44,7 @@ public class EventsAnalyzerServiceImpl implements EventsAnalyzerService {
 
             ClientMeetingsStatistic clientMeetingsStatistic = meetingsStatistics.get(event.getSummary());
             if (clientMeetingsStatistic == null) {
-                Client client = clientRepository.findClientByNameAndUserId(event.getSummary(), event.getUserId());
+                Client client = clientRepository.findClientByNameAndUserId(event.getSummary(), userDto.getId());
                 if (client == null) {
                     throw new ClientNotFoundException(event.getSummary());
                 }
@@ -63,8 +64,8 @@ public class EventsAnalyzerServiceImpl implements EventsAnalyzerService {
         return meetingsStatistics;
     }
 
-    public IncomeAnalysisResult getIncomeAnalysisByMonth(String username, String monthName) {
-        List<Event> events = getEventsByMonth(username, monthName);
+    public IncomeAnalysisResult getIncomeAnalysisByMonth(UserDto userDto, String monthName) {
+        List<Event> events = getEventsByMonth(userDto.getUsername(), monthName);
 
         double actualIncome = 0;
         double lostIncome = 0;
@@ -73,12 +74,12 @@ public class EventsAnalyzerServiceImpl implements EventsAnalyzerService {
         for (Event event : events) {
             EventStatus eventStatus = event.getStatus();
 
-            Client client = clientRepository.findClientByNameAndUserId(event.getSummary(), event.getUserId());
+            Client client = clientRepository.findClientByNameAndUserId(event.getSummary(), userDto.getId());
             if (client == null) {
                 throw new ClientNotFoundException(event.getSummary(), event.getStart());
             }
 
-            double eventPrice = eventService.getEventIncome(event);
+            double eventPrice = eventService.getEventIncome(userDto, event);
             expectedIncome += eventPrice;
 
             if (eventStatus == EventStatus.SUCCESS) {
@@ -99,8 +100,8 @@ public class EventsAnalyzerServiceImpl implements EventsAnalyzerService {
     }
 
     @Override
-    public List<Event> getUnpaidEventsBetweenDates(String mainCalender, String cancelledCalendar, LocalDateTime leftDate, LocalDateTime rightDate) {
-        return calendarService.getEventsBetweenDates(mainCalender, cancelledCalendar, leftDate, rightDate).stream()
+    public List<Event> getUnpaidEventsBetweenDates(UserDto userDto, LocalDateTime leftDate, LocalDateTime rightDate) {
+        return calendarService.getEventsBetweenDates(userDto.getMainCalendar(), userDto.getCancelledCalendar(), leftDate, rightDate).stream()
                 .filter(event -> {
                     EventStatus eventStatus = event.getStatus();
                     return eventStatus == EventStatus.PLANNED || eventStatus == EventStatus.REQUIRES_SHIFT;
@@ -109,11 +110,10 @@ public class EventsAnalyzerServiceImpl implements EventsAnalyzerService {
     }
 
     @Override
-    public List<Event> getUnpaidEvents(String username) {
+    public List<Event> getUnpaidEvents(UserDto userDto) {
         LocalDateTime currentDateTime = LocalDateTime.now();
         LocalDateTime requiredDateTime = currentDateTime.minusDays(eventsAnalyzerProperties.getUnpaidEventsRange());
-        User user = userRepository.findByUsername(username);
-        return getUnpaidEventsBetweenDates(user.getMainCalendar(), user.getCancelledCalendar(), requiredDateTime, LocalDateTime.now());
+        return getUnpaidEventsBetweenDates(userDto, requiredDateTime, LocalDateTime.now());
     }
 
     private double getEventDuration(Event event) {
@@ -122,13 +122,13 @@ public class EventsAnalyzerServiceImpl implements EventsAnalyzerService {
     }
 
 
-    public Map<EventStatus, Integer> getEventStatusesByMonthName(String username, String monthName) {
+    public Map<EventStatus, Integer> getEventStatusesByMonthName(UserDto userDto, String monthName) {
         MonthDatesPair monthDatesPair = MonthHelper.getFirstAndLastDayOfMonth(monthName);
-        return getEventStatusesBetweenDates(username, monthDatesPair.getFirstDate(), monthDatesPair.getLastDate());
+        return getEventStatusesBetweenDates(userDto, monthDatesPair.getFirstDate(), monthDatesPair.getLastDate());
     }
 
-    public Map<EventStatus, Integer> getEventStatusesBetweenDates(String username, LocalDateTime leftDate, LocalDateTime rightDate) {
-        User user = userRepository.findByUsername(username);
+    public Map<EventStatus, Integer> getEventStatusesBetweenDates(UserDto userDto, LocalDateTime leftDate, LocalDateTime rightDate) {
+        User user = userRepository.findByUsername(userDto.getUsername());
 
         List<Event> events = calendarService.getEventsBetweenDates(user.getMainCalendar(), user.getCancelledCalendar(), leftDate, rightDate);
 
@@ -145,12 +145,7 @@ public class EventsAnalyzerServiceImpl implements EventsAnalyzerService {
     private List<Event> getEventsByMonth(String username, String monthName) {
         User user = userRepository.findByUsername(username);
         MonthDatesPair monthDatesPair = MonthHelper.getFirstAndLastDayOfMonth(monthName);
-        List<Event> events = calendarService.getEventsBetweenDates(user.getMainCalendar(), user.getCancelledCalendar(), monthDatesPair.getFirstDate(), monthDatesPair.getLastDate());
 
-        for (Event event : events) {
-            event.setUserId(user.getId());
-        }
-
-        return events;
+        return calendarService.getEventsBetweenDates(user.getMainCalendar(), user.getCancelledCalendar(), monthDatesPair.getFirstDate(), monthDatesPair.getLastDate());
     }
 }

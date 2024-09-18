@@ -52,7 +52,6 @@ public class EventsAnalyzerControllerTest {
         client1.setId(1);
         client1.setName("testName1");
         client1.setPricePerHour(1000);
-        client1.setUserId(1);
 
         when(userRepository.findByUsername("testUser1")).thenReturn(user1);
         when(clientRepository.findClientByNameAndUserId("testName1", 1)).thenReturn(client1);

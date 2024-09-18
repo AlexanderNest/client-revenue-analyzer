@@ -11,5 +11,4 @@ public class ClientDto {
     private int pricePerHour;
     private String description;
     private boolean active;
-    private long userId;
 }

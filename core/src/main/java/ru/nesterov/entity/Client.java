@@ -16,6 +16,7 @@ public class Client {
     private String description;
     private boolean active;
 
-    @Column(name = "user_id", nullable = false)
-    private long userId;
+    @ManyToOne
+    @JoinColumn(name = "user_id")
+    private User user;
 }

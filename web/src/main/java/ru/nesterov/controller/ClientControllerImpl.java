@@ -1,7 +1,6 @@
 package ru.nesterov.controller;
 
 import lombok.RequiredArgsConstructor;
-import lombok.extern.slf4j.Slf4j;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestHeader;
 import org.springframework.web.bind.annotation.RestController;
@@ -10,8 +9,10 @@ import ru.nesterov.controller.request.GetClientScheduleRequest;
 import ru.nesterov.controller.response.ClientResponse;
 import ru.nesterov.controller.response.EventScheduleResponse;
 import ru.nesterov.mapper.ClientMapper;
+import ru.nesterov.service.UserService;
 import ru.nesterov.service.client.ClientService;
 import ru.nesterov.service.dto.ClientDto;
+import ru.nesterov.service.monthHelper.MonthDatesPair;
 
 import java.util.List;
 
@@ -19,22 +20,27 @@ import java.util.List;
 @RequiredArgsConstructor
 public class ClientControllerImpl implements ClientController {
     private final ClientService clientService;
+    private final UserService userService;
 
     public List<EventScheduleResponse> getClientSchedule(@RequestHeader(name = "X-username") String username, @RequestBody GetClientScheduleRequest request) {
-        return clientService.getClientSchedule(username, request.getClientName(), request.getLeftDate(), request.getRightDate()).stream()
+        List<MonthDatesPair> clientSchedule = clientService.getClientSchedule(userService.getUserByUsername(username), request.getClientName(), request.getLeftDate(), request.getRightDate());
+
+        return clientSchedule.stream()
                 .map(monthDatesPair -> new EventScheduleResponse(monthDatesPair.getFirstDate(), monthDatesPair.getLastDate()))
                 .toList();
     }
 
     public ClientResponse createClient(@RequestHeader(name = "X-username") String username, @RequestBody CreateClientRequest createClientRequest) {
         ClientDto clientDto = ClientMapper.mapToClientDto(createClientRequest);
-        ClientDto result = clientService.createClient(username, clientDto, createClientRequest.isIdGenerationNeeded());
+        ClientDto result = clientService.createClient(userService.getUserByUsername(username), clientDto, createClientRequest.isIdGenerationNeeded());
         return ClientMapper.mapToClientResponse(result);
     }
 
     @Override
     public List<ClientResponse> getActiveClients(@RequestHeader(name = "X-username") String username) {
-        return clientService.getActiveClients(username).stream()
+        List<ClientDto> activeClients = clientService.getActiveClients(userService.getUserByUsername(username));
+
+        return activeClients.stream()
                 .map(ClientMapper::mapToClientResponse)
                 .toList();
     }
