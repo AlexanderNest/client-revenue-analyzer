@@ -1,5 +1,6 @@
 package ru.nesterov.bot.handlers.implementation;
 
+import lombok.Data;
 import lombok.RequiredArgsConstructor;
 import lombok.SneakyThrows;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
@@ -17,6 +18,7 @@ import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 
 @Component
+@Data
 @RequiredArgsConstructor
 @ConditionalOnProperty("bot.enabled")
 public class CreateUserHandler extends AbstractHandler {
