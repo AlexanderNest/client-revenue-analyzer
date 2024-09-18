@@ -68,4 +68,21 @@
         </sql>
     </changeSet>
 
+    <changeSet id="make client_unique_name unique" author="Uenay">
+        <preConditions onFail="MARK_RAN">
+            <and>
+                <tableExists tableName="client"/>
+                <columnExists tableName="client" columnName="name"/>
+                <not>
+                    <uniqueConstraintExists tableName="client" constraintName="client_unique_name"/>
+                </not>
+            </and>
+        </preConditions>
+        <sql>
+            ALTER TABLE CLIENT
+                ADD CONSTRAINT client_unique_name UNIQUE (name);
+        </sql>
+    </changeSet>
+
+
 </databaseChangeLog>

@@ -1,14 +1,17 @@
 package ru.nesterov.service.event;
 
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
 import ru.nesterov.dto.Event;
 import ru.nesterov.dto.EventStatus;
 import ru.nesterov.entity.Client;
+import ru.nesterov.exception.AppException;
 import ru.nesterov.entity.User;
 import ru.nesterov.exception.ClientNotFoundException;
 import ru.nesterov.exception.UnknownEventStatusException;
-import ru.nesterov.google.EventStatusService;
 import ru.nesterov.repository.ClientRepository;
 import ru.nesterov.repository.UserRepository;
 import ru.nesterov.service.CalendarService;
@@ -17,19 +20,19 @@ import ru.nesterov.service.dto.IncomeAnalysisResult;
 import ru.nesterov.service.monthHelper.MonthDatesPair;
 import ru.nesterov.service.monthHelper.MonthHelper;
 
-import java.time.Duration;
 import java.time.LocalDateTime;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
 @Service
+@Slf4j
 @RequiredArgsConstructor
 public class EventsAnalyzerServiceImpl implements EventsAnalyzerService {
     private final CalendarService calendarService;
     private final ClientRepository clientRepository;
-    private final EventStatusService eventStatusService;
     private final EventsAnalyzerProperties eventsAnalyzerProperties;
+    private final EventService eventService;
     private final UserRepository userRepository;
 
     public Map<String, ClientMeetingsStatistic> getStatisticsOfEachClientMeetings(String username, String monthName) {
@@ -49,7 +52,7 @@ public class EventsAnalyzerServiceImpl implements EventsAnalyzerService {
                 clientMeetingsStatistic = new ClientMeetingsStatistic(client.getPricePerHour());
             }
 
-            double eventDuration = getEventDuration(event);
+            double eventDuration = eventService.getEventDuration(event);
             if (eventStatus == EventStatus.SUCCESS) {
                 clientMeetingsStatistic.increaseSuccessful(eventDuration);
             } else if (eventStatus == EventStatus.CANCELLED) {
@@ -77,8 +80,7 @@ public class EventsAnalyzerServiceImpl implements EventsAnalyzerService {
                 throw new ClientNotFoundException(event.getSummary(), event.getStart());
             }
 
-            double eventPrice = getEventDuration(event) * client.getPricePerHour();
-
+            double eventPrice = eventService.getEventIncome(event);
             expectedIncome += eventPrice;
 
             if (eventStatus == EventStatus.SUCCESS) {

@@ -1,9 +1,12 @@
 package ru.nesterov.service.client;
 
 import lombok.RequiredArgsConstructor;
+import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.stereotype.Service;
 import ru.nesterov.dto.Event;
 import ru.nesterov.entity.Client;
+import ru.nesterov.entity.User;
+import ru.nesterov.exception.ClientIsAlreadyCreatedException;
 import ru.nesterov.entity.User;
 import ru.nesterov.exception.ClientNotFoundException;
 import ru.nesterov.repository.ClientRepository;
@@ -39,27 +42,33 @@ public class ClientServiceImpl implements ClientService {
                 .toList();
     }
 
-    public ClientDto createClient(String username, ClientDto clientDto, boolean isIdGenerationNeeded) throws ClientNotFoundException {
+    public ClientDto createClient(String username, ClientDto clientDto, boolean isIdGenerationNeeded) throws ClientIsAlreadyCreatedException {
         User user = userRepository.findByUsername(username);
         clientDto.setUserId(user.getId());
 
-        List<Client> clientsWithThisName = clientRepository.findAllByNameContainingAndUserId(clientDto.getName(), user.getId()).stream()
-                .toList();
+        List<Client> clientsWithThisName = clientRepository.findAllByExactNameOrNameStartingWithAndEndingWithNumberAndUserId(clientDto.getName(), clientDto.getUserId());
+
         if (!clientsWithThisName.isEmpty() && !isIdGenerationNeeded) {
-            throw new ClientNotFoundException(clientDto.getName());
+            throw new ClientIsAlreadyCreatedException(clientDto.getName());
         }
         if (!clientsWithThisName.isEmpty()) {
             clientDto.setName(clientDto.getName() + " " + (clientsWithThisName.size() + 1));
         }
-        Client client = clientRepository.save(ClientMapper.mapToClient(clientDto));
+
+        Client client;
+        try {
+            client = clientRepository.save(ClientMapper.mapToClient(clientDto));
+        } catch (DataIntegrityViolationException exception) {
+            throw new ClientIsAlreadyCreatedException(clientDto.getName());
+        }
+
         return ClientMapper.mapToClientDto(client);
     }
 
     @Override
     public List<ClientDto> getActiveClients(String username) {
         User user = userRepository.findByUsername(username);
-
-        return clientRepository.findClientByUserIdAndActiveOrderByPricePerHourDesc(user.getId(),true).stream()
+        return clientRepository.findClientByUserIdAndActiveOrderByPricePerHourDesc(user.getId(), true).stream()
                 .map(ClientMapper::mapToClientDto)
                 .toList();
     }

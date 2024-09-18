@@ -1,6 +1,9 @@
 package ru.nesterov.repository;
 
+import jakarta.persistence.criteria.Predicate;
 import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.data.jpa.repository.Query;
+import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
 import ru.nesterov.entity.Client;
 
@@ -11,7 +14,8 @@ import java.util.List;
 public interface ClientRepository extends JpaRepository<Client, Long> {
     Client findClientByNameAndUserId(String name, long userId);
 
-    List<Client> findAllByNameContainingAndUserId(String name, long userId);
+    @Query(value = "SELECT * FROM client WHERE (name = :name OR name REGEXP '^' || :name || '\\s\\d+$') and userId = :userId", nativeQuery = true)
+    List<Client> findAllByExactNameOrNameStartingWithAndEndingWithNumberAndUserId(@Param("name") String name, @Param("userId") long userId);
 
     List<Client> findClientByUserIdAndActiveOrderByPricePerHourDesc(long userId, boolean active);
 
