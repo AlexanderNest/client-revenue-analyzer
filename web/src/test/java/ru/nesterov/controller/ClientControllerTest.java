@@ -1,6 +1,7 @@
 package ru.nesterov.controller;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
+import lombok.extern.slf4j.Slf4j;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
@@ -43,7 +44,6 @@ class ClientControllerTest {
         createClientRequest.setName("Oleg");
         createClientRequest.setPricePerHour(100);
         createClientRequest.setIdGenerationNeeded(false);
-
         mockMvc.perform(
                 post(CREATE_CLIENT_URL)
                         .contentType(MediaType.APPLICATION_JSON)
