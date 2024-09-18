@@ -78,7 +78,7 @@
 					"name": "Анализ клиентов за выбранный месяц",
 					"request": {
 						"method": "POST",
-						"header": [],
+						"header": [{"key":  "vale"}],
 						"body": {
 							"mode": "raw",
 							"raw": "{\r\n    \"monthName\": \"august\"\r\n}",

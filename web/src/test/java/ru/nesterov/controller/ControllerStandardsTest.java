@@ -91,7 +91,7 @@ public class ControllerStandardsTest {
     }
 
     @Test
-    @DisplayName("Проверка, что все эндпоинты контроллеров содержатся в Postman коллекции")
+    @DisplayName("Проверка, что все эндпоинты контроллеров содержатся в Postman коллекции. Проверка, что передаются обязательные заголовки")
     public void testAllControllerEndpointsInPostmanCollection() throws IOException {
         Set<EndpointInfo> postmanEndpoints = getEndpointsFromPostman();
 
@@ -109,6 +109,12 @@ public class ControllerStandardsTest {
                 assertTrue(hasEndpointEndsWith(postmanEndpoints, endpointInfo), "Endpoint " + endpointInfo.endpoint + " with method " + endpointInfo.method + " is not present in Postman collection");
             }
         }
+
+        //TODO раскомментировать после того, как в postman будут добавлены нужные заголовки
+//        for (EndpointInfo endpointInfo : postmanEndpoints) {
+//            assertTrue(endpointInfo.headers.contains("X-secret-token"), "В запросе " + endpointInfo.endpoint + " не заполнен обязательный заголовок X-secret-token");
+//            assertTrue(endpointInfo.headers.contains("X-username"), "В запросе " + endpointInfo.endpoint + " не заполнен обязательный заголовок X-username");
+//        }
     }
 
     private Set<EndpointInfo> getEndpointsFromPostman() throws IOException {
@@ -149,6 +155,21 @@ public class ControllerStandardsTest {
                 EndpointInfo endpointInfo = new EndpointInfo();
                 endpointInfo.endpoint = path;
                 endpointInfo.method = method;
+                endpointInfo.headers = new HashSet<>();
+
+                // Обработка заголовков (если они есть)
+                JsonNode headersNode = requestNode.get("header");
+                if (headersNode != null && headersNode.isArray()) {
+                    for (JsonNode header : headersNode) {
+                        JsonNode headerNode = header.get("key");
+                        JsonNode valueNode = header.get("value");
+
+                        if (headerNode != null) {
+                            endpointInfo.headers.add(headerNode.asText());
+                        }
+                    }
+                }
+
                 postmanEndpoints.add(endpointInfo);
             }
         }
@@ -198,5 +219,6 @@ public class ControllerStandardsTest {
     private static class EndpointInfo {
         String method;
         String endpoint;
+        Set<String> headers;
     }
 }
