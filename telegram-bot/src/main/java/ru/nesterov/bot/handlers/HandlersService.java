@@ -14,6 +14,7 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.concurrent.ConcurrentHashMap;
 
 @Component
 @Slf4j
@@ -23,7 +24,7 @@ public class HandlersService {
     private final GetMonthStatisticsHandler getMonthStatisticsHandler;
     private final CreateUserHandler createNewUserHandler;
 
-    private final Map<Long, CommandHandler> userHandlers = new HashMap<>(); //thread safety
+    private final Map<Long, CommandHandler> userHandlers = new ConcurrentHashMap<>();
 
     private final List<CommandHandler> commandHandlers = new ArrayList<>();
 

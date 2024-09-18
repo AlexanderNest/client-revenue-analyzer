@@ -14,12 +14,13 @@ import ru.nesterov.integration.ClientRevenueAnalyzerIntegrationClient;
 
 import java.util.HashMap;
 import java.util.Map;
+import java.util.concurrent.ConcurrentHashMap;
 
 @Component
 @RequiredArgsConstructor
 @ConditionalOnProperty("bot.enabled")
 public class CreateUserHandler extends AbstractHandler {
-    private final Map<Long, CreateUserRequest> createUserRequests = new HashMap<>(); // надо сделать потокобезопасным
+    private final Map<Long, CreateUserRequest> createUserRequests = new ConcurrentHashMap<>(); // надо сделать потокобезопасным
     private final ClientRevenueAnalyzerIntegrationClient client;
     @Override
     public BotApiMethod<?> handle(Update update) {
