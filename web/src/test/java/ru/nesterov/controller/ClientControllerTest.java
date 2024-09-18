@@ -1,7 +1,6 @@
 package ru.nesterov.controller;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
-import lombok.extern.slf4j.Slf4j;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
@@ -12,8 +11,10 @@ import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.transaction.annotation.Transactional;
 import ru.nesterov.controller.request.CreateClientRequest;
 import ru.nesterov.entity.Client;
+import ru.nesterov.entity.User;
 import ru.nesterov.google.GoogleCalendarClient;
 import ru.nesterov.repository.ClientRepository;
+import ru.nesterov.repository.UserRepository;
 
 import static org.hamcrest.Matchers.hasSize;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
@@ -29,6 +30,9 @@ class ClientControllerTest {
     private ObjectMapper objectMapper;
     @Autowired
     private ClientRepository clientRepository;
+    @Autowired
+    private UserRepository userRepository;
+
     @MockBean
     private GoogleCalendarClient googleCalendarService;
 
@@ -39,13 +43,21 @@ class ClientControllerTest {
     @Test
     @Transactional
     void createClientWithoutIdGeneration() throws Exception {
+        User user = new User();
+        user.setUsername("testUser");
+        user.setMainCalendar("mainCalendar");
+        user.setCancelledCalendar("cancelCalendar");
+        user = userRepository.save(user);
+
         CreateClientRequest createClientRequest = new CreateClientRequest();
         createClientRequest.setDescription("desc");
         createClientRequest.setName("Oleg");
         createClientRequest.setPricePerHour(100);
         createClientRequest.setIdGenerationNeeded(false);
+
         mockMvc.perform(
                 post(CREATE_CLIENT_URL)
+                        .header("X-username", user.getUsername())
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(objectMapper.writeValueAsString(createClientRequest))
                 )
@@ -55,23 +67,29 @@ class ClientControllerTest {
                 .andExpect(jsonPath("$.description").value("desc"))
                 .andExpect(jsonPath("$.active").value(true))
                 .andExpect(jsonPath("$.pricePerHour").value(100));
-
-        clientRepository.deleteClientByName(createClientRequest.getName());
     }
 
     @Test
     @Transactional
     void createClientWithTheSameNameWithoutIdGeneration() throws Exception {
+        User user = new User();
+        user.setUsername("testUser");
+        user.setMainCalendar("mainCalendar");
+        user.setCancelledCalendar("cancelCalendar");
+        user = userRepository.save(user);
+
         CreateClientRequest createClientRequest = new CreateClientRequest();
         createClientRequest.setDescription("desc");
         createClientRequest.setName("Maria");
         createClientRequest.setPricePerHour(100);
         createClientRequest.setIdGenerationNeeded(false);
+
         CreateClientRequest createClientRequest2 = new CreateClientRequest();
         createClientRequest2.setDescription("desc");
         createClientRequest2.setName("Maria Petrova");
         createClientRequest2.setPricePerHour(1000);
         createClientRequest2.setIdGenerationNeeded(false);
+
         CreateClientRequest createClientRequest3 = new CreateClientRequest();
         createClientRequest3.setDescription("desc");
         createClientRequest3.setName("Maria");
@@ -79,33 +97,39 @@ class ClientControllerTest {
         createClientRequest3.setIdGenerationNeeded(false);
 
         mockMvc.perform(
-                        post(CREATE_CLIENT_URL)
-                                .contentType(MediaType.APPLICATION_JSON)
-                                .content(objectMapper.writeValueAsString(createClientRequest))
+                    post(CREATE_CLIENT_URL)
+                            .header("X-username", user.getUsername())
+                            .contentType(MediaType.APPLICATION_JSON)
+                            .content(objectMapper.writeValueAsString(createClientRequest))
+                )
+                .andExpect(status().isOk());
+
+        mockMvc.perform(
+                post(CREATE_CLIENT_URL)
+                        .header("X-username", user.getUsername())
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(objectMapper.writeValueAsString(createClientRequest2))
                 )
                 .andExpect(status().isOk());
 
         mockMvc.perform(
                         post(CREATE_CLIENT_URL)
-                                .contentType(MediaType.APPLICATION_JSON)
-                                .content(objectMapper.writeValueAsString(createClientRequest2))
-                )
-                .andExpect(status().isOk());
-
-        mockMvc.perform(
-                        post(CREATE_CLIENT_URL)
+                                .header("X-username", user.getUsername())
                                 .contentType(MediaType.APPLICATION_JSON)
                                 .content(objectMapper.writeValueAsString(createClientRequest3))
                 )
                 .andExpect(status().isInternalServerError());
-
-        clientRepository.deleteClientByName(createClientRequest.getName());
     }
-
 
     @Test
     @Transactional
     void createClientWithTheSameNameWithIdGeneration() throws Exception {
+        User user = new User();
+        user.setUsername("testUser");
+        user.setMainCalendar("mainCalendar");
+        user.setCancelledCalendar("cancelCalendar");
+        user = userRepository.save(user);
+
         CreateClientRequest createClientRequest0 = new CreateClientRequest();
         createClientRequest0.setDescription("desc");
         createClientRequest0.setName("Maria Petrova");
@@ -131,6 +155,7 @@ class ClientControllerTest {
 
         mockMvc.perform(
                         post(CREATE_CLIENT_URL)
+                                .header("X-username", user.getUsername())
                                 .contentType(MediaType.APPLICATION_JSON)
                                 .content(objectMapper.writeValueAsString(createClientRequest0))
                 )
@@ -143,6 +168,7 @@ class ClientControllerTest {
 
         mockMvc.perform(
                         post(CREATE_CLIENT_URL)
+                                .header("X-username", user.getUsername())
                                 .contentType(MediaType.APPLICATION_JSON)
                                 .content(objectMapper.writeValueAsString(createClientRequest1))
                 )
@@ -155,6 +181,7 @@ class ClientControllerTest {
 
         mockMvc.perform(
                         post(CREATE_CLIENT_URL)
+                                .header("X-username", user.getUsername())
                                 .contentType(MediaType.APPLICATION_JSON)
                                 .content(objectMapper.writeValueAsString(createClientRequest2))
                 )
@@ -167,6 +194,7 @@ class ClientControllerTest {
 
         mockMvc.perform(
                         post(CREATE_CLIENT_URL)
+                                .header("X-username", user.getUsername())
                                 .contentType(MediaType.APPLICATION_JSON)
                                 .content(objectMapper.writeValueAsString(createClientRequest3)))
                 .andExpect(status().isOk())
@@ -175,22 +203,25 @@ class ClientControllerTest {
                 .andExpect(jsonPath("$.description").value("desc"))
                 .andExpect(jsonPath("$.active").value(true))
                 .andExpect(jsonPath("$.pricePerHour").value(1000));
-
-        clientRepository.deleteClientByName(createClientRequest0.getName());
-        clientRepository.deleteClientByName(createClientRequest1.getName());
-        clientRepository.deleteClientByName(createClientRequest2.getName());
-        clientRepository.deleteClientByName(createClientRequest3.getName());
     }
 
 
     @Test
     @Transactional
     void getActiveClients() throws Exception {
+        User user = new User();
+        user.setUsername("testUser");
+        user.setMainCalendar("mainCalendar");
+        user.setCancelledCalendar("cancelCalendar");
+        user = userRepository.save(user);
+
         Client client1 = new Client();
         client1.setActive(true);
         client1.setName("a");
         client1.setDescription("aa");
         client1.setPricePerHour(100);
+        client1.setUser(user);
+
         clientRepository.save(client1);
 
         Client client2 = new Client();
@@ -198,6 +229,8 @@ class ClientControllerTest {
         client2.setName("b");
         client2.setDescription("bbb");
         client2.setPricePerHour(200);
+        client2.setUser(user);
+
         clientRepository.save(client2);
 
         Client client3 = new Client();
@@ -205,11 +238,13 @@ class ClientControllerTest {
         client3.setName("c");
         client3.setDescription("ccc");
         client3.setPricePerHour(200);
-        clientRepository.save(client3);
+        client3.setUser(user);
 
+        clientRepository.save(client3);
 
         mockMvc.perform(
                         post(GET_ACTIVE_CLIENTS_URL)
+                                .header("X-username", user.getUsername())
                 )
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$", hasSize(2)))
@@ -223,10 +258,5 @@ class ClientControllerTest {
                 .andExpect(jsonPath("$[1].description").value(client1.getDescription()))
                 .andExpect(jsonPath("$[1].pricePerHour").value(client1.getPricePerHour()))
                 .andExpect(jsonPath("$[1].active").value(client1.isActive()));
-
-        clientRepository.deleteClientByName(client1.getName());
-        clientRepository.deleteClientByName(client2.getName());
-        clientRepository.deleteClientByName(client3.getName());
     }
-
 }

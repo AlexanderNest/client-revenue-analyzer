@@ -35,6 +35,40 @@
         </addColumn>
     </changeSet>
 
+    <changeSet id="task-#42-create-table-user" author="Valera">
+        <preConditions>
+            <not>
+                <tableExists tableName="user"/>
+            </not>
+        </preConditions>
+        <sql>
+            CREATE TABLE "user"
+            (
+                id                 BIGSERIAL PRIMARY KEY NOT NULL,
+                username           VARCHAR(20) UNIQUE    NOT NULL,
+                main_calendar_id      VARCHAR(200)          NOT NULL,
+                cancelled_calendar_id VARCHAR(200),
+                cancelled_calendar_enabled boolean DEFAULT false
+            )
+        </sql>
+    </changeSet>
+
+    <changeSet id="task-#42-add-column-user_id-to-table-CLIENT" author="Valera">
+        <preConditions>
+            <and>
+                <tableExists tableName="CLIENT"/>
+                <tableExists tableName="user"/>
+                <not>
+                    <columnExists tableName="CLIENT" columnName="user_id"/>
+                </not>
+            </and>
+        </preConditions>
+        <sql>
+            ALTER TABLE CLIENT
+                ADD user_id BIGINT REFERENCES "user" (id)
+        </sql>
+    </changeSet>
+
     <changeSet id="make client_unique_name unique" author="Uenay">
         <preConditions onFail="MARK_RAN">
             <and>
@@ -51,5 +85,32 @@
         </sql>
     </changeSet>
 
+    <changeSet id="drop-indx-CONSTRAINT_INDEX_3" author="nesterov">
+        <preConditions onFail="MARK_RAN">
+            <indexExists tableName="client" indexName="CONSTRAINT_INDEX_3"/>
+        </preConditions>
 
+        <dropIndex indexName="CONSTRAINT_INDEX_3" tableName="client"/>
+    </changeSet>
+
+    <changeSet id="drop-indx-CONSTRAINT_INDEX_4" author="nesterov">
+        <preConditions onFail="MARK_RAN">
+            <indexExists tableName="client" indexName="CLIENT_UNIQUE_NAME_INDEX_4"/>
+        </preConditions>
+
+        <dropUniqueConstraint constraintName="CLIENT_UNIQUE_NAME" tableName="client"/>
+    </changeSet>
+
+    <changeSet id="create name + user id unique index" author="nesterov">
+        <preConditions onFail="MARK_RAN">
+            <not>
+                <indexExists tableName="client" indexName="IDX_UNIQUE_CLIENT_NAME_PER_USER"/>
+            </not>
+        </preConditions>
+
+        <createIndex tableName="client" indexName="IDX_UNIQUE_CLIENT_NAME_PER_USER" unique="true">
+            <column name="name"/>
+            <column name="user_id"/>
+        </createIndex>
+    </changeSet>
 </databaseChangeLog>

@@ -23,6 +23,5 @@ public class ClientMapper {
                 .active(clientDto.isActive())
                 .build();
     }
-
 }
 

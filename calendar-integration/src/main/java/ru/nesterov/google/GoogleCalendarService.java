@@ -17,12 +17,12 @@ import java.util.List;
 @RequiredArgsConstructor
 public class GoogleCalendarService implements CalendarService {
     private final GoogleCalendarClient googleCalendarClient;
-    private final GoogleCalendarProperties properties;
 
-    public List<Event> getEventsBetweenDates(LocalDateTime leftDate, LocalDateTime rightDate) {
-        List<Event> eventsFromMainCalendar = googleCalendarClient.getEventsBetweenDates(properties.getMainCalendarId(), false, leftDate, rightDate);
-        if (properties.getCancelledCalendarEnabled()) {
-            List<Event> eventsFromCancelledCalendar = googleCalendarClient.getEventsBetweenDates(properties.getCancelledCalendarId(), true, leftDate, rightDate);
+    public List<Event> getEventsBetweenDates(String mainCalendar, String cancelledCalendar, boolean isCancelledCalendarEnabled, LocalDateTime leftDate, LocalDateTime rightDate) {
+        List<Event> eventsFromMainCalendar = googleCalendarClient.getEventsBetweenDates(mainCalendar, false, leftDate, rightDate);
+
+        if (cancelledCalendar != null && isCancelledCalendarEnabled) {
+            List<Event> eventsFromCancelledCalendar = googleCalendarClient.getEventsBetweenDates(cancelledCalendar, true, leftDate, rightDate);
             return mergeEvents(eventsFromMainCalendar, eventsFromCancelledCalendar);
         }
 

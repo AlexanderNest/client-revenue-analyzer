@@ -4,14 +4,12 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.context.properties.EnableConfigurationProperties;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.test.context.ContextConfiguration;
 import ru.nesterov.dto.Event;
 import ru.nesterov.dto.EventStatus;
 
-import java.io.IOException;
 import java.time.LocalDateTime;
 import java.util.List;
 
@@ -26,19 +24,19 @@ import static org.mockito.Mockito.when;
         GoogleCalendarService.class,
         ObjectMapper.class
 })
-@EnableConfigurationProperties(GoogleCalendarProperties.class)
 class GoogleCalendarServiceTest {
     @Autowired
     private GoogleCalendarService googleCalendarService;
     @MockBean
     private GoogleCalendarClient googleCalendarClient;
-    @Autowired
-    private GoogleCalendarProperties properties;
+
+    private static final String MAIN_CALENDAR_ID = "main_calendar_id";
+    private static final String CANCELLED_CALENDAR_ID = "cancelled_calendar_id";
 
     @BeforeEach
-    public void init() throws IOException {
+    public void init() {
         when(googleCalendarClient
-                .getEventsBetweenDates(eq(properties.getMainCalendarId()), eq(false), any(), any()))
+                .getEventsBetweenDates(eq(MAIN_CALENDAR_ID), eq(false), any(), any()))
                 .thenReturn(List.of(
                         Event.builder()
                                 .status(EventStatus.SUCCESS)
@@ -54,8 +52,9 @@ class GoogleCalendarServiceTest {
                                 .build()
                         )
                 );
+
         when(googleCalendarClient
-                .getEventsBetweenDates(eq(properties.getCancelledCalendarId()), eq(true), any(), any()))
+                .getEventsBetweenDates(eq(CANCELLED_CALENDAR_ID), eq(true), any(), any()))
                 .thenReturn(List.of(
                                 Event.builder()
                                         .status(EventStatus.CANCELLED)
@@ -75,11 +74,10 @@ class GoogleCalendarServiceTest {
 
     @Test
     public void getEventsBetweenDateWhenCancelledCalendarEnabled() {
-        properties.setCancelledCalendarEnabled(true);
         LocalDateTime leftDate = LocalDateTime.of(2023, 01, 01, 00, 00);
         LocalDateTime rightDate = LocalDateTime.of(2024, 01, 01, 00, 00);
 
-        List<ru.nesterov.dto.Event> events = googleCalendarService.getEventsBetweenDates(leftDate, rightDate);
+        List<ru.nesterov.dto.Event> events = googleCalendarService.getEventsBetweenDates(MAIN_CALENDAR_ID, CANCELLED_CALENDAR_ID, true, leftDate, rightDate);
         assertNotNull(events);
         assertEquals(4, events.size());
 
@@ -108,11 +106,10 @@ class GoogleCalendarServiceTest {
 
     @Test
     public void getEventsBetweenDateWhenCancelledCalendarDisabled() {
-        properties.setCancelledCalendarEnabled(false);
         LocalDateTime leftDate = LocalDateTime.of(2023, 01, 01, 00, 00);
         LocalDateTime rightDate = LocalDateTime.of(2024, 01, 01, 00, 00);
 
-        List<ru.nesterov.dto.Event> events = googleCalendarService.getEventsBetweenDates(leftDate, rightDate);
+        List<ru.nesterov.dto.Event> events = googleCalendarService.getEventsBetweenDates(MAIN_CALENDAR_ID, CANCELLED_CALENDAR_ID, false, leftDate, rightDate);
         assertNotNull(events);
         assertEquals(2, events.size());
 
