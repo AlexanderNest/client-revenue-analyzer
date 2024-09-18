@@ -8,12 +8,14 @@ import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.test.context.ContextConfiguration;
 import ru.nesterov.dto.Event;
 import ru.nesterov.dto.EventExtension;
+import ru.nesterov.dto.EventStatus;
 import ru.nesterov.entity.Client;
+import ru.nesterov.entity.User;
+import ru.nesterov.google.EventStatusServiceImpl;
 import ru.nesterov.google.GoogleCalendarService;
 import ru.nesterov.repository.ClientRepository;
-import ru.nesterov.dto.EventStatus;
+import ru.nesterov.repository.UserRepository;
 import ru.nesterov.service.dto.IncomeAnalysisResult;
-import ru.nesterov.google.EventStatusServiceImpl;
 
 import java.time.LocalDateTime;
 import java.util.List;
@@ -37,6 +39,8 @@ class EventsAnalyzerServiceImplTest {
     @MockBean
     private ClientRepository clientRepository;
     @MockBean
+    private UserRepository userRepository;
+    @MockBean
     private GoogleCalendarService googleCalendarService;
 
     @BeforeEach
@@ -45,7 +49,14 @@ class EventsAnalyzerServiceImplTest {
         client.setId(1);
         client.setName("testName");
         client.setPricePerHour(1000);
-        when(clientRepository.findClientByName("testName")).thenReturn(client);
+        when(clientRepository.findClientByNameAndUserId("testName", 1)).thenReturn(client);
+
+        User user = new User();
+        user.setId(1);
+        user.setUsername("testUsername");
+        user.setCancelledCalendar("cancelledCalendar");
+        user.setMainCalendar("mainCalendar");
+        when(userRepository.findByUsername("testUsername")).thenReturn(user);
 
         LocalDateTime start = LocalDateTime.of(2024, 8, 9, 22, 30);
         LocalDateTime end = LocalDateTime.of(2024, 8, 9, 23, 30);
@@ -95,7 +106,7 @@ class EventsAnalyzerServiceImplTest {
                 .status(EventStatus.SUCCESS)
                 .build();
 
-        when(googleCalendarService.getEventsBetweenDates(any(), any())).thenReturn(List.of(event1, event2, event3, event4, event5, event6));
+        when(googleCalendarService.getEventsBetweenDates(any(), any(), any(), any())).thenReturn(List.of(event1, event2, event3, event4, event5, event6));
     }
 
     @Test
@@ -104,7 +115,7 @@ class EventsAnalyzerServiceImplTest {
 
     @Test
     void getIncomeAnalysisByMonth() {
-        IncomeAnalysisResult incomeAnalysisResult = eventsAnalyzerService.getIncomeAnalysisByMonth("august");
+        IncomeAnalysisResult incomeAnalysisResult = eventsAnalyzerService.getIncomeAnalysisByMonth("testUsername", "august");
         assertEquals(1000, incomeAnalysisResult.getLostIncome());
         assertEquals(4500, incomeAnalysisResult.getActualIncome());
         assertEquals(7500, incomeAnalysisResult.getExpectedIncoming());
@@ -112,7 +123,7 @@ class EventsAnalyzerServiceImplTest {
 
     @Test
     void getEventStatusesByMonthName() {
-        Map<EventStatus, Integer> statuses = eventsAnalyzerService.getEventStatusesByMonthName("august");
+        Map<EventStatus, Integer> statuses = eventsAnalyzerService.getEventStatusesByMonthName("testUsername", "august");
         assertEquals(4, statuses.size());
         assertEquals(3, statuses.get(EventStatus.SUCCESS));
         assertEquals(1, statuses.get(EventStatus.CANCELLED));

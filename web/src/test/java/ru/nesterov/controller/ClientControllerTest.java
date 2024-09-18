@@ -1,7 +1,6 @@
 package ru.nesterov.controller;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
-import lombok.extern.slf4j.Slf4j;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -158,6 +157,7 @@ class ClientControllerTest {
 
         mockMvc.perform(
                         post(CREATE_CLIENT_URL)
+                                .header("X-username", "testUser")
                                 .contentType(MediaType.APPLICATION_JSON)
                                 .content(objectMapper.writeValueAsString(createClientRequest1))
                 )
@@ -183,6 +183,7 @@ class ClientControllerTest {
 
         mockMvc.perform(
                         post(CREATE_CLIENT_URL)
+                                .header("X-username", "testUser")
                                 .contentType(MediaType.APPLICATION_JSON)
                                 .content(objectMapper.writeValueAsString(createClientRequest3)))
                 .andExpect(status().isOk())
@@ -192,12 +193,10 @@ class ClientControllerTest {
                 .andExpect(jsonPath("$.active").value(true))
                 .andExpect(jsonPath("$.pricePerHour").value(1000));
 
-        clientRepository.deleteClientByName(createClientRequest0.getName());
-        clientRepository.deleteClientByName(createClientRequest1.getName());
-        clientRepository.deleteClientByName(createClientRequest2.getName());
-        clientRepository.deleteClientByName(createClientRequest3.getName());
-        clientRepository.deleteClientByNameAndUserId(createClientRequest.getName(), 1);
-        clientRepository.deleteClientByNameAndUserId(createClientRequest2.getName(),1);
+        clientRepository.deleteClientByNameAndUserId(createClientRequest0.getName(), 1);
+        clientRepository.deleteClientByNameAndUserId(createClientRequest1.getName(), 1);
+        clientRepository.deleteClientByNameAndUserId(createClientRequest2.getName(), 1);
+        clientRepository.deleteClientByNameAndUserId(createClientRequest3.getName(), 1);
     }
 
 

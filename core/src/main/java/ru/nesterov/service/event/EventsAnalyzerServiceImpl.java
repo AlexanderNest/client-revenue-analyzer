@@ -2,13 +2,10 @@ package ru.nesterov.service.event;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
 import ru.nesterov.dto.Event;
 import ru.nesterov.dto.EventStatus;
 import ru.nesterov.entity.Client;
-import ru.nesterov.exception.AppException;
 import ru.nesterov.entity.User;
 import ru.nesterov.exception.ClientNotFoundException;
 import ru.nesterov.exception.UnknownEventStatusException;
@@ -20,6 +17,7 @@ import ru.nesterov.service.dto.IncomeAnalysisResult;
 import ru.nesterov.service.monthHelper.MonthDatesPair;
 import ru.nesterov.service.monthHelper.MonthHelper;
 
+import java.time.Duration;
 import java.time.LocalDateTime;
 import java.util.HashMap;
 import java.util.List;
