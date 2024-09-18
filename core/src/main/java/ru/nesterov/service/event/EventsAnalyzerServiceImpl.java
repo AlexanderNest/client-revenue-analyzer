@@ -18,7 +18,6 @@ import ru.nesterov.service.dto.UserDto;
 import ru.nesterov.service.monthHelper.MonthDatesPair;
 import ru.nesterov.service.monthHelper.MonthHelper;
 
-import java.time.Duration;
 import java.time.LocalDateTime;
 import java.util.HashMap;
 import java.util.List;
@@ -35,7 +34,7 @@ public class EventsAnalyzerServiceImpl implements EventsAnalyzerService {
     private final UserRepository userRepository;
 
     public Map<String, ClientMeetingsStatistic> getStatisticsOfEachClientMeetings(UserDto userDto, String monthName) {
-        List<Event> events = getEventsByMonth(userDto.getUsername(), monthName);
+        List<Event> events = getEventsByMonth(userDto, monthName);
 
         Map<String, ClientMeetingsStatistic> meetingsStatistics = new HashMap<>();
 
@@ -65,7 +64,7 @@ public class EventsAnalyzerServiceImpl implements EventsAnalyzerService {
     }
 
     public IncomeAnalysisResult getIncomeAnalysisByMonth(UserDto userDto, String monthName) {
-        List<Event> events = getEventsByMonth(userDto.getUsername(), monthName);
+        List<Event> events = getEventsByMonth(userDto, monthName);
 
         double actualIncome = 0;
         double lostIncome = 0;
@@ -101,7 +100,7 @@ public class EventsAnalyzerServiceImpl implements EventsAnalyzerService {
 
     @Override
     public List<Event> getUnpaidEventsBetweenDates(UserDto userDto, LocalDateTime leftDate, LocalDateTime rightDate) {
-        return calendarService.getEventsBetweenDates(userDto.getMainCalendar(), userDto.getCancelledCalendar(), leftDate, rightDate).stream()
+        return calendarService.getEventsBetweenDates(userDto.getMainCalendar(), userDto.getCancelledCalendar(), userDto.isCancelledCalendarEnabled(), leftDate, rightDate).stream()
                 .filter(event -> {
                     EventStatus eventStatus = event.getStatus();
                     return eventStatus == EventStatus.PLANNED || eventStatus == EventStatus.REQUIRES_SHIFT;
@@ -116,12 +115,6 @@ public class EventsAnalyzerServiceImpl implements EventsAnalyzerService {
         return getUnpaidEventsBetweenDates(userDto, requiredDateTime, LocalDateTime.now());
     }
 
-    private double getEventDuration(Event event) {
-        Duration duration = Duration.between(event.getStart(), event.getEnd());
-        return duration.toMinutes() / 60.0;
-    }
-
-
     public Map<EventStatus, Integer> getEventStatusesByMonthName(UserDto userDto, String monthName) {
         MonthDatesPair monthDatesPair = MonthHelper.getFirstAndLastDayOfMonth(monthName);
         return getEventStatusesBetweenDates(userDto, monthDatesPair.getFirstDate(), monthDatesPair.getLastDate());
@@ -130,7 +123,7 @@ public class EventsAnalyzerServiceImpl implements EventsAnalyzerService {
     public Map<EventStatus, Integer> getEventStatusesBetweenDates(UserDto userDto, LocalDateTime leftDate, LocalDateTime rightDate) {
         User user = userRepository.findByUsername(userDto.getUsername());
 
-        List<Event> events = calendarService.getEventsBetweenDates(user.getMainCalendar(), user.getCancelledCalendar(), leftDate, rightDate);
+        List<Event> events = calendarService.getEventsBetweenDates(user.getMainCalendar(), user.getCancelledCalendar(), userDto.isCancelledCalendarEnabled(), leftDate, rightDate);
 
         Map<EventStatus, Integer> statuses = new HashMap<>();
         for (Event event : events) {
@@ -142,10 +135,8 @@ public class EventsAnalyzerServiceImpl implements EventsAnalyzerService {
         return statuses;
     }
 
-    private List<Event> getEventsByMonth(String username, String monthName) {
-        User user = userRepository.findByUsername(username);
+    private List<Event> getEventsByMonth(UserDto userDto, String monthName) {
         MonthDatesPair monthDatesPair = MonthHelper.getFirstAndLastDayOfMonth(monthName);
-
-        return calendarService.getEventsBetweenDates(user.getMainCalendar(), user.getCancelledCalendar(), monthDatesPair.getFirstDate(), monthDatesPair.getLastDate());
+        return calendarService.getEventsBetweenDates(userDto.getMainCalendar(), userDto.getCancelledCalendar(), userDto.isCancelledCalendarEnabled(), monthDatesPair.getFirstDate(), monthDatesPair.getLastDate());
     }
 }

@@ -32,7 +32,7 @@ public class ClientServiceImpl implements ClientService {
         if (client == null) {
             throw new ClientNotFoundException(clientName);
         }
-        List<Event> events = calendarService.getEventsBetweenDates(userDto.getMainCalendar(), userDto.getCancelledCalendar(), leftDate, rightDate);
+        List<Event> events = calendarService.getEventsBetweenDates(userDto.getMainCalendar(), userDto.getCancelledCalendar(), userDto.isCancelledCalendarEnabled(), leftDate, rightDate);
 
         return events.stream()
                 .filter(event -> event.getSummary().equals(client.getName()))

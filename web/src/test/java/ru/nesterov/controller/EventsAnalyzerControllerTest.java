@@ -22,6 +22,7 @@ import java.util.List;
 
 import static org.hamcrest.Matchers.hasSize;
 import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.anyBoolean;
 import static org.mockito.Mockito.when;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
@@ -91,7 +92,7 @@ public class EventsAnalyzerControllerTest {
                 .end(LocalDateTime.of(2024, 8, 13, 12, 30))
                 .build();
 
-        when(calendarService.getEventsBetweenDates(any(), any(), any(), any())).thenReturn(List.of(event1, event2, event3, event4, event5));
+        when(calendarService.getEventsBetweenDates(any(), any(), anyBoolean(), any(), any())).thenReturn(List.of(event1, event2, event3, event4, event5));
     }
 
     @org.junit.jupiter.api.Test

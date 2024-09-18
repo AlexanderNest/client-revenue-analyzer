@@ -17,8 +17,10 @@ public class User {
     private String username;
     @Column(name = "main_calendar", nullable = false)
     private String mainCalendar;
-    @Column(name = "cancelled_calender")
+    @Column(name = "cancelled_calendar")
     private String cancelledCalendar;
+    @Column(name = "is_cancelled_calendar_enabled")
+    private boolean isCancelledCalendarEnabled;
 
     @OneToMany(mappedBy = "user")
     private List<Client> clients;

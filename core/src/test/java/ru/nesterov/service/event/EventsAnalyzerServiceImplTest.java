@@ -24,6 +24,7 @@ import java.util.Map;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.anyBoolean;
 import static org.mockito.Mockito.when;
 
 @SpringBootTest
@@ -107,7 +108,7 @@ class EventsAnalyzerServiceImplTest {
                 .status(EventStatus.SUCCESS)
                 .build();
 
-        when(googleCalendarService.getEventsBetweenDates(any(), any(), any(), any())).thenReturn(List.of(event1, event2, event3, event4, event5, event6));
+        when(googleCalendarService.getEventsBetweenDates(any(), any(), anyBoolean(), any(), any())).thenReturn(List.of(event1, event2, event3, event4, event5, event6));
     }
 
     @Test

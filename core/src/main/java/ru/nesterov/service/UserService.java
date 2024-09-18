@@ -22,6 +22,7 @@ public class UserService {
                 .username(user.getUsername())
                 .cancelledCalendar(user.getCancelledCalendar())
                 .mainCalendar(user.getMainCalendar())
+                .isCancelledCalendarEnabled(user.isCancelledCalendarEnabled())
                 .build();
     }
 }

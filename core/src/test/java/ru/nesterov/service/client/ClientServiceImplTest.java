@@ -21,6 +21,8 @@ import java.time.LocalDateTime;
 import java.util.List;
 
 import static org.junit.jupiter.api.Assertions.*;
+import static org.mockito.ArgumentMatchers.anyBoolean;
+import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.when;
 
 @SpringBootTest
@@ -96,7 +98,7 @@ public class ClientServiceImplTest {
         LocalDateTime from = LocalDateTime.of(2024, 8, 9, 11, 30);
         LocalDateTime to = LocalDateTime.of(2024, 8, 13, 12, 30);
 
-        when(calendarService.getEventsBetweenDates(user.getMainCalendar(), user.getCancelledCalendar(), from, to))
+        when(calendarService.getEventsBetweenDates(eq(user.getMainCalendar()), eq(user.getCancelledCalendar()), anyBoolean(), eq(from), eq(to)))
                 .thenReturn(List.of(event1, event2, event3, event4, event5));
     }
 

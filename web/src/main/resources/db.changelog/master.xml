@@ -46,8 +46,9 @@
             (
                 id                 BIGSERIAL PRIMARY KEY NOT NULL,
                 username           VARCHAR(20) UNIQUE    NOT NULL,
-                main_calendar      VARCHAR(200)          NOT NULL,
-                cancelled_calender VARCHAR(200)
+                main_calendar_id      VARCHAR(200)          NOT NULL,
+                cancelled_calendar_id VARCHAR(200),
+                cancelled_calendar_enabled boolean DEFAULT false
             )
         </sql>
     </changeSet>
