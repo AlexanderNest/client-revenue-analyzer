@@ -16,8 +16,6 @@ import ru.nesterov.google.GoogleCalendarClient;
 import ru.nesterov.repository.ClientRepository;
 import ru.nesterov.repository.UserRepository;
 
-import java.util.Date;
-
 import static org.hamcrest.Matchers.hasSize;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
@@ -46,7 +44,7 @@ class ClientControllerTest {
     @Transactional
     void createClientWithoutIdGeneration() throws Exception {
         User user = new User();
-        user.setUsername("testUser" + new Date());
+        user.setUsername("testUser");
         user.setMainCalendar("mainCalendar");
         user.setCancelledCalendar("cancelCalendar");
         user = userRepository.save(user);
@@ -75,7 +73,7 @@ class ClientControllerTest {
     @Transactional
     void createClientWithTheSameNameWithoutIdGeneration() throws Exception {
         User user = new User();
-        user.setUsername("testUser" + new Date());
+        user.setUsername("testUser");
         user.setMainCalendar("mainCalendar");
         user.setCancelledCalendar("cancelCalendar");
         user = userRepository.save(user);
@@ -127,7 +125,7 @@ class ClientControllerTest {
     @Transactional
     void createClientWithTheSameNameWithIdGeneration() throws Exception {
         User user = new User();
-        user.setUsername("testUser" + new Date());
+        user.setUsername("testUser");
         user.setMainCalendar("mainCalendar");
         user.setCancelledCalendar("cancelCalendar");
         user = userRepository.save(user);
@@ -212,7 +210,7 @@ class ClientControllerTest {
     @Transactional
     void getActiveClients() throws Exception {
         User user = new User();
-        user.setUsername("testUser" + new Date());
+        user.setUsername("testUser");
         user.setMainCalendar("mainCalendar");
         user.setCancelledCalendar("cancelCalendar");
         user = userRepository.save(user);

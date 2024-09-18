@@ -65,7 +65,7 @@
         </preConditions>
         <sql>
             ALTER TABLE CLIENT
-                ADD user_id BIGINT REFERENCES "user" (id) NOT NULL
+                ADD user_id BIGINT REFERENCES "user" (id)
         </sql>
     </changeSet>
 
@@ -85,5 +85,32 @@
         </sql>
     </changeSet>
 
+    <changeSet id="drop-indx-CONSTRAINT_INDEX_3" author="nesterov">
+        <preConditions onFail="MARK_RAN">
+            <indexExists tableName="client" indexName="CONSTRAINT_INDEX_3"/>
+        </preConditions>
 
+        <dropIndex indexName="CONSTRAINT_INDEX_3" tableName="client"/>
+    </changeSet>
+
+    <changeSet id="drop-indx-CONSTRAINT_INDEX_4" author="nesterov">
+        <preConditions onFail="MARK_RAN">
+            <indexExists tableName="client" indexName="CLIENT_UNIQUE_NAME_INDEX_4"/>
+        </preConditions>
+
+        <dropUniqueConstraint constraintName="CLIENT_UNIQUE_NAME" tableName="client"/>
+    </changeSet>
+
+    <changeSet id="create name + user id unique index" author="nesterov">
+        <preConditions onFail="MARK_RAN">
+            <not>
+                <indexExists tableName="client" indexName="IDX_UNIQUE_CLIENT_NAME_PER_USER"/>
+            </not>
+        </preConditions>
+
+        <createIndex tableName="client" indexName="IDX_UNIQUE_CLIENT_NAME_PER_USER" unique="true">
+            <column name="name"/>
+            <column name="user_id"/>
+        </createIndex>
+    </changeSet>
 </databaseChangeLog>

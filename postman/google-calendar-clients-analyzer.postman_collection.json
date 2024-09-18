@@ -1,9 +1,9 @@
 {
 	"info": {
-		"_postman_id": "2d9da355-9e80-4944-a42a-e890370d8722",
+		"_postman_id": "15945518-f9e1-45ec-95d6-dd1e3a4c8556",
 		"name": "google-calendar-clients-analyzer",
 		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
-		"_exporter_id": "31542889"
+		"_exporter_id": "19227667"
 	},
 	"item": [
 		{
@@ -13,7 +13,18 @@
 					"name": "Создать клиента",
 					"request": {
 						"method": "POST",
-						"header": [],
+						"header": [
+							{
+								"key": "X-username",
+								"value": "{{username}}",
+								"type": "text"
+							},
+							{
+								"key": "X-secret-token",
+								"value": "{{X-secret-token}}",
+								"type": "text"
+							}
+						],
 						"body": {
 							"mode": "raw",
 							"raw": "{\r\n    \"name\" : \"Client 1\",\r\n    \"pricePerHour\": 100,\r\n    \"description\" : null,\r\n    \"idGenerationNeeded\": false\r\n}",
@@ -49,7 +60,18 @@
 					"name": "Информация по расписанию клиента в заданные даты",
 					"request": {
 						"method": "POST",
-						"header": [],
+						"header": [
+							{
+								"key": "X-username",
+								"value": "{{username}}",
+								"type": "text"
+							},
+							{
+								"key": "X-secret-token",
+								"value": "{{X-secret-token}}",
+								"type": "text"
+							}
+						],
 						"body": {
 							"mode": "raw",
 							"raw": "{\n    \"clientName\": \"Клиент 1\",\n    \"leftDate\": \"2023-10-01T10:00:00\",\n    \"rightDate\": \"2023-10-31T18:00:00\"\n}",
@@ -78,7 +100,17 @@
 					"name": "Анализ клиентов за выбранный месяц",
 					"request": {
 						"method": "POST",
-						"header": [{"key":  "vale"}],
+						"header": [
+							{
+								"key": "X-username",
+								"value": "{{username}}"
+							},
+							{
+								"key": "X-secret-token",
+								"value": "{{X-secret-token}}",
+								"type": "text"
+							}
+						],
 						"body": {
 							"mode": "raw",
 							"raw": "{\r\n    \"monthName\": \"august\"\r\n}",
@@ -108,7 +140,18 @@
 					"name": "Вывод информации об активных клиентах",
 					"request": {
 						"method": "POST",
-						"header": [],
+						"header": [
+							{
+								"key": "X-username",
+								"value": "{{username}}",
+								"type": "text"
+							},
+							{
+								"key": "X-secret-token",
+								"value": "{{X-secret-token}}",
+								"type": "text"
+							}
+						],
 						"url": {
 							"raw": "localhost:8080/revenue-analyzer/client/getActiveClients",
 							"host": [
@@ -134,7 +177,18 @@
 					"name": "Статусы встреч за выбранный месяц",
 					"request": {
 						"method": "POST",
-						"header": [],
+						"header": [
+							{
+								"key": "X-username",
+								"value": "{{username}}",
+								"type": "text"
+							},
+							{
+								"key": "X-secret-token",
+								"value": "{{X-secret-token}}",
+								"type": "text"
+							}
+						],
 						"body": {
 							"mode": "raw",
 							"raw": "{\r\n    \"monthName\": \"august\"\r\n}",
@@ -164,7 +218,18 @@
 					"name": "Анализ дохода за выбранный месяц",
 					"request": {
 						"method": "POST",
-						"header": [],
+						"header": [
+							{
+								"key": "X-username",
+								"value": "{{username}}",
+								"type": "text"
+							},
+							{
+								"key": "X-secret-token",
+								"value": "{{X-secret-token}}",
+								"type": "text"
+							}
+						],
 						"body": {
 							"mode": "raw",
 							"raw": "{\r\n    \"monthName\": \"august\"\r\n}",
@@ -200,7 +265,18 @@
 					"name": "Неоплаченные встречи",
 					"request": {
 						"method": "GET",
-						"header": [],
+						"header": [
+							{
+								"key": "X-username",
+								"value": "{{username}}",
+								"type": "text"
+							},
+							{
+								"key": "X-secret-token",
+								"value": "{{X-secret-token}}",
+								"type": "text"
+							}
+						],
 						"url": {
 							"raw": "localhost:8080/revenue-analyzer/events/analyzer/getUnpaidEvents",
 							"host": [

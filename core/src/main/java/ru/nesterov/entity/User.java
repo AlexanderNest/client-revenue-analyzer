@@ -15,11 +15,11 @@ public class User {
 
     @Column(nullable = false, unique = true)
     private String username;
-    @Column(name = "main_calendar", nullable = false)
+    @Column(name = "main_calendar_id", nullable = false)
     private String mainCalendar;
-    @Column(name = "cancelled_calendar")
+    @Column(name = "cancelled_calendar_id")
     private String cancelledCalendar;
-    @Column(name = "is_cancelled_calendar_enabled")
+    @Column(name = "cancelled_calendar_enabled")
     private boolean isCancelledCalendarEnabled;
 
     @OneToMany(mappedBy = "user")

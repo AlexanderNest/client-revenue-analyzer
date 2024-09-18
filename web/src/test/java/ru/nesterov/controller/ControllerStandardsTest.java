@@ -110,11 +110,10 @@ public class ControllerStandardsTest {
             }
         }
 
-        //TODO раскомментировать после того, как в postman будут добавлены нужные заголовки
-//        for (EndpointInfo endpointInfo : postmanEndpoints) {
-//            assertTrue(endpointInfo.headers.contains("X-secret-token"), "В запросе " + endpointInfo.endpoint + " не заполнен обязательный заголовок X-secret-token");
-//            assertTrue(endpointInfo.headers.contains("X-username"), "В запросе " + endpointInfo.endpoint + " не заполнен обязательный заголовок X-username");
-//        }
+        for (EndpointInfo endpointInfo : postmanEndpoints) {
+            assertTrue(endpointInfo.headers.contains("X-secret-token"), "В запросе " + endpointInfo.endpoint + " не заполнен обязательный заголовок X-secret-token");
+            assertTrue(endpointInfo.headers.contains("X-username"), "В запросе " + endpointInfo.endpoint + " не заполнен обязательный заголовок X-username");
+        }
     }
 
     private Set<EndpointInfo> getEndpointsFromPostman() throws IOException {
