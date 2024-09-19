@@ -9,10 +9,7 @@ import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.test.context.ContextConfiguration;
 import org.telegram.telegrambots.meta.api.methods.BotApiMethod;
 import org.telegram.telegrambots.meta.api.methods.send.SendMessage;
-import org.telegram.telegrambots.meta.api.objects.CallbackQuery;
-import org.telegram.telegrambots.meta.api.objects.Chat;
-import org.telegram.telegrambots.meta.api.objects.Message;
-import org.telegram.telegrambots.meta.api.objects.Update;
+import org.telegram.telegrambots.meta.api.objects.*;
 import org.telegram.telegrambots.meta.api.objects.replykeyboard.InlineKeyboardMarkup;
 import org.telegram.telegrambots.meta.api.objects.replykeyboard.ReplyKeyboard;
 import org.telegram.telegrambots.meta.api.objects.replykeyboard.buttons.InlineKeyboardButton;
@@ -66,6 +63,11 @@ class GetMonthStatisticsHandlerTest {
         callback.setValue(markSymbol + "august");
         callbackQuery.setMessage(message);
         callbackQuery.setData(objectMapper.writeValueAsString(callback));
+
+        User user = new User();
+        user.setId(1L);
+        callbackQuery.setFrom(user);
+
         update.setCallbackQuery(callbackQuery);
 
         BotApiMethod<?> botApiMethod = handler.handle(update);
