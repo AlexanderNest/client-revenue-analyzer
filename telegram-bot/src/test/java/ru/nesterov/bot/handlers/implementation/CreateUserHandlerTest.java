@@ -11,6 +11,7 @@ import org.telegram.telegrambots.meta.api.objects.Chat;
 import org.telegram.telegrambots.meta.api.objects.Message;
 import org.telegram.telegrambots.meta.api.objects.Update;
 import org.telegram.telegrambots.meta.api.objects.User;
+import ru.nesterov.dto.CreateUserRequest;
 import ru.nesterov.dto.CreateUserResponse;
 import ru.nesterov.integration.ClientRevenueAnalyzerIntegrationClient;
 
@@ -36,8 +37,8 @@ public class CreateUserHandlerTest {
         User user = new User();
         user.setId(1L);
 
-        ru.nesterov.bot.handlers.implementation.User newUser = ru.nesterov.bot.handlers.implementation.User.builder()
-                .userId(user.getId())
+        CreateUserRequest request = CreateUserRequest.builder()
+                .userIdentifier(user.getId().toString())
                 .mainCalendarId("12345mc")
                 .cancelledCalendarId("12345cc")
                 .build();
@@ -58,7 +59,7 @@ public class CreateUserHandlerTest {
         assertEquals("Чтобы зарегистрироваться в Анализаторе клиентов, понадобится " +
                 "id основного календаря и календаря, в котором будут сохраняться отмененные мероприятия.\n\n Пришлите id основного календаря: ", sendMessage.getText());
 
-        message.setText(newUser.getMainCalendarId());
+        message.setText(request.getMainCalendarId());
         update.setMessage(message);
 
         botApiMethod = createUserHandler.handle(update);
@@ -66,14 +67,14 @@ public class CreateUserHandlerTest {
         assertEquals("Пришлите id календаря, в котором будут храниться отмененные мероприятия: ", sendMessage.getText());
 
         CreateUserResponse createUserResponse = CreateUserResponse.builder()
-                .userId(newUser.getUserId())
-                .mainCalendarId(newUser.getMainCalendarId())
-                .cancelledCalendarId(newUser.getCancelledCalendarId())
+                .userId(request.getUserIdentifier())
+                .mainCalendarId(request.getMainCalendarId())
+                .cancelledCalendarId(request.getCancelledCalendarId())
                 .build();
 
         when(client.createUser(createUserHandler.getCreateUserRequests().get(user.getId()))).thenReturn(createUserResponse);
 
-        message.setText(newUser.getCancelledCalendarId());
+        message.setText(request.getCancelledCalendarId());
         update.setMessage(message);
 
         botApiMethod = createUserHandler.handle(update);

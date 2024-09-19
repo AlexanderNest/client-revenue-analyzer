@@ -6,7 +6,7 @@ import lombok.Data;
 @Data
 @Builder
 public class CreateUserResponse {
-    private long userId;
+    private String userId;
     private String mainCalendarId;
     private String cancelledCalendarId;
 }
