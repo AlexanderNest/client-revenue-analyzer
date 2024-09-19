@@ -10,7 +10,6 @@ public class ClientMapper {
                 .description(request.getDescription())
                 .pricePerHour(request.getPricePerHour())
                 .name(request.getName())
-                .pricePerHour(request.getPricePerHour())
                 .active(true)
                 .build();
     }
@@ -24,6 +23,5 @@ public class ClientMapper {
                 .active(clientDto.isActive())
                 .build();
     }
-
 }
 
