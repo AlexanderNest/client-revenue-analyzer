@@ -2,7 +2,6 @@ package ru.nesterov.bot.handlers.implementation;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
@@ -10,10 +9,7 @@ import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.test.context.ContextConfiguration;
 import org.telegram.telegrambots.meta.api.methods.BotApiMethod;
 import org.telegram.telegrambots.meta.api.methods.send.SendMessage;
-import org.telegram.telegrambots.meta.api.objects.CallbackQuery;
-import org.telegram.telegrambots.meta.api.objects.Chat;
-import org.telegram.telegrambots.meta.api.objects.Message;
-import org.telegram.telegrambots.meta.api.objects.Update;
+import org.telegram.telegrambots.meta.api.objects.*;
 import org.telegram.telegrambots.meta.api.objects.replykeyboard.InlineKeyboardMarkup;
 import org.telegram.telegrambots.meta.api.objects.replykeyboard.ReplyKeyboard;
 import org.telegram.telegrambots.meta.api.objects.replykeyboard.buttons.InlineKeyboardButton;
@@ -24,9 +20,9 @@ import ru.nesterov.utils.MonthUtil;
 
 import java.util.List;
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.anyLong;
 import static org.mockito.Mockito.when;
 
 @SpringBootTest
@@ -43,11 +39,6 @@ class GetMonthStatisticsHandlerTest {
     @MockBean
     private ClientRevenueAnalyzerIntegrationClient client;
 
-    @BeforeEach
-    void init() {
-
-    }
-
     @Test
     void handleCallback() throws JsonProcessingException {
         GetIncomeAnalysisForMonthResponse response = new GetIncomeAnalysisForMonthResponse();
@@ -55,8 +46,7 @@ class GetMonthStatisticsHandlerTest {
         response.setLostIncome(100);
         response.setExpectedIncoming(20000);
 
-        when(client.getIncomeAnalysisForMonth(any())).thenReturn(response);
-
+        when(client.getIncomeAnalysisForMonth(anyLong(), any())).thenReturn(response);
 
         Chat chat = new Chat();
         chat.setId(1L);
@@ -73,10 +63,15 @@ class GetMonthStatisticsHandlerTest {
         callback.setValue(markSymbol + "august");
         callbackQuery.setMessage(message);
         callbackQuery.setData(objectMapper.writeValueAsString(callback));
+
+        User user = new User();
+        user.setId(1L);
+        callbackQuery.setFrom(user);
+
         update.setCallbackQuery(callbackQuery);
 
         BotApiMethod<?> botApiMethod = handler.handle(update);
-        assertTrue(botApiMethod instanceof SendMessage);
+        assertInstanceOf(SendMessage.class, botApiMethod);
         SendMessage sendMessage = (SendMessage) botApiMethod;
 
         String expectedMessage = "Анализ доходов за текущий месяц:\n\n" +
@@ -101,12 +96,12 @@ class GetMonthStatisticsHandlerTest {
 
         BotApiMethod<?> botApiMethod = handler.handle(update);
 
-        assertTrue(botApiMethod instanceof SendMessage);
+        assertInstanceOf(SendMessage.class, botApiMethod);
 
         SendMessage sendMessage = (SendMessage) botApiMethod;
         assertEquals("Выберите месяц для анализа дохода:", sendMessage.getText());
         ReplyKeyboard markup = sendMessage.getReplyMarkup();
-        assertTrue(markup instanceof InlineKeyboardMarkup);
+        assertInstanceOf(InlineKeyboardMarkup.class, markup);
 
         InlineKeyboardMarkup inlineKeyboardMarkup = (InlineKeyboardMarkup) markup;
 

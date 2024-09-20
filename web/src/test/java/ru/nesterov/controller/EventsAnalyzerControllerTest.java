@@ -10,8 +10,10 @@ import org.springframework.test.web.servlet.MockMvc;
 import ru.nesterov.dto.Event;
 import ru.nesterov.dto.EventStatus;
 import ru.nesterov.entity.Client;
+import ru.nesterov.entity.User;
 import ru.nesterov.google.CalendarClient;
 import ru.nesterov.repository.ClientRepository;
+import ru.nesterov.repository.UserRepository;
 import ru.nesterov.service.CalendarService;
 
 import java.time.LocalDateTime;
@@ -20,6 +22,7 @@ import java.util.List;
 
 import static org.hamcrest.Matchers.hasSize;
 import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.anyBoolean;
 import static org.mockito.Mockito.when;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
@@ -36,20 +39,23 @@ public class EventsAnalyzerControllerTest {
     private CalendarService calendarService;
     @MockBean
     private CalendarClient calendarClient;
+    @MockBean
+    private UserRepository userRepository;
 
     @BeforeEach
     void init() {
+        User user1 = new User();
+        user1.setId(1);
+        user1.setUsername("testUser1");
+        user1.setMainCalendar("someCalendar1");
+
         Client client1 = new Client();
         client1.setId(1);
         client1.setName("testName1");
         client1.setPricePerHour(1000);
-        when(clientRepository.findClientByName("testName1")).thenReturn(client1);
 
-        Client client2 = new Client();
-        client2.setId(1);
-        client2.setName("testName2");
-        client2.setPricePerHour(1000);
-        when(clientRepository.findClientByName("testName2")).thenReturn(client2);
+        when(userRepository.findByUsername("testUser1")).thenReturn(user1);
+        when(clientRepository.findClientByNameAndUserId("testName1", 1)).thenReturn(client1);
 
         Event event1 = Event.builder()
                 .summary("unpaid1")
@@ -86,7 +92,7 @@ public class EventsAnalyzerControllerTest {
                 .end(LocalDateTime.of(2024, 8, 13, 12, 30))
                 .build();
 
-        when(calendarService.getEventsBetweenDates(any(), any())).thenReturn(List.of(event1, event2, event3, event4, event5));
+        when(calendarService.getEventsBetweenDates(any(), any(), anyBoolean(), any(), any())).thenReturn(List.of(event1, event2, event3, event4, event5));
     }
 
     @org.junit.jupiter.api.Test
@@ -98,6 +104,7 @@ public class EventsAnalyzerControllerTest {
         DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd'T'HH:mm:ss");
 
         mockMvc.perform(get("/events/analyzer/getUnpaidEvents")
+                        .header("X-username", "testUser1")
                         .contentType(MediaType.APPLICATION_JSON)
                 )
                 .andExpect(status().isOk())
