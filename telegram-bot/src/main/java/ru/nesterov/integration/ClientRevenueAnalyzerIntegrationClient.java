@@ -29,7 +29,7 @@ public class ClientRevenueAnalyzerIntegrationClient {
     }
 
     public CreateUserResponse createUser(CreateUserRequest createUserRequest) {
-        return post(createUserRequest.getUserIdentifier(), createUserRequest, "/revenue-analyzer/events/analyzer/createUser", CreateUserResponse.class);
+        return post(createUserRequest.getUserIdentifier(), createUserRequest, "/revenue-analyzer/user/createUser", CreateUserResponse.class);
     }
 
     private <T> T post(String username, Object request, String endpoint, Class<T> responseType) {

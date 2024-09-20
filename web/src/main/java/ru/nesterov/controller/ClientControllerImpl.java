@@ -9,7 +9,7 @@ import ru.nesterov.controller.request.GetClientScheduleRequest;
 import ru.nesterov.controller.response.ClientResponse;
 import ru.nesterov.controller.response.EventScheduleResponse;
 import ru.nesterov.mapper.ClientMapper;
-import ru.nesterov.service.UserService;
+import ru.nesterov.service.user.UserServiceImpl;
 import ru.nesterov.service.client.ClientService;
 import ru.nesterov.service.dto.ClientDto;
 import ru.nesterov.service.monthHelper.MonthDatesPair;
@@ -20,7 +20,7 @@ import java.util.List;
 @RequiredArgsConstructor
 public class ClientControllerImpl implements ClientController {
     private final ClientService clientService;
-    private final UserService userService;
+    private final UserServiceImpl userService;
 
     public List<EventScheduleResponse> getClientSchedule(@RequestHeader(name = "X-username") String username, @RequestBody GetClientScheduleRequest request) {
         List<MonthDatesPair> clientSchedule = clientService.getClientSchedule(userService.getUserByUsername(username), request.getClientName(), request.getLeftDate(), request.getRightDate());

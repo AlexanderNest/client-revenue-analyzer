@@ -27,7 +27,7 @@ public class HandlersService {
 
     @Nullable
     public CommandHandler getHandler(Update update) {
-        long userId = update.getMessage().getFrom().getId();
+        long userId = getUserId(update);
         CommandHandler userHandler = userHandlers.get(userId);
         if (userHandler != null) {
             return userHandler;
@@ -42,6 +42,14 @@ public class HandlersService {
 
         log.warn("Не удалось найти Handler для этого Update [{}]", update);
         return null;
+    }
+
+    public long getUserId(Update update) {
+        if (update.hasMessage()) {
+            return update.getMessage().getFrom().getId();
+        } else {
+            return update.getCallbackQuery().getFrom().getId();
+        }
     }
 
     public void resetHandlers(Long userId) {

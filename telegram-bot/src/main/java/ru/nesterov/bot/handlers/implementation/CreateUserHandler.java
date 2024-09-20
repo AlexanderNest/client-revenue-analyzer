@@ -40,7 +40,14 @@ public class CreateUserHandler extends AbstractHandler {
                     .build();
             createUserRequests.put(userId, createUserRequest);
 
-            return getPlainSendMessage(chatId, "Пришлите id календаря, в котором будут храниться отмененные мероприятия: ");
+            return getPlainSendMessage(chatId, "Вы хотите сохранять информацию об отмененных мероприятиях с использованием второго календаря?");
+        } else if (createUserRequest.getIsCancelledCalendarEnabled() == null) {
+            createUserRequest.setIsCancelledCalendarEnabled(Boolean.valueOf(text));
+            if (createUserRequest.getIsCancelledCalendarEnabled()) {
+                return getPlainSendMessage(chatId, "Пришлите id календаря, в котором будут храниться отмененные мероприятия: ");
+            } else {
+                return registerUser(chatId, createUserRequest);
+            }
         } else {
             createUserRequest.setCancelledCalendarId(text);
 

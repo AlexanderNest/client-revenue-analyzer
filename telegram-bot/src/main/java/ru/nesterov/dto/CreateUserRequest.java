@@ -9,4 +9,5 @@ public class CreateUserRequest {
     private String mainCalendarId;
     private String cancelledCalendarId;
     private String userIdentifier;
+    private Boolean isCancelledCalendarEnabled;
 }
