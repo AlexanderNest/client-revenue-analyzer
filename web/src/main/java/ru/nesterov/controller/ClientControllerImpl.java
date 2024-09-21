@@ -8,6 +8,7 @@ import ru.nesterov.controller.request.GetClientScheduleRequest;
 import ru.nesterov.controller.response.ClientResponse;
 import ru.nesterov.controller.response.EventScheduleResponse;
 import ru.nesterov.mapper.ClientMapper;
+import ru.nesterov.repository.ClientRepository;
 import ru.nesterov.service.client.ClientService;
 import ru.nesterov.service.dto.ClientDto;
 
@@ -17,6 +18,7 @@ import java.util.List;
 @RequiredArgsConstructor
 public class ClientControllerImpl implements ClientController {
     private final ClientService clientService;
+
 
     public List<EventScheduleResponse> getClientSchedule(@RequestBody GetClientScheduleRequest request) {
         return clientService.getClientSchedule(request.getClientName(), request.getLeftDate(), request.getRightDate()).stream()

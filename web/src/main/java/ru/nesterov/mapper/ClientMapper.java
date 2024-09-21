@@ -6,12 +6,14 @@ import ru.nesterov.service.dto.ClientDto;
 
 public class ClientMapper {
     public static ClientDto mapToClientDto(CreateClientRequest request) {
+
         return ClientDto.builder()
                 .description(request.getDescription())
                 .pricePerHour(request.getPricePerHour())
                 .name(request.getName())
                 .pricePerHour(request.getPricePerHour())
                 .active(true)
+                .phone(request.getPhone())
                 .build();
     }
 

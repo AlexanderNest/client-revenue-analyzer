@@ -20,4 +20,11 @@ public class Client {
     private boolean active;
     private Date startDate;
     private String phone;
+
+    @PrePersist
+    public void prePersist() {
+        if (this.startDate == null) {
+            this.startDate = new Date();
+        }
+    }
 }

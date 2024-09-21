@@ -3,6 +3,7 @@ package ru.nesterov.service.dto;
 import lombok.Builder;
 import lombok.Data;
 
+import java.sql.Timestamp;
 import java.util.Date;
 
 @Data
@@ -13,6 +14,6 @@ public class ClientDto {
     private int pricePerHour;
     private String description;
     private boolean active;
-    private Date startDate;
+    private Date startDate = new Date();
     private String phone;
 }

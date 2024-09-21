@@ -116,4 +116,27 @@
         </sql>
     </changeSet>
 
+    <changeSet id="#52 change start_date to timestamp" author="Uenay">
+        <preConditions onFail="MARK_RAN">
+            <and>
+                <tableExists tableName="client"/>
+                <columnExists tableName="client" columnName="start_date"/>
+            </and>
+        </preConditions>
+        <sql>
+            ALTER TABLE client ALTER COLUMN start_date TYPE TIMESTAMP;
+        </sql>
+    </changeSet>
+
+    <changeSet id="#53 set default_value to start_date" author="Uenay">
+        <preConditions onFail="MARK_RAN">
+            <and>
+                <tableExists tableName="client"/>
+                <columnExists tableName="client" columnName="start_date"/>
+            </and>
+        </preConditions>
+        <addDefaultValue tableName="client" columnName="start_date" defaultValueComputed="CURRENT_TIMESTAMP"/>
+
+    </changeSet>
+
 </databaseChangeLog>

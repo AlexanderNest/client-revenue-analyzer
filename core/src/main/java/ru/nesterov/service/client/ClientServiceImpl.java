@@ -52,7 +52,6 @@ public class ClientServiceImpl implements ClientService {
         } catch (DataIntegrityViolationException exception) {
             throw new ClientIsAlreadyCreatedException(clientDto.getName());
         }
-
         return ClientMapper.mapToClientDto(client);
     }
 
