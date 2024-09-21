@@ -8,7 +8,6 @@ import ru.nesterov.controller.request.GetClientScheduleRequest;
 import ru.nesterov.controller.response.ClientResponse;
 import ru.nesterov.controller.response.EventScheduleResponse;
 import ru.nesterov.mapper.ClientMapper;
-import ru.nesterov.repository.ClientRepository;
 import ru.nesterov.service.client.ClientService;
 import ru.nesterov.service.dto.ClientDto;
 

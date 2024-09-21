@@ -3,18 +3,15 @@ package ru.nesterov.service.mapper;
 import ru.nesterov.entity.Client;
 import ru.nesterov.service.dto.ClientDto;
 
-import java.sql.Timestamp;
 
 public class ClientMapper {
     public static ClientDto mapToClientDto(Client client) {
-//        Timestamp startDate = new Timestamp(client.getStartDate().getTime());
         return ClientDto.builder()
                 .description(client.getDescription())
                 .pricePerHour(client.getPricePerHour())
                 .name(client.getName())
                 .id(client.getId())
                 .active(client.isActive())
-//                .startDate(startDate)
                 .startDate(client.getStartDate())
                 .phone(client.getPhone())
                 .build();
