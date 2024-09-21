@@ -14,6 +14,6 @@ public class ClientDto {
     private int pricePerHour;
     private String description;
     private boolean active;
-    private Date startDate = new Date();
+    private Date startDate;
     private String phone;
 }
