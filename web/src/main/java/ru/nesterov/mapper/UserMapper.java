@@ -17,7 +17,7 @@ public class UserMapper {
     public CreateUserResponse mapToCreateUserResponse(UserDto userDto) {
         return CreateUserResponse.builder()
                 .id(userDto.getId())
-                .userId(userDto.getUsername())
+                .userIdentifier(userDto.getUsername())
                 .isCancelledCalendarEnabled(userDto.isCancelledCalendarEnabled())
                 .cancelledCalendarId(userDto.getCancelledCalendar())
                 .mainCalendarId(userDto.getMainCalendar())

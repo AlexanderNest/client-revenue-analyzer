@@ -61,7 +61,7 @@ public class CreateUserHandler extends AbstractHandler {
     }
 
     private String formatCreateUserResponse(CreateUserResponse createUserResponse) {
-        return "Вы успешно зарегистрированы!\n\nUSER ID: " + createUserResponse.getUserId() +
+        return "Вы успешно зарегистрированы!\n\nUSER ID: " + createUserResponse.getUserIdentifier() +
                 "\n\nMAIN CALENDAR ID: " + createUserResponse.getMainCalendarId() +
                 "\n\nCANCELLED CALENDAR ID: " + createUserResponse.getCancelledCalendarId();
     }

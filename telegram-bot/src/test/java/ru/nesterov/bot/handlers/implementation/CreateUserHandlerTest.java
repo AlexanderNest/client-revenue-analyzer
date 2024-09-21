@@ -74,7 +74,7 @@ public class CreateUserHandlerTest {
         assertEquals("Пришлите id календаря, в котором будут храниться отмененные мероприятия: ", sendMessage.getText());
 
         CreateUserResponse createUserResponse = CreateUserResponse.builder()
-                .userId(request.getUserIdentifier())
+                .userIdentifier(request.getUserIdentifier())
                 .mainCalendarId(request.getMainCalendarId())
                 .isCancelledCalendarEnabled(request.getIsCancelledCalendarEnabled())
                 .cancelledCalendarId(request.getCancelledCalendarId())

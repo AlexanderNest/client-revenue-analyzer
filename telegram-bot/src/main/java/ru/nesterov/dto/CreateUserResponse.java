@@ -7,7 +7,7 @@ import lombok.Data;
 @Builder
 public class CreateUserResponse {
     private long id;
-    private String userId;
+    private String userIdentifier;
     private String mainCalendarId;
     private String cancelledCalendarId;
     private boolean isCancelledCalendarEnabled;
