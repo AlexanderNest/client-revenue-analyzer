@@ -51,9 +51,10 @@ public class GetMonthStatisticsHandlerClientRevenue extends ClientRevenueAbstrac
 
     @SneakyThrows
     private List<BotApiMethod<?>> sendMonthStatistics(Update update) {
+        long userId = update.getMessage().getFrom().getId();
         CallbackQuery callbackQuery = update.getCallbackQuery();
         ButtonCallback callback = objectMapper.readValue(callbackQuery.getData(), ButtonCallback.class);
-        GetIncomeAnalysisForMonthResponse response = client.getIncomeAnalysisForMonth(clearFromMark(callback.getValue()));
+        GetIncomeAnalysisForMonthResponse response = client.getIncomeAnalysisForMonth(userId, clearFromMark(callback.getValue()));
 
         EditMessageText editMessageText = new EditMessageText();
         editMessageText.setChatId(String.valueOf(callbackQuery.getMessage().getChatId()));

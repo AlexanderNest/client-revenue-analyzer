@@ -39,24 +39,24 @@ public class ClientRevenueAnalyzerIntegrationClient {
         return post(String.valueOf(userId), getForMonthRequest, "/revenue-analyzer/events/analyzer/getIncomeAnalysisForMonth", GetIncomeAnalysisForMonthResponse.class);
     }
 
-    private <T> T post(String username, Object request, String endpoint, Class<T> responseType) {
-        HttpHeaders headers = new HttpHeaders();
-        headers.set("X-secret-token", botProperties.getSecretToken());
-        headers.set("X-username", username);
 
-        HttpEntity<Object> entity = new HttpEntity<>(request, headers);
-    public List<GetClientScheduleResponse> getClientSchedule(String clientName, LocalDateTime leftDate, LocalDateTime rightDate) {
+    public List<GetClientScheduleResponse> getClientSchedule(long userId, String clientName, LocalDateTime leftDate, LocalDateTime rightDate) {
         GetClientScheduleRequest request = new GetClientScheduleRequest();
         request.setClientName(clientName);
         request.setLeftDate(leftDate);
         request.setRightDate(rightDate);
 
-        return postForList(request, "/revenue-analyzer/client/getSchedule", new ParameterizedTypeReference<List<GetClientScheduleResponse>>() {
-        });
+        return postForList(
+                String.valueOf(userId),
+                request,
+                "/revenue-analyzer/client/getSchedule",
+                new ParameterizedTypeReference<List<GetClientScheduleResponse>>() {
+                }
+        );
     }
 
-    public List<ClientResponse> getActiveClients() {
-        return postForList(
+    public List<ClientResponse> getActiveClients(long userId) {
+        return postForList(String.valueOf(userId),
                 null,
                 "/revenue-analyzer/client/getActiveClients",
                 new ParameterizedTypeReference<List<ClientResponse>>() {
@@ -64,7 +64,9 @@ public class ClientRevenueAnalyzerIntegrationClient {
         );
     }
 
-    private <T> T post(Object request, String endpoint, Class<T> responseType) {
+    private <T> T post(String username, Object request, String endpoint, Class<T> responseType) {
+        HttpEntity<Object> entity = new HttpEntity<>(request, createHeaders(username));
+
         return restTemplate.postForObject(
                 revenueAnalyzerProperties.getUrl() + endpoint,
                 entity,
@@ -72,8 +74,8 @@ public class ClientRevenueAnalyzerIntegrationClient {
         );
     }
 
-    private <T> List<T> postForList(Object request, String endpoint, ParameterizedTypeReference<List<T>> typeReference) {
-        HttpEntity<Object> requestEntity = new HttpEntity<>(request, new HttpHeaders());
+    private <T> List<T> postForList(String username, Object request, String endpoint, ParameterizedTypeReference<List<T>> typeReference) {
+        HttpEntity<Object> requestEntity = new HttpEntity<>(request, createHeaders(username));
 
         ResponseEntity<List<T>> responseEntity = restTemplate.exchange(
                 revenueAnalyzerProperties.getUrl() + endpoint,
@@ -83,5 +85,13 @@ public class ClientRevenueAnalyzerIntegrationClient {
         );
 
         return responseEntity.getBody();
+    }
+
+    private HttpHeaders createHeaders(String username) {
+        HttpHeaders headers = new HttpHeaders();
+        headers.set("X-secret-token", botProperties.getSecretToken());
+        headers.set("X-username", username);
+
+        return headers;
     }
 }

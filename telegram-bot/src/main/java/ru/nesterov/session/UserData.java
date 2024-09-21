@@ -9,10 +9,10 @@ import java.time.LocalDate;
 @Builder
 @Getter
 @Setter
-public class UserSession {
-    private Long chatId;
+public class UserData {
+    private Long userId;
     private String clientName;
+    private LocalDate currentDate;
     private LocalDate firstDate;
     private LocalDate secondDate;
-    private SessionState state;
 }

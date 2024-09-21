@@ -16,21 +16,18 @@ import ru.nesterov.dto.ClientResponse;
 import ru.nesterov.dto.GetClientScheduleResponse;
 import ru.nesterov.integration.ClientRevenueAnalyzerIntegrationClient;
 import ru.nesterov.session.BotSessionManager;
-import ru.nesterov.session.UserSession;
+import ru.nesterov.session.UserData;
+import ru.nesterov.session.UserDataCheck;
 
 import java.time.DayOfWeek;
 import java.time.LocalDate;
 import java.time.YearMonth;
 import java.time.format.DateTimeFormatter;
+import java.time.format.DateTimeParseException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Locale;
 import java.util.stream.Collectors;
-
-import static ru.nesterov.session.SessionState.AWAITING_FIRST_DATE;
-import static ru.nesterov.session.SessionState.AWAITING_NAME;
-import static ru.nesterov.session.SessionState.AWAITING_SECOND_DATE;
-import static ru.nesterov.session.SessionState.COMPLETED;
 
 @Component
 @ConditionalOnProperty("bot.enabled")
@@ -42,82 +39,42 @@ public class GetClientScheduleHandlerClientRevenue extends ClientRevenueAbstract
         this.sessionManager = sessionManager;
     }
 
+    @SneakyThrows
     @Override
     public List<BotApiMethod<?>> handle(Update update) {
         Long chatId = getChatId(update);
-        UserSession session = sessionManager.getSession(chatId);
+        Long userId = getUserId(update);
+        UserData userData = sessionManager.getUserData(chatId, userId);
+
         List<BotApiMethod<?>> messages = new ArrayList<>();
         if (isMessageWithText(update)) {
-            sessionManager.toDefaultUserSession(session);
-            messages.add(sendClientNamesKeyboard(chatId));
+            sessionManager.setDefaultUserData(userData);
+            messages.add(sendClientNamesKeyboard(chatId, userId));
         } else {
-            handleSessionState(update, session, messages);
+            handleCallbackQuery(update, userData, messages);
         }
-
         return messages;
     }
 
-    private Long getChatId(Update update) {
-        return update.hasMessage() ? update.getMessage().getChatId() : update.getCallbackQuery().getMessage().getChatId();
-    }
-
-    private boolean isMessageWithText(Update update) {
-        return update.getMessage() != null && update.getMessage().hasText();
-    }
-
     @SneakyThrows
-    private void handleSessionState(Update update, UserSession session, List<BotApiMethod<?>> messages) {
+    private void handleCallbackQuery(Update update, UserData userData, List<BotApiMethod<?>> messages) throws Exception {
         CallbackQuery callbackQuery = update.getCallbackQuery();
-        ButtonCallback callback = objectMapper.readValue(callbackQuery.getData(), ButtonCallback.class);
+        String callbackData = callbackQuery.getData();
+        ButtonCallback callback = objectMapper.readValue(callbackData, ButtonCallback.class);
 
-        LocalDate selectedDate = LocalDate.now();
-        String callbackValue = callback.getValue();
-
-        switch (session.getState()) {
-            case AWAITING_NAME:
-                session.setClientName(callbackValue);
-                messages.addAll(
-                        sendCalendarKeyBoard(
-                                callbackQuery,
-                                "Введите первую дату",
-                                selectedDate
-                        )
-                );
-                sessionManager.changeState(session);
-                break;
-
-            case AWAITING_FIRST_DATE:
-                session.setFirstDate(parseDate(callbackValue));
-                messages.addAll(
-                        sendCalendarKeyBoard(
-                                callbackQuery,
-                                "Введите вторую дату",
-                                selectedDate
-                        )
-                );
-                sessionManager.changeState(session);
-                break;
-
-            case AWAITING_SECOND_DATE:
-                session.setSecondDate(parseDate(callbackValue));
-                messages.addAll(
-                        sendClientSchedule(
-                                callbackQuery.getMessage().getChatId(),
-                                callbackQuery.getMessage().getMessageId(),
-                                session
-                        )
-                );
-                sessionManager.toDefaultUserSession(session);
-                break;
-
-            default:
-                throw new IllegalStateException("Unknown session state: " + session.getState());
+        if (isValidDate(callback.getValue())) {
+            handleSelectedDate(callbackQuery, userData, messages);
+        } else {
+            switch (callback.getValue()) {
+                case "Next":
+                case "Prev":
+                    handleMonthSwitch(callbackQuery, userData, messages);
+                    break;
+                default:
+                    handleClientName(callbackQuery.getMessage().getChatId(), callbackQuery.getMessage().getMessageId(), userData, callback.getValue(), messages);
+                    break;
+            }
         }
-    }
-
-    private LocalDate parseDate(String dateString) {
-        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd");
-        return LocalDate.parse(dateString, formatter);
     }
 
     @Override
@@ -126,11 +83,12 @@ public class GetClientScheduleHandlerClientRevenue extends ClientRevenueAbstract
     }
 
     @SneakyThrows
-    private List<BotApiMethod<?>> sendClientSchedule(long chatId, int messageId, UserSession userSession) {
+    private List<BotApiMethod<?>> sendClientSchedule(long chatId, int messageId, UserData userData) {
         List<GetClientScheduleResponse> response = client.getClientSchedule(
-                userSession.getClientName(),
-                userSession.getFirstDate().atStartOfDay(),
-                userSession.getSecondDate().atStartOfDay());
+                userData.getUserId(),
+                userData.getClientName(),
+                userData.getFirstDate().atStartOfDay(),
+                userData.getSecondDate().atStartOfDay());
 
         EditMessageText editMessageText = editMessage(String.valueOf(chatId), messageId, formatClientSchedule(response), null);
 
@@ -138,14 +96,14 @@ public class GetClientScheduleHandlerClientRevenue extends ClientRevenueAbstract
     }
 
     @SneakyThrows
-    private SendMessage sendClientNamesKeyboard(long chatId) {
+    private SendMessage sendClientNamesKeyboard(long chatId, long userId) {
         SendMessage sendMessage = new SendMessage();
         sendMessage.setChatId(String.valueOf(chatId));
         sendMessage.setText("Выберите клиента для которого хотите получить расписание:");
 
         InlineKeyboardMarkup keyboardMarkup = new InlineKeyboardMarkup();
         List<List<InlineKeyboardButton>> keyboard = new ArrayList<>();
-        List<ClientResponse> clients = client.getActiveClients();
+        List<ClientResponse> clients = client.getActiveClients(userId);
 
         for (ClientResponse response : clients) {
             InlineKeyboardButton button = new InlineKeyboardButton();
@@ -169,10 +127,10 @@ public class GetClientScheduleHandlerClientRevenue extends ClientRevenueAbstract
     }
 
     @SneakyThrows
-    private List<BotApiMethod<?>> sendCalendarKeyBoard(CallbackQuery callbackQuery, String text, LocalDate date) {
+    private List<BotApiMethod<?>> sendCalendarKeyBoard(long chatId, int messageId, String text, LocalDate date) {
         EditMessageText editMessageText = editMessage(
-                String.valueOf(callbackQuery.getMessage().getChatId()),
-                callbackQuery.getMessage().getMessageId(),
+                String.valueOf(chatId),
+                messageId,
                 text,
                 createCalendarMarkup(date)
         );
@@ -192,11 +150,11 @@ public class GetClientScheduleHandlerClientRevenue extends ClientRevenueAbstract
 
         ButtonCallback prevCallback = new ButtonCallback();
         prevCallback.setCommand(getCommand());
-        prevCallback.setValue("<" + date.minusMonths(1));
+        prevCallback.setValue("Prev");
 
         ButtonCallback nextCallback = new ButtonCallback();
         nextCallback.setCommand(getCommand());
-        nextCallback.setValue(">" + date.plusMonths(1));
+        nextCallback.setValue("Next");
 
         headerRow.add(InlineKeyboardButton.builder()
                 .text("◀")
@@ -261,22 +219,55 @@ public class GetClientScheduleHandlerClientRevenue extends ClientRevenueAbstract
         return keyboardMarkup;
     }
 
+    private void handleClientName(long chatId, int messageId, UserData userData, String clientName, List<BotApiMethod<?>> messages) {
+        if (userData.getClientName() == null) {
+            userData.setClientName(clientName);
+            messages.addAll(sendCalendarKeyBoard(chatId, messageId, "Введите первую дату", userData.getCurrentDate()));
+        }
+    }
+
     @SneakyThrows
-    private List<BotApiMethod<?>> updateCalendar(Update update, String text) {
-        CallbackQuery callbackQuery = update.getCallbackQuery();
-        String data = callbackQuery.getData();
+    private void handleMonthSwitch(CallbackQuery callbackQuery, UserData userData, List<BotApiMethod<?>> messages) {
+        ButtonCallback callback = objectMapper.readValue(callbackQuery.getData(), ButtonCallback.class);
+        if (callback.getValue().equals("Next")) {
+            userData.setCurrentDate(userData.getCurrentDate().plusMonths(1));
+        } else if (callback.getValue().equals("Previous")) {
+            userData.setCurrentDate(userData.getCurrentDate().minusMonths(1));
+        }
 
-        ButtonCallback buttonCallback = objectMapper.readValue(data, ButtonCallback.class);
-        LocalDate currentDate = LocalDate.parse(buttonCallback.getValue());
+        String calendarMessage = "";
+        if (UserDataCheck.FIRST_DATE_MISSING.validate(userData)) {
+            calendarMessage = "Введите первую дату";
+        } else if (UserDataCheck.SECOND_DATE_MISSING.validate(userData)) {
+            calendarMessage = "Введите вторую дату";
+        }
 
-        EditMessageText editMessageText = editMessage(
-                String.valueOf(callbackQuery.getMessage().getChatId()),
+        messages.addAll(sendCalendarKeyBoard(
+                callbackQuery.getMessage().getChatId(),
                 callbackQuery.getMessage().getMessageId(),
-                text,
-                createCalendarMarkup(currentDate)
-                );
+                calendarMessage,
+                userData.getCurrentDate()
+        ));
+    }
 
-        return List.of(editMessageText);
+    @SneakyThrows
+    private void handleSelectedDate(CallbackQuery callbackQuery, UserData userData, List<BotApiMethod<?>> messages) {
+        ButtonCallback callback = objectMapper.readValue(callbackQuery.getData(), ButtonCallback.class);
+        if (UserDataCheck.FIRST_DATE_MISSING.validate(userData)) {
+            userData.setFirstDate(LocalDate.parse(callback.getValue()));
+            messages.addAll(sendCalendarKeyBoard(
+                    callbackQuery.getMessage().getChatId(),
+                    callbackQuery.getMessage().getMessageId(),
+                    "Введите вторую дату",
+                    userData.getCurrentDate()
+            ));
+        } else {
+            userData.setSecondDate(LocalDate.parse(callback.getValue()));
+            messages.addAll(sendClientSchedule(
+                    callbackQuery.getMessage().getChatId(),
+                    callbackQuery.getMessage().getMessageId(),
+                    userData));
+        }
     }
 
     private EditMessageText editMessage(String chatId, int messageId, String text, InlineKeyboardMarkup keyboardMarkup) {
@@ -308,5 +299,27 @@ public class GetClientScheduleHandlerClientRevenue extends ClientRevenueAbstract
                             startDate, startTime, endTime);
                 })
                 .collect(Collectors.joining("\n\n"));
+    }
+
+    private boolean isValidDate(String dateStr) {
+        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd");
+        try {
+            LocalDate.parse(dateStr, formatter);
+            return true;
+        } catch (DateTimeParseException e) {
+            return false;
+        }
+    }
+
+    private Long getChatId(Update update) {
+        return update.hasMessage() ? update.getMessage().getChatId() : update.getCallbackQuery().getMessage().getChatId();
+    }
+
+    private Long getUserId(Update update) {
+        return update.hasMessage() ? update.getMessage().getFrom().getId() : update.getCallbackQuery().getFrom().getId();
+    }
+
+    private boolean isMessageWithText(Update update) {
+        return update.getMessage() != null && update.getMessage().hasText();
     }
 }
