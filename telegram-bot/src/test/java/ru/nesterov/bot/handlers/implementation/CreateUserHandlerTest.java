@@ -40,6 +40,7 @@ public class CreateUserHandlerTest {
         CreateUserRequest request = CreateUserRequest.builder()
                 .userIdentifier(user.getId().toString())
                 .mainCalendarId("12345mc")
+                .isCancelledCalendarEnabled(true)
                 .cancelledCalendarId("12345cc")
                 .build();
 
@@ -56,10 +57,16 @@ public class CreateUserHandlerTest {
         assertTrue(botApiMethod instanceof SendMessage);
 
         SendMessage sendMessage = (SendMessage) botApiMethod;
-        assertEquals("Чтобы зарегистрироваться в Анализаторе клиентов, понадобится " +
-                "id основного календаря и календаря, в котором будут сохраняться отмененные мероприятия.\n\n Пришлите id основного календаря: ", sendMessage.getText());
+        assertEquals("Чтобы зарегистрироваться в Анализаторе клиентов, пришлите id основного календаря: ", sendMessage.getText());
 
         message.setText(request.getMainCalendarId());
+        update.setMessage(message);
+
+        botApiMethod = createUserHandler.handle(update);
+        sendMessage = (SendMessage) botApiMethod;
+        assertEquals("Вы хотите сохранять информацию об отмененных мероприятиях с использованием второго календаря?", sendMessage.getText());
+
+        message.setText(request.getIsCancelledCalendarEnabled().toString());
         update.setMessage(message);
 
         botApiMethod = createUserHandler.handle(update);
@@ -69,6 +76,7 @@ public class CreateUserHandlerTest {
         CreateUserResponse createUserResponse = CreateUserResponse.builder()
                 .userId(request.getUserIdentifier())
                 .mainCalendarId(request.getMainCalendarId())
+                .isCancelledCalendarEnabled(request.getIsCancelledCalendarEnabled())
                 .cancelledCalendarId(request.getCancelledCalendarId())
                 .build();
 

@@ -1,7 +1,6 @@
 package ru.nesterov.entity;
 
 import jakarta.persistence.*;
-import lombok.Builder;
 import lombok.Data;
 
 import java.util.List;

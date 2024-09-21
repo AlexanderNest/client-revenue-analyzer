@@ -22,7 +22,7 @@ import java.util.concurrent.ConcurrentHashMap;
 @RequiredArgsConstructor
 @ConditionalOnProperty("bot.enabled")
 public class CreateUserHandler extends AbstractHandler {
-    private final Map<Long, CreateUserRequest> createUserRequests = new ConcurrentHashMap<>(); // надо сделать потокобезопасным
+    private final Map<Long, CreateUserRequest> createUserRequests = new ConcurrentHashMap<>();
     private final ClientRevenueAnalyzerIntegrationClient client;
     @Override
     public BotApiMethod<?> handle(Update update) {
@@ -31,8 +31,7 @@ public class CreateUserHandler extends AbstractHandler {
         String text = update.getMessage().getText();
         CreateUserRequest createUserRequest = createUserRequests.get(userId);
         if (text.equals("/register")) {
-            return getPlainSendMessage(chatId, "Чтобы зарегистрироваться в Анализаторе клиентов, понадобится " +
-                    "id основного календаря и календаря, в котором будут сохраняться отмененные мероприятия.\n\n Пришлите id основного календаря: " );
+            return getPlainSendMessage(chatId, "Чтобы зарегистрироваться в Анализаторе клиентов, пришлите id основного календаря: " );
         } else if (createUserRequest == null) {
             createUserRequest = CreateUserRequest.builder()
                     .userIdentifier(String.valueOf(userId))
@@ -79,5 +78,4 @@ public class CreateUserHandler extends AbstractHandler {
     public boolean isFinished(Long userId) {
         return createUserRequests.get(userId) != null && createUserRequests.get(userId).getMainCalendarId() != null && createUserRequests.get(userId).getCancelledCalendarId() != null && createUserRequests.get(userId).getUserIdentifier() != null;
     }
-
 }

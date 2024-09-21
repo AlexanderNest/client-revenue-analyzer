@@ -18,11 +18,7 @@ import java.util.concurrent.ConcurrentHashMap;
 @RequiredArgsConstructor
 @ConditionalOnProperty("bot.enabled")
 public class HandlersService {
-    private final GetMonthStatisticsHandler getMonthStatisticsHandler;
-    private final CreateUserHandler createNewUserHandler;
-
     private final Map<Long, CommandHandler> userHandlers = new ConcurrentHashMap<>();
-
     private final List<CommandHandler> commandHandlers;
 
     @Nullable
