@@ -11,6 +11,7 @@ import org.telegram.telegrambots.meta.api.objects.Chat;
 import org.telegram.telegrambots.meta.api.objects.Message;
 import org.telegram.telegrambots.meta.api.objects.Update;
 import org.telegram.telegrambots.meta.api.objects.User;
+import ru.nesterov.dto.CheckUserForExistenceInDbRequest;
 import ru.nesterov.dto.CreateUserRequest;
 import ru.nesterov.dto.CreateUserResponse;
 import ru.nesterov.integration.ClientRevenueAnalyzerIntegrationClient;
@@ -91,6 +92,42 @@ public class CreateUserHandlerTest {
         assertEquals("Вы успешно зарегистрированы!\n\nUSER ID: 1" +
                 "\n\nMAIN CALENDAR ID: 12345mc" +
                 "\n\nCANCELLED CALENDAR ID: 12345cc", sendMessage.getText());
+    }
+
+    @Test
+    void handleCreatingTheSameUser() {
+        Chat chat = new Chat();
+        chat.setId(1L);
+
+        User user = new User();
+        user.setId(1L);
+
+        CreateUserRequest request = CreateUserRequest.builder()
+                .userIdentifier(user.getId().toString())
+                .mainCalendarId("12345mc")
+                .isCancelledCalendarEnabled(true)
+                .cancelledCalendarId("12345cc")
+                .build();
+
+        Message message = new Message();
+        message.setText("/register");
+        message.setFrom(user);
+        message.setChat(chat);
+
+        Update update = new Update();
+        update.setMessage(message);
+
+        CheckUserForExistenceInDbRequest request1 = new CheckUserForExistenceInDbRequest();
+        request1.setUserIdentifier(user.getId().toString());
+        when(client.checkUserForExistenceInDb(request1)).thenReturn(Boolean.TRUE);
+
+
+        BotApiMethod<?> botApiMethod = createUserHandler.handle(update);
+
+        assertTrue(botApiMethod instanceof SendMessage);
+
+        SendMessage sendMessage = (SendMessage) botApiMethod;
+        assertEquals("Вы уже зарегистрированы и можете пользоваться функциями бота", sendMessage.getText());
 
     }
 }
