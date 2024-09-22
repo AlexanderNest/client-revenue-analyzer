@@ -176,6 +176,7 @@ class ClientControllerTest {
                 .andExpect(jsonPath("$.name").value("Maria Petrova"))
                 .andExpect(jsonPath("$.description").value("desc"))
                 .andExpect(jsonPath("$.active").value(true))
+                .andExpect(jsonPath("$.phone").value("89001112233"))
                 .andExpect(jsonPath("$.pricePerHour").value(100));
 
         mockMvc.perform(
@@ -189,6 +190,7 @@ class ClientControllerTest {
                 .andExpect(jsonPath("$.name").value("Maria"))
                 .andExpect(jsonPath("$.description").value("desc"))
                 .andExpect(jsonPath("$.active").value(true))
+                .andExpect(jsonPath("$.phone").value("89001111233"))
                 .andExpect(jsonPath("$.pricePerHour").value(100));
 
         mockMvc.perform(
@@ -202,6 +204,7 @@ class ClientControllerTest {
                 .andExpect(jsonPath("$.name").value("Maria 2"))
                 .andExpect(jsonPath("$.description").value("desc"))
                 .andExpect(jsonPath("$.active").value(true))
+                .andExpect(jsonPath("$.phone").value("89001122233"))
                 .andExpect(jsonPath("$.pricePerHour").value(1000));
 
         mockMvc.perform(
@@ -214,6 +217,7 @@ class ClientControllerTest {
                 .andExpect(jsonPath("$.name").value("Maria 3"))
                 .andExpect(jsonPath("$.description").value("desc"))
                 .andExpect(jsonPath("$.active").value(true))
+                .andExpect(jsonPath("$.phone").value("89001132233"))
                 .andExpect(jsonPath("$.pricePerHour").value(1000));
     }
 
