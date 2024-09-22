@@ -8,7 +8,7 @@ import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
-import ru.nesterov.controller.request.GetClientScheduleRequest;
+import ru.nesterov.dto.CheckUserForExistenceInDbRequest;
 import ru.nesterov.dto.CreateUserRequest;
 import ru.nesterov.dto.CreateUserResponse;
 
@@ -30,4 +30,20 @@ public interface UserController {
     )
     @PostMapping("/createUser")
     CreateUserResponse createUser(CreateUserRequest request);
+
+    @Operation(
+            summary = "Проверить, зарегистрирован ли пользователь в приложении",
+            description = "Проверяет существование пользователя в базе данных",
+            requestBody = @RequestBody(
+                    description = "Идентификатор пользователя",
+                    required = true,
+                    content = @Content(schema = @Schema(implementation = CheckUserForExistenceInDbRequest.class))
+            ),
+            responses = {
+                    @ApiResponse(responseCode = "200", description = "Успешный ответ"),
+                    @ApiResponse(responseCode = "500", description = "Внутренняя ошибка сервера")
+            }
+    )
+    @PostMapping("/checkUserForExistenceInDB")
+    Boolean checkUserForExistenceInDB(CheckUserForExistenceInDbRequest request);
 }

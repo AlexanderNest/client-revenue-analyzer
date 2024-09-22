@@ -2,6 +2,7 @@ package ru.nesterov.dto;
 
 import lombok.Builder;
 import lombok.Data;
+import org.apache.http.HttpStatus;
 
 @Data
 @Builder
