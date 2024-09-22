@@ -16,6 +16,8 @@ import ru.nesterov.google.GoogleCalendarClient;
 import ru.nesterov.repository.ClientRepository;
 import ru.nesterov.repository.UserRepository;
 
+import java.util.Date;
+
 import static org.hamcrest.Matchers.hasSize;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
@@ -54,6 +56,7 @@ class ClientControllerTest {
         createClientRequest.setName("Oleg");
         createClientRequest.setPricePerHour(100);
         createClientRequest.setIdGenerationNeeded(false);
+        createClientRequest.setPhone("89001112233");
 
         mockMvc.perform(
                 post(CREATE_CLIENT_URL)
@@ -66,6 +69,7 @@ class ClientControllerTest {
                 .andExpect(jsonPath("$.name").value("Oleg"))
                 .andExpect(jsonPath("$.description").value("desc"))
                 .andExpect(jsonPath("$.active").value(true))
+                .andExpect(jsonPath("$.phone").value("89001112233"))
                 .andExpect(jsonPath("$.pricePerHour").value(100));
     }
 
@@ -83,18 +87,21 @@ class ClientControllerTest {
         createClientRequest.setName("Maria");
         createClientRequest.setPricePerHour(100);
         createClientRequest.setIdGenerationNeeded(false);
+        createClientRequest.setPhone("89001112233");
 
         CreateClientRequest createClientRequest2 = new CreateClientRequest();
         createClientRequest2.setDescription("desc");
         createClientRequest2.setName("Maria Petrova");
         createClientRequest2.setPricePerHour(1000);
         createClientRequest2.setIdGenerationNeeded(false);
+        createClientRequest2.setPhone("89001112233");
 
         CreateClientRequest createClientRequest3 = new CreateClientRequest();
         createClientRequest3.setDescription("desc");
         createClientRequest3.setName("Maria");
         createClientRequest3.setPricePerHour(2000);
         createClientRequest3.setIdGenerationNeeded(false);
+        createClientRequest3.setPhone("89001112333");
 
         mockMvc.perform(
                     post(CREATE_CLIENT_URL)
@@ -135,23 +142,28 @@ class ClientControllerTest {
         createClientRequest0.setName("Maria Petrova");
         createClientRequest0.setPricePerHour(100);
         createClientRequest0.setIdGenerationNeeded(true);
+        createClientRequest0.setPhone("89001112233");
 
         CreateClientRequest createClientRequest1 = new CreateClientRequest();
         createClientRequest1.setDescription("desc");
         createClientRequest1.setName("Maria");
         createClientRequest1.setPricePerHour(100);
         createClientRequest1.setIdGenerationNeeded(true);
+        createClientRequest1.setPhone("89001111233");
 
         CreateClientRequest createClientRequest2 = new CreateClientRequest();
         createClientRequest2.setDescription("desc");
         createClientRequest2.setName("Maria");
         createClientRequest2.setPricePerHour(1000);
         createClientRequest2.setIdGenerationNeeded(true);
+        createClientRequest2.setPhone("89001122233");
+
         CreateClientRequest createClientRequest3 = new CreateClientRequest();
         createClientRequest3.setDescription("desc");
         createClientRequest3.setName("Maria");
         createClientRequest3.setPricePerHour(1000);
         createClientRequest3.setIdGenerationNeeded(true);
+        createClientRequest3.setPhone("89001132233");
 
         mockMvc.perform(
                         post(CREATE_CLIENT_URL)

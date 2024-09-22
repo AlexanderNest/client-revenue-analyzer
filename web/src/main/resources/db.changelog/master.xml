@@ -114,20 +114,17 @@
         </addColumn>
     </changeSet>
 
-    <changeSet id="make client_unique_phone unique" author="Uenay">
+    <changeSet id="create phone + user id unique index" author="Uenay">
         <preConditions onFail="MARK_RAN">
-            <and>
-                <tableExists tableName="client"/>
-                <columnExists tableName="client" columnName="phone"/>
-                <not>
-                    <uniqueConstraintExists tableName="client" constraintName="client_unique_phone"/>
-                </not>
-            </and>
+            <not>
+                <indexExists tableName="client" indexName="IDX_UNIQUE_PHONE_PER_USER"/>
+            </not>
         </preConditions>
-        <sql>
-            ALTER TABLE CLIENT
-                ADD CONSTRAINT client_unique_phone UNIQUE (phone);
-        </sql>
+
+        <createIndex tableName="client" indexName="IDX_UNIQUE_PHONE_PER_USER" unique="true">
+            <column name="phone"/>
+            <column name="user_id"/>
+        </createIndex>
     </changeSet>
 
     <changeSet id="#51 create table price_change_history" author="Uenay">
