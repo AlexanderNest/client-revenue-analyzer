@@ -26,5 +26,4 @@ public class Client {
     @CreationTimestamp
     private Date startDate;
     private String phone;
-
 }

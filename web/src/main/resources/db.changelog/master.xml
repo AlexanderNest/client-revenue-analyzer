@@ -145,7 +145,7 @@
                 client_id BIGINT REFERENCES client (id),
                 previous_price INT,
                 current_price INT,
-                date_of_change DATE
+                date_of_change DATE default CURRENT_TIMESTAMP
             );
         </sql>
     </changeSet>
