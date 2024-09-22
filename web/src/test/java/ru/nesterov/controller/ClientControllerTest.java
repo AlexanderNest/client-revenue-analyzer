@@ -94,14 +94,14 @@ class ClientControllerTest {
         createClientRequest2.setName("Maria Petrova");
         createClientRequest2.setPricePerHour(1000);
         createClientRequest2.setIdGenerationNeeded(false);
-        createClientRequest2.setPhone("89001112233");
+        createClientRequest2.setPhone("89001112333");
 
         CreateClientRequest createClientRequest3 = new CreateClientRequest();
         createClientRequest3.setDescription("desc");
         createClientRequest3.setName("Maria");
         createClientRequest3.setPricePerHour(2000);
         createClientRequest3.setIdGenerationNeeded(false);
-        createClientRequest3.setPhone("89001112333");
+        createClientRequest3.setPhone("89001113333");
 
         mockMvc.perform(
                     post(CREATE_CLIENT_URL)
