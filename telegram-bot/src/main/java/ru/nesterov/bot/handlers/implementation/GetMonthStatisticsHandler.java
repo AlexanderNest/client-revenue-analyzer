@@ -55,7 +55,7 @@ public class GetMonthStatisticsHandler extends AbstractHandler {
     private BotApiMethod<?> sendMonthStatistics(Update update) {
         CallbackQuery callbackQuery = update.getCallbackQuery();
         GetMonthStatisticsKeyboardCallback callback = objectMapper.readValue(callbackQuery.getData(), GetMonthStatisticsKeyboardCallback.class);
-        GetIncomeAnalysisForMonthResponse response = client.getIncomeAnalysisForMonth(clearFromMark(callback.getValue()));
+        GetIncomeAnalysisForMonthResponse response = client.getIncomeAnalysisForMonth(callbackQuery.getFrom().getId(), clearFromMark(callback.getValue()));
 
         return getPlainSendMessage(update.getCallbackQuery().getMessage().getChatId(), formatIncomeAnalysis(response));
     }

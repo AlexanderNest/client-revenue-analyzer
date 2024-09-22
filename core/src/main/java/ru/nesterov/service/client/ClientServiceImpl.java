@@ -5,11 +5,14 @@ import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.stereotype.Service;
 import ru.nesterov.dto.Event;
 import ru.nesterov.entity.Client;
+import ru.nesterov.entity.User;
 import ru.nesterov.exception.ClientIsAlreadyCreatedException;
 import ru.nesterov.exception.ClientNotFoundException;
 import ru.nesterov.repository.ClientRepository;
+import ru.nesterov.repository.UserRepository;
 import ru.nesterov.service.CalendarService;
 import ru.nesterov.service.dto.ClientDto;
+import ru.nesterov.service.dto.UserDto;
 import ru.nesterov.service.mapper.ClientMapper;
 import ru.nesterov.service.monthHelper.MonthDatesPair;
 
@@ -21,14 +24,15 @@ import java.util.List;
 public class ClientServiceImpl implements ClientService {
     private final CalendarService calendarService;
     private final ClientRepository clientRepository;
+    private final UserRepository userRepository;
 
 
-    public List<MonthDatesPair> getClientSchedule(String clientName, LocalDateTime leftDate, LocalDateTime rightDate) {
-        Client client = clientRepository.findClientByName(clientName);
+    public List<MonthDatesPair> getClientSchedule(UserDto userDto, String clientName, LocalDateTime leftDate, LocalDateTime rightDate) {
+        Client client = clientRepository.findClientByNameAndUserId(clientName, userDto.getId());
         if (client == null) {
             throw new ClientNotFoundException(clientName);
         }
-        List<Event> events = calendarService.getEventsBetweenDates(leftDate, rightDate);
+        List<Event> events = calendarService.getEventsBetweenDates(userDto.getMainCalendar(), userDto.getCancelledCalendar(), userDto.isCancelledCalendarEnabled(), leftDate, rightDate);
 
         return events.stream()
                 .filter(event -> event.getSummary().equals(client.getName()))
@@ -36,8 +40,8 @@ public class ClientServiceImpl implements ClientService {
                 .toList();
     }
 
-    public ClientDto createClient(ClientDto clientDto, boolean isIdGenerationNeeded) throws ClientIsAlreadyCreatedException {
-        List<Client> clientsWithThisName = clientRepository.findAllByExactNameOrNameStartingWithAndEndingWithNumber(clientDto.getName());
+    public ClientDto createClient(UserDto userDto, ClientDto clientDto, boolean isIdGenerationNeeded) throws ClientIsAlreadyCreatedException {
+        List<Client> clientsWithThisName = clientRepository.findAllByExactNameOrNameStartingWithAndEndingWithNumberAndUserId(clientDto.getName(), userDto.getId());
 
         if (!clientsWithThisName.isEmpty() && !isIdGenerationNeeded) {
             throw new ClientIsAlreadyCreatedException(clientDto.getName());
@@ -46,9 +50,12 @@ public class ClientServiceImpl implements ClientService {
             clientDto.setName(clientDto.getName() + " " + (clientsWithThisName.size() + 1));
         }
 
+        User user = userRepository.findByUsername(userDto.getUsername());
         Client client;
         try {
-            client = clientRepository.save(ClientMapper.mapToClient(clientDto));
+            Client clientForSave = ClientMapper.mapToClient(clientDto);
+            clientForSave.setUser(user);
+            client = clientRepository.save(clientForSave);
         } catch (DataIntegrityViolationException exception) {
             throw new ClientIsAlreadyCreatedException(clientDto.getName());
         }
@@ -56,8 +63,8 @@ public class ClientServiceImpl implements ClientService {
     }
 
     @Override
-    public List<ClientDto> getActiveClients() {
-        return clientRepository.findClientByActiveOrderByPricePerHourDesc(true).stream()
+    public List<ClientDto> getActiveClients(UserDto userDto) {
+        return clientRepository.findClientByUserIdAndActiveOrderByPricePerHourDesc(userDto.getId(), true).stream()
                 .map(ClientMapper::mapToClientDto)
                 .toList();
     }

@@ -2,11 +2,15 @@ package ru.nesterov.integration;
 
 import lombok.RequiredArgsConstructor;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
+import org.springframework.http.HttpEntity;
+import org.springframework.http.HttpHeaders;
 import org.springframework.stereotype.Component;
 import org.springframework.web.client.RestTemplate;
 import ru.nesterov.dto.GetForMonthRequest;
 import ru.nesterov.dto.GetIncomeAnalysisForMonthResponse;
+import ru.nesterov.properties.BotProperties;
 import ru.nesterov.properties.RevenueAnalyzerProperties;
+
 
 @Component
 @RequiredArgsConstructor
@@ -14,18 +18,24 @@ import ru.nesterov.properties.RevenueAnalyzerProperties;
 public class ClientRevenueAnalyzerIntegrationClient {
     private final RestTemplate restTemplate;
     private final RevenueAnalyzerProperties revenueAnalyzerProperties;
+    private final BotProperties botProperties;
 
-    public GetIncomeAnalysisForMonthResponse getIncomeAnalysisForMonth(String monthName) {
+    public GetIncomeAnalysisForMonthResponse getIncomeAnalysisForMonth(long userId, String monthName) {
         GetForMonthRequest getForMonthRequest = new GetForMonthRequest();
         getForMonthRequest.setMonthName(monthName);
 
-        return post(getForMonthRequest, "/revenue-analyzer/events/analyzer/getIncomeAnalysisForMonth", GetIncomeAnalysisForMonthResponse.class);
+        return post(String.valueOf(userId), getForMonthRequest, "/revenue-analyzer/events/analyzer/getIncomeAnalysisForMonth", GetIncomeAnalysisForMonthResponse.class);
     }
 
-    private <T> T post(Object request, String endpoint, Class<T> responseType) {
+    private <T> T post(String username, Object request, String endpoint, Class<T> responseType) {
+        HttpHeaders headers = new HttpHeaders();
+        headers.set("X-secret-token", botProperties.getSecretToken());
+        headers.set("X-username", username);
+
+        HttpEntity<Object> entity = new HttpEntity<>(request, headers);
         return restTemplate.postForObject(
                 revenueAnalyzerProperties.getUrl() + endpoint,
-                request,
+                entity,
                 responseType
         );
     }
