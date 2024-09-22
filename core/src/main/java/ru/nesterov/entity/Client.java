@@ -2,6 +2,7 @@ package ru.nesterov.entity;
 
 import jakarta.persistence.*;
 import lombok.Data;
+import org.hibernate.annotations.CreationTimestamp;
 
 import java.util.Date;
 
@@ -22,13 +23,8 @@ public class Client {
     @ManyToOne
     @JoinColumn(name = "user_id")
     private User user;
+    @CreationTimestamp
     private Date startDate;
     private String phone;
 
-    @PrePersist
-    public void prePersist() {
-        if (this.startDate == null) {
-            this.startDate = new Date();
-        }
-    }
 }
