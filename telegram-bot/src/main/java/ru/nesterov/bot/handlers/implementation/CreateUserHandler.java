@@ -54,7 +54,7 @@ public class CreateUserHandler extends AbstractHandler {
             createUserRequest.setIsCancelledCalendarEnabled(Boolean.valueOf(text));
 
             if (createUserRequest.getIsCancelledCalendarEnabled()) {
-                return getPlainSendMessage(chatId, "Пришлите id календаря, в котором будут храниться отмененные мероприятия: ");
+                return getPlainSendMessage(chatId, "Введите ID клендаря с отмененными мероприятиями:");
             } else {
                 return registerUser(chatId, createUserRequest);
             }
