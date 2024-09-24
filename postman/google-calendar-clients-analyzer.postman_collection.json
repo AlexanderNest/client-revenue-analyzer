@@ -365,7 +365,7 @@
 							}
 						},
 						"url": {
-							"raw": "http://localhost:8080/revenue-analyzer/user/checkUserForExistence",
+							"raw": "http://localhost:8080/revenue-analyzer/user/checkUserForExistenc",
 							"protocol": "http",
 							"host": [
 								"localhost"
