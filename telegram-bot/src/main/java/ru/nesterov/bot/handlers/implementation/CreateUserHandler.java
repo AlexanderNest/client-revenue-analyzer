@@ -34,7 +34,7 @@ public class CreateUserHandler extends AbstractHandler {
             if (checkUserForExistenceInDB(String.valueOf(userId))) {
                 return getPlainSendMessage(chatId, "Вы уже зарегистрированы и можете пользоваться функциями бота");
             } else {
-                return getPlainSendMessage(chatId, "Чтобы зарегистрироваться в Анализаторе клиентов, пришлите id основного календаря: ");
+                return getPlainSendMessage(chatId, Введите ID основного календаря:");
             }
         } else if (createUserRequest == null) {
             createUserRequest = CreateUserRequest.builder()
