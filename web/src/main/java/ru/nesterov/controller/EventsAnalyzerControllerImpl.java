@@ -7,7 +7,7 @@ import org.springframework.web.bind.annotation.RestController;
 import ru.nesterov.controller.request.GetForMonthRequest;
 import ru.nesterov.controller.response.EventResponse;
 import ru.nesterov.dto.EventStatus;
-import ru.nesterov.service.user.UserServiceImpl;
+import ru.nesterov.service.user.UserService;
 import ru.nesterov.service.dto.ClientMeetingsStatistic;
 import ru.nesterov.service.dto.IncomeAnalysisResult;
 import ru.nesterov.service.event.EventsAnalyzerService;
@@ -19,7 +19,7 @@ import java.util.Map;
 @RequiredArgsConstructor
 public class EventsAnalyzerControllerImpl implements EventsAnalyzerController {
     private final EventsAnalyzerService eventsAnalyzerService;
-    private final UserServiceImpl userService;
+    private final UserService userService;
 
     public Map<String, ClientMeetingsStatistic> getClientStatistics(@RequestHeader(name = "X-username") String username, @RequestBody GetForMonthRequest request) {
         return eventsAnalyzerService.getStatisticsOfEachClientMeetings(userService.getUserByUsername(username), request.getMonthName());

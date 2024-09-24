@@ -21,11 +21,8 @@ public class UserServiceImpl implements UserService{
         return convert(user);
     }
 
-    public Boolean checkUserForExistenceInDB(String userIdentifier) {
-        return userRepository.findByUsername(userIdentifier) != null;
-    }
-
     private UserDto convert(User user) {
+        if (user == null) { return null; }
         return UserDto.builder()
                 .id(user.getId())
                 .username(user.getUsername())

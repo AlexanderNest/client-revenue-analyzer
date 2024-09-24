@@ -3,7 +3,8 @@ package ru.nesterov.controller;
 import lombok.AllArgsConstructor;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RestController;
-import ru.nesterov.dto.CheckUserForExistenceInDbRequest;
+import ru.nesterov.dto.CheckUserForExistenceResponse;
+import ru.nesterov.dto.CheckUserForExistenceRequest;
 import ru.nesterov.dto.CreateUserRequest;
 import ru.nesterov.dto.CreateUserResponse;
 import ru.nesterov.mapper.UserMapper;
@@ -19,7 +20,9 @@ public class UserControllerImpl implements UserController{
         return userMapper.mapToCreateUserResponse(userService.createUser(userMapper.mapToUserDto(request)));
     }
 
-    public Boolean checkUserForExistenceInDB(@RequestBody CheckUserForExistenceInDbRequest request) {
-        return userService.checkUserForExistenceInDB(request.getUserIdentifier());
+    public CheckUserForExistenceResponse checkUserForExistence(@RequestBody CheckUserForExistenceRequest request) {
+        CheckUserForExistenceResponse response = new CheckUserForExistenceResponse();
+        response.setPresent(userService.getUserByUsername(request.getUserIdentifier()) != null);
+        return response;
     }
 }

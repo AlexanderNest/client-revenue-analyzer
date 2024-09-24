@@ -11,13 +11,15 @@ import org.telegram.telegrambots.meta.api.objects.Chat;
 import org.telegram.telegrambots.meta.api.objects.Message;
 import org.telegram.telegrambots.meta.api.objects.Update;
 import org.telegram.telegrambots.meta.api.objects.User;
-import ru.nesterov.dto.CheckUserForExistenceInDbRequest;
+import ru.nesterov.dto.CheckUserForExistenceRequest;
+import ru.nesterov.dto.CheckUserForExistenceResponse;
 import ru.nesterov.dto.CreateUserRequest;
 import ru.nesterov.dto.CreateUserResponse;
 import ru.nesterov.integration.ClientRevenueAnalyzerIntegrationClient;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.when;
 
 @ContextConfiguration(classes = {
@@ -53,6 +55,10 @@ public class CreateUserHandlerTest {
         Update update = new Update();
         update.setMessage(message);
 
+        CheckUserForExistenceResponse response1 = new CheckUserForExistenceResponse();
+        response1.setPresent(false);
+
+        when(client.checkUserForExistence(any(CheckUserForExistenceRequest.class))).thenReturn(response1);
         BotApiMethod<?> botApiMethod = createUserHandler.handle(update);
 
         assertTrue(botApiMethod instanceof SendMessage);
@@ -81,6 +87,7 @@ public class CreateUserHandlerTest {
                 .cancelledCalendarId(request.getCancelledCalendarId())
                 .build();
 
+
         when(client.createUser(createUserHandler.getCreateUserRequests().get(user.getId()))).thenReturn(createUserResponse);
 
         message.setText(request.getCancelledCalendarId());
@@ -102,13 +109,6 @@ public class CreateUserHandlerTest {
         User user = new User();
         user.setId(1L);
 
-        CreateUserRequest request = CreateUserRequest.builder()
-                .userIdentifier(user.getId().toString())
-                .mainCalendarId("12345mc")
-                .isCancelledCalendarEnabled(true)
-                .cancelledCalendarId("12345cc")
-                .build();
-
         Message message = new Message();
         message.setText("/register");
         message.setFrom(user);
@@ -117,10 +117,12 @@ public class CreateUserHandlerTest {
         Update update = new Update();
         update.setMessage(message);
 
-        CheckUserForExistenceInDbRequest request1 = new CheckUserForExistenceInDbRequest();
+        CheckUserForExistenceRequest request1 = new CheckUserForExistenceRequest();
         request1.setUserIdentifier(user.getId().toString());
-        when(client.checkUserForExistenceInDb(request1)).thenReturn(Boolean.TRUE);
 
+        CheckUserForExistenceResponse response = new CheckUserForExistenceResponse();
+        response.setPresent(true);
+        when(client.checkUserForExistence(request1)).thenReturn(response);
 
         BotApiMethod<?> botApiMethod = createUserHandler.handle(update);
 

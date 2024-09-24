@@ -8,8 +8,7 @@ import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.http.MediaType;
 import org.springframework.test.web.servlet.MockMvc;
-import org.springframework.transaction.annotation.Transactional;
-import ru.nesterov.dto.CheckUserForExistenceInDbRequest;
+import ru.nesterov.dto.CheckUserForExistenceRequest;
 import ru.nesterov.dto.CreateUserRequest;
 import ru.nesterov.entity.User;
 import ru.nesterov.google.GoogleCalendarClient;
@@ -36,9 +35,7 @@ class UserControllerTest {
     private static final String CREATE_USER_URL = "/user/createUser";
     private static final String CHECK_USER_URL = "/user/checkUserForExistenceInDB";
 
-
     @Test
-    @Transactional
     void createNewUserRequest() throws Exception {
         CreateUserRequest createUserRequest = CreateUserRequest.builder()
                 .userIdentifier("testUser")
@@ -60,7 +57,6 @@ class UserControllerTest {
     }
 
     @Test
-    @Transactional
     void createTheSameUser() throws Exception {
         User user = new User();
         user.setId(1);
@@ -70,7 +66,7 @@ class UserControllerTest {
 
         userRepository.save(user);
 
-        CheckUserForExistenceInDbRequest request = new CheckUserForExistenceInDbRequest();
+        CheckUserForExistenceRequest request = new CheckUserForExistenceRequest();
         request.setUserIdentifier("user");
         mockMvc.perform(
                 post(CHECK_USER_URL)
