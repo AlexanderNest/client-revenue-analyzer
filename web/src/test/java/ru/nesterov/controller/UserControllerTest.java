@@ -33,7 +33,7 @@ class UserControllerTest {
     private GoogleCalendarClient googleCalendarService;
 
     private static final String CREATE_USER_URL = "/user/createUser";
-    private static final String CHECK_USER_URL = "/user/checkUserForExistenceInDB";
+    private static final String CHECK_USER_URL = "/user/checkUserForExistence";
 
     @Test
     void createNewUserRequest() throws Exception {
@@ -75,6 +75,6 @@ class UserControllerTest {
                         .content(objectMapper.writeValueAsString(request))
         )
                 .andExpect(status().isOk())
-                .andExpect(content().string("true"));
+                .andExpect(jsonPath("$.present").value("true"));
     }
 }

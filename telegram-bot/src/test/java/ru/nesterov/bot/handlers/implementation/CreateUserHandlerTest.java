@@ -64,7 +64,7 @@ public class CreateUserHandlerTest {
         assertTrue(botApiMethod instanceof SendMessage);
 
         SendMessage sendMessage = (SendMessage) botApiMethod;
-        assertEquals("Чтобы зарегистрироваться в Анализаторе клиентов, пришлите id основного календаря: ", sendMessage.getText());
+        assertEquals("Введите ID основного календаря:", sendMessage.getText());
 
         message.setText(request.getMainCalendarId());
         update.setMessage(message);
@@ -78,7 +78,7 @@ public class CreateUserHandlerTest {
 
         botApiMethod = createUserHandler.handle(update);
         sendMessage = (SendMessage) botApiMethod;
-        assertEquals("Пришлите id календаря, в котором будут храниться отмененные мероприятия: ", sendMessage.getText());
+        assertEquals("Введите ID клендаря с отмененными мероприятиями:", sendMessage.getText());
 
         CreateUserResponse createUserResponse = CreateUserResponse.builder()
                 .userIdentifier(request.getUserIdentifier())
