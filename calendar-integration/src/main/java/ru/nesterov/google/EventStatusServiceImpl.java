@@ -21,34 +21,29 @@ public class EventStatusServiceImpl implements EventStatusService {
                                   @Value("${app.calendar.color.planned}") List<String> plannedColorCodes) {
 
         boolean nullWasUsed = false;
-        this.plannedColorCodes = plannedColorCodes;
-        if (plannedColorCodes.isEmpty()) {
-            this.plannedColorCodes.add(null);
-            nullWasUsed = true;
-        }
-        this.cancelledColorCodes = cancelledColorCodes;
-        if (cancelledColorCodes.isEmpty()) {
-            if (nullWasUsed) {
-                throw new IllegalArgumentException("Default calendar color as null was used already");
-            }
-            this.cancelledColorCodes.add(null);
-            nullWasUsed = true;
-        }
-        this.requiresShiftColorCodes = requiresShiftColorCodes;
-        if (requiresShiftColorCodes.isEmpty()) {
-            if (nullWasUsed) {
-                throw new IllegalArgumentException("Default calendar color as null was used already");
-            }
-            this.requiresShiftColorCodes.add(null);
-            nullWasUsed = true;
-        }
         this.successColorCodes = successColorCodes;
-        if (successColorCodes.isEmpty()) {
+        nullWasUsed = addNullCode(successColorCodes, nullWasUsed);
+        
+        this.cancelledColorCodes = cancelledColorCodes;
+        nullWasUsed = addNullCode(cancelledColorCodes, nullWasUsed);
+        
+        this.requiresShiftColorCodes = requiresShiftColorCodes;
+        nullWasUsed = addNullCode(requiresShiftColorCodes, nullWasUsed);
+        
+        this.plannedColorCodes = plannedColorCodes;
+        nullWasUsed = addNullCode(plannedColorCodes, nullWasUsed);
+    }
+    
+    private boolean addNullCode(List<String> codes, boolean nullWasUsed) {
+        if (codes.isEmpty()) {
             if (nullWasUsed) {
                 throw new IllegalArgumentException("Default calendar color as null was used already");
             }
-            this.successColorCodes.add(null);
+            codes.add(null);
+            return true;
         }
+        
+        return false;
     }
 
     public EventStatus getEventStatus(Event event) {
