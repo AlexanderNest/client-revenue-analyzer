@@ -16,6 +16,7 @@ import ru.nesterov.dto.CreateUserResponse;
 @Tag(name = "Управление пользователями", description = "API для управления пользователями")
 @RequestMapping("/user")
 public interface UserController {
+
     @Operation(
             summary = "Создать нового пользователя",
             description = "Сохраняет информацию о пользователе в базе данных",

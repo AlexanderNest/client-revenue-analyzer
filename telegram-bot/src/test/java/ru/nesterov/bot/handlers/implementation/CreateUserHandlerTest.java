@@ -87,7 +87,6 @@ public class CreateUserHandlerTest {
                 .cancelledCalendarId(request.getCancelledCalendarId())
                 .build();
 
-
         when(client.createUser(createUserHandler.getCreateUserRequests().get(user.getId()))).thenReturn(createUserResponse);
 
         message.setText(request.getCancelledCalendarId());
