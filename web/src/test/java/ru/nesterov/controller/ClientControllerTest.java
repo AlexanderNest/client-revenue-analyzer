@@ -128,7 +128,7 @@ class ClientControllerTest {
     @Test
     void createClientWithTheSameNameWithIdGeneration() throws Exception {
         User user = new User();
-        user.setUsername("testUser");
+        user.setUsername("testUser5");
         user.setMainCalendar("mainCalendar");
         user.setCancelledCalendar("cancelCalendar");
         user = userRepository.save(user);
