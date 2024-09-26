@@ -8,4 +8,5 @@ public class CreateClientRequest {
     private int pricePerHour;
     private String description;
     private boolean idGenerationNeeded;
+    private String phone;
 }
