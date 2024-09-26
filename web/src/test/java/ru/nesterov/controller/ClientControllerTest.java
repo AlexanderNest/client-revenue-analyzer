@@ -16,8 +16,6 @@ import ru.nesterov.google.GoogleCalendarClient;
 import ru.nesterov.repository.ClientRepository;
 import ru.nesterov.repository.UserRepository;
 
-import java.util.Date;
-
 import static org.hamcrest.Matchers.hasSize;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
@@ -137,28 +135,28 @@ class ClientControllerTest {
 
         CreateClientRequest createClientRequest0 = new CreateClientRequest();
         createClientRequest0.setDescription("desc");
-        createClientRequest0.setName("Maria Petrova");
+        createClientRequest0.setName("Masha Petrova");
         createClientRequest0.setPricePerHour(100);
         createClientRequest0.setIdGenerationNeeded(true);
         createClientRequest0.setPhone("89001112233");
 
         CreateClientRequest createClientRequest1 = new CreateClientRequest();
         createClientRequest1.setDescription("desc");
-        createClientRequest1.setName("Maria");
+        createClientRequest1.setName("Masha");
         createClientRequest1.setPricePerHour(100);
         createClientRequest1.setIdGenerationNeeded(true);
         createClientRequest1.setPhone("89001111233");
 
         CreateClientRequest createClientRequest2 = new CreateClientRequest();
         createClientRequest2.setDescription("desc");
-        createClientRequest2.setName("Maria");
+        createClientRequest2.setName("Masha");
         createClientRequest2.setPricePerHour(1000);
         createClientRequest2.setIdGenerationNeeded(true);
         createClientRequest2.setPhone("89001122233");
 
         CreateClientRequest createClientRequest3 = new CreateClientRequest();
         createClientRequest3.setDescription("desc");
-        createClientRequest3.setName("Maria");
+        createClientRequest3.setName("Masha");
         createClientRequest3.setPricePerHour(1000);
         createClientRequest3.setIdGenerationNeeded(true);
         createClientRequest3.setPhone("89001132233");
@@ -171,7 +169,7 @@ class ClientControllerTest {
                 )
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.id").isNumber())
-                .andExpect(jsonPath("$.name").value("Maria Petrova"))
+                .andExpect(jsonPath("$.name").value("Masha Petrova"))
                 .andExpect(jsonPath("$.description").value("desc"))
                 .andExpect(jsonPath("$.active").value(true))
                 .andExpect(jsonPath("$.phone").value("89001112233"))
@@ -185,7 +183,7 @@ class ClientControllerTest {
                 )
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.id").isNotEmpty())
-                .andExpect(jsonPath("$.name").value("Maria"))
+                .andExpect(jsonPath("$.name").value("Masha"))
                 .andExpect(jsonPath("$.description").value("desc"))
                 .andExpect(jsonPath("$.active").value(true))
                 .andExpect(jsonPath("$.phone").value("89001111233"))
@@ -199,7 +197,7 @@ class ClientControllerTest {
                 )
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.id").isNotEmpty())
-                .andExpect(jsonPath("$.name").value("Maria 2"))
+                .andExpect(jsonPath("$.name").value("Masha 2"))
                 .andExpect(jsonPath("$.description").value("desc"))
                 .andExpect(jsonPath("$.active").value(true))
                 .andExpect(jsonPath("$.phone").value("89001122233"))
@@ -212,7 +210,7 @@ class ClientControllerTest {
                                 .content(objectMapper.writeValueAsString(createClientRequest3)))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.id").isNotEmpty())
-                .andExpect(jsonPath("$.name").value("Maria 3"))
+                .andExpect(jsonPath("$.name").value("Masha 3"))
                 .andExpect(jsonPath("$.description").value("desc"))
                 .andExpect(jsonPath("$.active").value(true))
                 .andExpect(jsonPath("$.phone").value("89001132233"))
