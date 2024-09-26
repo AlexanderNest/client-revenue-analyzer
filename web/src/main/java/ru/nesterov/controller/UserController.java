@@ -19,7 +19,7 @@ public interface UserController {
 
     @Operation(
             summary = "Создать нового пользователя",
-            description = "Сохраняет информацию о пользователе в базе данных",
+            description = "Сохраняет информацию о пользователе в базе данных. После добавления пользователь сможет сохранять своих клиентов",
             requestBody = @RequestBody(
                     description = "Запрос с информацией о пользователе",
                     required = true,
@@ -35,7 +35,7 @@ public interface UserController {
 
     @Operation(
             summary = "Проверить, зарегистрирован ли пользователь в приложении",
-            description = "Проверяет существование пользователя в базе данных. После добавления пользователь сможет сохранять своих клиентов",
+            description = "Проверяет существование пользователя в базе данных.",
             requestBody = @RequestBody(
                     description = "Идентификатор пользователя",
                     required = true,

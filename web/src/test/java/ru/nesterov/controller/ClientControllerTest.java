@@ -1,6 +1,7 @@
 package ru.nesterov.controller;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
+import lombok.extern.slf4j.Slf4j;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
@@ -8,7 +9,6 @@ import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.http.MediaType;
 import org.springframework.test.web.servlet.MockMvc;
-import org.springframework.transaction.annotation.Transactional;
 import ru.nesterov.controller.request.CreateClientRequest;
 import ru.nesterov.entity.Client;
 import ru.nesterov.entity.User;
@@ -23,6 +23,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 
 @AutoConfigureMockMvc
 @SpringBootTest
+@Slf4j
 class ClientControllerTest {
     @Autowired
     private MockMvc mockMvc;
@@ -41,10 +42,9 @@ class ClientControllerTest {
     private static final String GET_ACTIVE_CLIENTS_URL = "/client/getActiveClients";
 
     @Test
-    @Transactional
     void createClientWithoutIdGeneration() throws Exception {
         User user = new User();
-        user.setUsername("testUser");
+        user.setUsername("testUser2");
         user.setMainCalendar("mainCalendar");
         user.setCancelledCalendar("cancelCalendar");
         user = userRepository.save(user);
@@ -70,29 +70,28 @@ class ClientControllerTest {
     }
 
     @Test
-    @Transactional
     void createClientWithTheSameNameWithoutIdGeneration() throws Exception {
         User user = new User();
-        user.setUsername("testUser");
+        user.setUsername("testUser1");
         user.setMainCalendar("mainCalendar");
         user.setCancelledCalendar("cancelCalendar");
         user = userRepository.save(user);
 
         CreateClientRequest createClientRequest = new CreateClientRequest();
         createClientRequest.setDescription("desc");
-        createClientRequest.setName("Maria");
+        createClientRequest.setName("Olga");
         createClientRequest.setPricePerHour(100);
         createClientRequest.setIdGenerationNeeded(false);
 
         CreateClientRequest createClientRequest2 = new CreateClientRequest();
         createClientRequest2.setDescription("desc");
-        createClientRequest2.setName("Maria Petrova");
+        createClientRequest2.setName("Olga Petrova");
         createClientRequest2.setPricePerHour(1000);
         createClientRequest2.setIdGenerationNeeded(false);
 
         CreateClientRequest createClientRequest3 = new CreateClientRequest();
         createClientRequest3.setDescription("desc");
-        createClientRequest3.setName("Maria");
+        createClientRequest3.setName("Olga");
         createClientRequest3.setPricePerHour(2000);
         createClientRequest3.setIdGenerationNeeded(false);
 
@@ -122,7 +121,6 @@ class ClientControllerTest {
     }
 
     @Test
-    @Transactional
     void createClientWithTheSameNameWithIdGeneration() throws Exception {
         User user = new User();
         user.setUsername("testUser");
@@ -205,12 +203,10 @@ class ClientControllerTest {
                 .andExpect(jsonPath("$.pricePerHour").value(1000));
     }
 
-
     @Test
-    @Transactional
     void getActiveClients() throws Exception {
         User user = new User();
-        user.setUsername("testUser");
+        user.setUsername("testUser3");
         user.setMainCalendar("mainCalendar");
         user.setCancelledCalendar("cancelCalendar");
         user = userRepository.save(user);
