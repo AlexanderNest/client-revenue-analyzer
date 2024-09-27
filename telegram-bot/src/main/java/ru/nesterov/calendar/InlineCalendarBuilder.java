@@ -1,11 +1,11 @@
-package ru.nesterov;
+package ru.nesterov.calendar;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.RequiredArgsConstructor;
 import lombok.SneakyThrows;
 import org.telegram.telegrambots.meta.api.objects.replykeyboard.InlineKeyboardMarkup;
 import org.telegram.telegrambots.meta.api.objects.replykeyboard.buttons.InlineKeyboardButton;
-import ru.nesterov.callback.CalendarButtonCallback;
+import ru.nesterov.bot.handlers.callback.ButtonCallback;
 
 import java.time.DayOfWeek;
 import java.time.LocalDate;
@@ -39,11 +39,11 @@ public class InlineCalendarBuilder {
     @SneakyThrows
     private static List<InlineKeyboardButton> getHeaderRow(String text, String command, ObjectMapper objectMapper) {
         List<InlineKeyboardButton> headerRow = new ArrayList<>();
-        CalendarButtonCallback prevCallback = new CalendarButtonCallback();
+        ButtonCallback prevCallback = new ButtonCallback();
         prevCallback.setCommand(command);
         prevCallback.setValue("Prev");
 
-        CalendarButtonCallback nextCallback = new CalendarButtonCallback();
+        ButtonCallback nextCallback = new ButtonCallback();
         nextCallback.setCommand(command);
         nextCallback.setValue("Next");
 
@@ -67,7 +67,7 @@ public class InlineCalendarBuilder {
         List<InlineKeyboardButton> daysOfWeekRow = new ArrayList<>();
         for (DayOfWeek dayOfWeek : DayOfWeek.values()) {
             daysOfWeekRow.add(InlineKeyboardButton.builder()
-                    .text(DayOfWeekRu.from(dayOfWeek).name())
+                    .text(dayOfWeek.name().substring(0, 2))
                     .callbackData("ignore")
                     .build());
         }
@@ -89,7 +89,7 @@ public class InlineCalendarBuilder {
         }
 
         for (LocalDate day = firstDayOfMonth; !day.isAfter(lastDayOfMonth); day = day.plusDays(1)) {
-            CalendarButtonCallback dayCallback = new CalendarButtonCallback();
+            ButtonCallback dayCallback = new ButtonCallback();
             dayCallback.setCommand(command);
             dayCallback.setValue(day.toString());
 

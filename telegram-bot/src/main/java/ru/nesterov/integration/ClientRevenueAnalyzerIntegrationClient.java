@@ -5,21 +5,18 @@ import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpHeaders;
 import org.springframework.core.ParameterizedTypeReference;
-import org.springframework.http.HttpEntity;
-import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpMethod;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Component;
 import org.springframework.web.client.RestTemplate;
 import ru.nesterov.dto.ClientResponse;
-import ru.nesterov.dto.GetClientScheduleRequest;
+import ru.nesterov.dto.GetForClientScheduleRequest;
 import ru.nesterov.dto.GetClientScheduleResponse;
 import ru.nesterov.dto.GetForMonthRequest;
 import ru.nesterov.dto.GetIncomeAnalysisForMonthResponse;
 import ru.nesterov.properties.BotProperties;
 import ru.nesterov.properties.RevenueAnalyzerProperties;
 
-import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.List;
 
@@ -39,9 +36,8 @@ public class ClientRevenueAnalyzerIntegrationClient {
         return post(String.valueOf(userId), getForMonthRequest, "/revenue-analyzer/events/analyzer/getIncomeAnalysisForMonth", GetIncomeAnalysisForMonthResponse.class);
     }
 
-
     public List<GetClientScheduleResponse> getClientSchedule(long userId, String clientName, LocalDateTime leftDate, LocalDateTime rightDate) {
-        GetClientScheduleRequest request = new GetClientScheduleRequest();
+        GetForClientScheduleRequest request = new GetForClientScheduleRequest();
         request.setClientName(clientName);
         request.setLeftDate(leftDate);
         request.setRightDate(rightDate);

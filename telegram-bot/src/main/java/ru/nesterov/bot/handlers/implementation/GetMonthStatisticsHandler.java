@@ -6,7 +6,6 @@ import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.stereotype.Component;
 import org.telegram.telegrambots.meta.api.methods.BotApiMethod;
 import org.telegram.telegrambots.meta.api.methods.send.SendMessage;
-import org.telegram.telegrambots.meta.api.methods.updatingmessages.EditMessageText;
 import org.telegram.telegrambots.meta.api.objects.CallbackQuery;
 import org.telegram.telegrambots.meta.api.objects.Update;
 import org.telegram.telegrambots.meta.api.objects.replykeyboard.InlineKeyboardMarkup;
@@ -38,30 +37,30 @@ public class GetMonthStatisticsHandler extends ClientRevenueAbstractHandler {
     }
 
     @Override
-    public List<BotApiMethod<?>> handle(Update update) {
-        List<BotApiMethod<?>> sendMessage = new ArrayList<>();
+    public BotApiMethod<?> handle(Update update) {
+        BotApiMethod<?> sendMessage;
         if (update.getMessage() == null) {
-            sendMessage.addAll(sendMonthStatistics(update));
+            sendMessage = sendMonthStatistics(update);
         } else {
-            sendMessage.add(sendMonthKeyboard(update.getMessage().getChatId()));
+            sendMessage = sendMonthKeyboard(update.getMessage().getChatId());
         }
 
         return sendMessage;
     }
 
     @SneakyThrows
-    private List<BotApiMethod<?>> sendMonthStatistics(Update update) {
-        long userId = update.getMessage().getFrom().getId();
+    private BotApiMethod<?> sendMonthStatistics(Update update) {
+        long userId = update.getCallbackQuery().getFrom().getId();
         CallbackQuery callbackQuery = update.getCallbackQuery();
         ButtonCallback callback = objectMapper.readValue(callbackQuery.getData(), ButtonCallback.class);
         GetIncomeAnalysisForMonthResponse response = client.getIncomeAnalysisForMonth(userId, clearFromMark(callback.getValue()));
 
-        EditMessageText editMessageText = new EditMessageText();
-        editMessageText.setChatId(String.valueOf(callbackQuery.getMessage().getChatId()));
-        editMessageText.setMessageId(callbackQuery.getMessage().getMessageId());
-        editMessageText.setText(formatIncomeAnalysis(response));
-
-        return List.of(editMessageText);
+        return editMessage(
+                callbackQuery.getMessage().getChatId(),
+                callbackQuery.getMessage().getMessageId(),
+                formatIncomeAnalysis(response),
+                null
+        );
     }
 
     private String formatIncomeAnalysis(GetIncomeAnalysisForMonthResponse response) {

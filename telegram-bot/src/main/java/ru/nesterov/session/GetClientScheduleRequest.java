@@ -9,10 +9,10 @@ import java.time.LocalDate;
 @Builder
 @Getter
 @Setter
-public class UserData {
+public class GetClientScheduleRequest {
     private Long userId;
     private String clientName;
-    private LocalDate currentDate;
+    private LocalDate displayedMonth;
     private LocalDate firstDate;
     private LocalDate secondDate;
 }
