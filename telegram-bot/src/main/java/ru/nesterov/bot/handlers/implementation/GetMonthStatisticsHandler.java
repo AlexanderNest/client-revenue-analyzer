@@ -22,7 +22,7 @@ import java.util.List;
 
 @Component
 @ConditionalOnProperty("bot.enabled")
-public class GetMonthStatisticsHandlerClientRevenue extends ClientRevenueAbstractHandler {
+public class GetMonthStatisticsHandler extends ClientRevenueAbstractHandler {
     private static final String[] months = {
             "Январь", "Февраль",
             "Март", "Апрель", "Май",
@@ -33,7 +33,7 @@ public class GetMonthStatisticsHandlerClientRevenue extends ClientRevenueAbstrac
 
     private static final String markSymbol = "\u2B50";
 
-    public GetMonthStatisticsHandlerClientRevenue(ObjectMapper objectMapper, ClientRevenueAnalyzerIntegrationClient client) {
+    public GetMonthStatisticsHandler(ObjectMapper objectMapper, ClientRevenueAnalyzerIntegrationClient client) {
         super(objectMapper, client);
     }
 

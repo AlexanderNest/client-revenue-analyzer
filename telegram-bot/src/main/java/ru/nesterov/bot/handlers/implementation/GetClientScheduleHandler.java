@@ -11,6 +11,7 @@ import org.telegram.telegrambots.meta.api.objects.CallbackQuery;
 import org.telegram.telegrambots.meta.api.objects.Update;
 import org.telegram.telegrambots.meta.api.objects.replykeyboard.InlineKeyboardMarkup;
 import org.telegram.telegrambots.meta.api.objects.replykeyboard.buttons.InlineKeyboardButton;
+import ru.nesterov.InlineCalendarBuilder;
 import ru.nesterov.bot.handlers.callback.ButtonCallback;
 import ru.nesterov.dto.ClientResponse;
 import ru.nesterov.dto.GetClientScheduleResponse;
@@ -19,9 +20,7 @@ import ru.nesterov.session.BotSessionManager;
 import ru.nesterov.session.UserData;
 import ru.nesterov.session.UserDataCheck;
 
-import java.time.DayOfWeek;
 import java.time.LocalDate;
-import java.time.YearMonth;
 import java.time.format.DateTimeFormatter;
 import java.time.format.DateTimeParseException;
 import java.util.ArrayList;
@@ -31,12 +30,14 @@ import java.util.stream.Collectors;
 
 @Component
 @ConditionalOnProperty("bot.enabled")
-public class GetClientScheduleHandlerClientRevenue extends ClientRevenueAbstractHandler {
+public class GetClientScheduleHandler extends ClientRevenueAbstractHandler {
     private final BotSessionManager sessionManager;
 
-    public GetClientScheduleHandlerClientRevenue(ObjectMapper objectMapper, ClientRevenueAnalyzerIntegrationClient client, BotSessionManager sessionManager) {
+    public GetClientScheduleHandler(ObjectMapper objectMapper, ClientRevenueAnalyzerIntegrationClient client, BotSessionManager sessionManager) {
         super(objectMapper, client);
         this.sessionManager = sessionManager;
+
+//        sessionManager.getData(GetClientScheduleHandlerClientRevenue.class, 12L, UserData.class);
     }
 
     @SneakyThrows
@@ -132,91 +133,10 @@ public class GetClientScheduleHandlerClientRevenue extends ClientRevenueAbstract
                 String.valueOf(chatId),
                 messageId,
                 text,
-                createCalendarMarkup(date)
+                InlineCalendarBuilder.createCalendarMarkup(date, objectMapper, getCommand())
         );
 
         return List.of(editMessageText);
-    }
-
-    @SneakyThrows
-    private InlineKeyboardMarkup createCalendarMarkup(LocalDate date) {
-        YearMonth yearMonth = YearMonth.of(date.getYear(), date.getMonth());
-        LocalDate firstDayOfMonth = yearMonth.atDay(1);
-        LocalDate lastDayOfMonth = yearMonth.atEndOfMonth();
-
-        List<List<InlineKeyboardButton>> rowsInline = new ArrayList<>();
-
-        List<InlineKeyboardButton> headerRow = new ArrayList<>();
-
-        ButtonCallback prevCallback = new ButtonCallback();
-        prevCallback.setCommand(getCommand());
-        prevCallback.setValue("Prev");
-
-        ButtonCallback nextCallback = new ButtonCallback();
-        nextCallback.setCommand(getCommand());
-        nextCallback.setValue("Next");
-
-        headerRow.add(InlineKeyboardButton.builder()
-                .text("◀")
-                .callbackData(objectMapper.writeValueAsString(prevCallback))
-                .build());
-        headerRow.add(InlineKeyboardButton.builder()
-                .text(date.getMonth().toString() + " " + date.getYear())
-                .callbackData("ignore")
-                .build());
-        headerRow.add(InlineKeyboardButton.builder()
-                .text("▶")
-                .callbackData(objectMapper.writeValueAsString(prevCallback))
-                .build());
-        rowsInline.add(headerRow);
-
-        List<InlineKeyboardButton> daysOfWeekRow = new ArrayList<>();
-        for (DayOfWeek dayOfWeek : DayOfWeek.values()) {
-            daysOfWeekRow.add(InlineKeyboardButton.builder()
-                    .text(dayOfWeek.name().substring(0, 2))
-                    .callbackData("ignore")
-                    .build());
-        }
-        rowsInline.add(daysOfWeekRow);
-
-        List<InlineKeyboardButton> rowInline = new ArrayList<>();
-        for (int i = 1; i < firstDayOfMonth.getDayOfWeek().getValue(); i++) {
-            rowInline.add(InlineKeyboardButton.builder()
-                    .text(" ")
-                    .callbackData("ignore")
-                    .build());
-        }
-
-        for (LocalDate day = firstDayOfMonth; !day.isAfter(lastDayOfMonth); day = day.plusDays(1)) {
-            ButtonCallback dayCallback = new ButtonCallback();
-            dayCallback.setCommand(getCommand());
-            dayCallback.setValue(day.toString());
-
-            rowInline.add(InlineKeyboardButton.builder()
-                    .text(String.valueOf(day.getDayOfMonth()))
-                    .callbackData(objectMapper.writeValueAsString(dayCallback))
-                    .build());
-
-            if (rowInline.size() == 7) {
-                rowsInline.add(rowInline);
-                rowInline = new ArrayList<>();
-            }
-        }
-
-        if (!rowInline.isEmpty()) {
-            while (rowInline.size() < 7) {
-                rowInline.add(InlineKeyboardButton.builder()
-                        .text(" ")
-                        .callbackData("ignore")
-                        .build());
-            }
-            rowsInline.add(rowInline);
-        }
-
-        InlineKeyboardMarkup keyboardMarkup = new InlineKeyboardMarkup();
-        keyboardMarkup.setKeyboard(rowsInline);
-
-        return keyboardMarkup;
     }
 
     private void handleClientName(long chatId, int messageId, UserData userData, String clientName, List<BotApiMethod<?>> messages) {
@@ -231,7 +151,7 @@ public class GetClientScheduleHandlerClientRevenue extends ClientRevenueAbstract
         ButtonCallback callback = objectMapper.readValue(callbackQuery.getData(), ButtonCallback.class);
         if (callback.getValue().equals("Next")) {
             userData.setCurrentDate(userData.getCurrentDate().plusMonths(1));
-        } else if (callback.getValue().equals("Previous")) {
+        } else if (callback.getValue().equals("Prev")) {
             userData.setCurrentDate(userData.getCurrentDate().minusMonths(1));
         }
 
@@ -258,7 +178,7 @@ public class GetClientScheduleHandlerClientRevenue extends ClientRevenueAbstract
             messages.addAll(sendCalendarKeyBoard(
                     callbackQuery.getMessage().getChatId(),
                     callbackQuery.getMessage().getMessageId(),
-                    "Введите вторую дату",
+                    UserDataCheck.SECOND_DATE_MISSING.getMessage(),
                     userData.getCurrentDate()
             ));
         } else {

@@ -27,13 +27,13 @@ import static org.mockito.Mockito.when;
 
 @SpringBootTest
 @ContextConfiguration(classes = {
-        GetMonthStatisticsHandlerClientRevenue.class,
+        GetMonthStatisticsHandler.class,
         ObjectMapper.class
 })
 class GetMonthStatisticsHandlerTest {
     private static final String markSymbol = "\u2B50";
     @Autowired
-    private GetMonthStatisticsHandlerClientRevenue handler;
+    private GetMonthStatisticsHandler handler;
     @Autowired
     private ObjectMapper objectMapper;
     @MockBean
@@ -70,7 +70,7 @@ class GetMonthStatisticsHandlerTest {
 
         update.setCallbackQuery(callbackQuery);
 
-        BotApiMethod<?> botApiMethod = handler.handle(update);
+        List<BotApiMethod<?>> botApiMethod = handler.handle(update);
         assertInstanceOf(SendMessage.class, botApiMethod);
         SendMessage sendMessage = (SendMessage) botApiMethod;
 
@@ -94,7 +94,7 @@ class GetMonthStatisticsHandlerTest {
         Update update = new Update();
         update.setMessage(message);
 
-        BotApiMethod<?> botApiMethod = handler.handle(update);
+        List<BotApiMethod<?>> botApiMethod = handler.handle(update);
 
         assertInstanceOf(SendMessage.class, botApiMethod);
 

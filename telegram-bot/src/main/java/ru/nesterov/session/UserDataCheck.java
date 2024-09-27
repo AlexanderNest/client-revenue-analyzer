@@ -9,7 +9,7 @@ public enum UserDataCheck {
 
         @Override
         public String getMessage() {
-            return "";
+            return "Введите первую дату";
         }
     },
     SECOND_DATE_MISSING {
@@ -20,7 +20,7 @@ public enum UserDataCheck {
 
         @Override
         public String getMessage() {
-            return "";
+            return "Введите вторую дату";
         }
     };
 
