@@ -47,6 +47,7 @@ public class ClientRevenueAnalyzerIntegrationClient {
         return restTemplate.postForObject(
                 revenueAnalyzerProperties.getUrl() + endpoint,
                 entity,
-                responseType);
+                responseType
+        );
     }
 }

@@ -15,6 +15,7 @@ import ru.nesterov.google.GoogleCalendarClient;
 import ru.nesterov.repository.UserRepository;
 
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.content;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
@@ -78,5 +79,19 @@ class UserControllerTest {
                 .andExpect(jsonPath("$.username").value("user"))
                 .andExpect(jsonPath("$.isCancelledCalendarEnabled").value(false))
                 .andExpect(jsonPath("$.mainCalendarId").value("111111"));
+    }
+
+    @Test
+    void getNonExistentUser() throws Exception {
+        GetUserRequest request = new GetUserRequest();
+        request.setUsername("111");
+        mockMvc.perform(
+                post(GET_USER_URL)
+                        .header("X-username", "111")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(objectMapper.writeValueAsString(request))
+        )
+                .andExpect(status().isOk())
+                .andExpect(content().string(""));
     }
 }

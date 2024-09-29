@@ -93,9 +93,12 @@ public class CreateUserHandler extends AbstractHandler {
     }
 
     private String formatCreateUserResponse(CreateUserResponse createUserResponse) {
-        return "Вы успешно зарегистрированы!\n\nUSER ID: " + createUserResponse.getUserIdentifier() +
-                    "\n\nMAIN CALENDAR ID: " + createUserResponse.getMainCalendarId() +
-                    "\n\nCANCELLED CALENDAR ID: " + createUserResponse.getCancelledCalendarId();
+        return String.join(System.lineSeparator(),
+                "Вы успешно зарегистрированы!",
+                " ",
+                "ID пользователя: " + createUserResponse.getUserIdentifier(),
+                "ID основного календаря: " + createUserResponse.getMainCalendarId(),
+                "ID календаря с отмененными мероприятиями: " + createUserResponse.getCancelledCalendarId());
     }
 
     @Override
@@ -107,6 +110,6 @@ public class CreateUserHandler extends AbstractHandler {
 
     @Override
     public boolean isFinished(Long userId) {
-        return createUserRequests.get(userId).isFilled();
+        return createUserRequests.get(userId) != null && createUserRequests.get(userId).isFilled();
     }
 }
