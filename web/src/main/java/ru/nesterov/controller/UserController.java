@@ -35,7 +35,7 @@ public interface UserController {
 
     @Operation(
             summary = "Получить информацию о пользователе",
-            description = "Выдает информацию о пользователе",
+            description = "Выдает информацию о пользователе по идентификатору пользователя",
             requestBody = @RequestBody(
                     description = "Запрос с идентификатором пользователя",
                     required = true,

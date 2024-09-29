@@ -26,7 +26,7 @@ public class RevenueAnalyzerBot extends TelegramLongPollingBot {
 
     @Override
     public void onUpdateReceived(Update update) {
-        long userId = handlersService.getUserId(update);
+        long userId = TelegramUpdateUtils.getUserId(update);
 
         CommandHandler commandHandler = handlersService.getHandler(update);
         if (commandHandler == null) {

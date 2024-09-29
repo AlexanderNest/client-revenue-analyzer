@@ -6,8 +6,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.stereotype.Component;
 import org.telegram.telegrambots.meta.api.objects.Update;
-import ru.nesterov.bot.handlers.implementation.CreateUserHandler;
-import ru.nesterov.bot.handlers.implementation.GetMonthStatisticsHandler;
+import ru.nesterov.bot.TelegramUpdateUtils;
 
 import java.util.List;
 import java.util.Map;
@@ -23,7 +22,8 @@ public class HandlersService {
 
     @Nullable
     public CommandHandler getHandler(Update update) {
-        long userId = getUserId(update);
+        long userId = TelegramUpdateUtils.getUserId(update);
+
         CommandHandler userHandler = userHandlers.get(userId);
         if (userHandler != null) {
             return userHandler;
@@ -40,13 +40,7 @@ public class HandlersService {
         return null;
     }
 
-    public long getUserId(Update update) {
-        if (update.hasMessage()) {
-            return update.getMessage().getFrom().getId();
-        } else {
-            return update.getCallbackQuery().getFrom().getId();
-        }
-    }
+
 
     public void resetHandlers(Long userId) {
         userHandlers.remove(userId);
