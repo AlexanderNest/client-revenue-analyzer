@@ -53,13 +53,10 @@ public class CreateUserHandlerTest {
         message.setFrom(user);
         message.setChat(chat);
 
-        GetUserRequest getUserRequest = new GetUserRequest();
-        getUserRequest.setUsername(user.getId().toString());
-
         Update update = new Update();
         update.setMessage(message);
 
-        when(client.getUserByUsername(getUserRequest)).thenReturn(null);
+        when(client.getUserByUsername(any(GetUserRequest.class))).thenReturn(null);
         BotApiMethod<?> botApiMethod = createUserHandler.handle(update);
 
         assertTrue(botApiMethod instanceof SendMessage);
@@ -117,16 +114,13 @@ public class CreateUserHandlerTest {
         Update update = new Update();
         update.setMessage(message);
 
-        GetUserRequest request1 = new GetUserRequest();
-        request1.setUsername(user.getId().toString());
-
         GetUserResponse response = GetUserResponse.builder()
                 .userId(user.getId())
                 .isCancelledCalendarEnabled(false)
                 .mainCalendarId("main")
                 .build();
 
-        when(client.getUserByUsername(request1)).thenReturn(response);
+        when(client.getUserByUsername(any(GetUserRequest.class))).thenReturn(response);
 
         BotApiMethod<?> botApiMethod = createUserHandler.handle(update);
 
