@@ -96,9 +96,9 @@ public class CreateUserHandlerTest {
         assertEquals(String.join(System.lineSeparator(),
                         "Вы успешно зарегистрированы!",
                         " ",
-                        "ID пользователя: 1" + createUserResponse.getUserIdentifier(),
-                        "ID основного календаря: 12345mc" + createUserResponse.getMainCalendarId(),
-                        "ID календаря с отмененными мероприятиями: 12345cc" + createUserResponse.getCancelledCalendarId()),
+                        "ID пользователя: " + createUserResponse.getUserIdentifier(),
+                        "ID основного календаря: " + createUserResponse.getMainCalendarId(),
+                        "ID календаря с отмененными мероприятиями: " + createUserResponse.getCancelledCalendarId()),
                 sendMessage.getText());
     }
 
@@ -157,9 +157,9 @@ public class CreateUserHandlerTest {
         assertEquals(String.join(System.lineSeparator(),
                         "Вы успешно зарегистрированы!",
                         " ",
-                        "ID пользователя: 3" + createUserResponse.getUserIdentifier(),
-                        "ID основного календаря: 12345mc" + createUserResponse.getMainCalendarId(),
-                        "ID календаря с отмененными мероприятиями: null" + createUserResponse.getCancelledCalendarId()),
+                        "ID пользователя: " + createUserResponse.getUserIdentifier(),
+                        "ID основного календаря: " + createUserResponse.getMainCalendarId(),
+                        "ID календаря с отмененными мероприятиями: " + createUserResponse.getCancelledCalendarId()),
                 sendMessage.getText());
     }
 
