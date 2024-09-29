@@ -20,41 +20,30 @@ public class EventStatusServiceImpl implements EventStatusService {
                                   @Value("${app.calendar.color.requires.shift}") List<String> requiresShiftColorCodes,
                                   @Value("${app.calendar.color.planned}") List<String> plannedColorCodes) {
 
-        //TODO требуется рефакторинг
-
         boolean nullWasUsed = false;
-        this.plannedColorCodes = plannedColorCodes;
-        if (plannedColorCodes.isEmpty()) {
-            if(nullWasUsed) {
-                throw new IllegalArgumentException("Default calendar color as null was used already");
-            }
-            plannedColorCodes.add(null);
-            nullWasUsed = true;
-        }
-        this.cancelledColorCodes = cancelledColorCodes;
-        if (cancelledColorCodes.isEmpty()) {
-            if(nullWasUsed) {
-                throw new IllegalArgumentException("Default calendar color as null was used already");
-            }
-            cancelledColorCodes.add(null);
-            nullWasUsed = true;
-        }
-        this.requiresShiftColorCodes = requiresShiftColorCodes;
-        if (requiresShiftColorCodes.isEmpty()) {
-            if(nullWasUsed) {
-                throw new IllegalArgumentException("Default calendar color as null was used already");
-            }
-            requiresShiftColorCodes.add(null);
-            nullWasUsed = true;
-        }
         this.successColorCodes = successColorCodes;
-        if (successColorCodes.isEmpty()) {
-            if(nullWasUsed) {
+        nullWasUsed = addNullCode(successColorCodes, nullWasUsed);
+        
+        this.cancelledColorCodes = cancelledColorCodes;
+        nullWasUsed = addNullCode(cancelledColorCodes, nullWasUsed);
+        
+        this.requiresShiftColorCodes = requiresShiftColorCodes;
+        nullWasUsed = addNullCode(requiresShiftColorCodes, nullWasUsed);
+        
+        this.plannedColorCodes = plannedColorCodes;
+        nullWasUsed = addNullCode(plannedColorCodes, nullWasUsed);
+    }
+    
+    private boolean addNullCode(List<String> codes, boolean nullWasUsed) {
+        if (codes.isEmpty()) {
+            if (nullWasUsed) {
                 throw new IllegalArgumentException("Default calendar color as null was used already");
             }
-            successColorCodes.add(null);
-            nullWasUsed = true;
+            codes.add(null);
+            return true;
         }
+        
+        return false;
     }
 
     public EventStatus getEventStatus(Event event) {
