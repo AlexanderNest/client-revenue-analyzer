@@ -8,8 +8,8 @@ import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
-import ru.nesterov.dto.CheckUserForExistenceResponse;
-import ru.nesterov.dto.CheckUserForExistenceRequest;
+import ru.nesterov.controller.request.GetUserRequest;
+import ru.nesterov.controller.response.GetUserResponse;
 import ru.nesterov.dto.CreateUserRequest;
 import ru.nesterov.dto.CreateUserResponse;
 
@@ -34,18 +34,18 @@ public interface UserController {
     CreateUserResponse createUser(CreateUserRequest request);
 
     @Operation(
-            summary = "Проверить, зарегистрирован ли пользователь в приложении",
-            description = "Проверяет существование пользователя в базе данных.",
+            summary = "Получить информацию о пользователе",
+            description = "Выдает информацию о пользователе",
             requestBody = @RequestBody(
-                    description = "Идентификатор пользователя",
+                    description = "Запрос с идентификатором пользователя",
                     required = true,
-                    content = @Content(schema = @Schema(implementation = CheckUserForExistenceRequest.class))
+                    content = @Content(schema = @Schema(implementation = GetUserRequest.class))
             ),
             responses = {
                     @ApiResponse(responseCode = "200", description = "Успешный ответ"),
                     @ApiResponse(responseCode = "500", description = "Внутренняя ошибка сервера")
             }
     )
-    @PostMapping("/checkUserForExistence")
-    CheckUserForExistenceResponse checkUserForExistence(CheckUserForExistenceRequest request);
+    @PostMapping("/getUserByUsername")
+    GetUserResponse getUserByUsername(GetUserRequest request);
 }

@@ -340,7 +340,7 @@
 					"response": []
 				},
 				{
-					"name": "Существует ли пользователь",
+					"name": "Найти пользователя по идентификатору",
 					"request": {
 						"method": "POST",
 						"header": [
@@ -357,7 +357,7 @@
 						],
 						"body": {
 							"mode": "raw",
-							"raw": "{\r\n    \"userIdentifier\": 1\r\n}",
+							"raw": "{\r\n    \"username\": 1\r\n}",
 							"options": {
 								"raw": {
 									"language": "json"
@@ -365,7 +365,7 @@
 							}
 						},
 						"url": {
-							"raw": "http://localhost:8080/revenue-analyzer/user/checkUserForExistenc",
+							"raw": "http://localhost:8080/revenue-analyzer/user/getUserByUsername",
 							"protocol": "http",
 							"host": [
 								"localhost"
@@ -374,13 +374,23 @@
 							"path": [
 								"revenue-analyzer",
 								"user",
-								"checkUserForExistence"
+								"getUserByUsername"
 							]
 						}
 					},
 					"response": []
 				}
 			]
+		}
+	],
+	"variable": [
+		{
+			"key": "secret-token",
+			"value": "secret-token"
+		},
+		{
+			"key": "username",
+			"value": "1155310016"
 		}
 	]
 }

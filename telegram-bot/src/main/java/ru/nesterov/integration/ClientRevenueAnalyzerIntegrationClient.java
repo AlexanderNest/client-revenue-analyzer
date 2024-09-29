@@ -6,12 +6,12 @@ import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpHeaders;
 import org.springframework.stereotype.Component;
 import org.springframework.web.client.RestTemplate;
-import ru.nesterov.dto.CheckUserForExistenceRequest;
-import ru.nesterov.dto.CheckUserForExistenceResponse;
 import ru.nesterov.dto.CreateUserRequest;
 import ru.nesterov.dto.CreateUserResponse;
 import ru.nesterov.dto.GetForMonthRequest;
 import ru.nesterov.dto.GetIncomeAnalysisForMonthResponse;
+import ru.nesterov.dto.GetUserRequest;
+import ru.nesterov.dto.GetUserResponse;
 import ru.nesterov.properties.BotProperties;
 import ru.nesterov.properties.RevenueAnalyzerProperties;
 
@@ -34,8 +34,8 @@ public class ClientRevenueAnalyzerIntegrationClient {
         return post(createUserRequest.getUserIdentifier(), createUserRequest, "/revenue-analyzer/user/createUser", CreateUserResponse.class);
     }
 
-    public CheckUserForExistenceResponse checkUserForExistence(CheckUserForExistenceRequest request) {
-        return post(request.getUserIdentifier(), request, "/revenue-analyzer/user/checkUserForExistence", CheckUserForExistenceResponse.class);
+    public GetUserResponse getUserByUsername(GetUserRequest request) {
+        return post(request.getUsername(), request, "/revenue-analyzer/user/getUserByUsername", GetUserResponse.class);
     }
 
     private <T> T post(String username, Object request, String endpoint, Class<T> responseType) {

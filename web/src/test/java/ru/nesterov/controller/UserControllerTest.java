@@ -8,14 +8,13 @@ import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.http.MediaType;
 import org.springframework.test.web.servlet.MockMvc;
-import ru.nesterov.dto.CheckUserForExistenceRequest;
 import ru.nesterov.dto.CreateUserRequest;
+import ru.nesterov.dto.GetUserRequest;
 import ru.nesterov.entity.User;
 import ru.nesterov.google.GoogleCalendarClient;
 import ru.nesterov.repository.UserRepository;
 
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
-import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.content;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
@@ -33,7 +32,7 @@ class UserControllerTest {
     private GoogleCalendarClient googleCalendarService;
 
     private static final String CREATE_USER_URL = "/user/createUser";
-    private static final String CHECK_USER_URL = "/user/checkUserForExistence";
+    private static final String GET_USER_URL = "/user/getUserByUsername";
 
     @Test
     void createNewUserRequest() throws Exception {
@@ -57,7 +56,7 @@ class UserControllerTest {
     }
 
     @Test
-    void createTheSameUser() throws Exception {
+    void getUser() throws Exception {
         User user = new User();
         user.setId(1);
         user.setUsername("user");
@@ -66,15 +65,18 @@ class UserControllerTest {
 
         userRepository.save(user);
 
-        CheckUserForExistenceRequest request = new CheckUserForExistenceRequest();
-        request.setUserIdentifier("user");
+        GetUserRequest request = new GetUserRequest();
+        request.setUsername("user");
         mockMvc.perform(
-                post(CHECK_USER_URL)
+                post(GET_USER_URL)
                         .header("X-username", "user")
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(objectMapper.writeValueAsString(request))
         )
                 .andExpect(status().isOk())
-                .andExpect(jsonPath("$.present").value("true"));
+                .andExpect(jsonPath("$.userId").value(1))
+                .andExpect(jsonPath("$.username").value("user"))
+                .andExpect(jsonPath("$.isCancelledCalendarEnabled").value(false))
+                .andExpect(jsonPath("$.mainCalendarId").value("111111"));
     }
 }

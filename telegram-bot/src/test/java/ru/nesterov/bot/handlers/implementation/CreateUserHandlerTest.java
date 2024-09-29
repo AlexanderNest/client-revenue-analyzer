@@ -11,10 +11,11 @@ import org.telegram.telegrambots.meta.api.objects.Chat;
 import org.telegram.telegrambots.meta.api.objects.Message;
 import org.telegram.telegrambots.meta.api.objects.Update;
 import org.telegram.telegrambots.meta.api.objects.User;
-import ru.nesterov.dto.CheckUserForExistenceRequest;
-import ru.nesterov.dto.CheckUserForExistenceResponse;
 import ru.nesterov.dto.CreateUserRequest;
 import ru.nesterov.dto.CreateUserResponse;
+import ru.nesterov.dto.GetUserResponse;
+import ru.nesterov.dto.GetUserRequest;
+
 import ru.nesterov.integration.ClientRevenueAnalyzerIntegrationClient;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
@@ -52,13 +53,13 @@ public class CreateUserHandlerTest {
         message.setFrom(user);
         message.setChat(chat);
 
+        GetUserRequest getUserRequest = new GetUserRequest();
+        getUserRequest.setUsername(user.getId().toString());
+
         Update update = new Update();
         update.setMessage(message);
 
-        CheckUserForExistenceResponse response1 = new CheckUserForExistenceResponse();
-        response1.setPresent(false);
-
-        when(client.checkUserForExistence(any(CheckUserForExistenceRequest.class))).thenReturn(response1);
+        when(client.getUserByUsername(getUserRequest)).thenReturn(null);
         BotApiMethod<?> botApiMethod = createUserHandler.handle(update);
 
         assertTrue(botApiMethod instanceof SendMessage);
@@ -78,7 +79,7 @@ public class CreateUserHandlerTest {
 
         botApiMethod = createUserHandler.handle(update);
         sendMessage = (SendMessage) botApiMethod;
-        assertEquals("Введите ID клендаря с отмененными мероприятиями:", sendMessage.getText());
+        assertEquals("Введите ID календаря с отмененными мероприятиями:", sendMessage.getText());
 
         CreateUserResponse createUserResponse = CreateUserResponse.builder()
                 .userIdentifier(request.getUserIdentifier())
@@ -103,10 +104,10 @@ public class CreateUserHandlerTest {
     @Test
     void handleCreatingTheSameUser() {
         Chat chat = new Chat();
-        chat.setId(1L);
+        chat.setId(2L);
 
         User user = new User();
-        user.setId(1L);
+        user.setId(2L);
 
         Message message = new Message();
         message.setText("/register");
@@ -116,12 +117,16 @@ public class CreateUserHandlerTest {
         Update update = new Update();
         update.setMessage(message);
 
-        CheckUserForExistenceRequest request1 = new CheckUserForExistenceRequest();
-        request1.setUserIdentifier(user.getId().toString());
+        GetUserRequest request1 = new GetUserRequest();
+        request1.setUsername(user.getId().toString());
 
-        CheckUserForExistenceResponse response = new CheckUserForExistenceResponse();
-        response.setPresent(true);
-        when(client.checkUserForExistence(request1)).thenReturn(response);
+        GetUserResponse response = GetUserResponse.builder()
+                .userId(user.getId())
+                .isCancelledCalendarEnabled(false)
+                .mainCalendarId("main")
+                .build();
+
+        when(client.getUserByUsername(request1)).thenReturn(response);
 
         BotApiMethod<?> botApiMethod = createUserHandler.handle(update);
 
@@ -129,7 +134,6 @@ public class CreateUserHandlerTest {
 
         SendMessage sendMessage = (SendMessage) botApiMethod;
         assertEquals("Вы уже зарегистрированы и можете пользоваться функциями бота", sendMessage.getText());
-
     }
 }
 

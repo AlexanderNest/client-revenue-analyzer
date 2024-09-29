@@ -2,16 +2,15 @@ package ru.nesterov.bot.handlers.implementation;
 
 import lombok.Data;
 import lombok.RequiredArgsConstructor;
-import lombok.SneakyThrows;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.stereotype.Component;
 import org.telegram.telegrambots.meta.api.methods.BotApiMethod;
 import org.telegram.telegrambots.meta.api.objects.Message;
 import org.telegram.telegrambots.meta.api.objects.Update;
 import ru.nesterov.bot.handlers.AbstractHandler;
-import ru.nesterov.dto.CheckUserForExistenceRequest;
 import ru.nesterov.dto.CreateUserRequest;
 import ru.nesterov.dto.CreateUserResponse;
+import ru.nesterov.dto.GetUserRequest;
 import ru.nesterov.integration.ClientRevenueAnalyzerIntegrationClient;
 
 import java.util.Map;
@@ -22,8 +21,9 @@ import java.util.concurrent.ConcurrentHashMap;
 @RequiredArgsConstructor
 @ConditionalOnProperty("bot.enabled")
 public class CreateUserHandler extends AbstractHandler {
-    private final Map<Long, CreateUserRequest> createUserRequests = new ConcurrentHashMap<>();
     private final ClientRevenueAnalyzerIntegrationClient client;
+
+    private final Map<Long, CreateUserRequest> createUserRequests = new ConcurrentHashMap<>();
 
     @Override
     public BotApiMethod<?> handle(Update update) {
@@ -33,50 +33,63 @@ public class CreateUserHandler extends AbstractHandler {
 
         CreateUserRequest createUserRequest = createUserRequests.get(userId);
 
-        if (text.equals("/register")) {
-
-            if (checkUserForExistence(String.valueOf(userId))) {
-                return getPlainSendMessage(chatId, "Вы уже зарегистрированы и можете пользоваться функциями бота");
-            } else {
-                return getPlainSendMessage(chatId, "Введите ID основного календаря:");
-            }
-
+        if ("/register".equals(text)) {
+            return handleRegisterCommand(userId, chatId);
         } else if (createUserRequest == null) {
-            createUserRequest = CreateUserRequest.builder()
-                    .userIdentifier(String.valueOf(userId))
-                    .mainCalendarId(text)
-                    .build();
-
-            createUserRequests.put(userId, createUserRequest);
-
-            return getPlainSendMessage(chatId, "Вы хотите сохранять информацию об отмененных мероприятиях с использованием второго календаря?");
+            return handleMainCalendarInput(update);
         } else if (createUserRequest.getIsCancelledCalendarEnabled() == null) {
-            createUserRequest.setIsCancelledCalendarEnabled(Boolean.valueOf(text));
-
-            if (createUserRequest.getIsCancelledCalendarEnabled()) {
-                return getPlainSendMessage(chatId, "Введите ID клендаря с отмененными мероприятиями:");
-            } else {
-                return registerUser(chatId, createUserRequest);
-            }
-
+            return handleCancelledCalendarIdInput(update);
         } else {
-            createUserRequest.setCancelledCalendarId(text);
-
-            return registerUser(chatId, createUserRequest);
+            return registerUser(update);
         }
     }
 
-    private boolean checkUserForExistence(String userIdentifier) {
-        CheckUserForExistenceRequest request = new CheckUserForExistenceRequest();
-        request.setUserIdentifier(userIdentifier);
+    private BotApiMethod<?> handleCancelledCalendarIdInput(Update update) {
+        CreateUserRequest createUserRequest = createUserRequests.get(update.getMessage().getFrom().getId());
+        createUserRequest.setIsCancelledCalendarEnabled(Boolean.valueOf(update.getMessage().getText()));
 
-        return client.checkUserForExistence(request).isPresent();
+        long chatId = update.getMessage().getChatId();
+        if (createUserRequest.getIsCancelledCalendarEnabled()) {
+            return getPlainSendMessage(chatId, "Введите ID календаря с отмененными мероприятиями:");
+        } else {
+            return registerUser(update);
+        }
     }
 
-    private BotApiMethod<?> registerUser(long chatId, CreateUserRequest createUserRequest) {
-        CreateUserResponse response = client.createUser(createUserRequest);
+    private BotApiMethod<?> handleRegisterCommand(long userId, long chatId) {
+        if (checkUserForExistence(String.valueOf(userId))) {
+            return getPlainSendMessage(chatId, "Введите ID основного календаря:");
+        } else {
+            return getPlainSendMessage(chatId, "Вы уже зарегистрированы и можете пользоваться функциями бота");
+        }
+    }
 
-        return getPlainSendMessage(chatId, formatCreateUserResponse(response));
+    private BotApiMethod<?> handleMainCalendarInput(Update update) {
+        long userId = update.getMessage().getFrom().getId();
+
+        CreateUserRequest createUserRequest = CreateUserRequest.builder()
+                .userIdentifier(String.valueOf(userId))
+                .mainCalendarId( update.getMessage().getText())
+                .build();
+
+        createUserRequests.put(userId, createUserRequest);
+
+        return getPlainSendMessage(update.getMessage().getChatId(), "Вы хотите сохранять информацию об отмененных мероприятиях с использованием второго календаря?");
+    }
+
+    private boolean checkUserForExistence(String userIdentifier) {
+        GetUserRequest request = new GetUserRequest();
+        request.setUsername(userIdentifier);
+
+        return client.getUserByUsername(request) == null;
+    }
+
+    private BotApiMethod<?> registerUser(Update update) {
+        CreateUserRequest createUserRequest = createUserRequests.get(update.getMessage().getFrom().getId());
+        createUserRequest.setCancelledCalendarId(update.getMessage().getText());
+
+        CreateUserResponse response = client.createUser(createUserRequest);
+        return getPlainSendMessage(update.getMessage().getChatId(), formatCreateUserResponse(response));
     }
 
     private String formatCreateUserResponse(CreateUserResponse createUserResponse) {
@@ -94,6 +107,6 @@ public class CreateUserHandler extends AbstractHandler {
 
     @Override
     public boolean isFinished(Long userId) {
-        return checkUserForExistence(String.valueOf(userId));
+        return createUserRequests.get(userId).isFilled();
     }
 }
