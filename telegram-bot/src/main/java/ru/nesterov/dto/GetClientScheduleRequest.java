@@ -1,4 +1,4 @@
-package ru.nesterov.session;
+package ru.nesterov.dto;
 
 import lombok.Builder;
 import lombok.Getter;

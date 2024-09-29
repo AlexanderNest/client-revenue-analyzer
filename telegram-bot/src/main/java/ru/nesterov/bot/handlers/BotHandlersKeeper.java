@@ -1,4 +1,4 @@
-package ru.nesterov.session;
+package ru.nesterov.bot.handlers;
 
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Component;

@@ -14,8 +14,8 @@ import ru.nesterov.bot.handlers.callback.ButtonCallback;
 import ru.nesterov.dto.ClientResponse;
 import ru.nesterov.dto.GetClientScheduleResponse;
 import ru.nesterov.integration.ClientRevenueAnalyzerIntegrationClient;
-import ru.nesterov.session.BotHandlersKeeper;
-import ru.nesterov.session.GetClientScheduleRequest;
+import ru.nesterov.bot.handlers.BotHandlersKeeper;
+import ru.nesterov.dto.GetClientScheduleRequest;
 
 import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
