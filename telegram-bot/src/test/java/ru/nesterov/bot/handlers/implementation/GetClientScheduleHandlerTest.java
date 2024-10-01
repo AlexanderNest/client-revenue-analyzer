@@ -27,6 +27,8 @@ import ru.nesterov.dto.GetClientScheduleRequest;
 
 import java.time.LocalDate;
 import java.time.LocalDateTime;
+import java.time.Month;
+import java.time.YearMonth;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
@@ -90,7 +92,11 @@ public class GetClientScheduleHandlerTest {
     @SneakyThrows
     @Test
     void handleClientNameShouldReturnCalendarKeyboard() {
-        setupUserRequestForCalendar();
+        setupUserRequest(
+                null,
+                LocalDate.of(2024, 9, 27),
+                null,
+                null);
 
         Update update = createUpdateWithCallbackQuery("Клиент 1");
 
@@ -105,13 +111,17 @@ public class GetClientScheduleHandlerTest {
         assertFalse(markup.getKeyboard().isEmpty());
 
         List<List<InlineKeyboardButton>> calendarKeyboard = markup.getKeyboard();
-        assertCalendar(calendarKeyboard);
+        assertCalendar(calendarKeyboard, "SEPTEMBER 2024", 8);
     }
 
     @SneakyThrows
     @Test
     void handleFirstDateShouldReturnCalendarKeyboard() {
-        setupUserRequestForCalendar();
+        setupUserRequest(
+                null,
+                LocalDate.of(2024, 9, 27),
+                null,
+                null);
 
         Update update = createUpdateWithCallbackQuery(String.valueOf(LocalDate.of(2024, 9, 27)));
 
@@ -126,20 +136,16 @@ public class GetClientScheduleHandlerTest {
         assertFalse(markup.getKeyboard().isEmpty());
 
         List<List<InlineKeyboardButton>> calendarKeyboard = markup.getKeyboard();
-        assertCalendar(calendarKeyboard);
+        assertCalendar(calendarKeyboard, "SEPTEMBER 2024", 8);
     }
 
     @Test
     void handleSecondDateShouldReturnClientSchedule() {
-        Map<Long, Object> userRequest = new ConcurrentHashMap<>();
-        userRequest.put(1L, GetClientScheduleRequest.builder()
-                .userId(1L)
-                .clientName("Клиент 1")
-                .displayedMonth(LocalDate.of(2024, 9, 27))
-                .firstDate(LocalDate.of(2024, 9, 1))
-                .secondDate(LocalDate.of(2024, 9, 30))
-                .build());
-        when(keeper.getHandlerKeeper(GetClientScheduleHandler.class)).thenReturn(userRequest);
+        setupUserRequest(
+                "Клиент 1",
+                LocalDate.of(2024, 9, 27),
+                LocalDate.of(2024, 9, 1),
+                LocalDate.of(2024, 9, 30));
 
         List<GetClientScheduleResponse> clientSchedule = new ArrayList<>();
 
@@ -177,13 +183,69 @@ public class GetClientScheduleHandlerTest {
         assertEquals(expectedText, editMessage.getText());
     }
 
-    private void assertCalendar(List<List<InlineKeyboardButton>> calendarKeyboard) {
-        assertEquals(8, calendarKeyboard.size());
+    @Test
+    void handleSwitchMonthWhenSelectedFirstDate1() {
+        setupUserRequest(
+                "Client 1",
+                LocalDate.of(2024, 9, 27),
+                null,
+                null);
+
+        Update update = createUpdateWithCallbackQuery("Prev");
+
+        BotApiMethod<?> botApiMethod = handler.handle(update);
+        assertInstanceOf(EditMessageText.class, botApiMethod);
+
+        EditMessageText editMessage = (EditMessageText) botApiMethod;
+        assertEquals(ENTER_FIRST_DATE, editMessage.getText());
+
+        InlineKeyboardMarkup markup = editMessage.getReplyMarkup();
+        assertNotNull(markup);
+        assertFalse(markup.getKeyboard().isEmpty());
+
+        List<List<InlineKeyboardButton>> calendarKeyboard = markup.getKeyboard();
+        assertCalendar(calendarKeyboard, "AUGUST 2024", 7);
+    }
+
+    @Test
+    void handleSwitchMonthWhenSelectedFirstDate2() {
+        setupUserRequest(
+                "Client 1",
+                LocalDate.of(2024, 9, 27),
+                null,
+                null);
+
+        Update update = createUpdateWithCallbackQuery("Next");
+
+        BotApiMethod<?> botApiMethod = handler.handle(update);
+        assertInstanceOf(EditMessageText.class, botApiMethod);
+
+        EditMessageText editMessage = (EditMessageText) botApiMethod;
+        assertEquals(ENTER_FIRST_DATE, editMessage.getText());
+
+        InlineKeyboardMarkup markup = editMessage.getReplyMarkup();
+        assertNotNull(markup);
+        assertFalse(markup.getKeyboard().isEmpty());
+
+        List<List<InlineKeyboardButton>> calendarKeyboard = markup.getKeyboard();
+        assertCalendar(calendarKeyboard, "OCTOBER 2024", 7);
+    }
+
+    private void assertCalendar(List<List<InlineKeyboardButton>> calendarKeyboard, String displayedMonth, int expectedSize) {
+        String[] parts = displayedMonth.split(" ");
+        String monthName = parts[0];
+        int year = Integer.parseInt(parts[1]);
+
+        Month month = Month.valueOf(monthName);
+
+        int daysInMonth = YearMonth.of(year, month.getValue()).lengthOfMonth();
+
+        assertEquals(expectedSize, calendarKeyboard.size());
 
         List<InlineKeyboardButton> headerRow = calendarKeyboard.get(0);
         assertEquals(3, headerRow.size());
         assertEquals("◀", headerRow.get(0).getText());
-        assertEquals("SEPTEMBER 2024", headerRow.get(1).getText());
+        assertEquals(displayedMonth, headerRow.get(1).getText());
         assertEquals("▶", headerRow.get(2).getText());
 
         List<InlineKeyboardButton> daysOfWeekRow = calendarKeyboard.get(1);
@@ -193,17 +255,26 @@ public class GetClientScheduleHandlerTest {
             for (InlineKeyboardButton dayButton : calendarKeyboard.get(i)) {
                 if (!dayButton.getText().equals(" ")) {
                     int day = Integer.parseInt(dayButton.getText());
-                    assertTrue(day >= 1 && day <= 30);
+                    assertTrue(day >= 1 && day <= daysInMonth);
                 }
             }
         }
     }
 
-    private void setupUserRequestForCalendar() {
-        Map<Long, Object> userRequests = new ConcurrentHashMap<>();
-        userRequests.put(1L, GetClientScheduleRequest.builder().displayedMonth(LocalDate.of(2024, 9, 27)).build());
-
-        when(keeper.getHandlerKeeper(GetClientScheduleHandler.class)).thenReturn(userRequests);
+    private void setupUserRequest(
+            String clientName,
+            LocalDate displayedMonth,
+            LocalDate firstDate,
+            LocalDate secondDate) {
+        Map<Long, Object> userRequest = new ConcurrentHashMap<>();
+        userRequest.put(1L, GetClientScheduleRequest.builder()
+                .userId(1L)
+                .clientName(clientName)
+                .displayedMonth(displayedMonth)
+                .firstDate(firstDate)
+                .secondDate(secondDate)
+                .build());
+        when(keeper.getHandlerKeeper(GetClientScheduleHandler.class)).thenReturn(userRequest);
     }
 
     private List<ClientResponse> createActiveClients() {
