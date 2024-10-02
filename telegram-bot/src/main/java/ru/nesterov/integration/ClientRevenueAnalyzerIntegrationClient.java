@@ -2,18 +2,14 @@ package ru.nesterov.integration;
 
 import lombok.RequiredArgsConstructor;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
+import org.springframework.core.ParameterizedTypeReference;
 import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpHeaders;
-import org.springframework.core.ParameterizedTypeReference;
 import org.springframework.http.HttpMethod;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Component;
 import org.springframework.web.client.RestTemplate;
-import ru.nesterov.dto.ClientResponse;
-import ru.nesterov.dto.GetForClientScheduleRequest;
-import ru.nesterov.dto.GetClientScheduleResponse;
-import ru.nesterov.dto.GetForMonthRequest;
-import ru.nesterov.dto.GetIncomeAnalysisForMonthResponse;
+import ru.nesterov.dto.*;
 import ru.nesterov.properties.BotProperties;
 import ru.nesterov.properties.RevenueAnalyzerProperties;
 
@@ -51,11 +47,11 @@ public class ClientRevenueAnalyzerIntegrationClient {
         );
     }
 
-    public List<ClientResponse> getActiveClients(long userId) {
+    public List<GetActiveClientResponse> getActiveClients(long userId) {
         return postForList(String.valueOf(userId),
                 null,
                 "/revenue-analyzer/client/getActiveClients",
-                new ParameterizedTypeReference<List<ClientResponse>>() {
+                new ParameterizedTypeReference<List<GetActiveClientResponse>>() {
                 }
         );
     }

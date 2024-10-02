@@ -10,20 +10,16 @@ import org.springframework.test.context.ContextConfiguration;
 import org.telegram.telegrambots.meta.api.methods.BotApiMethod;
 import org.telegram.telegrambots.meta.api.methods.send.SendMessage;
 import org.telegram.telegrambots.meta.api.methods.updatingmessages.EditMessageText;
-import org.telegram.telegrambots.meta.api.objects.CallbackQuery;
-import org.telegram.telegrambots.meta.api.objects.Chat;
-import org.telegram.telegrambots.meta.api.objects.Message;
-import org.telegram.telegrambots.meta.api.objects.Update;
-import org.telegram.telegrambots.meta.api.objects.User;
+import org.telegram.telegrambots.meta.api.objects.*;
 import org.telegram.telegrambots.meta.api.objects.replykeyboard.InlineKeyboardMarkup;
 import org.telegram.telegrambots.meta.api.objects.replykeyboard.ReplyKeyboard;
 import org.telegram.telegrambots.meta.api.objects.replykeyboard.buttons.InlineKeyboardButton;
+import ru.nesterov.bot.handlers.BotHandlersRequestsKeeper;
 import ru.nesterov.bot.handlers.callback.ButtonCallback;
-import ru.nesterov.dto.ClientResponse;
+import ru.nesterov.dto.GetActiveClientResponse;
+import ru.nesterov.dto.GetClientScheduleRequest;
 import ru.nesterov.dto.GetClientScheduleResponse;
 import ru.nesterov.integration.ClientRevenueAnalyzerIntegrationClient;
-import ru.nesterov.bot.handlers.BotHandlersKeeper;
-import ru.nesterov.dto.GetClientScheduleRequest;
 
 import java.time.LocalDate;
 import java.time.LocalDateTime;
@@ -34,12 +30,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertFalse;
-import static org.junit.jupiter.api.Assertions.assertInstanceOf;
-import static org.junit.jupiter.api.Assertions.assertNotNull;
-import static org.junit.jupiter.api.Assertions.assertTrue;
-import static org.mockito.ArgumentMatchers.any;
+import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.ArgumentMatchers.anyLong;
 import static org.mockito.Mockito.when;
 
@@ -56,7 +47,7 @@ public class GetClientScheduleHandlerTest {
     @MockBean
     private ClientRevenueAnalyzerIntegrationClient client;
     @MockBean
-    private BotHandlersKeeper keeper;
+    private BotHandlersRequestsKeeper keeper;
 
     private static final String COMMAND = "/clientschedule";
     private static final String ENTER_FIRST_DATE = "Введите первую дату";
@@ -64,7 +55,7 @@ public class GetClientScheduleHandlerTest {
 
     @Test
     void handleCommandWhenMessageContainsText() {
-        List<ClientResponse> clients = createActiveClients();
+        List<GetActiveClientResponse> clients = createActiveClients();
         when(client.getActiveClients(anyLong())).thenReturn(clients);
 
         Update update = createUpdateWithMessage();
@@ -277,20 +268,20 @@ public class GetClientScheduleHandlerTest {
         when(keeper.getHandlerKeeper(GetClientScheduleHandler.class)).thenReturn(userRequest);
     }
 
-    private List<ClientResponse> createActiveClients() {
-        ClientResponse client1 = new ClientResponse();
+    private List<GetActiveClientResponse> createActiveClients() {
+        GetActiveClientResponse client1 = new GetActiveClientResponse();
         client1.setId(1);
         client1.setName("Клиент 1");
 
-        ClientResponse client2 = new ClientResponse();
+        GetActiveClientResponse client2 = new GetActiveClientResponse();
         client2.setId(2);
         client2.setName("Клиент 2");
 
-        ClientResponse client3 = new ClientResponse();
+        GetActiveClientResponse client3 = new GetActiveClientResponse();
         client3.setId(3);
         client3.setName("Клиент 3");
 
-        ClientResponse client4 = new ClientResponse();
+        GetActiveClientResponse client4 = new GetActiveClientResponse();
         client4.setId(4);
         client4.setName("Клиент 4");
 

@@ -9,13 +9,13 @@ import org.telegram.telegrambots.meta.api.objects.CallbackQuery;
 import org.telegram.telegrambots.meta.api.objects.Update;
 import org.telegram.telegrambots.meta.api.objects.replykeyboard.InlineKeyboardMarkup;
 import org.telegram.telegrambots.meta.api.objects.replykeyboard.buttons.InlineKeyboardButton;
-import ru.nesterov.calendar.InlineCalendarBuilder;
+import ru.nesterov.bot.handlers.BotHandlersRequestsKeeper;
 import ru.nesterov.bot.handlers.callback.ButtonCallback;
-import ru.nesterov.dto.ClientResponse;
+import ru.nesterov.calendar.InlineCalendarBuilder;
+import ru.nesterov.dto.GetActiveClientResponse;
+import ru.nesterov.dto.GetClientScheduleRequest;
 import ru.nesterov.dto.GetClientScheduleResponse;
 import ru.nesterov.integration.ClientRevenueAnalyzerIntegrationClient;
-import ru.nesterov.bot.handlers.BotHandlersKeeper;
-import ru.nesterov.dto.GetClientScheduleRequest;
 
 import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
@@ -23,32 +23,41 @@ import java.time.format.DateTimeParseException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Locale;
-import java.util.Map;
 import java.util.stream.Collectors;
 
 @Component
 @ConditionalOnProperty("bot.enabled")
 public class GetClientScheduleHandler extends ClientRevenueAbstractHandler {
-    private final BotHandlersKeeper handlersKeeper;
+    private final BotHandlersRequestsKeeper handlersKeeper;
+    private final InlineCalendarBuilder inlineCalendarBuilder;
+
     private static final String ENTER_FIRST_DATE = "Введите первую дату";
     private static final String ENTER_SECOND_DATE = "Введите вторую дату";
 
-    public GetClientScheduleHandler(ObjectMapper objectMapper, ClientRevenueAnalyzerIntegrationClient client, BotHandlersKeeper handlersKeeper) {
+    public GetClientScheduleHandler(ObjectMapper objectMapper, ClientRevenueAnalyzerIntegrationClient client,
+                                    BotHandlersRequestsKeeper handlersKeeper, InlineCalendarBuilder inlineCalendarBuilder) {
         super(objectMapper, client);
         this.handlersKeeper = handlersKeeper;
+        this.inlineCalendarBuilder = inlineCalendarBuilder;
     }
 
     @SneakyThrows
     @Override
     public BotApiMethod<?> handle(Update update) {
-        Long chatId = getChatId(update);
-        Long userId = getUserId(update);
+        long chatId = getChatId(update);
+        long userId = getUserId(update);
 
-        Map<Long, GetClientScheduleRequest> userRequests = handlersKeeper.getHandlerKeeper(GetClientScheduleHandler.class);
-        userRequests.computeIfAbsent(chatId, key -> GetClientScheduleRequest.builder()
-                .userId(userId)
-                .build());
-        GetClientScheduleRequest getClientScheduleRequest = userRequests.get(chatId);
+        GetClientScheduleRequest getClientScheduleRequest = handlersKeeper.getRequest(userId, GetClientScheduleHandler.class, GetClientScheduleRequest.class);
+
+        if (getClientScheduleRequest == null) {
+            getClientScheduleRequest = handlersKeeper.putRequest(
+                    GetClientScheduleHandler.class,
+                    userId,
+                    GetClientScheduleRequest.builder()
+                            .userId(userId)
+                            .build()
+            );
+        }
 
         BotApiMethod<?> message;
         if (isMessageWithText(update)) {
@@ -74,8 +83,7 @@ public class GetClientScheduleHandler extends ClientRevenueAbstractHandler {
             return handleSelectedDate(callbackQuery, getClientScheduleRequest);
         } else {
             return switch (callback.getValue()) {
-                case "Next",
-                     "Prev" -> handleMonthSwitch(callbackQuery, getClientScheduleRequest);
+                case "Next", "Prev" -> handleMonthSwitch(callbackQuery, getClientScheduleRequest);
                 default -> handleClientName(
                                 callbackQuery.getMessage().getChatId(),
                                 callbackQuery.getMessage().getMessageId(),
@@ -106,9 +114,9 @@ public class GetClientScheduleHandler extends ClientRevenueAbstractHandler {
     private BotApiMethod<?> sendClientNamesKeyboard(long chatId, long userId) {
         InlineKeyboardMarkup keyboardMarkup = new InlineKeyboardMarkup();
         List<List<InlineKeyboardButton>> keyboard = new ArrayList<>();
-        List<ClientResponse> clients = client.getActiveClients(userId);
+        List<GetActiveClientResponse> clients = client.getActiveClients(userId);
 
-        for (ClientResponse response : clients) {
+        for (GetActiveClientResponse response : clients) {
             InlineKeyboardButton button = new InlineKeyboardButton();
             button.setText(response.getName());
 
@@ -133,7 +141,7 @@ public class GetClientScheduleHandler extends ClientRevenueAbstractHandler {
                 chatId,
                 messageId,
                 text,
-                InlineCalendarBuilder.createCalendarMarkup(date, objectMapper, getCommand())
+                inlineCalendarBuilder.createCalendarMarkup(date, getCommand())
         );
     }
 

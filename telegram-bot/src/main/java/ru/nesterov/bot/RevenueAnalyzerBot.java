@@ -31,7 +31,9 @@ public class RevenueAnalyzerBot extends TelegramLongPollingBot {
             log.error("Не удалось обраборать сообщение");
             return;
         }
-        sendMessage(commandHandler.handle(update));
+
+        BotApiMethod<?> sendMessage = commandHandler.handle(update);
+        sendMessage(sendMessage);
     }
 
     @Override
