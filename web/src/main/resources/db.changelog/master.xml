@@ -85,6 +85,91 @@
         </sql>
     </changeSet>
 
+    <changeSet id="#51 add start_date column" author="Uenay">
+        <preConditions onFail="MARK_RAN">
+            <and>
+                <tableExists tableName="client"/>
+                <not>
+                    <columnExists tableName="client" columnName="start_date"/>
+                </not>
+            </and>
+        </preConditions>
+        <addColumn tableName="client">
+            <column name="start_date" type="TIMESTAMP(6)" defaultValueComputed="CURRENT_TIMESTAMP"></column>
+        </addColumn>
+    </changeSet>
+
+
+    <changeSet id="#51 add phone" author="Uenay">
+        <preConditions>
+            <and>
+                <tableExists tableName="client"/>
+                <not>
+                    <columnExists tableName="client" columnName="phone"/>
+                </not>
+            </and>
+        </preConditions>
+        <addColumn tableName="client">
+            <column name="phone" type="VARCHAR"></column>
+        </addColumn>
+    </changeSet>
+
+    <changeSet id="create phone + user id unique index" author="Uenay">
+        <preConditions onFail="MARK_RAN">
+            <not>
+                <indexExists tableName="client" indexName="IDX_UNIQUE_PHONE_PER_USER"/>
+            </not>
+        </preConditions>
+
+        <createIndex tableName="client" indexName="IDX_UNIQUE_PHONE_PER_USER" unique="true">
+            <column name="phone"/>
+            <column name="user_id"/>
+        </createIndex>
+    </changeSet>
+
+    <changeSet id="#51 create table price_change_history" author="Uenay">
+        <preConditions>
+            <and>
+                <tableExists tableName="client"/>
+                <not>
+                    <tableExists tableName="price_change_history"/>
+                </not>
+            </and>
+        </preConditions>
+        <sql>
+            CREATE TABLE PRICE_CHANGE_HISTORY
+            (
+                client_id BIGINT REFERENCES client (id),
+                previous_price INT,
+                current_price INT,
+                date_of_change DATE default CURRENT_TIMESTAMP
+            );
+        </sql>
+    </changeSet>
+
+    <changeSet id="#52 change start_date to timestamp" author="Uenay">
+        <preConditions onFail="MARK_RAN">
+            <and>
+                <tableExists tableName="client"/>
+                <columnExists tableName="client" columnName="start_date"/>
+            </and>
+        </preConditions>
+        <sql>
+            ALTER TABLE client ALTER COLUMN start_date TYPE TIMESTAMP;
+        </sql>
+    </changeSet>
+
+    <changeSet id="#53 set default_value to start_date" author="Uenay">
+        <preConditions onFail="MARK_RAN">
+            <and>
+                <tableExists tableName="client"/>
+                <columnExists tableName="client" columnName="start_date"/>
+            </and>
+        </preConditions>
+        <addDefaultValue tableName="client" columnName="start_date" defaultValueComputed="CURRENT_TIMESTAMP"/>
+
+    </changeSet>
+
     <changeSet id="drop-indx-CONSTRAINT_INDEX_3" author="nesterov">
         <preConditions onFail="MARK_RAN">
             <indexExists tableName="client" indexName="CONSTRAINT_INDEX_3"/>
