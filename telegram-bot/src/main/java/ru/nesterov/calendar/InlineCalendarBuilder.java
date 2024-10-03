@@ -11,13 +11,25 @@ import ru.nesterov.bot.handlers.callback.ButtonCallback;
 import java.time.DayOfWeek;
 import java.time.LocalDate;
 import java.time.YearMonth;
+import java.time.format.TextStyle;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Locale;
+import java.util.Map;
 
 @RequiredArgsConstructor
 @Service
 public class InlineCalendarBuilder {
     private final ObjectMapper objectMapper;
+    private static final Map<DayOfWeek, String> shortDaysOfWeek = Map.of(
+            DayOfWeek.MONDAY, "ПН",
+            DayOfWeek.TUESDAY, "ВТ",
+            DayOfWeek.WEDNESDAY, "СР",
+            DayOfWeek.THURSDAY, "ЧТ",
+            DayOfWeek.FRIDAY, "ПТ",
+            DayOfWeek.SATURDAY, "СБ",
+            DayOfWeek.SUNDAY, "ВС"
+    );
 
     public InlineKeyboardMarkup createCalendarMarkup(LocalDate dateForDisplay, String command) {
         YearMonth yearMonth = YearMonth.of(dateForDisplay.getYear(), dateForDisplay.getMonth());
@@ -25,9 +37,11 @@ public class InlineCalendarBuilder {
         LocalDate lastDayOfMonth = yearMonth.atEndOfMonth();
 
         List<List<InlineKeyboardButton>> rowsInline = new ArrayList<>();
-        rowsInline.add(getHeaderRow(
-                dateForDisplay.getMonth().toString() + " " + dateForDisplay.getYear(),
-                command));
+        String displayedDate = dateForDisplay
+                .getMonth()
+                .getDisplayName(TextStyle.FULL_STANDALONE, new Locale("ru"))
+                .toUpperCase();
+        rowsInline.add(getHeaderRow(displayedDate + " " + dateForDisplay.getYear(), command));
         rowsInline.add(getDaysOfWeek());
         rowsInline.addAll(getDaysOfMonthRows(firstDayOfMonth, lastDayOfMonth, command));
 
@@ -68,7 +82,7 @@ public class InlineCalendarBuilder {
         List<InlineKeyboardButton> daysOfWeekRow = new ArrayList<>();
         for (DayOfWeek dayOfWeek : DayOfWeek.values()) {
             daysOfWeekRow.add(InlineKeyboardButton.builder()
-                    .text(dayOfWeek.name().substring(0, 2))
+                    .text(shortDaysOfWeek.get(dayOfWeek))
                     .callbackData("ignore")
                     .build());
         }

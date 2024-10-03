@@ -22,15 +22,13 @@ import ru.nesterov.bot.handlers.BotHandlersRequestsKeeper;
 import ru.nesterov.bot.handlers.callback.ButtonCallback;
 import ru.nesterov.calendar.InlineCalendarBuilder;
 import ru.nesterov.dto.GetActiveClientResponse;
-import ru.nesterov.dto.GetClientScheduleRequest;
 import ru.nesterov.dto.GetClientScheduleResponse;
 import ru.nesterov.integration.ClientRevenueAnalyzerIntegrationClient;
 
 import java.time.LocalDate;
 import java.time.LocalDateTime;
-import java.time.Month;
-import java.time.YearMonth;
 import java.time.format.DateTimeFormatter;
+import java.time.format.TextStyle;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Locale;
@@ -103,9 +101,8 @@ public class GetClientScheduleHandlerTest {
         assertFalse(markup.getKeyboard().isEmpty());
 
         List<List<InlineKeyboardButton>> calendarKeyboard = markup.getKeyboard();
-        String month = String.valueOf(LocalDate.now().getMonth()).toUpperCase();
-        String year = String.valueOf(LocalDate.now().getYear());
-        assertCalendar(calendarKeyboard, month + " " + year);
+        LocalDate expectedDisplayedDate = LocalDate.now();
+        assertCalendar(calendarKeyboard, expectedDisplayedDate);
     }
 
     @SneakyThrows
@@ -128,11 +125,8 @@ public class GetClientScheduleHandlerTest {
         assertNotNull(markup);
         assertFalse(markup.getKeyboard().isEmpty());
 
-        String expectedYear = String.valueOf(firstDate.getYear());
-        String expectedMonth = String.valueOf(firstDate.getMonth()).toUpperCase();
-
         List<List<InlineKeyboardButton>> calendarKeyboard = markup.getKeyboard();
-        assertCalendar(calendarKeyboard, expectedMonth + " " + expectedYear);
+        assertCalendar(calendarKeyboard, firstDate);
     }
 
     @Test
@@ -224,12 +218,9 @@ public class GetClientScheduleHandlerTest {
         assertNotNull(markup);
         assertFalse(markup.getKeyboard().isEmpty());
 
-        LocalDate displayedDate = LocalDate.now().minusMonths(1L);
-        String month = String.valueOf(displayedDate.getMonth()).toUpperCase();
-        String year = String.valueOf(displayedDate.getYear());
-
+        LocalDate expectedDisplayedDate = LocalDate.now().minusMonths(1L);
         List<List<InlineKeyboardButton>> calendarKeyboard = markup.getKeyboard();
-        assertCalendar(calendarKeyboard, month + " " + year);
+        assertCalendar(calendarKeyboard, expectedDisplayedDate);
     }
 
     @Test
@@ -250,27 +241,22 @@ public class GetClientScheduleHandlerTest {
         InlineKeyboardMarkup markup = editMessage.getReplyMarkup();
         assertNotNull(markup);
         assertFalse(markup.getKeyboard().isEmpty());
-        LocalDate displayedDate = LocalDate.now().plusMonths(1L);
-        String month = String.valueOf(displayedDate.getMonth()).toUpperCase();
-        String year = String.valueOf(displayedDate.getYear());
 
+        LocalDate expectedDisplayedDate = LocalDate.now().plusMonths(1L);
         List<List<InlineKeyboardButton>> calendarKeyboard = markup.getKeyboard();
-        assertCalendar(calendarKeyboard, month + " " + year);
+        assertCalendar(calendarKeyboard, expectedDisplayedDate);
     }
 
-    private void assertCalendar(List<List<InlineKeyboardButton>> calendarKeyboard, String displayedMonth) {
-        String[] parts = displayedMonth.split(" ");
-        String monthName = parts[0];
-        int year = Integer.parseInt(parts[1]);
+    private void assertCalendar(List<List<InlineKeyboardButton>> calendarKeyboard, LocalDate displayedDate) {
+        String month = displayedDate.getMonth().getDisplayName(TextStyle.FULL_STANDALONE, new Locale("ru")).toUpperCase();
+        String year = String.valueOf(displayedDate.getYear());
 
-        Month month = Month.valueOf(monthName);
-
-        int daysInMonth = YearMonth.of(year, month.getValue()).lengthOfMonth();
+        int daysInMonth = displayedDate.lengthOfMonth();
 
         List<InlineKeyboardButton> headerRow = calendarKeyboard.get(0);
         assertEquals(3, headerRow.size());
         assertEquals("◀", headerRow.get(0).getText());
-        assertEquals(displayedMonth, headerRow.get(1).getText());
+        assertEquals(month + " " + year, headerRow.get(1).getText());
         assertEquals("▶", headerRow.get(2).getText());
 
         List<InlineKeyboardButton> daysOfWeekRow = calendarKeyboard.get(1);
@@ -308,13 +294,13 @@ public class GetClientScheduleHandlerTest {
 
     private void assertDaysOfWeek(List<InlineKeyboardButton> daysOfWeekRow) {
         assertEquals(7, daysOfWeekRow.size());
-        assertEquals("MO", daysOfWeekRow.get(0).getText());
-        assertEquals("TU", daysOfWeekRow.get(1).getText());
-        assertEquals("WE", daysOfWeekRow.get(2).getText());
-        assertEquals("TH", daysOfWeekRow.get(3).getText());
-        assertEquals("FR", daysOfWeekRow.get(4).getText());
-        assertEquals("SA", daysOfWeekRow.get(5).getText());
-        assertEquals("SU", daysOfWeekRow.get(6).getText());
+        assertEquals("ПН", daysOfWeekRow.get(0).getText());
+        assertEquals("ВТ", daysOfWeekRow.get(1).getText());
+        assertEquals("СР", daysOfWeekRow.get(2).getText());
+        assertEquals("ЧТ", daysOfWeekRow.get(3).getText());
+        assertEquals("ПТ", daysOfWeekRow.get(4).getText());
+        assertEquals("СБ", daysOfWeekRow.get(5).getText());
+        assertEquals("ВС", daysOfWeekRow.get(6).getText());
     }
 
     private Update createUpdateWithMessage() {
