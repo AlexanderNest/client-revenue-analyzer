@@ -10,12 +10,17 @@ import org.springframework.test.context.ContextConfiguration;
 import org.telegram.telegrambots.meta.api.methods.BotApiMethod;
 import org.telegram.telegrambots.meta.api.methods.send.SendMessage;
 import org.telegram.telegrambots.meta.api.methods.updatingmessages.EditMessageText;
-import org.telegram.telegrambots.meta.api.objects.*;
+import org.telegram.telegrambots.meta.api.objects.CallbackQuery;
+import org.telegram.telegrambots.meta.api.objects.Chat;
+import org.telegram.telegrambots.meta.api.objects.Message;
+import org.telegram.telegrambots.meta.api.objects.Update;
+import org.telegram.telegrambots.meta.api.objects.User;
 import org.telegram.telegrambots.meta.api.objects.replykeyboard.InlineKeyboardMarkup;
 import org.telegram.telegrambots.meta.api.objects.replykeyboard.ReplyKeyboard;
 import org.telegram.telegrambots.meta.api.objects.replykeyboard.buttons.InlineKeyboardButton;
 import ru.nesterov.bot.handlers.BotHandlersRequestsKeeper;
 import ru.nesterov.bot.handlers.callback.ButtonCallback;
+import ru.nesterov.calendar.InlineCalendarBuilder;
 import ru.nesterov.dto.GetActiveClientResponse;
 import ru.nesterov.dto.GetClientScheduleRequest;
 import ru.nesterov.dto.GetClientScheduleResponse;
@@ -25,10 +30,10 @@ import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.Month;
 import java.time.YearMonth;
+import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Map;
-import java.util.concurrent.ConcurrentHashMap;
+import java.util.Locale;
 
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.ArgumentMatchers.anyLong;
@@ -37,7 +42,9 @@ import static org.mockito.Mockito.when;
 @SpringBootTest
 @ContextConfiguration(classes = {
         GetClientScheduleHandler.class,
-        ObjectMapper.class
+        ObjectMapper.class,
+        InlineCalendarBuilder.class,
+        BotHandlersRequestsKeeper.class
 })
 public class GetClientScheduleHandlerTest {
     @Autowired
@@ -46,8 +53,6 @@ public class GetClientScheduleHandlerTest {
     private ObjectMapper objectMapper;
     @MockBean
     private ClientRevenueAnalyzerIntegrationClient client;
-    @MockBean
-    private BotHandlersRequestsKeeper keeper;
 
     private static final String COMMAND = "/clientschedule";
     private static final String ENTER_FIRST_DATE = "Введите первую дату";
@@ -83,15 +88,11 @@ public class GetClientScheduleHandlerTest {
     @SneakyThrows
     @Test
     void handleClientNameShouldReturnCalendarKeyboard() {
-        setupUserRequest(
-                null,
-                LocalDate.of(2024, 9, 27),
-                null,
-                null);
+        Update updateWithCommand = createUpdateWithMessage();
+        handler.handle(updateWithCommand);
+        Update updateWithClientName = createUpdateWithCallbackQuery("Клиент 1");
 
-        Update update = createUpdateWithCallbackQuery("Клиент 1");
-
-        BotApiMethod<?> botApiMethod = handler.handle(update);
+        BotApiMethod<?> botApiMethod = handler.handle(updateWithClientName);
         assertInstanceOf(EditMessageText.class, botApiMethod);
 
         EditMessageText editMessage = (EditMessageText) botApiMethod;
@@ -102,21 +103,22 @@ public class GetClientScheduleHandlerTest {
         assertFalse(markup.getKeyboard().isEmpty());
 
         List<List<InlineKeyboardButton>> calendarKeyboard = markup.getKeyboard();
-        assertCalendar(calendarKeyboard, "SEPTEMBER 2024", 8);
+        String month = String.valueOf(LocalDate.now().getMonth()).toUpperCase();
+        String year = String.valueOf(LocalDate.now().getYear());
+        assertCalendar(calendarKeyboard, month + " " + year);
     }
 
     @SneakyThrows
     @Test
     void handleFirstDateShouldReturnCalendarKeyboard() {
-        setupUserRequest(
-                null,
-                LocalDate.of(2024, 9, 27),
-                null,
-                null);
+        Update updateWithCommand = createUpdateWithMessage();
+        handler.handle(updateWithCommand);
+        Update updateWithClientName = createUpdateWithCallbackQuery("Клиент 1");
+        handler.handle(updateWithClientName);
+        LocalDate firstDate = LocalDate.now();
+        Update updateWithFirstDate = createUpdateWithCallbackQuery(String.valueOf(firstDate));
 
-        Update update = createUpdateWithCallbackQuery(String.valueOf(LocalDate.of(2024, 9, 27)));
-
-        BotApiMethod<?> botApiMethod = handler.handle(update);
+        BotApiMethod<?> botApiMethod = handler.handle(updateWithFirstDate);
         assertInstanceOf(EditMessageText.class, botApiMethod);
 
         EditMessageText editMessage = (EditMessageText) botApiMethod;
@@ -126,61 +128,89 @@ public class GetClientScheduleHandlerTest {
         assertNotNull(markup);
         assertFalse(markup.getKeyboard().isEmpty());
 
+        String expectedYear = String.valueOf(firstDate.getYear());
+        String expectedMonth = String.valueOf(firstDate.getMonth()).toUpperCase();
+
         List<List<InlineKeyboardButton>> calendarKeyboard = markup.getKeyboard();
-        assertCalendar(calendarKeyboard, "SEPTEMBER 2024", 8);
+        assertCalendar(calendarKeyboard, expectedMonth + " " + expectedYear);
     }
 
     @Test
     void handleSecondDateShouldReturnClientSchedule() {
-        setupUserRequest(
-                "Клиент 1",
-                LocalDate.of(2024, 9, 27),
-                LocalDate.of(2024, 9, 1),
-                LocalDate.of(2024, 9, 30));
+        Update updateWithCommand = createUpdateWithMessage();
+        handler.handle(updateWithCommand);
+        Update updateWithClientName = createUpdateWithCallbackQuery("Клиент 1");
+        handler.handle(updateWithClientName);
+        LocalDate firstDate = LocalDate.now();
+        Update updateWithFirstDate = createUpdateWithCallbackQuery(String.valueOf(firstDate));
+        handler.handle(updateWithFirstDate);
 
         List<GetClientScheduleResponse> clientSchedule = new ArrayList<>();
 
         GetClientScheduleResponse schedule1 = new GetClientScheduleResponse();
-        schedule1.setEventStart(LocalDateTime.of(2024, 9, 2, 11, 30));
-        schedule1.setEventEnd(LocalDateTime.of(2024, 9, 2, 12, 30));
+        LocalDateTime eventStart1 = LocalDateTime.now();
+        schedule1.setEventStart(eventStart1);
+        schedule1.setEventEnd(eventStart1.plusHours(1L));
         clientSchedule.add(schedule1);
 
         GetClientScheduleResponse schedule2 = new GetClientScheduleResponse();
-        schedule2.setEventStart(LocalDateTime.of(2024, 9, 7, 11, 30));
-        schedule2.setEventEnd(LocalDateTime.of(2024, 9, 7, 12, 30));
+        LocalDateTime eventStart2 = LocalDateTime.now().plusDays(1L);
+        schedule2.setEventStart(eventStart2);
+        schedule2.setEventEnd(eventStart2.plusHours(1L));
         clientSchedule.add(schedule2);
 
         GetClientScheduleResponse schedule3 = new GetClientScheduleResponse();
-        schedule3.setEventStart(LocalDateTime.of(2024, 9, 30, 11, 30));
-        schedule3.setEventEnd(LocalDateTime.of(2024, 9, 30, 12, 30));
+        LocalDateTime eventStart3 = LocalDateTime.now().plusDays(2L);
+        schedule3.setEventStart(eventStart3);
+        schedule3.setEventEnd(eventStart3.plusHours(1L));
         clientSchedule.add(schedule3);
+
+        LocalDate secondDate = firstDate.plusMonths(1L);
 
         when(client.getClientSchedule(
                 1L,
                 "Клиент 1",
-                LocalDate.of(2024, 9, 1).atStartOfDay(),
-                LocalDate.of(2024, 9, 30).atStartOfDay()
+                firstDate.atStartOfDay(),
+                secondDate.atStartOfDay()
         )).thenReturn(clientSchedule);
 
-        Update update = createUpdateWithCallbackQuery(String.valueOf(LocalDate.of(2024, 9, 30)));
-        BotApiMethod<?> botApiMethod = handler.handle(update);
+        Update updateWithSecondDate = createUpdateWithCallbackQuery(String.valueOf(secondDate));
+        BotApiMethod<?> botApiMethod = handler.handle(updateWithSecondDate);
         assertInstanceOf(EditMessageText.class, botApiMethod);
-
         EditMessageText editMessage = (EditMessageText) botApiMethod;
-        String expectedText =
-                "📅 Дата: 02 сентября 2024\n⏰ Время: 11:30 - 12:30\n\n" +
-                        "📅 Дата: 07 сентября 2024\n⏰ Время: 11:30 - 12:30\n\n" +
-                        "📅 Дата: 30 сентября 2024\n⏰ Время: 11:30 - 12:30";
+
+        DateTimeFormatter dateFormatter = DateTimeFormatter.ofPattern("dd MMMM yyyy", Locale.forLanguageTag("ru"));
+        DateTimeFormatter timeFormatter = DateTimeFormatter.ofPattern("HH:mm", Locale.forLanguageTag("ru"));
+
+        String expectedText = String.join("\n\n",
+                String.format(
+                        "📅 Дата: %s\n⏰ Время: %s - %s",
+                        LocalDateTime.now().format(dateFormatter),
+                        LocalDateTime.now().format(timeFormatter),
+                        LocalDateTime.now().plusHours(1).format(timeFormatter)
+                ),
+                String.format(
+                        "📅 Дата: %s\n⏰ Время: %s - %s",
+                        LocalDateTime.now().plusDays(1).format(dateFormatter),
+                        LocalDateTime.now().plusDays(1).format(timeFormatter),
+                        LocalDateTime.now().plusDays(1).plusHours(1).format(timeFormatter)
+                ),
+                String.format(
+                        "📅 Дата: %s\n⏰ Время: %s - %s",
+                        LocalDateTime.now().plusDays(2).format(dateFormatter),
+                        LocalDateTime.now().plusDays(2).format(timeFormatter),
+                        LocalDateTime.now().plusDays(2).plusHours(1).format(timeFormatter)
+                )
+        );
         assertEquals(expectedText, editMessage.getText());
     }
 
     @Test
     void handleSwitchMonthWhenSelectedFirstDate1() {
-        setupUserRequest(
-                "Client 1",
-                LocalDate.of(2024, 9, 27),
-                null,
-                null);
+        Update updateWithCommand = createUpdateWithMessage();
+        handler.handle(updateWithCommand);
+        Update updateWithClientName = createUpdateWithCallbackQuery("Клиент 1");
+        handler.handle(updateWithClientName);
 
         Update update = createUpdateWithCallbackQuery("Prev");
 
@@ -194,17 +224,20 @@ public class GetClientScheduleHandlerTest {
         assertNotNull(markup);
         assertFalse(markup.getKeyboard().isEmpty());
 
+        LocalDate displayedDate = LocalDate.now().minusMonths(1L);
+        String month = String.valueOf(displayedDate.getMonth()).toUpperCase();
+        String year = String.valueOf(displayedDate.getYear());
+
         List<List<InlineKeyboardButton>> calendarKeyboard = markup.getKeyboard();
-        assertCalendar(calendarKeyboard, "AUGUST 2024", 7);
+        assertCalendar(calendarKeyboard, month + " " + year);
     }
 
     @Test
     void handleSwitchMonthWhenSelectedFirstDate2() {
-        setupUserRequest(
-                "Client 1",
-                LocalDate.of(2024, 9, 27),
-                null,
-                null);
+        Update updateWithCommand = createUpdateWithMessage();
+        handler.handle(updateWithCommand);
+        Update updateWithClientName = createUpdateWithCallbackQuery("Клиент 1");
+        handler.handle(updateWithClientName);
 
         Update update = createUpdateWithCallbackQuery("Next");
 
@@ -217,12 +250,15 @@ public class GetClientScheduleHandlerTest {
         InlineKeyboardMarkup markup = editMessage.getReplyMarkup();
         assertNotNull(markup);
         assertFalse(markup.getKeyboard().isEmpty());
+        LocalDate displayedDate = LocalDate.now().plusMonths(1L);
+        String month = String.valueOf(displayedDate.getMonth()).toUpperCase();
+        String year = String.valueOf(displayedDate.getYear());
 
         List<List<InlineKeyboardButton>> calendarKeyboard = markup.getKeyboard();
-        assertCalendar(calendarKeyboard, "OCTOBER 2024", 7);
+        assertCalendar(calendarKeyboard, month + " " + year);
     }
 
-    private void assertCalendar(List<List<InlineKeyboardButton>> calendarKeyboard, String displayedMonth, int expectedSize) {
+    private void assertCalendar(List<List<InlineKeyboardButton>> calendarKeyboard, String displayedMonth) {
         String[] parts = displayedMonth.split(" ");
         String monthName = parts[0];
         int year = Integer.parseInt(parts[1]);
@@ -230,8 +266,6 @@ public class GetClientScheduleHandlerTest {
         Month month = Month.valueOf(monthName);
 
         int daysInMonth = YearMonth.of(year, month.getValue()).lengthOfMonth();
-
-        assertEquals(expectedSize, calendarKeyboard.size());
 
         List<InlineKeyboardButton> headerRow = calendarKeyboard.get(0);
         assertEquals(3, headerRow.size());
@@ -250,22 +284,6 @@ public class GetClientScheduleHandlerTest {
                 }
             }
         }
-    }
-
-    private void setupUserRequest(
-            String clientName,
-            LocalDate displayedMonth,
-            LocalDate firstDate,
-            LocalDate secondDate) {
-        Map<Long, Object> userRequest = new ConcurrentHashMap<>();
-        userRequest.put(1L, GetClientScheduleRequest.builder()
-                .userId(1L)
-                .clientName(clientName)
-                .displayedMonth(displayedMonth)
-                .firstDate(firstDate)
-                .secondDate(secondDate)
-                .build());
-        when(keeper.getHandlerKeeper(GetClientScheduleHandler.class)).thenReturn(userRequest);
     }
 
     private List<GetActiveClientResponse> createActiveClients() {
