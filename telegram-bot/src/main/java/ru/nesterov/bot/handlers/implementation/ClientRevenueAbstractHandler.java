@@ -69,9 +69,8 @@ public abstract class ClientRevenueAbstractHandler implements CommandHandler {
 
         CallbackQuery callbackQuery = update.getCallbackQuery();
 
-        boolean isCallback = callbackQuery != null &&
-                (getCommand().equals(ButtonCallback.fromShortString(callbackQuery.getData()).getCommand()) ||
-                        getCommand().equals(objectMapper.readValue(callbackQuery.getData(), ButtonCallback.class).getCommand()));
+        boolean isCallback = callbackQuery != null
+                && (getCommand().equals(ButtonCallback.fromShortString(callbackQuery.getData()).getCommand()) || getCommand().equals(objectMapper.readValue(callbackQuery.getData(), ButtonCallback.class).getCommand()));
 
         return isCommand || isCallback;
     }

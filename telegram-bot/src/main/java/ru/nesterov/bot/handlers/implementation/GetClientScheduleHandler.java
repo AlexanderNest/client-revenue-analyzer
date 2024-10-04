@@ -218,7 +218,7 @@ public class GetClientScheduleHandler extends ClientRevenueAbstractHandler {
         DateTimeFormatter timeFormatter = DateTimeFormatter.ofPattern("HH:mm", Locale.forLanguageTag("ru"));
 
         if (response.isEmpty()) {
-            return "📅 Расписание отсутствует";
+            return "📅 Встречи не запланированы";
         }
 
         return response.stream()
