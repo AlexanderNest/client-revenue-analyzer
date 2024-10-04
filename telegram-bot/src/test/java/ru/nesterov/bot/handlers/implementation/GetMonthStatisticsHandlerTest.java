@@ -9,11 +9,12 @@ import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.test.context.ContextConfiguration;
 import org.telegram.telegrambots.meta.api.methods.BotApiMethod;
 import org.telegram.telegrambots.meta.api.methods.send.SendMessage;
+import org.telegram.telegrambots.meta.api.methods.updatingmessages.EditMessageText;
 import org.telegram.telegrambots.meta.api.objects.*;
 import org.telegram.telegrambots.meta.api.objects.replykeyboard.InlineKeyboardMarkup;
 import org.telegram.telegrambots.meta.api.objects.replykeyboard.ReplyKeyboard;
 import org.telegram.telegrambots.meta.api.objects.replykeyboard.buttons.InlineKeyboardButton;
-import ru.nesterov.bot.handlers.callback.GetMonthStatisticsKeyboardCallback;
+import ru.nesterov.bot.handlers.callback.ButtonCallback;
 import ru.nesterov.dto.GetIncomeAnalysisForMonthResponse;
 import ru.nesterov.integration.ClientRevenueAnalyzerIntegrationClient;
 import ru.nesterov.utils.MonthUtil;
@@ -52,13 +53,14 @@ class GetMonthStatisticsHandlerTest {
         chat.setId(1L);
 
         Message message = new Message();
+        message.setMessageId(1);
         message.setText(markSymbol + "august");
         message.setChat(chat);
 
         Update update = new Update();
         CallbackQuery callbackQuery = new CallbackQuery();
         callbackQuery.setId(String.valueOf(1));
-        GetMonthStatisticsKeyboardCallback callback = new GetMonthStatisticsKeyboardCallback();
+        ButtonCallback callback = new ButtonCallback();
         callback.setCommand("/monthincome");
         callback.setValue(markSymbol + "august");
         callbackQuery.setMessage(message);
@@ -71,15 +73,15 @@ class GetMonthStatisticsHandlerTest {
         update.setCallbackQuery(callbackQuery);
 
         BotApiMethod<?> botApiMethod = handler.handle(update);
-        assertInstanceOf(SendMessage.class, botApiMethod);
-        SendMessage sendMessage = (SendMessage) botApiMethod;
+        assertInstanceOf(EditMessageText.class, botApiMethod);
+        EditMessageText editMessage = (EditMessageText) botApiMethod;
 
         String expectedMessage = "Анализ доходов за текущий месяц:\n\n" +
                 String.format("✅      Фактический доход: %.2f ₽\n", response.getActualIncome()) +
                 String.format("🔮      Ожидаемый доход: %.2f ₽\n", response.getExpectedIncoming()) +
                 String.format("⚠️      Потерянный доход: %.2f ₽\n", response.getLostIncome());
 
-        assertEquals(expectedMessage, sendMessage.getText());
+        assertEquals(expectedMessage, editMessage.getText());
     }
 
     @Test
@@ -119,13 +121,13 @@ class GetMonthStatisticsHandlerTest {
         assertEquals(3, thirdQuarter.size());
         assertEquals(3, fourthQuarter.size());
 
-        assertTrue(containsAllButtonsByTextWithMarkCheking(firstQuarter, List.of("Январь", "Февраль", "Март")));
-        assertTrue(containsAllButtonsByTextWithMarkCheking(secondQuarter, List.of("Апрель", "Май", "Июнь")));
-        assertTrue(containsAllButtonsByTextWithMarkCheking(thirdQuarter, List.of("Июль", "Август", "Сентябрь")));
-        assertTrue(containsAllButtonsByTextWithMarkCheking(fourthQuarter, List.of("Октябрь", "Ноябрь", "Декабрь")));
+        assertTrue(containsAllButtonsByTextWithMarkChecking(firstQuarter, List.of("Январь", "Февраль", "Март")));
+        assertTrue(containsAllButtonsByTextWithMarkChecking(secondQuarter, List.of("Апрель", "Май", "Июнь")));
+        assertTrue(containsAllButtonsByTextWithMarkChecking(thirdQuarter, List.of("Июль", "Август", "Сентябрь")));
+        assertTrue(containsAllButtonsByTextWithMarkChecking(fourthQuarter, List.of("Октябрь", "Ноябрь", "Декабрь")));
     }
 
-    private boolean containsAllButtonsByTextWithMarkCheking(List<InlineKeyboardButton> buttons, List<String> texts) {
+    private boolean containsAllButtonsByTextWithMarkChecking(List<InlineKeyboardButton> buttons, List<String> texts) {
         List<String> buttonsText = buttons.stream()
                 .map(InlineKeyboardButton::getText)
                 .toList();
