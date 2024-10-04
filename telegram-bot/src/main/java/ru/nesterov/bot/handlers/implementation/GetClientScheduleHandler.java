@@ -1,5 +1,6 @@
 package ru.nesterov.bot.handlers.implementation;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.SneakyThrows;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
@@ -77,18 +78,33 @@ public class GetClientScheduleHandler extends ClientRevenueAbstractHandler {
     private BotApiMethod<?> handleCallbackQuery(Update update, GetClientScheduleRequest getClientScheduleRequest) {
         CallbackQuery callbackQuery = update.getCallbackQuery();
         String callbackData = callbackQuery.getData();
-        ButtonCallback callback = objectMapper.readValue(callbackData, ButtonCallback.class);
+        ButtonCallback callback;
+        try {
+            callback = objectMapper.readValue(callbackData, ButtonCallback.class);
+        } catch (JsonProcessingException e) {
+            callback = null;
+        }
+        if (callback == null) {
+            callback = ButtonCallback.fromShortString(callbackData);
+        }
 
         if (isValidDate(callback.getValue())) {
-            return handleSelectedDate(callbackQuery, getClientScheduleRequest);
+            return handleSelectedDate(callback.getValue(),
+                    callbackQuery.getMessage().getChatId(),
+                    callbackQuery.getMessage().getMessageId(),
+                    getClientScheduleRequest);
         } else {
             return switch (callback.getValue()) {
-                case "Next", "Prev" -> handleMonthSwitch(callbackQuery, getClientScheduleRequest);
+                case "Next", "Prev" -> handleMonthSwitch(
+                        callback.getValue(),
+                        callbackQuery.getMessage().getChatId(),
+                        callbackQuery.getMessage().getMessageId(),
+                        getClientScheduleRequest);
                 default -> handleClientName(
-                                callbackQuery.getMessage().getChatId(),
-                                callbackQuery.getMessage().getMessageId(),
-                                getClientScheduleRequest,
-                                callback.getValue()
+                        callbackQuery.getMessage().getChatId(),
+                        callbackQuery.getMessage().getMessageId(),
+                        getClientScheduleRequest,
+                        callback.getValue()
                 );
             };
         }
@@ -119,12 +135,8 @@ public class GetClientScheduleHandler extends ClientRevenueAbstractHandler {
         for (GetActiveClientResponse response : clients) {
             InlineKeyboardButton button = new InlineKeyboardButton();
             button.setText(response.getName());
-
-            ButtonCallback callbackData = new ButtonCallback();
-            callbackData.setCommand(getCommand());
-            callbackData.setValue(response.getName());
-
-            button.setCallbackData(objectMapper.writeValueAsString(callbackData));
+            String callbackData = getCommand() + ":" + response.getName();
+            button.setCallbackData(ButtonCallback.fromShortString(callbackData).toShortString());
 
             List<InlineKeyboardButton> rowInline = new ArrayList<>();
             rowInline.add(button);
@@ -154,11 +166,13 @@ public class GetClientScheduleHandler extends ClientRevenueAbstractHandler {
     }
 
     @SneakyThrows
-    private BotApiMethod<?> handleMonthSwitch(CallbackQuery callbackQuery, GetClientScheduleRequest getClientScheduleRequest) {
-        ButtonCallback callback = objectMapper.readValue(callbackQuery.getData(), ButtonCallback.class);
-        if (callback.getValue().equals("Next")) {
+    private BotApiMethod<?> handleMonthSwitch(String callbackValue,
+                                              long callbackQueryChatId,
+                                              int callbackQueryMessageId,
+                                              GetClientScheduleRequest getClientScheduleRequest) {
+        if (callbackValue.equals("Next")) {
             getClientScheduleRequest.setDisplayedMonth(getClientScheduleRequest.getDisplayedMonth().plusMonths(1));
-        } else if (callback.getValue().equals("Prev")) {
+        } else if (callbackValue.equals("Prev")) {
             getClientScheduleRequest.setDisplayedMonth(getClientScheduleRequest.getDisplayedMonth().minusMonths(1));
         }
 
@@ -170,29 +184,31 @@ public class GetClientScheduleHandler extends ClientRevenueAbstractHandler {
         }
 
         return sendCalendarKeyBoard(
-                callbackQuery.getMessage().getChatId(),
-                callbackQuery.getMessage().getMessageId(),
+                callbackQueryChatId,
+                callbackQueryMessageId,
                 calendarMessage,
                 getClientScheduleRequest.getDisplayedMonth()
         );
     }
 
     @SneakyThrows
-    private BotApiMethod<?> handleSelectedDate(CallbackQuery callbackQuery, GetClientScheduleRequest getClientScheduleRequest) {
-        ButtonCallback callback = objectMapper.readValue(callbackQuery.getData(), ButtonCallback.class);
+    private BotApiMethod<?> handleSelectedDate(String callbackValue,
+                                               long callbackQueryChatId,
+                                               int callbackQueryMessageId,
+                                               GetClientScheduleRequest getClientScheduleRequest) {
         if (getClientScheduleRequest.getFirstDate() == null) {
-            getClientScheduleRequest.setFirstDate(LocalDate.parse(callback.getValue()));
+            getClientScheduleRequest.setFirstDate(LocalDate.parse(callbackValue));
             return sendCalendarKeyBoard(
-                    callbackQuery.getMessage().getChatId(),
-                    callbackQuery.getMessage().getMessageId(),
+                    callbackQueryChatId,
+                    callbackQueryMessageId,
                     ENTER_SECOND_DATE,
                     getClientScheduleRequest.getDisplayedMonth()
             );
         } else {
-            getClientScheduleRequest.setSecondDate(LocalDate.parse(callback.getValue()));
+            getClientScheduleRequest.setSecondDate(LocalDate.parse(callbackValue));
             return sendClientSchedule(
-                    callbackQuery.getMessage().getChatId(),
-                    callbackQuery.getMessage().getMessageId(),
+                    callbackQueryChatId,
+                    callbackQueryMessageId,
                     getClientScheduleRequest);
         }
     }
