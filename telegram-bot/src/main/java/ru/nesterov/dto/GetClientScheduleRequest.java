@@ -15,4 +15,12 @@ public class GetClientScheduleRequest {
     private LocalDate displayedMonth;
     private LocalDate firstDate;
     private LocalDate secondDate;
+
+    public boolean isFilled() {
+        return userId != null
+                && clientName != null
+                && displayedMonth != null
+                && firstDate != null
+                && secondDate != null;
+    }
 }

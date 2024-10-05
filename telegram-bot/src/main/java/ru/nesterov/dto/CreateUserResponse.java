@@ -1,0 +1,15 @@
+package ru.nesterov.dto;
+
+import lombok.Builder;
+import lombok.Data;
+import org.apache.http.HttpStatus;
+
+@Data
+@Builder
+public class CreateUserResponse {
+    private long id;
+    private String userIdentifier;
+    private String mainCalendarId;
+    private String cancelledCalendarId;
+    private boolean isCancelledCalendarEnabled;
+}
