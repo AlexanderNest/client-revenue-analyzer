@@ -34,10 +34,16 @@ public class RevenueAnalyzerBot extends TelegramLongPollingBot {
             return;
         }
 
-        BotApiMethod<?> sendMessage = commandHandler.handle(update);
-        if (commandHandler.isFinished(userId)) {
-            handlersService.resetHandlers(userId);
+        BotApiMethod<?> sendMessage;
+
+        try {
+            sendMessage = commandHandler.handle(update);
+        } finally {
+            if (commandHandler.isFinished(userId)) {
+                handlersService.resetHandlers(userId);
+            }
         }
+
         sendMessage(sendMessage);
     }
 

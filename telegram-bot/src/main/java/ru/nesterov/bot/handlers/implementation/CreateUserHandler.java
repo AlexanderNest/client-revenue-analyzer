@@ -5,25 +5,18 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.stereotype.Component;
 import org.telegram.telegrambots.meta.api.methods.BotApiMethod;
-import org.telegram.telegrambots.meta.api.objects.Message;
 import org.telegram.telegrambots.meta.api.objects.Update;
-import ru.nesterov.bot.handlers.AbstractHandler;
+import ru.nesterov.bot.handlers.BotHandlersRequestsKeeper;
 import ru.nesterov.dto.CreateUserRequest;
 import ru.nesterov.dto.CreateUserResponse;
 import ru.nesterov.dto.GetUserRequest;
-import ru.nesterov.integration.ClientRevenueAnalyzerIntegrationClient;
-
-import java.util.Map;
-import java.util.concurrent.ConcurrentHashMap;
 
 @Component
 @Data
 @RequiredArgsConstructor
 @ConditionalOnProperty("bot.enabled")
-public class CreateUserHandler extends AbstractHandler {
-    private final ClientRevenueAnalyzerIntegrationClient client;
-
-    private final Map<Long, CreateUserRequest> createUserRequests = new ConcurrentHashMap<>();
+public class CreateUserHandler extends ClientRevenueAbstractHandler {
+    private final BotHandlersRequestsKeeper keeper;
 
     @Override
     public BotApiMethod<?> handle(Update update) {
@@ -31,28 +24,27 @@ public class CreateUserHandler extends AbstractHandler {
         long userId = update.getMessage().getFrom().getId();
         String text = update.getMessage().getText();
 
-        CreateUserRequest createUserRequest = createUserRequests.get(userId);
+        CreateUserRequest createUserRequest = keeper.getRequest(userId, CreateUserHandler.class, CreateUserRequest.class);
 
         if ("/register".equals(text)) {
             return handleRegisterCommand(userId, chatId);
         } else if (createUserRequest == null) {
             return handleMainCalendarInput(update);
         } else if (createUserRequest.getIsCancelledCalendarEnabled() == null) {
-            return handleCancelledCalendarIdInput(update);
+            return handleCancelledCalendarIdInput(update, createUserRequest);
         } else {
-            return registerUser(update);
+            return registerUser(update,createUserRequest);
         }
     }
 
-    private BotApiMethod<?> handleCancelledCalendarIdInput(Update update) {
-        CreateUserRequest createUserRequest = createUserRequests.get(update.getMessage().getFrom().getId());
+    private BotApiMethod<?> handleCancelledCalendarIdInput(Update update, CreateUserRequest createUserRequest) {
         createUserRequest.setIsCancelledCalendarEnabled(Boolean.valueOf(update.getMessage().getText()));
 
         long chatId = update.getMessage().getChatId();
         if (createUserRequest.getIsCancelledCalendarEnabled()) {
             return getPlainSendMessage(chatId, "Введите ID календаря с отмененными мероприятиями:");
         } else {
-            return registerUser(update);
+            return registerUser(update, createUserRequest);
         }
     }
 
@@ -72,7 +64,7 @@ public class CreateUserHandler extends AbstractHandler {
                 .mainCalendarId( update.getMessage().getText())
                 .build();
 
-        createUserRequests.put(userId, createUserRequest);
+        keeper.putRequest(CreateUserHandler.class, userId, createUserRequest);
 
         return getPlainSendMessage(update.getMessage().getChatId(), "Вы хотите сохранять информацию об отмененных мероприятиях с использованием второго календаря?");
     }
@@ -84,8 +76,7 @@ public class CreateUserHandler extends AbstractHandler {
         return client.getUserByUsername(request) == null;
     }
 
-    private BotApiMethod<?> registerUser(Update update) {
-        CreateUserRequest createUserRequest = createUserRequests.get(update.getMessage().getFrom().getId());
+    private BotApiMethod<?> registerUser(Update update, CreateUserRequest createUserRequest) {
         createUserRequest.setCancelledCalendarId(update.getMessage().getText());
 
         CreateUserResponse response = client.createUser(createUserRequest);
@@ -102,14 +93,13 @@ public class CreateUserHandler extends AbstractHandler {
     }
 
     @Override
-    public boolean isApplicable(Update update) {
-        Message message = update.getMessage();
-
-        return message != null && "/register".equals(message.getText());
+    public String getCommand() {
+        return "/register";
     }
 
     @Override
     public boolean isFinished(Long userId) {
-        return createUserRequests.get(userId) != null && createUserRequests.get(userId).isFilled();
+        CreateUserRequest createUserRequest = keeper.getRequest(userId, CreateUserHandler.class, CreateUserRequest.class);
+        return createUserRequest != null && createUserRequest.isFilled();
     }
 }

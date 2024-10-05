@@ -25,8 +25,10 @@ public class HandlersService {
         long userId = TelegramUpdateUtils.getUserId(update);
 
         CommandHandler userHandler = userHandlers.get(userId);
-        if (userHandler != null) {
+        if (userHandler != null && userHandler.isApplicable(update)) {
             return userHandler;
+        } else {
+            userHandlers.remove(userId);
         }
 
         for (CommandHandler commandHandler : commandHandlers) {
