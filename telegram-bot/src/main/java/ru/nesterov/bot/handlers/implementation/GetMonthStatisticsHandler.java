@@ -1,19 +1,16 @@
 package ru.nesterov.bot.handlers.implementation;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
-import lombok.RequiredArgsConstructor;
 import lombok.SneakyThrows;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.stereotype.Component;
 import org.telegram.telegrambots.meta.api.methods.BotApiMethod;
 import org.telegram.telegrambots.meta.api.methods.send.SendMessage;
 import org.telegram.telegrambots.meta.api.objects.CallbackQuery;
-import org.telegram.telegrambots.meta.api.objects.Message;
 import org.telegram.telegrambots.meta.api.objects.Update;
 import org.telegram.telegrambots.meta.api.objects.replykeyboard.InlineKeyboardMarkup;
 import org.telegram.telegrambots.meta.api.objects.replykeyboard.buttons.InlineKeyboardButton;
-import ru.nesterov.bot.handlers.AbstractHandler;
-import ru.nesterov.bot.handlers.callback.GetMonthStatisticsKeyboardCallback;
+import ru.nesterov.bot.handlers.callback.ButtonCallback;
 import ru.nesterov.dto.GetIncomeAnalysisForMonthResponse;
 import ru.nesterov.integration.ClientRevenueAnalyzerIntegrationClient;
 import ru.nesterov.utils.MonthUtil;
@@ -23,12 +20,8 @@ import java.util.Arrays;
 import java.util.List;
 
 @Component
-@RequiredArgsConstructor
 @ConditionalOnProperty("bot.enabled")
-public class GetMonthStatisticsHandler extends AbstractHandler {
-    private final ObjectMapper objectMapper;
-    private final ClientRevenueAnalyzerIntegrationClient client;
-
+public class GetMonthStatisticsHandler extends ClientRevenueAbstractHandler {
     private static final String[] months = {
             "Январь", "Февраль",
             "Март", "Апрель", "Май",
@@ -38,6 +31,10 @@ public class GetMonthStatisticsHandler extends AbstractHandler {
     };
 
     private static final String markSymbol = "\u2B50";
+
+    public GetMonthStatisticsHandler(ObjectMapper objectMapper, ClientRevenueAnalyzerIntegrationClient client) {
+        super(objectMapper, client);
+    }
 
     @Override
     public BotApiMethod<?> handle(Update update) {
@@ -53,11 +50,17 @@ public class GetMonthStatisticsHandler extends AbstractHandler {
 
     @SneakyThrows
     private BotApiMethod<?> sendMonthStatistics(Update update) {
+        long userId = update.getCallbackQuery().getFrom().getId();
         CallbackQuery callbackQuery = update.getCallbackQuery();
-        GetMonthStatisticsKeyboardCallback callback = objectMapper.readValue(callbackQuery.getData(), GetMonthStatisticsKeyboardCallback.class);
-        GetIncomeAnalysisForMonthResponse response = client.getIncomeAnalysisForMonth(callbackQuery.getFrom().getId(), clearFromMark(callback.getValue()));
+        ButtonCallback callback = objectMapper.readValue(callbackQuery.getData(), ButtonCallback.class);
+        GetIncomeAnalysisForMonthResponse response = client.getIncomeAnalysisForMonth(userId, clearFromMark(callback.getValue()));
 
-        return getPlainSendMessage(update.getCallbackQuery().getMessage().getChatId(), formatIncomeAnalysis(response));
+        return editMessage(
+                callbackQuery.getMessage().getChatId(),
+                callbackQuery.getMessage().getMessageId(),
+                formatIncomeAnalysis(response),
+                null
+        );
     }
 
     private String formatIncomeAnalysis(GetIncomeAnalysisForMonthResponse response) {
@@ -86,9 +89,9 @@ public class GetMonthStatisticsHandler extends AbstractHandler {
             for (int j = i; j < i + 3 && j < monthsWithMark.length; j++) {
                 InlineKeyboardButton button = new InlineKeyboardButton();
                 button.setText(monthsWithMark[j]);
-                GetMonthStatisticsKeyboardCallback callback = new GetMonthStatisticsKeyboardCallback();
+                ButtonCallback callback = new ButtonCallback();
                 callback.setValue(clearFromMark(monthsWithMark[j]));
-                callback.setCommand("/monthincome");
+                callback.setCommand(getCommand());
                 button.setCallbackData(objectMapper.writeValueAsString(callback));
                 row.add(button);
             }
@@ -115,15 +118,8 @@ public class GetMonthStatisticsHandler extends AbstractHandler {
     }
 
     @Override
-    @SneakyThrows
-    public boolean isApplicable(Update update) {
-        Message message = update.getMessage();
-        boolean isCommand = message != null && "/monthincome".equals(message.getText());
-
-        CallbackQuery callbackQuery = update.getCallbackQuery();
-        boolean isCallback = callbackQuery != null && "/monthincome".equals(objectMapper.readValue(callbackQuery.getData(), GetMonthStatisticsKeyboardCallback.class).getCommand());
-
-        return isCommand || isCallback;
+    public String getCommand() {
+        return "/monthincome";
     }
 
     @Override

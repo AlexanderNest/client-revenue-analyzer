@@ -40,8 +40,6 @@ public class HandlersService {
         return null;
     }
 
-
-
     public void resetHandlers(Long userId) {
         userHandlers.remove(userId);
     }

@@ -2,22 +2,34 @@ package ru.nesterov.integration;
 
 import lombok.RequiredArgsConstructor;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
+import org.springframework.core.ParameterizedTypeReference;
 import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpHeaders;
+import org.springframework.http.HttpMethod;
+import org.springframework.http.ResponseEntity;
 import org.springframework.http.HttpStatus;
+import org.springframework.http.HttpStatusCode;
+import org.springframework.http.ResponseEntity;
 import org.springframework.http.HttpStatusCode;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Component;
 import org.springframework.web.client.HttpClientErrorException;
 import org.springframework.web.client.RestTemplate;
+import ru.nesterov.dto.*;
 import ru.nesterov.dto.CreateUserRequest;
 import ru.nesterov.dto.CreateUserResponse;
 import ru.nesterov.dto.GetForMonthRequest;
 import ru.nesterov.dto.GetIncomeAnalysisForMonthResponse;
 import ru.nesterov.dto.GetUserRequest;
 import ru.nesterov.dto.GetUserResponse;
+import ru.nesterov.dto.GetUserRequest;
+import ru.nesterov.dto.GetUserResponse;
 import ru.nesterov.properties.BotProperties;
 import ru.nesterov.properties.RevenueAnalyzerProperties;
+
+import java.time.LocalDateTime;
+import java.util.List;
+
 
 @Component
 @RequiredArgsConstructor
@@ -31,14 +43,7 @@ public class ClientRevenueAnalyzerIntegrationClient {
         GetForMonthRequest getForMonthRequest = new GetForMonthRequest();
         getForMonthRequest.setMonthName(monthName);
 
-        ResponseEntity<GetIncomeAnalysisForMonthResponse> responseEntity = post(String.valueOf(userId), getForMonthRequest, "/revenue-analyzer/events/analyzer/getIncomeAnalysisForMonth", GetIncomeAnalysisForMonthResponse.class);
-
-        return responseEntity.getBody();
-    }
-
-    public CreateUserResponse createUser(CreateUserRequest createUserRequest) {
-        ResponseEntity<CreateUserResponse> responseEntity = post(createUserRequest.getUserIdentifier(), createUserRequest, "/revenue-analyzer/user/createUser", CreateUserResponse.class);
-        return responseEntity.getBody();
+        return post(String.valueOf(userId), getForMonthRequest, "/revenue-analyzer/events/analyzer/getIncomeAnalysisForMonth", GetIncomeAnalysisForMonthResponse.class);
     }
 
     public GetUserResponse getUserByUsername(GetUserRequest request) {
@@ -50,22 +55,58 @@ public class ClientRevenueAnalyzerIntegrationClient {
         }
     }
 
-    private <T> ResponseEntity<T> post(String username, Object request, String endpoint, Class<T> responseType) {
+    public List<GetClientScheduleResponse> getClientSchedule(long userId, String clientName, LocalDateTime leftDate, LocalDateTime rightDate) {
+        GetForClientScheduleRequest request = new GetForClientScheduleRequest();
+        request.setClientName(clientName);
+        request.setLeftDate(leftDate);
+        request.setRightDate(rightDate);
+
+        return postForList(
+                String.valueOf(userId),
+                request,
+                "/revenue-analyzer/client/getSchedule",
+                new ParameterizedTypeReference<List<GetClientScheduleResponse>>() {
+                }
+        );
+    }
+
+    public List<GetActiveClientResponse> getActiveClients(long userId) {
+        return postForList(String.valueOf(userId),
+                null,
+                "/revenue-analyzer/client/getActiveClients",
+                new ParameterizedTypeReference<List<GetActiveClientResponse>>() {
+                }
+        );
+    }
+
+    private <T> T post(String username, Object request, String endpoint, Class<T> responseType) {
+        HttpEntity<Object> entity = new HttpEntity<>(request, createHeaders(username));
+
+        return restTemplate.postForObject(
+                revenueAnalyzerProperties.getUrl() + endpoint,
+                entity,
+                responseType
+        );
+    }
+
+    private <T> List<T> postForList(String username, Object request, String endpoint, ParameterizedTypeReference<List<T>> typeReference) {
+        HttpEntity<Object> requestEntity = new HttpEntity<>(request, createHeaders(username));
+
+        ResponseEntity<List<T>> responseEntity = restTemplate.exchange(
+                revenueAnalyzerProperties.getUrl() + endpoint,
+                HttpMethod.POST,
+                requestEntity,
+                typeReference
+        );
+
+        return responseEntity.getBody();
+    }
+
+    private HttpHeaders createHeaders(String username) {
         HttpHeaders headers = new HttpHeaders();
         headers.set("X-secret-token", botProperties.getSecretToken());
         headers.set("X-username", username);
 
-        HttpEntity<Object> entity = new HttpEntity<>(request, headers);
-
-        try {
-            T response = restTemplate.postForObject(
-                    revenueAnalyzerProperties.getUrl() + endpoint,
-                    entity,
-                    responseType
-            );
-            return new ResponseEntity<>(response, HttpStatus.OK);
-        } catch (HttpClientErrorException e) {
-            return new ResponseEntity<>(null, e.getStatusCode());
-        }
+        return headers;
     }
 }
