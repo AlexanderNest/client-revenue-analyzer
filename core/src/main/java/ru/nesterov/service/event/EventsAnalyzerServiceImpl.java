@@ -12,15 +12,18 @@ import ru.nesterov.exception.UnknownEventStatusException;
 import ru.nesterov.repository.ClientRepository;
 import ru.nesterov.repository.UserRepository;
 import ru.nesterov.service.CalendarService;
+import ru.nesterov.service.dateHelper.WeekHelper;
 import ru.nesterov.service.dto.BusynessAnalysisResult;
 import ru.nesterov.service.dto.ClientMeetingsStatistic;
 import ru.nesterov.service.dto.IncomeAnalysisResult;
 import ru.nesterov.service.dto.UserDto;
-import ru.nesterov.service.monthHelper.MonthDatesPair;
-import ru.nesterov.service.monthHelper.MonthHelper;
+import ru.nesterov.service.dateHelper.MonthDatesPair;
+import ru.nesterov.service.dateHelper.MonthHelper;
 
 import java.time.LocalDateTime;
+import java.util.Comparator;
 import java.util.HashMap;
+import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
@@ -151,26 +154,32 @@ public class EventsAnalyzerServiceImpl implements EventsAnalyzerService {
     @Override
     public BusynessAnalysisResult getBusynessStatisticsByYear(UserDto userDto, int year) {
         List<Event> events = getEventsByYear(userDto, year);
-        Map<Integer, Double> monthHours = new HashMap<>();
+        Map<String, Double> monthHours = new HashMap<>();
         Map<String, Double> weekHours = new HashMap<>();
         for (Event event : events) {
             if (event.getStatus() == EventStatus.SUCCESS) {
                 double eventDuration = eventService.getEventDuration(event);
-                Integer month = event.getStart().getMonthValue();
-//                monthHours.merge(month, eventDuration, Double::sum);
-                if (monthHours.get(month) != null){
-                    monthHours.put(month, monthHours.get(month) + eventDuration);
-                } else {
-                    monthHours.put(month, eventDuration);
-                }
-                String dayOfWeek = event.getStart().getDayOfWeek().name();
-
+                String monthName = MonthHelper.getMonthNameByNumber(event.getStart().getMonthValue());
+                monthHours.merge(monthName, eventDuration, Double::sum);
+                String dayOfWeekName = WeekHelper.getWeekDayNameByNumber(event.getStart().getDayOfWeek().getValue());
+                weekHours.merge(dayOfWeekName, eventDuration, Double::sum);
             }
-
         }
 
-        BusynessAnalysisResult result = new BusynessAnalysisResult();
+        LinkedHashMap<String, Double> sortedMonthHours = new LinkedHashMap<>();
+        monthHours.entrySet().stream()
+                .sorted((e1, e2) -> e2.getValue().compareTo(e1.getValue()))
+                .forEach(entry -> sortedMonthHours.put(entry.getKey(), entry.getValue()));
 
-        return null;
+        LinkedHashMap<String, Double> sortedWeekDayHours = new LinkedHashMap<>();
+        weekHours.entrySet().stream()
+                .sorted((e1, e2) -> e2.getValue().compareTo(e1.getValue()))
+                .forEach(entry -> sortedWeekDayHours.put(entry.getKey(), entry.getValue()));
+
+        BusynessAnalysisResult result = new BusynessAnalysisResult();
+        result.setMonths(sortedMonthHours);
+        result.setDays(sortedWeekDayHours);
+
+        return result;
     }
 }
