@@ -1,4 +1,4 @@
-package ru.nesterov.service.monthHelper;
+package ru.nesterov.service.dateHelper;
 
 import java.time.LocalDate;
 import java.time.LocalDateTime;
@@ -29,6 +29,25 @@ public class MonthHelper {
             }
         }
     }
+
+    public static String getMonthNameByNumber(int monthNumber) {
+        Month month = Month.of(monthNumber);
+        return switch (month) {
+            case JANUARY -> "Январь";
+            case FEBRUARY -> "Февраль";
+            case MARCH -> "Март";
+            case APRIL -> "Апрель";
+            case MAY -> "Май";
+            case JUNE -> "Июнь";
+            case JULY -> "Июль";
+            case AUGUST -> "Август";
+            case SEPTEMBER -> "Сентябрь";
+            case OCTOBER -> "Октябрь";
+            case NOVEMBER -> "Ноябрь";
+            case DECEMBER -> "Декабрь";
+        };
+    }
+
 
     public static MonthDatesPair getFirstAndLastDayOfMonth(String monthName) {
         monthName = monthName.toLowerCase();
