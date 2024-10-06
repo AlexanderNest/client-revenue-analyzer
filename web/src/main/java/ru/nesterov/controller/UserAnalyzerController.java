@@ -6,19 +6,20 @@ import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.parameters.RequestBody;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.tags.Tag;
+import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestHeader;
 import org.springframework.web.bind.annotation.RequestMapping;
 import ru.nesterov.controller.request.GetForYearRequest;
 import ru.nesterov.controller.response.YearBusynessStatisticsResponse;
-
+import ru.nesterov.service.dto.BusynessAnalysisResult;
 
 @Tag(name = "Анализатор пользователей", description = "API для анализа пользователей")
 @RequestMapping("/user/analyzer")
 public interface UserAnalyzerController {
     @Operation(
-            summary = "Получить расчет занятости",
-            description = "Возвращает фактическую занятость пользователя за указанный год, сортированную по месяцам и дням недели",
+            summary = "Получить расчет занятости за год",
+            description = "Возвращает фактическую занятость пользователя за указанный год, отсортированную по убыванию загруженности",
             requestBody = @RequestBody(
                     description = "Запрос для получения статистики за год",
                     required = true,
@@ -31,5 +32,5 @@ public interface UserAnalyzerController {
             }
     )
     @PostMapping("/getYearBusynessStatistics")
-    YearBusynessStatisticsResponse getYearStatistics(@RequestHeader(name = "X-username") String username, @org.springframework.web.bind.annotation.RequestBody GetForYearRequest getForYearRequest);
+    BusynessAnalysisResult getYearStatistics(@RequestHeader(name = "X-username") String username, @RequestBody GetForYearRequest getForYearRequest);
 }

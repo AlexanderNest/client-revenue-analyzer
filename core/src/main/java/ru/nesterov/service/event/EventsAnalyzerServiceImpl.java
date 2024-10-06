@@ -152,14 +152,17 @@ public class EventsAnalyzerServiceImpl implements EventsAnalyzerService {
     public BusynessAnalysisResult getBusynessStatisticsByYear(UserDto userDto, int year) {
         List<Event> events = getEventsByYear(userDto, year);
         Map<Integer, Double> monthHours = new HashMap<>();
-
         Map<String, Double> weekHours = new HashMap<>();
         for (Event event : events) {
             if (event.getStatus() == EventStatus.SUCCESS) {
                 double eventDuration = eventService.getEventDuration(event);
                 Integer month = event.getStart().getMonthValue();
-                monthHours.merge(month, eventDuration, Double::sum);
-
+//                monthHours.merge(month, eventDuration, Double::sum);
+                if (monthHours.get(month) != null){
+                    monthHours.put(month, monthHours.get(month) + eventDuration);
+                } else {
+                    monthHours.put(month, eventDuration);
+                }
                 String dayOfWeek = event.getStart().getDayOfWeek().name();
 
             }
