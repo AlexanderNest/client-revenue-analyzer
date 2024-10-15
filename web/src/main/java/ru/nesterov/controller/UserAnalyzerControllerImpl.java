@@ -17,7 +17,7 @@ public class UserAnalyzerControllerImpl implements UserAnalyzerController {
     private final EventsAnalyzerService eventsAnalyzerService;
     private final UserService userService;
 
-    public YearBusynessStatisticsResponse getYearStatistics(@RequestHeader(name = "X-username") String username, @RequestBody GetForYearRequest getForYearRequest) {
+    public YearBusynessStatisticsResponse getYearBusynessStatistics(@RequestHeader(name = "X-username") String username, @RequestBody GetForYearRequest getForYearRequest) {
         UserDto userDto = userService.getUserByUsername(username);
         return UserMapper.mapToResponse(eventsAnalyzerService.getBusynessStatisticsByYear(userDto, getForYearRequest.getYear()));
     }

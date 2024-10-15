@@ -31,5 +31,5 @@ public interface UserAnalyzerController {
             }
     )
     @PostMapping("/getYearBusynessStatistics")
-    YearBusynessStatisticsResponse getYearStatistics(@RequestHeader(name = "X-username") String username, @RequestBody GetForYearRequest getForYearRequest);
+    YearBusynessStatisticsResponse getYearBusynessStatistics(@RequestHeader(name = "X-username") String username, @RequestBody GetForYearRequest getForYearRequest);
 }

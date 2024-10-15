@@ -26,6 +26,7 @@ import java.util.List;
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyBoolean;
+import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.when;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
@@ -46,18 +47,18 @@ class UserAnalyzerControllerTest {
     private CalendarService calendarService;
     @MockBean
     private CalendarClient calendarClient;
+
     private static final String GET_YEAR_STATISTICS_URL = "/user/analyzer/getYearBusynessStatistics";
 
-    @BeforeEach
-    void init() {
-        User user1 = new User();
-        user1.setId(1);
-        user1.setUsername("testUser1");
-        user1.setMainCalendar("someCalendar1");
-        userRepository.save(user1);
+    @Test
+    void getYearStatistics() throws Exception {
+        User user = new User();
+        user.setUsername("testUser1");
+        user.setMainCalendar("someCalendar1");
+        userRepository.save(user);
 
         Client client1 = new Client();
-        client1.setId(1);
+        client1.setUser(user);
         client1.setName("testName1");
         client1.setPricePerHour(1000);
         clientRepository.save(client1);
@@ -76,23 +77,10 @@ class UserAnalyzerControllerTest {
                 .end(LocalDateTime.of(2024, 8, 14, 20, 0))
                 .build();
 
-        when(calendarService.getEventsBetweenDates(any(), any(), anyBoolean(), any(), any())).thenReturn(List.of(event1, event2));
-    }
-
-
-
-
-    @Test
-    void getYearStatistics() throws Exception{
-        User user = new User();
-        user.setUsername("testUser");
-        user.setMainCalendar("mainCalendar");
-        user.setCancelledCalendar("cancelCalendar");
-        user = userRepository.save(user);
+        when(calendarService.getEventsBetweenDates(eq("someCalendar1"), any(), anyBoolean(), any(), any())).thenReturn(List.of(event1, event2));
 
         GetForYearRequest getForYearRequest = new GetForYearRequest();
         getForYearRequest.setYear(2024);
-
 
         mockMvc.perform(
                         post(GET_YEAR_STATISTICS_URL)
