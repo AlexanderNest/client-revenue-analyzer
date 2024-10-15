@@ -1,4 +1,4 @@
-package ru.nesterov.service.monthHelper;
+package ru.nesterov.service.dateHelper;
 
 import lombok.Data;
 import lombok.RequiredArgsConstructor;
