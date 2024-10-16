@@ -198,4 +198,27 @@
             <column name="user_id"/>
         </createIndex>
     </changeSet>
+
+    <changeSet id="create-table-event_backup" author="Lizogubov Eugeny">
+        <preConditions>
+            <tableExists tableName="user"/>
+            <not>
+                <tableExists tableName="event_backup"/>
+            </not>
+        </preConditions>
+        <sql>
+            CREATE TABLE event_backup
+            (
+                id          BIGSERIAL PRIMARY KEY NOT NULL,
+                user_id     BIGINT REFERENCES "user" (id),
+                status      VARCHAR(20)           NOT NULL,
+                summary     VARCHAR(200),
+                start_date  TIMESTAMP,
+                end_date    TIMESTAMP,
+                comment     VARCHAR(200),
+                income      INT,
+                backup_time TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+            );
+        </sql>
+    </changeSet>
 </databaseChangeLog>
