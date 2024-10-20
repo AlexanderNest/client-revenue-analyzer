@@ -61,7 +61,7 @@ public class GetMonthStatisticsHandler extends ClientRevenueAbstractHandler {
                 formatIncomeAnalysis(response),
                 null
         );
-    }
+}
 
     private String formatIncomeAnalysis(GetIncomeAnalysisForMonthResponse response) {
         double actualIncome = response.getActualIncome();

@@ -9,6 +9,7 @@ import org.springframework.http.HttpMethod;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Component;
 import org.springframework.web.client.RestTemplate;
+import ru.nesterov.bot.handlers.implementation.GetYearBusynessStatisticsHandler;
 import ru.nesterov.dto.*;
 import ru.nesterov.properties.BotProperties;
 import ru.nesterov.properties.RevenueAnalyzerProperties;
@@ -54,6 +55,13 @@ public class ClientRevenueAnalyzerIntegrationClient {
                 new ParameterizedTypeReference<List<GetActiveClientResponse>>() {
                 }
         );
+    }
+
+    public GetYearBusynessStatisticsResponse getYearBusynessStatistics(long userId, int year) {
+        GetYearBusynessStatisticsRequest getYearBusynessStatisticsRequest = new GetYearBusynessStatisticsRequest();
+        getYearBusynessStatisticsRequest.setYear(year);
+
+        return post(String.valueOf(userId), getYearBusynessStatisticsRequest, "/revenue-analyzer/user/analyzer/getYearBusynessStatistics", GetYearBusynessStatisticsResponse.class);
     }
 
     private <T> T post(String username, Object request, String endpoint, Class<T> responseType) {
