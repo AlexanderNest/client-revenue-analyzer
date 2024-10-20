@@ -7,20 +7,18 @@ import org.springframework.security.config.annotation.web.configuration.EnableWe
 import org.springframework.security.config.annotation.web.configurers.AbstractHttpConfigurer;
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.web.SecurityFilterChain;
-import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
 
 @EnableWebSecurity
 @Configuration
 public class WebSecurityConfig {
     @Bean
-    public SecurityFilterChain securityFilterChain(HttpSecurity httpSecurity, SecretTokenFilter secretTokenFilter) throws Exception {
+    public SecurityFilterChain securityFilterChain(HttpSecurity httpSecurity) throws Exception {
         return httpSecurity.csrf(AbstractHttpConfigurer::disable)
                 .httpBasic(AbstractHttpConfigurer::disable)
                 .authorizeHttpRequests(
                         auth -> auth
                                 .anyRequest().permitAll()
                 )
-                .addFilterBefore(secretTokenFilter, UsernamePasswordAuthenticationFilter.class)
                 .build();
     }
 

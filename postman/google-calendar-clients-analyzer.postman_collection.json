@@ -1,9 +1,9 @@
 {
 	"info": {
-		"_postman_id": "81197df1-bf6a-4072-8132-c6e0940db56f",
+		"_postman_id": "5b3383c4-949e-4adc-8d4d-45c696cd806f",
 		"name": "google-calendar-clients-analyzer",
 		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
-		"_exporter_id": "31542889"
+		"_exporter_id": "33953817"
 	},
 	"item": [
 		{
@@ -340,6 +340,103 @@
 					"response": []
 				}
 			]
+		},
+		{
+			"name": "Пользователи",
+			"item": [
+				{
+					"name": "Создать пользователя",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "X-username",
+								"value": "{{username}}",
+								"type": "text"
+							},
+							{
+								"key": "X-secret-token",
+								"value": "{{secret-token}}",
+								"type": "text"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{ \r\n    \"userIdentifier\": \"100\",\r\n    \"mainCalendarId\" : \"maincalendar1\",\r\n    \"isCancelledCalendarEnabled\" : true,\r\n    \"cancelledCalendarId\" : \"cancelledcalendar1\"\r\n}\r\n    ",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "http://localhost:8080/revenue-analyzer/user/createUser",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "8080",
+							"path": [
+								"revenue-analyzer",
+								"user",
+								"createUser"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Найти пользователя по идентификатору",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "X-secret-token",
+								"value": "{{secret-token}}",
+								"type": "text"
+							},
+							{
+								"key": "X-username",
+								"value": "{{username}}",
+								"type": "text"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n    \"username\": 1\r\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "http://localhost:8080/revenue-analyzer/user/getUserByUsername",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "8080",
+							"path": [
+								"revenue-analyzer",
+								"user",
+								"getUserByUsername"
+							]
+						}
+					},
+					"response": []
+				}
+			]
+		}
+	],
+	"variable": [
+		{
+			"key": "secret-token",
+			"value": "secret-token"
+		},
+		{
+			"key": "username",
+			"value": "1155310016"
 		}
 	]
 }

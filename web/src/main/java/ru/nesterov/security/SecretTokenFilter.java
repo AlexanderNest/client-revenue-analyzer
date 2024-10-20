@@ -1,19 +1,18 @@
 package ru.nesterov.security;
 
-import jakarta.servlet.Filter;
+
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
-import jakarta.servlet.ServletRequest;
-import jakarta.servlet.ServletResponse;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
+import org.springframework.web.filter.OncePerRequestFilter;
 
 import java.io.IOException;
 
 @Component
-public class SecretTokenFilter implements Filter {
+public class SecretTokenFilter extends OncePerRequestFilter {
     private static final String HEADER = "X-secret-token";
 
     private final String token;
@@ -26,19 +25,29 @@ public class SecretTokenFilter implements Filter {
     }
 
     @Override
-    public void doFilter(ServletRequest servletRequest, ServletResponse servletResponse, FilterChain filterChain) throws IOException, ServletException {
-        HttpServletRequest request = (HttpServletRequest) servletRequest;
-        HttpServletResponse response = (HttpServletResponse) servletResponse;
+    protected void doFilterInternal(HttpServletRequest request,
+                                    HttpServletResponse response,
+                                    FilterChain filterChain) throws ServletException, IOException {
+        String token = request.getHeader(HEADER);
 
-        if (!secretTokenEnabled) {
-            filterChain.doFilter(request, response);
+        if (secretTokenEnabled && (token == null || !token.equals(this.token))) {
+            // Если токена нет, возвращаем 403 Forbidden
+            response.setStatus(HttpServletResponse.SC_FORBIDDEN);
+            response.getWriter().write("Missing or invalid token");
             return;
         }
-        String header = request.getHeader(HEADER);
-        if (!token.equals(header)) {
-            response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
-        } else {
-            filterChain.doFilter(request, response);
-        }
+
+        // Продолжаем цепочку фильтров, если токен найден
+        filterChain.doFilter(request, response);
     }
+
+    @Override
+    protected boolean shouldNotFilter(HttpServletRequest request) throws ServletException {
+        // Исключаем из фильтрации маршруты для Swagger
+        String path = request.getRequestURI();
+        return path.contains("swagger-ui")
+                || path.contains("api-docs")
+                || path.contains("swagger-resources");
+    }
+
 }

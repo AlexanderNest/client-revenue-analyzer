@@ -2,6 +2,7 @@ package ru.nesterov.bot.handlers.implementation;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.SneakyThrows;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.telegram.telegrambots.meta.api.methods.AnswerCallbackQuery;
 import org.telegram.telegrambots.meta.api.methods.BotApiMethod;
 import org.telegram.telegrambots.meta.api.methods.send.SendMessage;
@@ -16,13 +17,10 @@ import ru.nesterov.bot.handlers.callback.ButtonCallback;
 import ru.nesterov.integration.ClientRevenueAnalyzerIntegrationClient;
 
 public abstract class ClientRevenueAbstractHandler implements CommandHandler {
-    protected final ObjectMapper objectMapper;
-    protected final ClientRevenueAnalyzerIntegrationClient client;
-
-    public ClientRevenueAbstractHandler(ObjectMapper objectMapper, ClientRevenueAnalyzerIntegrationClient client) {
-        this.objectMapper = objectMapper;
-        this.client = client;
-    }
+    @Autowired
+    protected ObjectMapper objectMapper;
+    @Autowired
+    protected ClientRevenueAnalyzerIntegrationClient client;
 
     public BotApiMethod<?> getPlainSendMessage(long chatId, String text) {
         return buildSendMessage(chatId, text, null);
@@ -65,14 +63,18 @@ public abstract class ClientRevenueAbstractHandler implements CommandHandler {
     @SneakyThrows
     public boolean isApplicable(Update update) {
         Message message = update.getMessage();
-        boolean isCommand = message != null && getCommand().equals(message.getText());
+        boolean isCurrentHandlerCommand = message != null && getCommand().equals(message.getText());
 
         CallbackQuery callbackQuery = update.getCallbackQuery();
 
         boolean isCallback = callbackQuery != null
                 && (getCommand().equals(ButtonCallback.fromShortString(callbackQuery.getData()).getCommand()) || getCommand().equals(objectMapper.readValue(callbackQuery.getData(), ButtonCallback.class).getCommand()));
 
-        return isCommand || isCallback;
+        boolean isPlainText = message != null && message.getText() != null;
+        boolean isCommand = message != null && message.getText() != null && message.getText().startsWith("/") && !isCurrentHandlerCommand;
+
+
+        return (isCurrentHandlerCommand || isCallback || isPlainText) && !isCommand;
     }
 
     public abstract String getCommand();

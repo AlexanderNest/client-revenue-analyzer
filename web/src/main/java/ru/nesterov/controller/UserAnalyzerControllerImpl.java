@@ -7,9 +7,9 @@ import org.springframework.web.bind.annotation.RestController;
 import ru.nesterov.controller.request.GetForYearRequest;
 import ru.nesterov.controller.response.YearBusynessStatisticsResponse;
 import ru.nesterov.mapper.UserMapper;
-import ru.nesterov.service.UserService;
 import ru.nesterov.service.dto.UserDto;
 import ru.nesterov.service.event.EventsAnalyzerService;
+import ru.nesterov.service.user.UserService;
 
 @RestController
 @RequiredArgsConstructor

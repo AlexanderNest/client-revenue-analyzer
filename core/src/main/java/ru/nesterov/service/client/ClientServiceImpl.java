@@ -26,7 +26,6 @@ public class ClientServiceImpl implements ClientService {
     private final ClientRepository clientRepository;
     private final UserRepository userRepository;
 
-
     public List<MonthDatesPair> getClientSchedule(UserDto userDto, String clientName, LocalDateTime leftDate, LocalDateTime rightDate) {
         Client client = clientRepository.findClientByNameAndUserId(clientName, userDto.getId());
         if (client == null) {

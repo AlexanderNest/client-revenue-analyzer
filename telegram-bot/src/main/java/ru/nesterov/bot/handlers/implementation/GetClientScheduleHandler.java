@@ -37,7 +37,6 @@ public class GetClientScheduleHandler extends ClientRevenueAbstractHandler {
 
     public GetClientScheduleHandler(ObjectMapper objectMapper, ClientRevenueAnalyzerIntegrationClient client,
                                     BotHandlersRequestsKeeper handlersKeeper, InlineCalendarBuilder inlineCalendarBuilder) {
-        super(objectMapper, client);
         this.handlersKeeper = handlersKeeper;
         this.inlineCalendarBuilder = inlineCalendarBuilder;
     }
@@ -72,6 +71,11 @@ public class GetClientScheduleHandler extends ClientRevenueAbstractHandler {
             message = handleCallbackQuery(update, getClientScheduleRequest);
         }
         return message;
+    }
+
+    @Override
+    public boolean isFinished(Long userId) {
+        return true;
     }
 
     @SneakyThrows
