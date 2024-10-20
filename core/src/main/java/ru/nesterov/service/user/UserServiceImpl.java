@@ -1,4 +1,4 @@
-package ru.nesterov.service;
+package ru.nesterov.service.user;
 
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
@@ -8,7 +8,7 @@ import ru.nesterov.service.dto.UserDto;
 
 @Service
 @RequiredArgsConstructor
-public class UserService {
+public class UserServiceImpl implements UserService{
     private final UserRepository userRepository;
 
     public UserDto getUserByUsername(String username) {
@@ -16,7 +16,13 @@ public class UserService {
         return convert(user);
     }
 
+    public UserDto createUser(UserDto userDto) {
+        User user = userRepository.save(convert(userDto));
+        return convert(user);
+    }
+
     private UserDto convert(User user) {
+        if (user == null) { return null; }
         return UserDto.builder()
                 .id(user.getId())
                 .username(user.getUsername())
@@ -24,5 +30,16 @@ public class UserService {
                 .mainCalendar(user.getMainCalendar())
                 .isCancelledCalendarEnabled(user.isCancelledCalendarEnabled())
                 .build();
+    }
+
+    private User convert(UserDto userDto) {
+        User user = new User();
+        user.setId(userDto.getId());
+        user.setUsername(userDto.getUsername());
+        user.setMainCalendar(userDto.getMainCalendar());
+        user.setCancelledCalendarEnabled(userDto.isCancelledCalendarEnabled());
+        user.setCancelledCalendar(userDto.getCancelledCalendar());
+
+        return user;
     }
 }
