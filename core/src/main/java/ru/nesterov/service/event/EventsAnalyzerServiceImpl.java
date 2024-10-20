@@ -12,16 +12,21 @@ import ru.nesterov.exception.UnknownEventStatusException;
 import ru.nesterov.repository.ClientRepository;
 import ru.nesterov.repository.UserRepository;
 import ru.nesterov.service.CalendarService;
+import ru.nesterov.service.dateHelper.WeekHelper;
+import ru.nesterov.service.dto.BusynessAnalysisResult;
 import ru.nesterov.service.dto.ClientMeetingsStatistic;
 import ru.nesterov.service.dto.IncomeAnalysisResult;
 import ru.nesterov.service.dto.UserDto;
-import ru.nesterov.service.monthHelper.MonthDatesPair;
-import ru.nesterov.service.monthHelper.MonthHelper;
+import ru.nesterov.service.dateHelper.MonthDatesPair;
+import ru.nesterov.service.dateHelper.MonthHelper;
 
 import java.time.LocalDateTime;
+import java.util.Comparator;
 import java.util.HashMap;
+import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.stream.Collectors;
 
 @Service
 @Slf4j
@@ -138,5 +143,43 @@ public class EventsAnalyzerServiceImpl implements EventsAnalyzerService {
     private List<Event> getEventsByMonth(UserDto userDto, String monthName) {
         MonthDatesPair monthDatesPair = MonthHelper.getFirstAndLastDayOfMonth(monthName);
         return calendarService.getEventsBetweenDates(userDto.getMainCalendar(), userDto.getCancelledCalendar(), userDto.isCancelledCalendarEnabled(), monthDatesPair.getFirstDate(), monthDatesPair.getLastDate());
+    }
+
+    private List<Event> getEventsByYear(UserDto userDto, int year) {
+        LocalDateTime startOfYear = LocalDateTime.of(year, 1, 1, 0, 0);
+        LocalDateTime endOfYear = LocalDateTime.of(year, 12, 31, 23, 59);
+        return calendarService.getEventsBetweenDates(userDto.getMainCalendar(), userDto.getCancelledCalendar(), userDto.isCancelledCalendarEnabled(), startOfYear, endOfYear);
+    }
+
+    @Override
+    public BusynessAnalysisResult getBusynessStatisticsByYear(UserDto userDto, int year) {
+        List<Event> events = getEventsByYear(userDto, year);
+        Map<String, Double> monthHours = new HashMap<>();
+        Map<String, Double> weekHours = new HashMap<>();
+        for (Event event : events) {
+            if (event.getStatus() == EventStatus.SUCCESS) {
+                double eventDuration = eventService.getEventDuration(event);
+                String monthName = MonthHelper.getMonthNameByNumber(event.getStart().getMonthValue());
+                monthHours.merge(monthName, eventDuration, Double::sum);
+                String dayOfWeekName = WeekHelper.getWeekDayNameByNumber(event.getStart().getDayOfWeek().getValue());
+                weekHours.merge(dayOfWeekName, eventDuration, Double::sum);
+            }
+        }
+
+        LinkedHashMap<String, Double> sortedMonthHours = new LinkedHashMap<>();
+        monthHours.entrySet().stream()
+                .sorted((e1, e2) -> e2.getValue().compareTo(e1.getValue()))
+                .forEach(entry -> sortedMonthHours.put(entry.getKey(), entry.getValue()));
+
+        LinkedHashMap<String, Double> sortedWeekDayHours = new LinkedHashMap<>();
+        weekHours.entrySet().stream()
+                .sorted((e1, e2) -> e2.getValue().compareTo(e1.getValue()))
+                .forEach(entry -> sortedWeekDayHours.put(entry.getKey(), entry.getValue()));
+
+        BusynessAnalysisResult result = new BusynessAnalysisResult();
+        result.setMonths(sortedMonthHours);
+        result.setDays(sortedWeekDayHours);
+
+        return result;
     }
 }

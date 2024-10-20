@@ -1,11 +1,21 @@
 package ru.nesterov.mapper;
 
+import ru.nesterov.controller.response.YearBusynessStatisticsResponse;
+import ru.nesterov.service.dto.BusynessAnalysisResult;
+
 import ru.nesterov.controller.response.GetUserResponse;
 import ru.nesterov.dto.CreateUserRequest;
 import ru.nesterov.dto.CreateUserResponse;
 import ru.nesterov.service.dto.UserDto;
 
 public class UserMapper {
+    public static YearBusynessStatisticsResponse mapToResponse(BusynessAnalysisResult busynessAnalysisResult) {
+        YearBusynessStatisticsResponse response = new YearBusynessStatisticsResponse();
+        response.setDays(busynessAnalysisResult.getDays());
+        response.setMonths(busynessAnalysisResult.getMonths());
+        return response;
+    }
+
     public UserDto mapToUserDto(CreateUserRequest request) {
         return UserDto.builder()
                 .mainCalendar(request.getMainCalendarId())

@@ -299,6 +299,52 @@
 			"name": "Пользователи",
 			"item": [
 				{
+					"name": "Расчет занятости за год",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "X-username",
+								"value": "{{username}}",
+								"type": "text"
+							},
+							{
+								"key": "X-secret-token",
+								"value": "{{X-secret-token}}",
+								"type": "text"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n    \"year\": 2024\r\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "localhost:8080/revenue-analyzer/user/analyzer/getYearBusynessStatistics",
+							"host": [
+								"localhost"
+							],
+							"port": "8080",
+							"path": [
+								"revenue-analyzer",
+								"user",
+								"analyzer",
+								"getYearBusynessStatistics"
+							]
+						}
+					},
+					"response": []
+				}
+			]
+		},
+		{
+			"name": "Пользователи",
+			"item": [
+				{
 					"name": "Создать пользователя",
 					"request": {
 						"method": "POST",
