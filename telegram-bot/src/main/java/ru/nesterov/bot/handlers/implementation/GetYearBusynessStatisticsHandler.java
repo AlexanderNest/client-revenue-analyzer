@@ -44,18 +44,16 @@ public class GetYearBusynessStatisticsHandler extends ClientRevenueAbstractHandl
     @Override
     public BotApiMethod<?> handle(Update update) {
         BotApiMethod<?> sendMessage;
+
         long chatId = getChatId(update);
-        if (update.getMessage() == null) {
-            sendMessage = sendYearStatistics(update);
-        } else {
             SendMessage message = new SendMessage();
             message.setChatId(String.valueOf(chatId));
             message.setText("Введите год для анализа занятости:");
             sendMessage = message;
-        }
 
         return sendMessage;
     }
+
 
     @SneakyThrows
     private BotApiMethod<?> sendYearStatistics(Update update, GetYearBusynessStatisticsRequest getYearBusynessStatisticsRequest) {
