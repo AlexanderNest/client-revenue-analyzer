@@ -13,6 +13,7 @@ import ru.nesterov.entity.User;
 import ru.nesterov.google.CalendarClient;
 import ru.nesterov.repository.UserRepository;
 import ru.nesterov.service.CalendarService;
+import ru.nesterov.service.event.EventsBackupService;
 
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.when;
@@ -31,6 +32,8 @@ public class WebSecurityTest {
     private CalendarClient calendarClient;
     @MockBean
     private UserRepository userRepository;
+    @MockBean
+    private EventsBackupService eventsBackupService;
 
     private final String TEST_URL = "/events/analyzer/getUnpaidEvents";
     private final String HEADER = "X-secret-token";

@@ -20,5 +20,5 @@ public interface EventsBackupController {
             }
     )
     @GetMapping
-    void makeBackup(@RequestHeader(name = "X-username") String username);
+    int makeBackup(@RequestHeader(name = "X-username") String username);
 }

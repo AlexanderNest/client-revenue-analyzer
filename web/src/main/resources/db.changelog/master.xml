@@ -199,6 +199,22 @@
         </createIndex>
     </changeSet>
 
+    <changeSet id="create-table-event_extension" author="Lizogubov Eugeny">
+        <preConditions>
+            <not>
+                <tableExists tableName="event_extension"/>
+            </not>
+        </preConditions>
+        <sql>
+            CREATE TABLE event_extension
+            (
+                id       BIGSERIAL PRIMARY KEY NOT NULL,
+                comment  VARCHAR(200),
+                income   INT
+            );
+        </sql>
+    </changeSet>
+
     <changeSet id="create-table-event_backup" author="Lizogubov Eugeny">
         <preConditions>
             <tableExists tableName="user"/>
@@ -211,13 +227,29 @@
             (
                 id          BIGSERIAL PRIMARY KEY NOT NULL,
                 user_id     BIGINT REFERENCES "user" (id),
-                status      VARCHAR(20)           NOT NULL,
-                summary     VARCHAR(200),
-                start_date  TIMESTAMP,
-                end_date    TIMESTAMP,
-                comment     VARCHAR(200),
-                income      INT,
                 backup_time TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+            );
+        </sql>
+    </changeSet>
+
+    <changeSet id="create-table-event" author="Lizogubov Eugeny">
+        <preConditions>
+            <tableExists tableName="event_extension"/>
+            <tableExists tableName="event_backup"/>
+            <not>
+                <tableExists tableName="event"/>
+            </not>
+        </preConditions>
+        <sql>
+            CREATE TABLE event
+            (
+                id              BIGSERIAL PRIMARY KEY NOT NULL,
+                status          VARCHAR(20)           NOT NULL,
+                summary         VARCHAR(200),
+                start_date      TIMESTAMP,
+                end_date        TIMESTAMP,
+                event_backup_id BIGINT REFERENCES event_backup (id),
+                event_extension_id BIGINT REFERENCES event_extension (id)
             );
         </sql>
     </changeSet>
