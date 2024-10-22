@@ -15,6 +15,7 @@ import ru.nesterov.google.CalendarClient;
 import ru.nesterov.repository.ClientRepository;
 import ru.nesterov.repository.UserRepository;
 import ru.nesterov.service.CalendarService;
+import ru.nesterov.service.event.EventsBackupService;
 
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
@@ -41,6 +42,8 @@ public class EventsAnalyzerControllerTest {
     private CalendarClient calendarClient;
     @MockBean
     private UserRepository userRepository;
+    @MockBean
+    private EventsBackupService eventsBackupService;
 
     @BeforeEach
     void init() {
