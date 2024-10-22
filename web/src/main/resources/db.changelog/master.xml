@@ -248,8 +248,8 @@
                 summary         VARCHAR(200),
                 start_date      TIMESTAMP,
                 end_date        TIMESTAMP,
-                event_backup_id BIGINT REFERENCES event_backup (id),
-                event_extension_id BIGINT REFERENCES event_extension (id)
+                event_backup_id BIGINT REFERENCES event_backup (id) ON DELETE CASCADE,
+                event_extension_id BIGINT REFERENCES event_extension (id) ON DELETE CASCADE
             );
         </sql>
     </changeSet>
