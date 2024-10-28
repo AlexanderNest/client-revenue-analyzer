@@ -1,4 +1,4 @@
-package ru.nesterov.dto;
+package ru.nesterov.entity;
 
 import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;

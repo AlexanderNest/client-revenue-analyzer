@@ -3,7 +3,7 @@ package ru.nesterov.service.client;
 import lombok.RequiredArgsConstructor;
 import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.stereotype.Service;
-import ru.nesterov.dto.Event;
+import ru.nesterov.dto.EventDto;
 import ru.nesterov.entity.Client;
 import ru.nesterov.entity.User;
 import ru.nesterov.exception.ClientIsAlreadyCreatedException;
@@ -32,9 +32,9 @@ public class ClientServiceImpl implements ClientService {
         if (client == null) {
             throw new ClientNotFoundException(clientName);
         }
-        List<Event> events = calendarService.getEventsBetweenDates(userDto.getMainCalendar(), userDto.getCancelledCalendar(), userDto.isCancelledCalendarEnabled(), leftDate, rightDate);
+        List<EventDto> eventDtos = calendarService.getEventsBetweenDates(userDto.getMainCalendar(), userDto.getCancelledCalendar(), userDto.isCancelledCalendarEnabled(), leftDate, rightDate);
 
-        return events.stream()
+        return eventDtos.stream()
                 .filter(event -> event.getSummary().equals(client.getName()))
                 .map(event -> new MonthDatesPair(event.getStart(), event.getEnd()))
                 .toList();

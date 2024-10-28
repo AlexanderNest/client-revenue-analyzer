@@ -1,4 +1,4 @@
-package ru.nesterov.dto;
+package ru.nesterov.entity;
 
 import jakarta.persistence.CascadeType;
 import jakarta.persistence.Column;
@@ -11,19 +11,14 @@ import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
 import jakarta.persistence.OneToOne;
 import jakarta.persistence.Table;
-import lombok.AllArgsConstructor;
-import lombok.Builder;
 import lombok.Data;
-import lombok.NoArgsConstructor;
+import ru.nesterov.dto.EventStatus;
 
 import java.time.LocalDateTime;
 
 @Entity
 @Table(name = "event")
-@Builder
 @Data
-@NoArgsConstructor
-@AllArgsConstructor
 public class Event {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
