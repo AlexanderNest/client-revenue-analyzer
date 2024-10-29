@@ -5,8 +5,6 @@ import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
-import org.springframework.http.HttpStatusCode;
-import org.springframework.http.ResponseEntity;
 import org.springframework.test.context.ContextConfiguration;
 import org.telegram.telegrambots.meta.api.methods.BotApiMethod;
 import org.telegram.telegrambots.meta.api.methods.send.SendMessage;
@@ -15,16 +13,13 @@ import org.telegram.telegrambots.meta.api.objects.Message;
 import org.telegram.telegrambots.meta.api.objects.Update;
 import org.telegram.telegrambots.meta.api.objects.User;
 import ru.nesterov.bot.handlers.BotHandlersRequestsKeeper;
-import ru.nesterov.calendar.InlineCalendarBuilder;
 import ru.nesterov.dto.CreateUserRequest;
 import ru.nesterov.dto.CreateUserResponse;
 import ru.nesterov.dto.GetUserResponse;
 import ru.nesterov.dto.GetUserRequest;
-
 import ru.nesterov.integration.ClientRevenueAnalyzerIntegrationClient;
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.when;
 
@@ -52,8 +47,6 @@ public class CreateUserHandlerTest {
         User user = new User();
         user.setId(1L);
 
-        long userId = user.getId();
-
         CreateUserRequest request = CreateUserRequest.builder()
                 .userIdentifier(user.getId().toString())
                 .mainCalendarId("12345mc")
@@ -72,7 +65,7 @@ public class CreateUserHandlerTest {
         when(client.getUserByUsername(any(GetUserRequest.class))).thenReturn(null);
         BotApiMethod<?> botApiMethod = createUserHandler.handle(update);
 
-        assertTrue(botApiMethod instanceof SendMessage);
+        assertInstanceOf(SendMessage.class, botApiMethod);
 
         SendMessage sendMessage = (SendMessage) botApiMethod;
         assertEquals("Введите ID основного календаря:", sendMessage.getText());
@@ -140,7 +133,7 @@ public class CreateUserHandlerTest {
         when(client.getUserByUsername(any(GetUserRequest.class))).thenReturn(null);
         BotApiMethod<?> botApiMethod = createUserHandler.handle(update);
 
-        assertTrue(botApiMethod instanceof SendMessage);
+        assertInstanceOf(SendMessage.class, botApiMethod);
 
         SendMessage sendMessage = (SendMessage) botApiMethod;
         assertEquals("Введите ID основного календаря:", sendMessage.getText());
@@ -204,7 +197,7 @@ public class CreateUserHandlerTest {
 
         BotApiMethod<?> botApiMethod = createUserHandler.handle(update);
 
-        assertTrue(botApiMethod instanceof SendMessage);
+        assertInstanceOf(SendMessage.class, botApiMethod);
 
         SendMessage sendMessage = (SendMessage) botApiMethod;
         assertEquals("Вы уже зарегистрированы и можете пользоваться функциями бота", sendMessage.getText());
