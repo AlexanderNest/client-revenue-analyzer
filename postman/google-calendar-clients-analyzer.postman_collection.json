@@ -1,9 +1,9 @@
 {
 	"info": {
-		"_postman_id": "5b3383c4-949e-4adc-8d4d-45c696cd806f",
+		"_postman_id": "81197df1-bf6a-4072-8132-c6e0940db56f",
 		"name": "google-calendar-clients-analyzer",
 		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
-		"_exporter_id": "33953817"
+		"_exporter_id": "31542889"
 	},
 	"item": [
 		{
@@ -288,6 +288,52 @@
 								"events",
 								"analyzer",
 								"getUnpaidEvents"
+							]
+						}
+					},
+					"response": []
+				}
+			]
+		},
+		{
+			"name": "Пользователи",
+			"item": [
+				{
+					"name": "Расчет занятости за год",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "X-username",
+								"value": "{{username}}",
+								"type": "text"
+							},
+							{
+								"key": "X-secret-token",
+								"value": "{{X-secret-token}}",
+								"type": "text"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n    \"year\": 2024\r\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "localhost:8080/revenue-analyzer/user/analyzer/getYearBusynessStatistics",
+							"host": [
+								"localhost"
+							],
+							"port": "8080",
+							"path": [
+								"revenue-analyzer",
+								"user",
+								"analyzer",
+								"getYearBusynessStatistics"
 							]
 						}
 					},
