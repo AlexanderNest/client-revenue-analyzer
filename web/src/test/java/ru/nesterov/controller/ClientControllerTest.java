@@ -15,7 +15,6 @@ import ru.nesterov.entity.User;
 import ru.nesterov.google.GoogleCalendarClient;
 import ru.nesterov.repository.ClientRepository;
 import ru.nesterov.repository.UserRepository;
-import ru.nesterov.service.event.EventsBackupService;
 
 import static org.hamcrest.Matchers.hasSize;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
@@ -36,8 +35,6 @@ class ClientControllerTest {
     
     @MockBean
     private GoogleCalendarClient googleCalendarService;
-    @MockBean
-    private EventsBackupService eventsBackupService;
     
     private static final String CREATE_CLIENT_URL = "/client/create";
     
