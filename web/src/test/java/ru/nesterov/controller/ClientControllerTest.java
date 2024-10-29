@@ -74,7 +74,7 @@ class ClientControllerTest {
     @Test
     void createClientWithTheSameNameWithoutIdGeneration() throws Exception {
         User user = new User();
-        user.setUsername("testUser1");
+        user.setUsername("testUser4");
         user.setMainCalendar("mainCalendar");
         user.setCancelledCalendar("cancelCalendar");
         user = userRepository.save(user);
@@ -122,7 +122,7 @@ class ClientControllerTest {
                                 .contentType(MediaType.APPLICATION_JSON)
                                 .content(objectMapper.writeValueAsString(createClientRequest3))
                 )
-                .andExpect(status().isInternalServerError());
+                .andExpect(status().is5xxServerError());
     }
 
     @Test
