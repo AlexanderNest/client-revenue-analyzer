@@ -8,8 +8,9 @@ import org.springframework.stereotype.Component;
 @ConfigurationProperties("app.calendar.events.backup")
 @Data
 public class EventBackupProperties {
-    private String automaticInitialDelay;
-    private String automaticFixedRate;
-    private int manualFixedRate;
-    private int range;
+    private String delayAfterAppStarting;
+    private String time;
+    private int delayAfterAutomaticBackup;
+    private int delayAfterManualBackup;
+    private int datesRange;
 }

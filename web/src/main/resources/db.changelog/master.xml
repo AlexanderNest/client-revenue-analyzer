@@ -225,9 +225,10 @@
         <sql>
             CREATE TABLE event_backup
             (
-                id          BIGSERIAL PRIMARY KEY NOT NULL,
-                user_id     BIGINT REFERENCES "user" (id),
-                backup_time TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+                id                    BIGSERIAL PRIMARY KEY NOT NULL,
+                user_id               BIGINT REFERENCES "user" (id),
+                automatic_backup_time TIMESTAMP,
+                manual_backup_time    TIMESTAMP
             );
         </sql>
     </changeSet>
@@ -243,14 +244,24 @@
         <sql>
             CREATE TABLE event
             (
-                id              BIGSERIAL PRIMARY KEY NOT NULL,
-                status          VARCHAR(20)           NOT NULL,
-                summary         VARCHAR(200),
-                start_date      TIMESTAMP,
-                end_date        TIMESTAMP,
-                event_backup_id BIGINT REFERENCES event_backup (id) ON DELETE CASCADE,
+                id                 BIGSERIAL PRIMARY KEY NOT NULL,
+                status             VARCHAR(20)           NOT NULL,
+                summary            VARCHAR(200),
+                start_date         TIMESTAMP,
+                end_date           TIMESTAMP,
+                event_backup_id    BIGINT REFERENCES event_backup (id) ON DELETE CASCADE,
                 event_extension_id BIGINT REFERENCES event_extension (id) ON DELETE CASCADE
             );
+        </sql>
+    </changeSet>
+
+    <changeSet id="add events_backup_enabled column" author="Lizogubov Eugeny">
+        <preConditions>
+            <tableExists tableName="user"/>
+        </preConditions>
+        <sql>
+            ALTER TABLE "user"
+                ADD events_backup_enabled BOOLEAN DEFAULT TRUE;
         </sql>
     </changeSet>
 </databaseChangeLog>
