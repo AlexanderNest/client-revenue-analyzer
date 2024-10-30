@@ -10,3 +10,6 @@ linters:
         - FinalParameters       # Отключение проверки на отсутствие final в полях
         - LineLength
         - DesignForExtension
+
+
+
