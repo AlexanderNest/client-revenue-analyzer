@@ -36,7 +36,24 @@ jobs:
         with:
           rulesets: 'rulesets/java/quickstart.xml'
           sourcePath: 'calendar-integration/src/main/java,commons/src/main/java,core/src/main/java,telegram-bot/src/main/java,web/src/main/java'
-          analyzeModifiedFilesOnly: false
+          analyzeModifiedFilesOnly: true
+
+      # Проверка результатов PMD
+      - name: Check PMD results
+        run: |
+          if [ -f pmd-report.sarif ]; then
+            echo "PMD report found."
+            # Проверяем на наличие проблем
+            if grep -q '"ruleId":' pmd-report.sarif; then
+              echo "PMD found issues, failing the build."
+              exit 1 # Завершение сборки с ошибкой
+            else
+              echo "No issues found by PMD."
+            fi
+          else
+            echo "No PMD report found, continuing the build."
+          fi
+
       - name: Upload SARIF file
         uses: github/codeql-action/upload-sarif@v3
         with:
