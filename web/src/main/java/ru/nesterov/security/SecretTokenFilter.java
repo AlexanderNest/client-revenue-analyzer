@@ -23,8 +23,7 @@ public class SecretTokenFilter implements Filter {
             "/api-docs"
     );
 
-    public SecretTokenFilter(@Value("${app.secret-token}") String token, @Value("${app.secret-token.enabled}") boolean secretTokenEnabled,
-                             @Value("${server.servlet.context-path:}") String contextPath) {
+    public SecretTokenFilter(@Value("${app.secret-token}") String token, @Value("${app.secret-token.enabled}") boolean secretTokenEnabled) {
         this.token = token;
         this.secretTokenEnabled = secretTokenEnabled;
     }
