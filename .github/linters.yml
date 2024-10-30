@@ -1,0 +1,12 @@
+linters:
+  defaults:
+    java:
+      disable:
+        - MissingJavadocMethod  # Отключение проверки на отсутствие Javadoc для методов
+        - MissingJavadocType    # Отключение проверки на отсутствие Javadoc для классов и типов
+        - JavadocVariable       # Отключение проверки на отсутствие Javadoc для переменных
+        - JavadocPackage        # Отключение проверки на отсутствие Javadoc для package
+        - HiddenField           # Отключение проверки на присутствие одинаковых параметров метода и полей класса
+        - FinalParameters       # Отключение проверки на отсутствие final в полях
+        - LineLength
+        - DesignForExtension
