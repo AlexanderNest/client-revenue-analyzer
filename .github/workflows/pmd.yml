@@ -35,12 +35,7 @@ jobs:
         uses: pmd/pmd-github-action@v2
         with:
           rulesets: 'rulesets/java/quickstart.xml'
-          sourcePath: |
-            - calendar-integration/src/main/java
-            - commons/src/main/java
-            - core/src/main/java
-            - telegram-bot/src/main/java
-            - web/src/main/java
+          sourcePath: 'calendar-integration/src/main/java,commons/src/main/java,core/src/main/java,telegram-bot/src/main/java,web/src/main/java'
           analyzeModifiedFilesOnly: false
       - name: Upload SARIF file
         uses: github/codeql-action/upload-sarif@v3
