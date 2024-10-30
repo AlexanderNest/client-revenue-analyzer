@@ -2,6 +2,7 @@ package ru.nesterov.service.event;
 
 import ru.nesterov.dto.EventDto;
 import ru.nesterov.dto.EventStatus;
+import ru.nesterov.service.dto.BusynessAnalysisResult;
 import ru.nesterov.service.dto.ClientMeetingsStatistic;
 import ru.nesterov.service.dto.IncomeAnalysisResult;
 import ru.nesterov.service.dto.UserDto;
@@ -17,4 +18,5 @@ public interface EventsAnalyzerService {
     Map<String, ClientMeetingsStatistic> getStatisticsOfEachClientMeetings(UserDto userDto, String monthName);
     List<EventDto> getUnpaidEventsBetweenDates(UserDto userDto, LocalDateTime leftDate, LocalDateTime rightDate);
     List<EventDto> getUnpaidEvents(UserDto userDto);
+    BusynessAnalysisResult getBusynessStatisticsByYear(UserDto userDto, int year);
 }
