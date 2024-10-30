@@ -1,8 +1,3 @@
-# This workflow uses actions that are not certified by GitHub.
-# They are provided by a third-party and are governed by
-# separate terms of service, privacy policy, and support
-# documentation.
-
 name: pmd
 
 on:
@@ -37,8 +32,12 @@ jobs:
           rulesets: 'rulesets/java/quickstart.xml'
           sourcePath: 'calendar-integration/src/main/java,commons/src/main/java,core/src/main/java,telegram-bot/src/main/java,web/src/main/java'
           analyzeModifiedFilesOnly: true
+      - name: Upload SARIF file
+        uses: github/codeql-action/upload-sarif@v3
+        with:
+          sarif_file: pmd-report.sarif
 
-      # Проверка результатов PMD
+        
       - name: Check PMD results
         run: |
           if [ -f pmd-report.sarif ]; then
@@ -53,8 +52,3 @@ jobs:
           else
             echo "No PMD report found, continuing the build."
           fi
-
-      - name: Upload SARIF file
-        uses: github/codeql-action/upload-sarif@v3
-        with:
-          sarif_file: pmd-report.sarif
