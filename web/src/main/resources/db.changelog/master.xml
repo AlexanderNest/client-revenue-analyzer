@@ -230,6 +230,7 @@
                 automatic_backup_time TIMESTAMP,
                 manual_backup_time    TIMESTAMP
             );
+            CREATE INDEX idx_event_backup_automatic_backup_time ON event_backup (automatic_backup_time);
         </sql>
     </changeSet>
 
@@ -256,7 +257,7 @@
     </changeSet>
 
     <changeSet id="add events_backup_enabled column" author="Lizogubov Eugeny">
-        <preConditions>
+        <preConditions onFail="MARK_RAN">
             <tableExists tableName="user"/>
         </preConditions>
         <sql>
