@@ -26,50 +26,55 @@ public class EventsBackupService {
     private final EventBackupRepository eventBackupRepository;
     
     @Schedules({
-            @Scheduled(initialDelayString = "#{eventBackupProperties.delayAfterAppStarting}"),
-            @Scheduled(cron = "#{eventBackupProperties.time}")
+            @Scheduled(initialDelayString = "#{eventBackupProperties.delayForBackupAfterAppStarting}"),
+            @Scheduled(cron = "#{eventBackupProperties.backupTime}")
     })
     public void backupAllUsersEvents() {
-        if (!checkAutomaticBackupTime()) {
+        List<User> users = userRepository.findAllByIsEventsBackupEnabled(true);
+        
+        List<Long> userIds = new ArrayList<>();
+        users.forEach(user -> userIds.add(user.getId()));
+        
+        if (!isTimeForAutomaticBackup(userIds)) {
             return;
         }
         
-        List<User> users = userRepository.findAllByIsEventsBackupEnabled(true);
-        List<EventBackup> backups = getBackups(users, false);
+        List<EventBackup> backups = getBackups(users);
         eventBackupRepository.saveAll(backups);
     }
     
     public int backupCurrentUserEvents(String username) {
         User user = userRepository.findByUsername(username);
         
-        if (!checkManualBackupTime(user.getId())) {
+        if (!isTimeForManualBackup(user.getId())) {
             return 0;
         }
         
-        List<EventBackup> backup = getBackups(List.of(user), true);
+        List<EventBackup> backup = getBackups(List.of(user));
         EventBackup saved = eventBackupRepository.save(backup.get(0));
         return saved.getEvents().size();
     }
     
-    private boolean checkAutomaticBackupTime() {
-        return !eventBackupRepository.existsByAutomaticBackupTimeAfter(
+    private boolean isTimeForAutomaticBackup(List<Long> userIds) {
+        return eventBackupRepository.existsByUserIdInAndBackupTimeBefore(
+                userIds,
                 LocalDateTime
                         .now()
-                        .minusDays(eventBackupProperties.getDelayAfterAutomaticBackup())
+                        .minusDays(eventBackupProperties.getDelayBetweenAutomaticBackups())
         );
     }
     
-    private boolean checkManualBackupTime(long userId) {
-        return !eventBackupRepository.existsByUserIdAndManualBackupTimeAfter(
+    private boolean isTimeForManualBackup(long userId) {
+        return !eventBackupRepository.existsByUserIdAndBackupTimeAfter(
                 userId,
-                LocalDateTime.now().minusHours(eventBackupProperties.getDelayAfterManualBackup())
+                LocalDateTime.now().minusHours(eventBackupProperties.getDelayBetweenManualBackups())
         );
     }
     
-    private List<EventBackup> getBackups(List<User> users, boolean isManual) {
+    private List<EventBackup> getBackups(List<User> users) {
         LocalDateTime currentDateTime = LocalDateTime.now();
-        LocalDateTime backupStartDate = currentDateTime.minusDays(eventBackupProperties.getDatesRange());
-        LocalDateTime backupEndDate = currentDateTime.plusDays(eventBackupProperties.getDatesRange());
+        LocalDateTime backupStartDate = currentDateTime.minusDays(eventBackupProperties.getDatesRangeForBackup());
+        LocalDateTime backupEndDate = currentDateTime.plusDays(eventBackupProperties.getDatesRangeForBackup());
         
         List<EventBackup> backups = new ArrayList<>();
         
@@ -89,12 +94,6 @@ public class EventsBackupService {
             EventBackup backup = new EventBackup();
             backup.setUser(user);
             backup.setEvents(eventsToBackup);
-            
-            if (isManual) {
-                backup.setManualBackupTime(currentDateTime);
-            } else {
-                backup.setAutomaticBackupTime(currentDateTime);
-            }
             
             backups.add(backup);
         });

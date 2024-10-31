@@ -145,7 +145,7 @@ public class EventsAnalyzerServiceImpl implements EventsAnalyzerService {
         return calendarService.getEventsBetweenDates(userDto.getMainCalendar(), userDto.getCancelledCalendar(), userDto.isCancelledCalendarEnabled(), monthDatesPair.getFirstDate(), monthDatesPair.getLastDate());
     }
 
-    private List<Event> getEventsByYear(UserDto userDto, int year) {
+    private List<EventDto> getEventsByYear(UserDto userDto, int year) {
         LocalDateTime startOfYear = LocalDateTime.of(year, 1, 1, 0, 0);
         LocalDateTime endOfYear = LocalDateTime.of(year, 12, 31, 23, 59);
         return calendarService.getEventsBetweenDates(userDto.getMainCalendar(), userDto.getCancelledCalendar(), userDto.isCancelledCalendarEnabled(), startOfYear, endOfYear);
@@ -153,15 +153,15 @@ public class EventsAnalyzerServiceImpl implements EventsAnalyzerService {
 
     @Override
     public BusynessAnalysisResult getBusynessStatisticsByYear(UserDto userDto, int year) {
-        List<Event> events = getEventsByYear(userDto, year);
+        List<EventDto> events = getEventsByYear(userDto, year);
         Map<String, Double> monthHours = new HashMap<>();
         Map<String, Double> weekHours = new HashMap<>();
-        for (Event event : events) {
-            if (event.getStatus() == EventStatus.SUCCESS) {
-                double eventDuration = eventService.getEventDuration(event);
-                String monthName = MonthHelper.getMonthNameByNumber(event.getStart().getMonthValue());
+        for (EventDto eventDto : events) {
+            if (eventDto.getStatus() == EventStatus.SUCCESS) {
+                double eventDuration = eventService.getEventDuration(eventDto);
+                String monthName = MonthHelper.getMonthNameByNumber(eventDto.getStart().getMonthValue());
                 monthHours.merge(monthName, eventDuration, Double::sum);
-                String dayOfWeekName = WeekHelper.getWeekDayNameByNumber(event.getStart().getDayOfWeek().getValue());
+                String dayOfWeekName = WeekHelper.getWeekDayNameByNumber(eventDto.getStart().getDayOfWeek().getValue());
                 weekHours.merge(dayOfWeekName, eventDuration, Double::sum);
             }
         }
