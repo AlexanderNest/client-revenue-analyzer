@@ -1,23 +1,27 @@
 package ru.nesterov.security;
 
-
-import jakarta.servlet.FilterChain;
-import jakarta.servlet.ServletException;
+import jakarta.servlet.*;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
-import org.springframework.web.filter.OncePerRequestFilter;
 
 import java.io.IOException;
+import java.util.List;
 
 @Component
-public class SecretTokenFilter extends OncePerRequestFilter {
+@Slf4j
+public class SecretTokenFilter implements Filter {
     private static final String HEADER = "X-secret-token";
 
     private final String token;
     private final boolean secretTokenEnabled;
 
+    private final List<String> excludedEndpointGroups = List.of(
+            "/swagger-ui",
+            "/api-docs"
+    );
 
     public SecretTokenFilter(@Value("${app.secret-token}") String token, @Value("${app.secret-token.enabled}") boolean secretTokenEnabled) {
         this.token = token;
@@ -25,29 +29,26 @@ public class SecretTokenFilter extends OncePerRequestFilter {
     }
 
     @Override
-    protected void doFilterInternal(HttpServletRequest request,
-                                    HttpServletResponse response,
-                                    FilterChain filterChain) throws ServletException, IOException {
-        String token = request.getHeader(HEADER);
+    public void doFilter(ServletRequest servletRequest, ServletResponse servletResponse, FilterChain filterChain) throws IOException, ServletException {
+        HttpServletRequest request = (HttpServletRequest) servletRequest;
+        HttpServletResponse response = (HttpServletResponse) servletResponse;
 
-        if (secretTokenEnabled && (token == null || !token.equals(this.token))) {
-            // Если токена нет, возвращаем 403 Forbidden
-            response.setStatus(HttpServletResponse.SC_FORBIDDEN);
-            response.getWriter().write("Missing or invalid token");
+        if (!secretTokenEnabled || isExcludedPath(request.getRequestURI())) {
+            filterChain.doFilter(request, response);
             return;
         }
 
-        // Продолжаем цепочку фильтров, если токен найден
-        filterChain.doFilter(request, response);
+        String header = request.getHeader(HEADER);
+        if (!token.equals(header)) {
+            log.debug("Invalid secret token for, {}", request.getRequestURI());
+            response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
+        } else {
+            filterChain.doFilter(request, response);
+        }
     }
 
-    @Override
-    protected boolean shouldNotFilter(HttpServletRequest request) throws ServletException {
-        // Исключаем из фильтрации маршруты для Swagger
-        String path = request.getRequestURI();
-        return path.contains("swagger-ui")
-                || path.contains("api-docs")
-                || path.contains("swagger-resources");
+    private boolean isExcludedPath(String path) {
+        return excludedEndpointGroups.stream()
+                .anyMatch(path::contains);
     }
-
 }
