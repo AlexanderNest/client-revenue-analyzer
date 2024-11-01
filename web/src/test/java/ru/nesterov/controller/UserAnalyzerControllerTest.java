@@ -11,7 +11,7 @@ import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.http.MediaType;
 import org.springframework.test.web.servlet.MockMvc;
 import ru.nesterov.controller.request.GetForYearRequest;
-import ru.nesterov.dto.Event;
+import ru.nesterov.dto.EventDto;
 import ru.nesterov.dto.EventStatus;
 import ru.nesterov.entity.Client;
 import ru.nesterov.entity.User;
@@ -63,14 +63,14 @@ class UserAnalyzerControllerTest {
         client1.setPricePerHour(1000);
         clientRepository.save(client1);
 
-        Event event1 = Event.builder()
+        EventDto event1 = EventDto.builder()
                 .summary("paid1")
                 .status(EventStatus.SUCCESS)
                 .start(LocalDateTime.of(2024, 8, 12, 12, 30))
                 .end(LocalDateTime.of(2024, 8, 12, 15, 0))
                 .build();
 
-        Event event2 = Event.builder()
+        EventDto event2 = EventDto.builder()
                 .summary("paid1")
                 .status(EventStatus.SUCCESS)
                 .start(LocalDateTime.of(2024, 8, 14, 12, 45))

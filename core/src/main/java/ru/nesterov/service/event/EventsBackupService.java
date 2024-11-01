@@ -1,8 +1,10 @@
 package ru.nesterov.service.event;
 
 import lombok.RequiredArgsConstructor;
+import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.scheduling.annotation.Schedules;
+import org.springframework.scheduling.support.CronExpression;
 import org.springframework.stereotype.Service;
 import ru.nesterov.dto.EventDto;
 import ru.nesterov.entity.Event;
@@ -13,11 +15,14 @@ import ru.nesterov.repository.EventBackupRepository;
 import ru.nesterov.repository.UserRepository;
 import ru.nesterov.service.mapper.EventMapper;
 
+import java.time.Duration;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.concurrent.TimeUnit;
 
 @Service
+@ConditionalOnProperty("app.calendar.events.backup.enable")
 @RequiredArgsConstructor
 public class EventsBackupService {
     private final UserRepository userRepository;
@@ -26,11 +31,18 @@ public class EventsBackupService {
     private final EventBackupRepository eventBackupRepository;
     
     @Schedules({
-            @Scheduled(initialDelayString = "#{eventBackupProperties.delayForBackupAfterAppStarting}"),
+            @Scheduled(
+                    initialDelayString = "#{eventBackupProperties.delayForBackupAfterAppStarting}",
+                    timeUnit = TimeUnit.MINUTES
+            ),
             @Scheduled(cron = "#{eventBackupProperties.backupTime}")
     })
     public void backupAllUsersEvents() {
         List<User> users = userRepository.findAllByIsEventsBackupEnabled(true);
+        
+        if (users.isEmpty()) {
+            return;
+        }
         
         List<Long> userIds = new ArrayList<>();
         users.forEach(user -> userIds.add(user.getId()));
@@ -56,11 +68,20 @@ public class EventsBackupService {
     }
     
     private boolean isTimeForAutomaticBackup(List<Long> userIds) {
+        if (userIds.size() > eventBackupRepository.countAllByUserIdIn(userIds)) {
+            return true;
+        }
+        
+        CronExpression cronExpression = CronExpression.parse(eventBackupProperties.getBackupTime());
+        LocalDateTime nextExecution = cronExpression.next(LocalDateTime.now());
+        LocalDateTime nextToNextExecution = cronExpression.next(nextExecution);
+        Duration durationBetweenExecutions = Duration.between(nextExecution, nextToNextExecution);
+        
         return eventBackupRepository.existsByUserIdInAndBackupTimeBefore(
                 userIds,
                 LocalDateTime
                         .now()
-                        .minusDays(eventBackupProperties.getDelayBetweenAutomaticBackups())
+                        .minusDays(durationBetweenExecutions.toDays())
         );
     }
     

@@ -1,6 +1,7 @@
 package ru.nesterov.controller;
 
 import lombok.RequiredArgsConstructor;
+import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.RequestHeader;
@@ -9,6 +10,7 @@ import ru.nesterov.controller.response.BackupResponse;
 import ru.nesterov.service.event.EventsBackupService;
 
 @RestController
+@ConditionalOnProperty("app.calendar.events.backup.enable")
 @RequiredArgsConstructor
 public class EventsBackupControllerImpl implements EventsBackupController {
     private final EventsBackupService eventsBackupService;
