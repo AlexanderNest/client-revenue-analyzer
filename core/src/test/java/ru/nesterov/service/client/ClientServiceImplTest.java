@@ -6,7 +6,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.test.context.ContextConfiguration;
-import ru.nesterov.dto.Event;
+import ru.nesterov.dto.EventDto;
 import ru.nesterov.dto.EventStatus;
 import ru.nesterov.entity.Client;
 import ru.nesterov.entity.User;
@@ -14,8 +14,8 @@ import ru.nesterov.exception.ClientNotFoundException;
 import ru.nesterov.repository.ClientRepository;
 import ru.nesterov.repository.UserRepository;
 import ru.nesterov.service.CalendarService;
-import ru.nesterov.service.dto.UserDto;
 import ru.nesterov.service.dateHelper.MonthDatesPair;
+import ru.nesterov.service.dto.UserDto;
 
 import java.time.LocalDateTime;
 import java.util.List;
@@ -60,35 +60,35 @@ public class ClientServiceImplTest {
         client2.setUser(user);
         when(clientRepository.findClientByNameAndUserId(client2.getName(), user.getId())).thenReturn(client2);
 
-        Event event1 = Event.builder()
+        EventDto eventDto1 = EventDto.builder()
                 .summary("testClient1")
                 .status(EventStatus.SUCCESS)
                 .start(LocalDateTime.of(2024, 8, 9, 11, 30))
                 .end(LocalDateTime.of(2024, 8, 9, 12, 30))
                 .build();
 
-        Event event2 = Event.builder()
+        EventDto eventDto2 = EventDto.builder()
                 .summary("testClient1")
                 .status(EventStatus.SUCCESS)
                 .start(LocalDateTime.of(2024, 8, 10, 11, 30))
                 .end(LocalDateTime.of(2024, 8, 10, 12, 30))
                 .build();
 
-        Event event3 = Event.builder()
+        EventDto eventDto3 = EventDto.builder()
                 .summary("testClient2")
                 .status(EventStatus.REQUIRES_SHIFT)
                 .start(LocalDateTime.of(2024, 8, 11, 11, 30))
                 .end(LocalDateTime.of(2024, 8, 11, 12, 30))
                 .build();
 
-        Event event4 = Event.builder()
+        EventDto eventDto4 = EventDto.builder()
                 .summary("testClient2")
                 .status(EventStatus.PLANNED)
                 .start(LocalDateTime.of(2024, 8, 12, 11, 30))
                 .end(LocalDateTime.of(2024, 8, 12, 12, 30))
                 .build();
 
-        Event event5 = Event.builder()
+        EventDto eventDto5 = EventDto.builder()
                 .summary("testClient2")
                 .status(EventStatus.CANCELLED)
                 .start(LocalDateTime.of(2024, 8, 13, 11, 30))
@@ -99,7 +99,7 @@ public class ClientServiceImplTest {
         LocalDateTime to = LocalDateTime.of(2024, 8, 13, 12, 30);
 
         when(calendarService.getEventsBetweenDates(eq(user.getMainCalendar()), eq(user.getCancelledCalendar()), anyBoolean(), eq(from), eq(to)))
-                .thenReturn(List.of(event1, event2, event3, event4, event5));
+                .thenReturn(List.of(eventDto1, eventDto2, eventDto3, eventDto4, eventDto5));
     }
 
     @Test

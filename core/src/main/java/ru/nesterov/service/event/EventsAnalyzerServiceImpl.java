@@ -3,7 +3,7 @@ package ru.nesterov.service.event;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
-import ru.nesterov.dto.Event;
+import ru.nesterov.dto.EventDto;
 import ru.nesterov.dto.EventStatus;
 import ru.nesterov.entity.Client;
 import ru.nesterov.entity.User;
@@ -12,21 +12,19 @@ import ru.nesterov.exception.UnknownEventStatusException;
 import ru.nesterov.repository.ClientRepository;
 import ru.nesterov.repository.UserRepository;
 import ru.nesterov.service.CalendarService;
+import ru.nesterov.service.dateHelper.MonthDatesPair;
+import ru.nesterov.service.dateHelper.MonthHelper;
 import ru.nesterov.service.dateHelper.WeekHelper;
 import ru.nesterov.service.dto.BusynessAnalysisResult;
 import ru.nesterov.service.dto.ClientMeetingsStatistic;
 import ru.nesterov.service.dto.IncomeAnalysisResult;
 import ru.nesterov.service.dto.UserDto;
-import ru.nesterov.service.dateHelper.MonthDatesPair;
-import ru.nesterov.service.dateHelper.MonthHelper;
 
 import java.time.LocalDateTime;
-import java.util.Comparator;
 import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.stream.Collectors;
 
 @Service
 @Slf4j
@@ -39,51 +37,51 @@ public class EventsAnalyzerServiceImpl implements EventsAnalyzerService {
     private final UserRepository userRepository;
 
     public Map<String, ClientMeetingsStatistic> getStatisticsOfEachClientMeetings(UserDto userDto, String monthName) {
-        List<Event> events = getEventsByMonth(userDto, monthName);
+        List<EventDto> eventDtos = getEventsByMonth(userDto, monthName);
 
         Map<String, ClientMeetingsStatistic> meetingsStatistics = new HashMap<>();
 
-        for (Event event : events) {
-            EventStatus eventStatus = event.getStatus();
+        for (EventDto eventDto : eventDtos) {
+            EventStatus eventStatus = eventDto.getStatus();
 
-            ClientMeetingsStatistic clientMeetingsStatistic = meetingsStatistics.get(event.getSummary());
+            ClientMeetingsStatistic clientMeetingsStatistic = meetingsStatistics.get(eventDto.getSummary());
             if (clientMeetingsStatistic == null) {
-                Client client = clientRepository.findClientByNameAndUserId(event.getSummary(), userDto.getId());
+                Client client = clientRepository.findClientByNameAndUserId(eventDto.getSummary(), userDto.getId());
                 if (client == null) {
-                    throw new ClientNotFoundException(event.getSummary());
+                    throw new ClientNotFoundException(eventDto.getSummary());
                 }
                 clientMeetingsStatistic = new ClientMeetingsStatistic(client.getPricePerHour());
             }
 
-            double eventDuration = eventService.getEventDuration(event);
+            double eventDuration = eventService.getEventDuration(eventDto);
             if (eventStatus == EventStatus.SUCCESS) {
                 clientMeetingsStatistic.increaseSuccessful(eventDuration);
             } else if (eventStatus == EventStatus.CANCELLED) {
                 clientMeetingsStatistic.increaseCancelled(eventDuration);
             }
 
-            meetingsStatistics.put(event.getSummary(), clientMeetingsStatistic);
+            meetingsStatistics.put(eventDto.getSummary(), clientMeetingsStatistic);
         }
 
         return meetingsStatistics;
     }
 
     public IncomeAnalysisResult getIncomeAnalysisByMonth(UserDto userDto, String monthName) {
-        List<Event> events = getEventsByMonth(userDto, monthName);
+        List<EventDto> eventDtos = getEventsByMonth(userDto, monthName);
 
         double actualIncome = 0;
         double lostIncome = 0;
         double expectedIncome = 0;
 
-        for (Event event : events) {
-            EventStatus eventStatus = event.getStatus();
+        for (EventDto eventDto : eventDtos) {
+            EventStatus eventStatus = eventDto.getStatus();
 
-            Client client = clientRepository.findClientByNameAndUserId(event.getSummary(), userDto.getId());
+            Client client = clientRepository.findClientByNameAndUserId(eventDto.getSummary(), userDto.getId());
             if (client == null) {
-                throw new ClientNotFoundException(event.getSummary(), event.getStart());
+                throw new ClientNotFoundException(eventDto.getSummary(), eventDto.getStart());
             }
 
-            double eventPrice = eventService.getEventIncome(userDto, event);
+            double eventPrice = eventService.getEventIncome(userDto, eventDto);
             expectedIncome += eventPrice;
 
             if (eventStatus == EventStatus.SUCCESS) {
@@ -104,7 +102,7 @@ public class EventsAnalyzerServiceImpl implements EventsAnalyzerService {
     }
 
     @Override
-    public List<Event> getUnpaidEventsBetweenDates(UserDto userDto, LocalDateTime leftDate, LocalDateTime rightDate) {
+    public List<EventDto> getUnpaidEventsBetweenDates(UserDto userDto, LocalDateTime leftDate, LocalDateTime rightDate) {
         return calendarService.getEventsBetweenDates(userDto.getMainCalendar(), userDto.getCancelledCalendar(), userDto.isCancelledCalendarEnabled(), leftDate, rightDate).stream()
                 .filter(event -> {
                     EventStatus eventStatus = event.getStatus();
@@ -114,7 +112,7 @@ public class EventsAnalyzerServiceImpl implements EventsAnalyzerService {
     }
 
     @Override
-    public List<Event> getUnpaidEvents(UserDto userDto) {
+    public List<EventDto> getUnpaidEvents(UserDto userDto) {
         LocalDateTime currentDateTime = LocalDateTime.now();
         LocalDateTime requiredDateTime = currentDateTime.minusDays(eventsAnalyzerProperties.getUnpaidEventsRange());
         return getUnpaidEventsBetweenDates(userDto, requiredDateTime, LocalDateTime.now());
@@ -128,11 +126,11 @@ public class EventsAnalyzerServiceImpl implements EventsAnalyzerService {
     public Map<EventStatus, Integer> getEventStatusesBetweenDates(UserDto userDto, LocalDateTime leftDate, LocalDateTime rightDate) {
         User user = userRepository.findByUsername(userDto.getUsername());
 
-        List<Event> events = calendarService.getEventsBetweenDates(user.getMainCalendar(), user.getCancelledCalendar(), userDto.isCancelledCalendarEnabled(), leftDate, rightDate);
+        List<EventDto> eventDtos = calendarService.getEventsBetweenDates(user.getMainCalendar(), user.getCancelledCalendar(), userDto.isCancelledCalendarEnabled(), leftDate, rightDate);
 
         Map<EventStatus, Integer> statuses = new HashMap<>();
-        for (Event event : events) {
-            EventStatus eventStatus = event.getStatus();
+        for (EventDto eventDto : eventDtos) {
+            EventStatus eventStatus = eventDto.getStatus();
 
             statuses.put(eventStatus, statuses.getOrDefault(eventStatus, 0) + 1);
         }
@@ -140,12 +138,12 @@ public class EventsAnalyzerServiceImpl implements EventsAnalyzerService {
         return statuses;
     }
 
-    private List<Event> getEventsByMonth(UserDto userDto, String monthName) {
+    private List<EventDto> getEventsByMonth(UserDto userDto, String monthName) {
         MonthDatesPair monthDatesPair = MonthHelper.getFirstAndLastDayOfMonth(monthName);
         return calendarService.getEventsBetweenDates(userDto.getMainCalendar(), userDto.getCancelledCalendar(), userDto.isCancelledCalendarEnabled(), monthDatesPair.getFirstDate(), monthDatesPair.getLastDate());
     }
 
-    private List<Event> getEventsByYear(UserDto userDto, int year) {
+    private List<EventDto> getEventsByYear(UserDto userDto, int year) {
         LocalDateTime startOfYear = LocalDateTime.of(year, 1, 1, 0, 0);
         LocalDateTime endOfYear = LocalDateTime.of(year, 12, 31, 23, 59);
         return calendarService.getEventsBetweenDates(userDto.getMainCalendar(), userDto.getCancelledCalendar(), userDto.isCancelledCalendarEnabled(), startOfYear, endOfYear);
@@ -153,15 +151,15 @@ public class EventsAnalyzerServiceImpl implements EventsAnalyzerService {
 
     @Override
     public BusynessAnalysisResult getBusynessStatisticsByYear(UserDto userDto, int year) {
-        List<Event> events = getEventsByYear(userDto, year);
+        List<EventDto> eventDtos = getEventsByYear(userDto, year);
         Map<String, Double> monthHours = new HashMap<>();
         Map<String, Double> weekHours = new HashMap<>();
-        for (Event event : events) {
-            if (event.getStatus() == EventStatus.SUCCESS) {
-                double eventDuration = eventService.getEventDuration(event);
-                String monthName = MonthHelper.getMonthNameByNumber(event.getStart().getMonthValue());
+        for (EventDto eventDto : eventDtos) {
+            if (eventDto.getStatus() == EventStatus.SUCCESS) {
+                double eventDuration = eventService.getEventDuration(eventDto);
+                String monthName = MonthHelper.getMonthNameByNumber(eventDto.getStart().getMonthValue());
                 monthHours.merge(monthName, eventDuration, Double::sum);
-                String dayOfWeekName = WeekHelper.getWeekDayNameByNumber(event.getStart().getDayOfWeek().getValue());
+                String dayOfWeekName = WeekHelper.getWeekDayNameByNumber(eventDto.getStart().getDayOfWeek().getValue());
                 weekHours.merge(dayOfWeekName, eventDuration, Double::sum);
             }
         }
