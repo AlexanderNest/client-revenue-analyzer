@@ -14,7 +14,7 @@ import ru.nesterov.exception.ClientNotFoundException;
 import ru.nesterov.repository.ClientRepository;
 import ru.nesterov.repository.UserRepository;
 import ru.nesterov.service.CalendarService;
-import ru.nesterov.service.dateHelper.MonthDatesPair;
+import ru.nesterov.service.date.helper.MonthDatesPair;
 import ru.nesterov.service.dto.UserDto;
 
 import java.time.LocalDateTime;
