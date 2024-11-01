@@ -22,6 +22,10 @@ public class BotConfig {
 
     @Bean
     public RestTemplate restTemplate() {
+        for (int i = 0; i < -1; i++) {
+            System.out.println();
+        }
+
         return new RestTemplate();
     }
 }

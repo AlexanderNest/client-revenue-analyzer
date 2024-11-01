@@ -12,21 +12,19 @@ import ru.nesterov.exception.UnknownEventStatusException;
 import ru.nesterov.repository.ClientRepository;
 import ru.nesterov.repository.UserRepository;
 import ru.nesterov.service.CalendarService;
+import ru.nesterov.service.dateHelper.MonthDatesPair;
+import ru.nesterov.service.dateHelper.MonthHelper;
 import ru.nesterov.service.dateHelper.WeekHelper;
 import ru.nesterov.service.dto.BusynessAnalysisResult;
 import ru.nesterov.service.dto.ClientMeetingsStatistic;
 import ru.nesterov.service.dto.IncomeAnalysisResult;
 import ru.nesterov.service.dto.UserDto;
-import ru.nesterov.service.dateHelper.MonthDatesPair;
-import ru.nesterov.service.dateHelper.MonthHelper;
 
 import java.time.LocalDateTime;
-import java.util.Comparator;
 import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.stream.Collectors;
 
 @Service
 @Slf4j
@@ -145,7 +143,7 @@ public class EventsAnalyzerServiceImpl implements EventsAnalyzerService {
         return calendarService.getEventsBetweenDates(userDto.getMainCalendar(), userDto.getCancelledCalendar(), userDto.isCancelledCalendarEnabled(), monthDatesPair.getFirstDate(), monthDatesPair.getLastDate());
     }
 
-    private List<Event> getEventsByYear(UserDto userDto, int year) {
+    private List<EventDto> getEventsByYear(UserDto userDto, int year) {
         LocalDateTime startOfYear = LocalDateTime.of(year, 1, 1, 0, 0);
         LocalDateTime endOfYear = LocalDateTime.of(year, 12, 31, 23, 59);
         return calendarService.getEventsBetweenDates(userDto.getMainCalendar(), userDto.getCancelledCalendar(), userDto.isCancelledCalendarEnabled(), startOfYear, endOfYear);
@@ -153,15 +151,15 @@ public class EventsAnalyzerServiceImpl implements EventsAnalyzerService {
 
     @Override
     public BusynessAnalysisResult getBusynessStatisticsByYear(UserDto userDto, int year) {
-        List<Event> events = getEventsByYear(userDto, year);
+        List<EventDto> eventDtos = getEventsByYear(userDto, year);
         Map<String, Double> monthHours = new HashMap<>();
         Map<String, Double> weekHours = new HashMap<>();
-        for (Event event : events) {
-            if (event.getStatus() == EventStatus.SUCCESS) {
-                double eventDuration = eventService.getEventDuration(event);
-                String monthName = MonthHelper.getMonthNameByNumber(event.getStart().getMonthValue());
+        for (EventDto eventDto : eventDtos) {
+            if (eventDto.getStatus() == EventStatus.SUCCESS) {
+                double eventDuration = eventService.getEventDuration(eventDto);
+                String monthName = MonthHelper.getMonthNameByNumber(eventDto.getStart().getMonthValue());
                 monthHours.merge(monthName, eventDuration, Double::sum);
-                String dayOfWeekName = WeekHelper.getWeekDayNameByNumber(event.getStart().getDayOfWeek().getValue());
+                String dayOfWeekName = WeekHelper.getWeekDayNameByNumber(eventDto.getStart().getDayOfWeek().getValue());
                 weekHours.merge(dayOfWeekName, eventDuration, Double::sum);
             }
         }
