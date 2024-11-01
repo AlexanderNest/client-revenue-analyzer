@@ -15,11 +15,11 @@ import ru.nesterov.bot.handlers.CommandHandler;
 import ru.nesterov.bot.handlers.callback.ButtonCallback;
 import ru.nesterov.integration.ClientRevenueAnalyzerIntegrationClient;
 
-public abstract class ClientRevenueAbstractHandler implements CommandHandler {
+public abstract class SendingMessageCommandHandler extends AbstractCommandHandler {
     protected final ObjectMapper objectMapper;
     protected final ClientRevenueAnalyzerIntegrationClient client;
 
-    public ClientRevenueAbstractHandler(ObjectMapper objectMapper, ClientRevenueAnalyzerIntegrationClient client) {
+    public SendingMessageCommandHandler(ObjectMapper objectMapper, ClientRevenueAnalyzerIntegrationClient client) {
         this.objectMapper = objectMapper;
         this.client = client;
     }
@@ -75,5 +75,5 @@ public abstract class ClientRevenueAbstractHandler implements CommandHandler {
         return isCommand || isCallback;
     }
 
-    public abstract String getCommand();
+
 }

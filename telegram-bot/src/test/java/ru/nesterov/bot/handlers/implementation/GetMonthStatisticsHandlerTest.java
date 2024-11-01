@@ -28,17 +28,18 @@ import static org.mockito.Mockito.when;
 
 @SpringBootTest
 @ContextConfiguration(classes = {
-        GetMonthStatisticsHandler.class,
+        GetMonthStatisticsCommandHandler.class,
         ObjectMapper.class
 })
 class GetMonthStatisticsHandlerTest {
     private static final String markSymbol = "\u2B50";
     @Autowired
-    private GetMonthStatisticsHandler handler;
+    private GetMonthStatisticsCommandHandler handler;
     @Autowired
     private ObjectMapper objectMapper;
     @MockBean
     private ClientRevenueAnalyzerIntegrationClient client;
+    private static final String COMMAND = "Узнать доход";
 
     @Test
     void handleCallback() throws JsonProcessingException {
@@ -61,7 +62,7 @@ class GetMonthStatisticsHandlerTest {
         CallbackQuery callbackQuery = new CallbackQuery();
         callbackQuery.setId(String.valueOf(1));
         ButtonCallback callback = new ButtonCallback();
-        callback.setCommand("/monthincome");
+        callback.setCommand(COMMAND);
         callback.setValue(markSymbol + "august");
         callbackQuery.setMessage(message);
         callbackQuery.setData(objectMapper.writeValueAsString(callback));
@@ -90,7 +91,7 @@ class GetMonthStatisticsHandlerTest {
         chat.setId(1L);
 
         Message message = new Message();
-        message.setText("/monthincome");
+        message.setText(COMMAND);
         message.setChat(chat);
 
         Update update = new Update();

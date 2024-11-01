@@ -21,7 +21,7 @@ import java.util.List;
 
 @Component
 @ConditionalOnProperty("bot.enabled")
-public class GetMonthStatisticsHandler extends ClientRevenueAbstractHandler {
+public class GetMonthStatisticsCommandHandler extends SendingMessageCommandHandler {
     private static final String[] months = {
             "Январь", "Февраль",
             "Март", "Апрель", "Май",
@@ -32,7 +32,7 @@ public class GetMonthStatisticsHandler extends ClientRevenueAbstractHandler {
 
     private static final String markSymbol = "\u2B50";
 
-    public GetMonthStatisticsHandler(ObjectMapper objectMapper, ClientRevenueAnalyzerIntegrationClient client) {
+    public GetMonthStatisticsCommandHandler(ObjectMapper objectMapper, ClientRevenueAnalyzerIntegrationClient client) {
         super(objectMapper, client);
     }
 
@@ -119,6 +119,6 @@ public class GetMonthStatisticsHandler extends ClientRevenueAbstractHandler {
 
     @Override
     public String getCommand() {
-        return "/monthincome";
+        return "Узнать доход";
     }
 }
