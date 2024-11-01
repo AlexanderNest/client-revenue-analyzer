@@ -50,7 +50,7 @@ public class GetMonthStatisticsHandler extends ClientRevenueAbstractHandler {
         return sendMessage;
     }
 
-    public static String formatIncomeReport(GetIncomeAnalysisForMonthResponse response) {
+    private static String formatIncomeReport(GetIncomeAnalysisForMonthResponse response) {
         NumberFormat currencyFormat = NumberFormat.getNumberInstance(new Locale("ru", "RU"));
         currencyFormat.setMinimumFractionDigits(0);
         currencyFormat.setMaximumFractionDigits(0);
