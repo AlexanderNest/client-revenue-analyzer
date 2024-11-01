@@ -8,7 +8,7 @@ import java.time.LocalDateTime;
 import java.util.List;
 
 @Repository
-public interface EventBackupRepository extends JpaRepository<EventBackup, Long> {
+public interface EventsBackupRepository extends JpaRepository<EventBackup, Long> {
     long countAllByUserIdIn(List<Long> userIds);
     
     boolean existsByUserIdAndBackupTimeAfter(long userId, LocalDateTime checkedTime);

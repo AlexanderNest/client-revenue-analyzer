@@ -11,7 +11,7 @@ import ru.nesterov.entity.Event;
 import ru.nesterov.entity.EventBackup;
 import ru.nesterov.entity.User;
 import ru.nesterov.google.GoogleCalendarService;
-import ru.nesterov.repository.EventBackupRepository;
+import ru.nesterov.repository.EventsBackupRepository;
 import ru.nesterov.repository.UserRepository;
 import ru.nesterov.service.mapper.EventMapper;
 
@@ -27,15 +27,15 @@ import java.util.concurrent.TimeUnit;
 public class EventsBackupService {
     private final UserRepository userRepository;
     private final GoogleCalendarService googleCalendarService;
-    private final EventBackupProperties eventBackupProperties;
-    private final EventBackupRepository eventBackupRepository;
+    private final EventsBackupProperties eventsBackupProperties;
+    private final EventsBackupRepository eventsBackupRepository;
     
     @Schedules({
             @Scheduled(
-                    initialDelayString = "#{eventBackupProperties.delayForBackupAfterAppStarting}",
+                    initialDelayString = "#{eventsBackupProperties.delayForBackupAfterAppStarting}",
                     timeUnit = TimeUnit.MINUTES
             ),
-            @Scheduled(cron = "#{eventBackupProperties.backupTime}")
+            @Scheduled(cron = "#{eventsBackupProperties.backupTime}")
     })
     public void backupAllUsersEvents() {
         List<User> users = userRepository.findAllByIsEventsBackupEnabled(true);
@@ -52,7 +52,7 @@ public class EventsBackupService {
         }
         
         List<EventBackup> backups = getBackups(users);
-        eventBackupRepository.saveAll(backups);
+        eventsBackupRepository.saveAll(backups);
     }
     
     public int backupCurrentUserEvents(String username) {
@@ -63,21 +63,21 @@ public class EventsBackupService {
         }
         
         List<EventBackup> backup = getBackups(List.of(user));
-        EventBackup saved = eventBackupRepository.save(backup.get(0));
+        EventBackup saved = eventsBackupRepository.save(backup.get(0));
         return saved.getEvents().size();
     }
     
     private boolean isTimeForAutomaticBackup(List<Long> userIds) {
-        if (userIds.size() > eventBackupRepository.countAllByUserIdIn(userIds)) {
+        if (userIds.size() > eventsBackupRepository.countAllByUserIdIn(userIds)) {
             return true;
         }
         
-        CronExpression cronExpression = CronExpression.parse(eventBackupProperties.getBackupTime());
+        CronExpression cronExpression = CronExpression.parse(eventsBackupProperties.getBackupTime());
         LocalDateTime nextExecution = cronExpression.next(LocalDateTime.now());
         LocalDateTime nextToNextExecution = cronExpression.next(nextExecution);
         Duration durationBetweenExecutions = Duration.between(nextExecution, nextToNextExecution);
         
-        return eventBackupRepository.existsByUserIdInAndBackupTimeBefore(
+        return eventsBackupRepository.existsByUserIdInAndBackupTimeBefore(
                 userIds,
                 LocalDateTime
                         .now()
@@ -86,16 +86,16 @@ public class EventsBackupService {
     }
     
     private boolean isTimeForManualBackup(long userId) {
-        return !eventBackupRepository.existsByUserIdAndBackupTimeAfter(
+        return !eventsBackupRepository.existsByUserIdAndBackupTimeAfter(
                 userId,
-                LocalDateTime.now().minusHours(eventBackupProperties.getDelayBetweenManualBackups())
+                LocalDateTime.now().minusHours(eventsBackupProperties.getDelayBetweenManualBackups())
         );
     }
     
     private List<EventBackup> getBackups(List<User> users) {
         LocalDateTime currentDateTime = LocalDateTime.now();
-        LocalDateTime backupStartDate = currentDateTime.minusDays(eventBackupProperties.getDatesRangeForBackup());
-        LocalDateTime backupEndDate = currentDateTime.plusDays(eventBackupProperties.getDatesRangeForBackup());
+        LocalDateTime backupStartDate = currentDateTime.minusDays(eventsBackupProperties.getDatesRangeForBackup());
+        LocalDateTime backupEndDate = currentDateTime.plusDays(eventsBackupProperties.getDatesRangeForBackup());
         
         List<EventBackup> backups = new ArrayList<>();
         
