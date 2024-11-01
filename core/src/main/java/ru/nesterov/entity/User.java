@@ -22,7 +22,7 @@ public class User {
     @Column(name = "cancelled_calendar_enabled")
     private boolean isCancelledCalendarEnabled;
     @Column(name = "events_backup_enabled")
-    private boolean isEventsBackupEnabled = true;
+    private boolean isEventsBackupEnabled;
 
     @OneToMany(mappedBy = "user")
     private List<Client> clients;
