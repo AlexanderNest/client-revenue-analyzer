@@ -27,4 +27,9 @@ public class BotHandlersRequestsKeeper {
         requests.put(userId, request);
         return request;
     }
+
+    public void removeRequest(long userId, Class<?> handlerType) {
+        Map<Long, Object> handlerRequests = map.get(handlerType);
+        handlerRequests.remove(userId);
+    }
 }

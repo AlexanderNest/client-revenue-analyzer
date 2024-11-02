@@ -1,39 +1,20 @@
 package ru.nesterov.bot.handlers.implementation;
 
-import com.fasterxml.jackson.databind.ObjectMapper;
+import lombok.RequiredArgsConstructor;
 import lombok.SneakyThrows;
 import org.springframework.stereotype.Component;
 import org.telegram.telegrambots.meta.api.methods.BotApiMethod;
-import org.telegram.telegrambots.meta.api.methods.send.SendMessage;
-import org.telegram.telegrambots.meta.api.objects.CallbackQuery;
 import org.telegram.telegrambots.meta.api.objects.Update;
-import org.telegram.telegrambots.meta.api.objects.replykeyboard.InlineKeyboardMarkup;
-import org.telegram.telegrambots.meta.api.objects.replykeyboard.buttons.InlineKeyboardButton;
 import ru.nesterov.bot.handlers.BotHandlersRequestsKeeper;
-import ru.nesterov.bot.handlers.callback.ButtonCallback;
-import ru.nesterov.dto.CreateUserRequest;
-import ru.nesterov.dto.GetActiveClientResponse;
-import ru.nesterov.dto.GetClientScheduleRequest;
-import ru.nesterov.dto.GetClientScheduleResponse;
-import ru.nesterov.dto.GetIncomeAnalysisForMonthResponse;
 import ru.nesterov.dto.GetYearBusynessStatisticsRequest;
 import ru.nesterov.dto.GetYearBusynessStatisticsResponse;
-import ru.nesterov.integration.ClientRevenueAnalyzerIntegrationClient;
 
-import java.time.format.DateTimeFormatter;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Locale;
 import java.util.stream.Collectors;
 
 @Component
+@RequiredArgsConstructor
 public class GetYearBusynessStatisticsHandler extends ClientRevenueAbstractHandler {
     private final BotHandlersRequestsKeeper handlersKeeper;
-
-    public GetYearBusynessStatisticsHandler(ObjectMapper objectMapper, ClientRevenueAnalyzerIntegrationClient client, BotHandlersRequestsKeeper handlersKeeper) {
-//        super(objectMapper, client);
-        this.handlersKeeper = handlersKeeper;
-    }
 
     @Override
     public BotApiMethod<?> handle(Update update) {
@@ -41,8 +22,9 @@ public class GetYearBusynessStatisticsHandler extends ClientRevenueAbstractHandl
         long userId = getUserId(update);
         GetYearBusynessStatisticsRequest getYearBusynessStatisticsRequest = handlersKeeper.getRequest(userId, GetYearBusynessStatisticsHandler.class, GetYearBusynessStatisticsRequest.class);
         long chatId = getChatId(update);
+
         if ("/getyearbusynessstatistics".equals(text)) {
-            return getPlainSendMessage(chatId, "Введите год для анализа занятости");
+            return getPlainSendMessage(chatId, "Введите год для расчета занятости");
         } else if (getYearBusynessStatisticsRequest == null) {
             return handleYearInput(update);
         } else {
@@ -57,23 +39,23 @@ public class GetYearBusynessStatisticsHandler extends ClientRevenueAbstractHandl
         try {
             year = Integer.parseInt(update.getMessage().getText());
         } catch (NumberFormatException e) {
-            return getPlainSendMessage(update.getMessage().getChatId(), "Пожалуйста, введите корректный год.");
+            return getPlainSendMessage(update.getMessage().getChatId(), "Введите корректный год");
         }
+
         GetYearBusynessStatisticsRequest getYearBusynessStatisticsRequest = GetYearBusynessStatisticsRequest.builder()
-                .userId(userId)
                 .year(year)
                 .build();
 
         handlersKeeper.putRequest(GetYearBusynessStatisticsHandler.class, userId, getYearBusynessStatisticsRequest);
 
-        return getPlainSendMessage(update.getMessage().getChatId(), "Идет анализ");
+        return sendYearStatistics(update, getYearBusynessStatisticsRequest);
     }
 
 
     @Override
     public boolean isFinished(Long userId) {
         GetYearBusynessStatisticsRequest getYearBusynessStatisticsRequest = handlersKeeper.getRequest(userId, GetYearBusynessStatisticsHandler.class, GetYearBusynessStatisticsRequest.class);
-        return getYearBusynessStatisticsRequest != null;
+        return getYearBusynessStatisticsRequest != null && getYearBusynessStatisticsRequest.getYear() != null;
     }
 
 
@@ -92,8 +74,25 @@ public class GetYearBusynessStatisticsHandler extends ClientRevenueAbstractHandl
             return "📅 Встречи не запланированы";
         }
 
-        return "Анализ занятости за год:" +
-                String.format(String.valueOf(response));
+        String monthHours = response.getMonths().entrySet().stream()
+                .map(monthStatistics -> {
+                    String monthName = monthStatistics.getKey();
+                    Double hours = monthStatistics.getValue();
+                    return String.format("Занятость по месяцам:\n" + monthName + (" - ") + hours);
+                }).collect(Collectors.joining("\n\n"));
+
+       String dayHours =  response.getDays().entrySet().stream()
+                .map(dayStatistics -> {
+                    String dayName = dayStatistics.getKey();
+                    Double hours = dayStatistics.getValue();
+                    return String.format(dayName + (" - ") + hours);
+                }).collect(Collectors.joining("\n"));
+
+        return "Анализ занятости за год:\n\n" +
+                monthHours + ("\n\n") + "Занятость по дням:\n" +
+                dayHours;
+
+
     }
 
     private Long getUserId(Update update) {
