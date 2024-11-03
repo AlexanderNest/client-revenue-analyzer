@@ -7,7 +7,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.test.context.ContextConfiguration;
-import ru.nesterov.dto.Event;
+import ru.nesterov.dto.EventDto;
 import ru.nesterov.dto.EventStatus;
 
 import java.time.LocalDateTime;
@@ -38,13 +38,13 @@ class GoogleCalendarServiceTest {
         when(googleCalendarClient
                 .getEventsBetweenDates(eq(MAIN_CALENDAR_ID), eq(false), any(), any()))
                 .thenReturn(List.of(
-                        Event.builder()
+                        EventDto.builder()
                                 .status(EventStatus.SUCCESS)
                                 .summary("event from main calendar 1")
                                 .start(LocalDateTime.of(2024, 01, 01, 00, 00))
                                 .end(LocalDateTime.of(2024, 01, 01, 01, 00))
                                 .build(),
-                        Event.builder()
+                        EventDto.builder()
                                 .status(EventStatus.SUCCESS)
                                 .summary("event from main calendar 2")
                                 .start(LocalDateTime.of(2024, 01, 01, 00, 00))
@@ -56,13 +56,13 @@ class GoogleCalendarServiceTest {
         when(googleCalendarClient
                 .getEventsBetweenDates(eq(CANCELLED_CALENDAR_ID), eq(true), any(), any()))
                 .thenReturn(List.of(
-                                Event.builder()
+                                EventDto.builder()
                                         .status(EventStatus.CANCELLED)
                                         .summary("event from cancelled calendar 1")
                                         .start(LocalDateTime.of(2023, 12, 01, 00, 00))
                                         .end(LocalDateTime.of(2023, 12, 01, 01, 00))
                                         .build(),
-                                Event.builder()
+                                EventDto.builder()
                                         .status(EventStatus.CANCELLED)
                                         .summary("event from cancelled calendar 2")
                                         .start(LocalDateTime.of(2023, 12, 01, 00, 00))
@@ -77,31 +77,31 @@ class GoogleCalendarServiceTest {
         LocalDateTime leftDate = LocalDateTime.of(2023, 01, 01, 00, 00);
         LocalDateTime rightDate = LocalDateTime.of(2024, 01, 01, 00, 00);
 
-        List<ru.nesterov.dto.Event> events = googleCalendarService.getEventsBetweenDates(MAIN_CALENDAR_ID, CANCELLED_CALENDAR_ID, true, leftDate, rightDate);
-        assertNotNull(events);
-        assertEquals(4, events.size());
+        List<EventDto> eventDtos = googleCalendarService.getEventsBetweenDates(MAIN_CALENDAR_ID, CANCELLED_CALENDAR_ID, true, leftDate, rightDate);
+        assertNotNull(eventDtos);
+        assertEquals(4, eventDtos.size());
 
-        assertEquals(EventStatus.SUCCESS, events.get(0).getStatus());
-        assertEquals(EventStatus.SUCCESS, events.get(1).getStatus());
-        assertEquals(EventStatus.CANCELLED, events.get(2).getStatus());
-        assertEquals(EventStatus.CANCELLED, events.get(3).getStatus());
+        assertEquals(EventStatus.SUCCESS, eventDtos.get(0).getStatus());
+        assertEquals(EventStatus.SUCCESS, eventDtos.get(1).getStatus());
+        assertEquals(EventStatus.CANCELLED, eventDtos.get(2).getStatus());
+        assertEquals(EventStatus.CANCELLED, eventDtos.get(3).getStatus());
 
-        assertEquals("event from main calendar 1", events.get(0).getSummary());
-        assertEquals("event from main calendar 2", events.get(1).getSummary());
-        assertEquals("event from cancelled calendar 1", events.get(2).getSummary());
-        assertEquals("event from cancelled calendar 2", events.get(3).getSummary());
+        assertEquals("event from main calendar 1", eventDtos.get(0).getSummary());
+        assertEquals("event from main calendar 2", eventDtos.get(1).getSummary());
+        assertEquals("event from cancelled calendar 1", eventDtos.get(2).getSummary());
+        assertEquals("event from cancelled calendar 2", eventDtos.get(3).getSummary());
 
-        assertEquals(LocalDateTime.of(2024, 01, 01, 00, 00), events.get(0).getStart());
-        assertEquals(LocalDateTime.of(2024, 01, 01, 01, 00), events.get(0).getEnd());
+        assertEquals(LocalDateTime.of(2024, 01, 01, 00, 00), eventDtos.get(0).getStart());
+        assertEquals(LocalDateTime.of(2024, 01, 01, 01, 00), eventDtos.get(0).getEnd());
 
-        assertEquals(LocalDateTime.of(2024, 01, 01, 00, 00), events.get(1).getStart());
-        assertEquals(LocalDateTime.of(2024, 01, 01, 01, 00), events.get(1).getEnd());
+        assertEquals(LocalDateTime.of(2024, 01, 01, 00, 00), eventDtos.get(1).getStart());
+        assertEquals(LocalDateTime.of(2024, 01, 01, 01, 00), eventDtos.get(1).getEnd());
 
-        assertEquals(LocalDateTime.of(2023, 12, 01, 00, 00), events.get(2).getStart());
-        assertEquals(LocalDateTime.of(2023, 12, 01, 01, 00), events.get(2).getEnd());
+        assertEquals(LocalDateTime.of(2023, 12, 01, 00, 00), eventDtos.get(2).getStart());
+        assertEquals(LocalDateTime.of(2023, 12, 01, 01, 00), eventDtos.get(2).getEnd());
 
-        assertEquals(LocalDateTime.of(2023, 12, 01, 00, 00), events.get(3).getStart());
-        assertEquals(LocalDateTime.of(2023, 12, 01, 01, 00), events.get(3).getEnd());
+        assertEquals(LocalDateTime.of(2023, 12, 01, 00, 00), eventDtos.get(3).getStart());
+        assertEquals(LocalDateTime.of(2023, 12, 01, 01, 00), eventDtos.get(3).getEnd());
     }
 
     @Test
@@ -109,20 +109,20 @@ class GoogleCalendarServiceTest {
         LocalDateTime leftDate = LocalDateTime.of(2023, 01, 01, 00, 00);
         LocalDateTime rightDate = LocalDateTime.of(2024, 01, 01, 00, 00);
 
-        List<ru.nesterov.dto.Event> events = googleCalendarService.getEventsBetweenDates(MAIN_CALENDAR_ID, CANCELLED_CALENDAR_ID, false, leftDate, rightDate);
-        assertNotNull(events);
-        assertEquals(2, events.size());
+        List<EventDto> eventDtos = googleCalendarService.getEventsBetweenDates(MAIN_CALENDAR_ID, CANCELLED_CALENDAR_ID, false, leftDate, rightDate);
+        assertNotNull(eventDtos);
+        assertEquals(2, eventDtos.size());
 
-        assertEquals(EventStatus.SUCCESS, events.get(0).getStatus());
-        assertEquals(EventStatus.SUCCESS, events.get(1).getStatus());
+        assertEquals(EventStatus.SUCCESS, eventDtos.get(0).getStatus());
+        assertEquals(EventStatus.SUCCESS, eventDtos.get(1).getStatus());
 
-        assertEquals("event from main calendar 1", events.get(0).getSummary());
-        assertEquals("event from main calendar 2", events.get(1).getSummary());
+        assertEquals("event from main calendar 1", eventDtos.get(0).getSummary());
+        assertEquals("event from main calendar 2", eventDtos.get(1).getSummary());
 
-        assertEquals(LocalDateTime.of(2024, 01, 01, 00, 00), events.get(0).getStart());
-        assertEquals(LocalDateTime.of(2024, 01, 01, 01, 00), events.get(0).getEnd());
+        assertEquals(LocalDateTime.of(2024, 01, 01, 00, 00), eventDtos.get(0).getStart());
+        assertEquals(LocalDateTime.of(2024, 01, 01, 01, 00), eventDtos.get(0).getEnd());
 
-        assertEquals(LocalDateTime.of(2024, 01, 01, 00, 00), events.get(1).getStart());
-        assertEquals(LocalDateTime.of(2024, 01, 01, 01, 00), events.get(1).getEnd());
+        assertEquals(LocalDateTime.of(2024, 01, 01, 00, 00), eventDtos.get(1).getStart());
+        assertEquals(LocalDateTime.of(2024, 01, 01, 01, 00), eventDtos.get(1).getEnd());
     }
 }

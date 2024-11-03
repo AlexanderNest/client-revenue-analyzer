@@ -15,9 +15,9 @@ import org.telegram.telegrambots.updatesreceivers.DefaultBotSession;
 public class BotConfig {
     @Bean
     public TelegramBotsApi telegramBotsApi(RevenueAnalyzerBot revenueAnalyzerBot) throws TelegramApiException {
-        return new TelegramBotsApi(DefaultBotSession.class) {{
-            registerBot(revenueAnalyzerBot);
-        }};
+        TelegramBotsApi telegramBotsApi = new TelegramBotsApi(DefaultBotSession.class);
+        telegramBotsApi.registerBot(revenueAnalyzerBot);
+        return telegramBotsApi;
     }
 
     @Bean

@@ -7,7 +7,7 @@ import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.http.MediaType;
 import org.springframework.test.web.servlet.MockMvc;
-import ru.nesterov.dto.Event;
+import ru.nesterov.dto.EventDto;
 import ru.nesterov.dto.EventStatus;
 import ru.nesterov.entity.Client;
 import ru.nesterov.entity.User;
@@ -57,42 +57,42 @@ public class EventsAnalyzerControllerTest {
         when(userRepository.findByUsername("testUser1")).thenReturn(user1);
         when(clientRepository.findClientByNameAndUserId("testName1", 1)).thenReturn(client1);
 
-        Event event1 = Event.builder()
+        EventDto eventDto1 = EventDto.builder()
                 .summary("unpaid1")
                 .status(EventStatus.PLANNED)
                 .start(LocalDateTime.of(2024, 8, 9, 11, 30))
                 .end(LocalDateTime.of(2024, 8, 9, 12, 30))
                 .build();
 
-        Event event2 = Event.builder()
+        EventDto eventDto2 = EventDto.builder()
                 .summary("unpaid2")
                 .status(EventStatus.PLANNED)
                 .start(LocalDateTime.of(2024, 8, 10, 11, 30))
                 .end(LocalDateTime.of(2024, 8, 10, 12, 30))
                 .build();
 
-        Event event3 = Event.builder()
+        EventDto eventDto3 = EventDto.builder()
                 .summary("paid1")
                 .status(EventStatus.SUCCESS)
                 .start(LocalDateTime.of(2024, 8, 11, 11, 30))
                 .end(LocalDateTime.of(2024, 8, 11, 12, 30))
                 .build();
 
-        Event event4 = Event.builder()
+        EventDto eventDto4 = EventDto.builder()
                 .summary("requires shift unpaid")
                 .status(EventStatus.REQUIRES_SHIFT)
                 .start(LocalDateTime.of(2024, 8, 12, 11, 30))
                 .end(LocalDateTime.of(2024, 8, 12, 12, 30))
                 .build();
 
-        Event event5 = Event.builder()
+        EventDto eventDto5 = EventDto.builder()
                 .summary("cancelled")
                 .status(EventStatus.CANCELLED)
                 .start(LocalDateTime.of(2024, 8, 13, 11, 30))
                 .end(LocalDateTime.of(2024, 8, 13, 12, 30))
                 .build();
 
-        when(calendarService.getEventsBetweenDates(any(), any(), anyBoolean(), any(), any())).thenReturn(List.of(event1, event2, event3, event4, event5));
+        when(calendarService.getEventsBetweenDates(any(), any(), anyBoolean(), any(), any())).thenReturn(List.of(eventDto1, eventDto2, eventDto3, eventDto4, eventDto5));
     }
 
     @org.junit.jupiter.api.Test

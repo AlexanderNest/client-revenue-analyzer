@@ -44,8 +44,9 @@ class GetMonthStatisticsHandlerTest {
     void handleCallback() throws JsonProcessingException {
         GetIncomeAnalysisForMonthResponse response = new GetIncomeAnalysisForMonthResponse();
         response.setActualIncome(1000);
-        response.setLostIncome(100);
-        response.setExpectedIncoming(20000);
+        response.setLostIncome(16200);
+        response.setExpectedIncome(20000);
+        response.setPotentialIncome(23000);
 
         when(client.getIncomeAnalysisForMonth(anyLong(), any())).thenReturn(response);
 
@@ -76,12 +77,15 @@ class GetMonthStatisticsHandlerTest {
         assertInstanceOf(EditMessageText.class, botApiMethod);
         EditMessageText editMessage = (EditMessageText) botApiMethod;
 
-        String expectedMessage = "Анализ доходов за текущий месяц:\n\n" +
-                String.format("✅      Фактический доход: %.2f ₽\n", response.getActualIncome()) +
-                String.format("🔮      Ожидаемый доход: %.2f ₽\n", response.getExpectedIncoming()) +
-                String.format("⚠️      Потерянный доход: %.2f ₽\n", response.getLostIncome());
+        String expected = "\uD83D\uDCCA *Анализ доходов за месяц*\n" +
+                "\n" +
+                "Фактический доход:          1 000 ₽\n" +
+                "Ожидаемый доход:           20 000 ₽\n" +
+                "-----------------------------\n" +
+                "Потенциальный доход:       23 000 ₽\n" +
+                "Потерянный доход:          16 200 ₽";
 
-        assertEquals(expectedMessage, editMessage.getText());
+        assertEquals(expected, editMessage.getText());
     }
 
     @Test

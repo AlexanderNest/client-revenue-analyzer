@@ -1,4 +1,4 @@
-package ru.nesterov.service.dateHelper;
+package ru.nesterov.service.date.helper;
 
 import java.time.LocalDate;
 import java.time.LocalDateTime;
