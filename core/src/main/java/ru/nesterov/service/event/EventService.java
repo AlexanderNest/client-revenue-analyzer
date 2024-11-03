@@ -21,7 +21,7 @@ public class EventService {
     public double getEventIncome(UserDto userDto, EventDto eventDto) {
         Client client = clientRepository.findClientByNameAndUserId(eventDto.getSummary(), userDto.getId());
         if (client == null) {
-            throw new ClientNotFoundException(event.getSummary(), event.getStart());
+            throw new ClientNotFoundException(eventDto.getSummary(), eventDto.getStart());
         }
         EventExtensionDto extension = eventDto.getEventExtensionDto();
         if (extension != null && extension.getIncome() != null) {

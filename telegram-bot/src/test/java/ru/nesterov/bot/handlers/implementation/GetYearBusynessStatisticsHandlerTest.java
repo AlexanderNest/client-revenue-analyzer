@@ -17,11 +17,11 @@ import ru.nesterov.calendar.InlineCalendarBuilder;
 import ru.nesterov.dto.GetYearBusynessStatisticsResponse;
 import ru.nesterov.integration.ClientRevenueAnalyzerIntegrationClient;
 
-import java.util.HashMap;
+import java.util.LinkedHashMap;
 import java.util.Map;
-import java.util.stream.Collectors;
 
-import static org.junit.jupiter.api.Assertions.*;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertInstanceOf;
 import static org.mockito.ArgumentMatchers.anyInt;
 import static org.mockito.ArgumentMatchers.anyLong;
 import static org.mockito.Mockito.when;
@@ -40,29 +40,21 @@ class GetYearBusynessStatisticsHandlerTest {
     private ClientRevenueAnalyzerIntegrationClient client;
 
     @Test
-    void handleCommand() {
+    void handle() {
+        BotApiMethod<?> command = handler.handle(createUpdateWithMessage("/getyearbusynessstatistics"));
+        assertInstanceOf(SendMessage.class, command);
 
-        Update update = createUpdateWithMessage();
-
-        Chat chat = new Chat();
-        chat.setId(1L);
-
-        User user = new User();
-        user.setId(1L);
-
-        BotApiMethod<?> botApiMethod = handler.handle(update);
-        assertInstanceOf(SendMessage.class, botApiMethod);
-
-        SendMessage sendMessage = (SendMessage) botApiMethod;
+        SendMessage sendMessage = (SendMessage) command;
         assertEquals("Введите год для расчета занятости", sendMessage.getText());
-    }
 
-    @Test
-    void handle(){
-        Map<String, Double> months = new HashMap<>();
+        BotApiMethod<?> wrongYearInput = handler.handle(createUpdateWithMessage("fff"));
+        SendMessage wrongYear = (SendMessage) wrongYearInput;
+        assertEquals("Введите корректный год", wrongYear.getText());
+
+        Map<String, Double> months = new LinkedHashMap<>();
         months.put("Август", 10.25);
 
-        Map<String, Double> days = new HashMap<>();
+        Map<String, Double> days = new LinkedHashMap<>();
         days.put("Среда", 7.25);
         days.put("Понедельник", 3.0);
 
@@ -71,65 +63,28 @@ class GetYearBusynessStatisticsHandlerTest {
         getYearBusynessStatisticsResponse.setDays(days);
 
         when(client.getYearBusynessStatistics(anyLong(), anyInt())).thenReturn(getYearBusynessStatisticsResponse);
-        String monthHours = getYearBusynessStatisticsResponse.getMonths().entrySet().stream()
-                .map(monthStatistics -> {
-                    String monthName = monthStatistics.getKey();
-                    Double hours = monthStatistics.getValue();
-                    return String.format("Занятость по месяцам:\n" + monthName + (" - ") + hours);
-                }).collect(Collectors.joining("\n\n"));
 
-        String dayHours =  getYearBusynessStatisticsResponse.getDays().entrySet().stream()
-                .map(dayStatistics -> {
-                    String dayName = dayStatistics.getKey();
-                    Double hours = dayStatistics.getValue();
-                    return String.format(dayName + (" - ") + hours);
-                }).collect(Collectors.joining("\n"));
-        Chat chat = new Chat();
-        chat.setId(1L);
+        BotApiMethod<?> botApiMethod = handler.handle(createUpdateWithMessage("2024"));
+        assertInstanceOf(SendMessage.class, botApiMethod);
+        SendMessage sendStatistics = (SendMessage) botApiMethod;
 
-        User user = new User();
-        user.setId(1L);
-        Update update = new Update();
-        Message message = new Message();
-        message.setChat(chat);
-        message.setText("2024");
-        message.setFrom(user);
-        update.setMessage(message);
-        BotApiMethod<?> botApiMethod = handler.handle(update);
-        assertInstanceOf(SendMessage.class, botApiMethod);
-        SendMessage sendMessage = (SendMessage) botApiMethod;
-        String expectedMessage = String.format("Анализ занятости за год:\n\n" +
-                monthHours + ("\n\n") + "Занятость по дням:\n" +
-                dayHours);
-        assertEquals(expectedMessage, sendMessage.getText());
-    }
-    @Test
-    void handleInvalidYear() {
-        Chat chat = new Chat();
-        chat.setId(1L);
-        User user = new User();
-        user.setId(1L);
-        Update update = new Update();
-        Message message = new Message();
-        message.setChat(chat);
-        message.setText("fff");
-        message.setFrom(user);
-        update.setMessage(message);
-        BotApiMethod<?> botApiMethod = handler.handle(update);
-        assertInstanceOf(SendMessage.class, botApiMethod);
-        SendMessage sendMessage = (SendMessage) botApiMethod;
-        String expectedMessage = "Введите корректный год";
-        assertEquals(expectedMessage, sendMessage.getText());
+        String expectedMessage = "Анализ занятости за год:\n\n" +
+        "Занятость по месяцам:\n" +
+        "Август - 10.25" + ("\n\n") +
+        "Занятость по дням:\n" +
+        "Среда - 7.25\n" +
+        "Понедельник - 3.0";
+        assertEquals(expectedMessage, sendStatistics.getText());
     }
 
-    private Update createUpdateWithMessage() {
+    private Update createUpdateWithMessage(String text) {
         Chat chat = new Chat();
         chat.setId(1L);
         User user = new User();
         user.setId(1L);
 
         Message message = new Message();
-        message.setText("/getyearbusynessstatistics");
+        message.setText(text);
         message.setChat(chat);
         message.setFrom(user);
 
