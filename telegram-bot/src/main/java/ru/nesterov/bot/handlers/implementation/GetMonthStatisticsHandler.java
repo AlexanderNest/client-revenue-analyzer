@@ -13,9 +13,11 @@ import ru.nesterov.bot.handlers.callback.ButtonCallback;
 import ru.nesterov.dto.GetIncomeAnalysisForMonthResponse;
 import ru.nesterov.utils.MonthUtil;
 
+import java.text.NumberFormat;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
+import java.util.Locale;
 
 @Component
 @ConditionalOnProperty("bot.enabled")
@@ -42,6 +44,26 @@ public class GetMonthStatisticsHandler extends ClientRevenueAbstractHandler {
         return sendMessage;
     }
 
+    private static String formatIncomeReport(GetIncomeAnalysisForMonthResponse response) {
+        NumberFormat currencyFormat = NumberFormat.getNumberInstance(new Locale("ru", "RU"));
+        currencyFormat.setMinimumFractionDigits(0);
+        currencyFormat.setMaximumFractionDigits(0);
+
+
+        return String.format(
+                "📊 *Анализ доходов за месяц*\n\n" +
+                        "%-22s %10s ₽\n" +
+                        "%-22s %10s ₽\n" +
+                        "-----------------------------\n" +
+                        "%-22s %10s ₽\n" +
+                        "%-22s %10s ₽",
+                "Фактический доход:", currencyFormat.format(response.getActualIncome()),
+                "Ожидаемый доход:", currencyFormat.format(response.getExpectedIncome()),
+                "Потенциальный доход:", currencyFormat.format(response.getPotentialIncome()),
+                "Потерянный доход:", currencyFormat.format(response.getLostIncome())
+        );
+    }
+
     @SneakyThrows
     private BotApiMethod<?> sendMonthStatistics(Update update) {
         long userId = update.getCallbackQuery().getFrom().getId();
@@ -52,21 +74,10 @@ public class GetMonthStatisticsHandler extends ClientRevenueAbstractHandler {
         return editMessage(
                 callbackQuery.getMessage().getChatId(),
                 callbackQuery.getMessage().getMessageId(),
-                formatIncomeAnalysis(response),
+                formatIncomeReport(response),
                 null
         );
 }
-
-    private String formatIncomeAnalysis(GetIncomeAnalysisForMonthResponse response) {
-        double actualIncome = response.getActualIncome();
-        double expectedIncome = response.getExpectedIncoming();
-        double lostIncome = response.getLostIncome();
-
-        return "Анализ доходов за текущий месяц:\n\n" +
-                String.format("✅      Фактический доход: %.2f ₽\n", actualIncome) +
-                String.format("🔮      Ожидаемый доход: %.2f ₽\n", expectedIncome) +
-                String.format("⚠️      Потерянный доход: %.2f ₽\n", lostIncome);
-    }
 
     @SneakyThrows
     private SendMessage sendMonthKeyboard(long chatId) {

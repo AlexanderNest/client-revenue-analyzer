@@ -174,9 +174,9 @@ public class GetClientScheduleHandler extends ClientRevenueAbstractHandler {
                                               long callbackQueryChatId,
                                               int callbackQueryMessageId,
                                               GetClientScheduleRequest getClientScheduleRequest) {
-        if (callbackValue.equals("Next")) {
+        if ("Next".equals(callbackValue)) {
             getClientScheduleRequest.setDisplayedMonth(getClientScheduleRequest.getDisplayedMonth().plusMonths(1));
-        } else if (callbackValue.equals("Prev")) {
+        } else if ("Prev".equals(callbackValue)) {
             getClientScheduleRequest.setDisplayedMonth(getClientScheduleRequest.getDisplayedMonth().minusMonths(1));
         }
 

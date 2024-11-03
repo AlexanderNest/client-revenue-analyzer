@@ -1,6 +1,4 @@
-package ru.nesterov.service.dateHelper;
-
-import java.time.Month;
+package ru.nesterov.service.date.helper;
 
 public class WeekHelper {
     public static String getWeekDayNameByNumber(int weekDayNumber){
