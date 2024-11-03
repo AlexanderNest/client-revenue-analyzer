@@ -1,5 +1,6 @@
 package ru.nesterov.bot.handlers.implementation;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
@@ -11,10 +12,11 @@ import org.telegram.telegrambots.meta.api.objects.Chat;
 import org.telegram.telegrambots.meta.api.objects.Message;
 import org.telegram.telegrambots.meta.api.objects.Update;
 import org.telegram.telegrambots.meta.api.objects.User;
+import ru.nesterov.bot.handlers.BotHandlersRequestsKeeper;
 import ru.nesterov.dto.CreateUserRequest;
 import ru.nesterov.dto.CreateUserResponse;
-import ru.nesterov.dto.GetUserRequest;
 import ru.nesterov.dto.GetUserResponse;
+import ru.nesterov.dto.GetUserRequest;
 import ru.nesterov.integration.ClientRevenueAnalyzerIntegrationClient;
 
 import static org.junit.jupiter.api.Assertions.*;
@@ -22,12 +24,18 @@ import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.when;
 
 @ContextConfiguration(classes = {
-        CreateUserHandler.class
+        CreateUserHandler.class,
+        ObjectMapper.class,
+        BotHandlersRequestsKeeper.class
 })
 @SpringBootTest
 public class CreateUserHandlerTest {
     @Autowired
     private CreateUserHandler createUserHandler;
+    @Autowired
+    private BotHandlersRequestsKeeper keeper;
+    @Autowired
+    private ObjectMapper objectMapper;
     @MockBean
     private ClientRevenueAnalyzerIntegrationClient client;
 
@@ -83,7 +91,7 @@ public class CreateUserHandlerTest {
                 .cancelledCalendarId(request.getCancelledCalendarId())
                 .build();
 
-       // when(client.createUser(createUserHandler.getCreateUserRequests().get(user.getId()))).thenReturn(createUserResponse);
+        when(client.createUser(request)).thenReturn(createUserResponse);
 
         message.setText(request.getCancelledCalendarId());
         update.setMessage(message);
@@ -147,7 +155,9 @@ public class CreateUserHandlerTest {
                 .cancelledCalendarId(request.getCancelledCalendarId())
                 .build();
 
-        //when(client.createUser(createUserHandler.getCreateUserRequests().get(user.getId()))).thenReturn(createUserResponse);
+        CreateUserRequest request1 = createUserHandler.getKeeper().getRequest(user.getId(), CreateUserHandler.class, CreateUserRequest.class);
+
+        when(client.createUser(request1)).thenReturn(createUserResponse);
 
         botApiMethod = createUserHandler.handle(update);
         sendMessage = (SendMessage) botApiMethod;
