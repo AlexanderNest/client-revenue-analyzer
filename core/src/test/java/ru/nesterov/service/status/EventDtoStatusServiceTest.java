@@ -16,7 +16,7 @@ import static org.junit.jupiter.api.Assertions.assertThrows;
 
 @SpringBootTest
 @ContextConfiguration(classes = EventStatusServiceImpl.class)
-public class EventStatusServiceTest {
+public class EventDtoStatusServiceTest {
     @Autowired
     private EventStatusServiceImpl eventStatusService;
 
