@@ -28,7 +28,6 @@ import ru.nesterov.properties.RevenueAnalyzerProperties;
 import java.time.LocalDateTime;
 import java.util.List;
 
-
 @Component
 @Slf4j
 @RequiredArgsConstructor

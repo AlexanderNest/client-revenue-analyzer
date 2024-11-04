@@ -7,11 +7,11 @@ import java.time.LocalDateTime;
 
 @Builder
 @Getter
-public class Event {
+public class EventDto {
     private EventStatus status;
     private String summary;
     private LocalDateTime start;
     private LocalDateTime end;
-    private EventExtension eventExtension;
+    private EventExtensionDto eventExtensionDto;
 }
 

@@ -1,8 +1,8 @@
 package ru.nesterov.service.client;
 
+import ru.nesterov.service.date.helper.MonthDatesPair;
 import ru.nesterov.service.dto.ClientDto;
 import ru.nesterov.service.dto.UserDto;
-import ru.nesterov.service.dateHelper.MonthDatesPair;
 
 import java.time.LocalDateTime;
 import java.util.List;

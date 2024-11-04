@@ -11,8 +11,8 @@ import ru.nesterov.controller.response.EventScheduleResponse;
 import ru.nesterov.mapper.ClientMapper;
 import ru.nesterov.service.user.UserService;
 import ru.nesterov.service.client.ClientService;
+import ru.nesterov.service.date.helper.MonthDatesPair;
 import ru.nesterov.service.dto.ClientDto;
-import ru.nesterov.service.dateHelper.MonthDatesPair;
 
 import java.util.List;
 
