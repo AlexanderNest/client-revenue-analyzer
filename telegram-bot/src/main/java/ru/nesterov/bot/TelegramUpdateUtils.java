@@ -10,4 +10,12 @@ public class TelegramUpdateUtils {
             return update.getCallbackQuery().getFrom().getId();
         }
     }
+
+    public static long getChatId(Update update) {
+        if (update.hasMessage()) {
+            return update.getMessage().getChatId();
+        } else {
+            return update.getCallbackQuery().getMessage().getChatId();
+        }
+    }
 }

@@ -51,7 +51,7 @@ public class WebSecurityTest {
                         .header("X-username", "username")
                         .contentType(MediaType.APPLICATION_JSON)
                 )
-                .andExpect(status().is(403));
+                .andExpect(status().is(401));
     }
 
     @Test

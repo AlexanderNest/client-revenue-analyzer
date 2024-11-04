@@ -12,6 +12,8 @@ import org.telegram.telegrambots.meta.api.objects.Message;
 import org.telegram.telegrambots.meta.api.objects.Update;
 import org.telegram.telegrambots.meta.api.objects.replykeyboard.InlineKeyboardMarkup;
 import org.telegram.telegrambots.meta.api.objects.replykeyboard.ReplyKeyboard;
+import org.telegram.telegrambots.meta.api.objects.replykeyboard.buttons.InlineKeyboardButton;
+import ru.nesterov.bot.TelegramUpdateUtils;
 import ru.nesterov.bot.handlers.CommandHandler;
 import ru.nesterov.bot.handlers.callback.ButtonCallback;
 import ru.nesterov.integration.ClientRevenueAnalyzerIntegrationClient;
@@ -59,6 +61,23 @@ public abstract class ClientRevenueAbstractHandler implements CommandHandler {
         return answerCallbackQuery;
     }
 
+    /**
+     *
+     * @param visibleText текст, который будет отображаться на кнопке
+     * @param callbackValue значение, связанное с кнопкой
+     * @return созданная кнопка
+     */
+    protected InlineKeyboardButton buildButton(String visibleText, String callbackValue) {
+        InlineKeyboardButton button = new InlineKeyboardButton();
+        button.setText(visibleText);
+        ButtonCallback buttonCallback = new ButtonCallback();
+        buttonCallback.setCommand(getCommand());
+        buttonCallback.setValue(callbackValue);
+
+        button.setCallbackData(buttonCallback.toShortString());
+        return button;
+    }
+
     @Override
     @SneakyThrows
     public boolean isApplicable(Update update) {
@@ -69,12 +88,9 @@ public abstract class ClientRevenueAbstractHandler implements CommandHandler {
 
         boolean isCallback = callbackQuery != null
                 && (getCommand().equals(ButtonCallback.fromShortString(callbackQuery.getData()).getCommand()) || getCommand().equals(objectMapper.readValue(callbackQuery.getData(), ButtonCallback.class).getCommand()));
-
         boolean isPlainText = message != null && message.getText() != null;
-        boolean isCommand = message != null && message.getText() != null && message.getText().startsWith("/") && !isCurrentHandlerCommand;
 
-
-        return (isCurrentHandlerCommand || isCallback || isPlainText) && !isCommand;
+        return isCurrentHandlerCommand || isCallback || (isPlainText && !isFinished(TelegramUpdateUtils.getUserId(update)));
     }
 
     public abstract String getCommand();
