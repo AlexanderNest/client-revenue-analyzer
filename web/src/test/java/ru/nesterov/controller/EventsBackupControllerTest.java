@@ -28,7 +28,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 @SpringBootTest(properties = {
-        "app.calendar.events.backup.enable=true"
+        "app.calendar.events.backup.enabled=true"
 })
 @AutoConfigureMockMvc
 @DirtiesContext(classMode = DirtiesContext.ClassMode.BEFORE_EACH_TEST_METHOD)
@@ -76,7 +76,6 @@ public class EventsBackupControllerTest {
     }
     
     @Test
-//    @Order(1)
     public void makeSuccessfulBackup() throws Exception {
         mockMvc.perform(get("/events/backup")
                         .header("X-username", "testUsername")
@@ -87,7 +86,6 @@ public class EventsBackupControllerTest {
     }
     
     @Test
-//    @Order(2)
     public void makeFailedBackup() throws Exception {
         mockMvc.perform(get("/events/backup")
                         .header("X-username", "testUsername")

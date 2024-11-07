@@ -10,7 +10,7 @@ import ru.nesterov.controller.response.BackupResponse;
 import ru.nesterov.service.event.EventsBackupService;
 
 @RestController
-@ConditionalOnProperty("app.calendar.events.backup.enable")
+@ConditionalOnProperty("app.calendar.events.backup.enabled")
 @RequiredArgsConstructor
 public class EventsBackupControllerImpl implements EventsBackupController {
     private final EventsBackupService eventsBackupService;
