@@ -141,8 +141,7 @@ public class CreateUserHandlerTest {
         sendMessage = (SendMessage) botApiMethod;
 
         assertEquals(String.join(System.lineSeparator(),
-                        "Вы успешно зарегистрированы!",
-                        " ",
+                        "Вы успешно зарегистрированы! ",
                         "ID пользователя: " + createUserResponse.getUserIdentifier(),
                         "ID основного календаря: " + createUserResponse.getMainCalendarId(),
                         "ID календаря с отмененными мероприятиями: " + createUserResponse.getCancelledCalendarId()),
@@ -226,8 +225,7 @@ public class CreateUserHandlerTest {
         sendMessage = (SendMessage) botApiMethod;
 
         assertEquals(String.join(System.lineSeparator(),
-                        "Вы успешно зарегистрированы!",
-                        " ",
+                        "Вы успешно зарегистрированы! ",
                         "ID пользователя: " + createUserResponse.getUserIdentifier(),
                         "ID основного календаря: " + createUserResponse.getMainCalendarId(),
                         "ID календаря с отмененными мероприятиями: " + createUserResponse.getCancelledCalendarId()),
