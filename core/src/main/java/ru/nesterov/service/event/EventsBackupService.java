@@ -53,12 +53,10 @@ public class EventsBackupService {
         eventsBackupRepository.saveAll(backups);
     }
     
-    public int backupCurrentUserEvents(String username) {
+    public int backupCurrentUserEvents(String username) throws EventBackupTimeoutException {
         User user = userRepository.findByUsername(username);
         
-        if (!isManualBackupAllowed(user.getId())) {
-            return 0;
-        }
+        checkManualBackupTimeout(user.getId());
         
         List<EventBackup> backup = getBackups(List.of(user), true);
         EventBackup saved = eventsBackupRepository.save(backup.get(0));
@@ -76,11 +74,19 @@ public class EventsBackupService {
         );
     }
     
-    private boolean isManualBackupAllowed(long userId) {
-        return !eventsBackupRepository.existsByIsManualIsTrueAndUserIdAndBackupTimeAfter(
-                userId,
-                LocalDateTime.now().minusHours(eventsBackupProperties.getDelayBetweenManualBackups())
-        );
+    private void checkManualBackupTimeout(long userId) throws EventBackupTimeoutException {
+        LocalDateTime checkedTime = LocalDateTime
+                .now()
+                .minusMinutes(eventsBackupProperties.getDelayBetweenManualBackups());
+        
+        EventBackup lastBackup = eventsBackupRepository
+                .findByIsManualIsTrueAndUserIdAndBackupTimeAfter(userId, checkedTime);
+        
+        if (lastBackup != null) {
+            Duration durationBetweenBackups = Duration.between(lastBackup.getBackupTime(), LocalDateTime.now());
+            long timeoutForNextBackup = eventsBackupProperties.getDelayBetweenManualBackups() - durationBetweenBackups.toMinutes();
+            throw new EventBackupTimeoutException(timeoutForNextBackup);
+        }
     }
     
     private List<EventBackup> getBackups(List<User> users, boolean isManual) {

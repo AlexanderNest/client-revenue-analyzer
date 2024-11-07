@@ -7,7 +7,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestHeader;
 import org.springframework.web.bind.annotation.RequestMapping;
-import ru.nesterov.controller.response.BackupResponse;
+import ru.nesterov.controller.response.ResponseWithMessage;
 
 @Tag(name = "Бэкап событий", description = "API для бэкапа событий")
 @RequestMapping("/events/backup")
@@ -22,5 +22,5 @@ public interface EventsBackupController {
             }
     )
     @GetMapping
-    ResponseEntity<BackupResponse> makeBackup(@RequestHeader(name = "X-username") String username);
+    ResponseEntity<ResponseWithMessage> makeBackup(@RequestHeader(name = "X-username") String username);
 }

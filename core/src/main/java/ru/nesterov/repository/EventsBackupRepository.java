@@ -8,7 +8,7 @@ import java.time.LocalDateTime;
 
 @Repository
 public interface EventsBackupRepository extends JpaRepository<EventBackup, Long> {
-    boolean existsByIsManualIsTrueAndUserIdAndBackupTimeAfter(long userId, LocalDateTime checkedTime);
+    EventBackup findByIsManualIsTrueAndUserIdAndBackupTimeAfter(long userId, LocalDateTime checkedTime);
     
     boolean existsByIsManualIsFalseAndBackupTimeAfter(LocalDateTime checkedTime);
 }
