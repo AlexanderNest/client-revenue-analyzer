@@ -48,10 +48,13 @@ public class CreateUserHandler extends ClientRevenueAbstractHandler {
             return handleCancelledCalendarEnabledInput(update, createUserRequest);
         } else if (createUserRequest != null && createUserRequest.getCancelledCalendarId() == null && createUserRequest.getIsCancelledCalendarEnabled()){
             return handleCancelledCalendarInput(createUserRequest, update);
+        } else if (!isUserExists(String.valueOf(userId))) {
+            //TODO прописать обработчик. Надо предложить пользователю зарегистрироваться и если он согласится,
+            // то перевести его стандартный флоу регистрации
         }
 
         log.info("CreateUserHandler cannot handle this update [{}]", update);
-        return null;
+        throw new RuntimeException("CreateUserHandler cannot handle this update");
     }
 
     @SneakyThrows
