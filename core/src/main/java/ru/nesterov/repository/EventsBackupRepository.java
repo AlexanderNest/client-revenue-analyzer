@@ -5,13 +5,10 @@ import org.springframework.stereotype.Repository;
 import ru.nesterov.entity.EventBackup;
 
 import java.time.LocalDateTime;
-import java.util.List;
 
 @Repository
 public interface EventsBackupRepository extends JpaRepository<EventBackup, Long> {
-    long countAllByUserIdIn(List<Long> userIds);
+    boolean existsByIsManualIsTrueAndUserIdAndBackupTimeAfter(long userId, LocalDateTime checkedTime);
     
-    boolean existsByUserIdAndBackupTimeAfter(long userId, LocalDateTime checkedTime);
-    
-    boolean existsByUserIdInAndBackupTimeBefore(List<Long> userIds, LocalDateTime checkedTime);
+    boolean existsByIsManualIsFalseAndBackupTimeAfter(LocalDateTime checkedTime);
 }

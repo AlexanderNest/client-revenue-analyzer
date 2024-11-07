@@ -10,6 +10,7 @@ import ru.nesterov.dto.EventDto;
 import ru.nesterov.entity.Event;
 import ru.nesterov.entity.EventBackup;
 import ru.nesterov.entity.User;
+import ru.nesterov.exception.EventBackupTimeoutException;
 import ru.nesterov.google.GoogleCalendarService;
 import ru.nesterov.repository.EventsBackupRepository;
 import ru.nesterov.repository.UserRepository;
@@ -22,7 +23,7 @@ import java.util.List;
 import java.util.concurrent.TimeUnit;
 
 @Service
-@ConditionalOnProperty("app.calendar.events.backup.enable")
+@ConditionalOnProperty("app.calendar.events.backup.enabled")
 @RequiredArgsConstructor
 public class EventsBackupService {
     private final UserRepository userRepository;
@@ -44,55 +45,45 @@ public class EventsBackupService {
             return;
         }
         
-        List<Long> userIds = new ArrayList<>();
-        users.forEach(user -> userIds.add(user.getId()));
-        
-        if (!isTimeForAutomaticBackup(userIds)) {
+        if (!isAutomaticBackupRequired()) {
             return;
         }
         
-        List<EventBackup> backups = getBackups(users);
+        List<EventBackup> backups = getBackups(users, false);
         eventsBackupRepository.saveAll(backups);
     }
     
     public int backupCurrentUserEvents(String username) {
         User user = userRepository.findByUsername(username);
         
-        if (!isTimeForManualBackup(user.getId())) {
+        if (!isManualBackupAllowed(user.getId())) {
             return 0;
         }
         
-        List<EventBackup> backup = getBackups(List.of(user));
+        List<EventBackup> backup = getBackups(List.of(user), true);
         EventBackup saved = eventsBackupRepository.save(backup.get(0));
         return saved.getEvents().size();
     }
     
-    private boolean isTimeForAutomaticBackup(List<Long> userIds) {
-        if (userIds.size() > eventsBackupRepository.countAllByUserIdIn(userIds)) {
-            return true;
-        }
-        
+    private boolean isAutomaticBackupRequired() {
         CronExpression cronExpression = CronExpression.parse(eventsBackupProperties.getBackupTime());
         LocalDateTime nextExecution = cronExpression.next(LocalDateTime.now());
         LocalDateTime nextToNextExecution = cronExpression.next(nextExecution);
         Duration durationBetweenExecutions = Duration.between(nextExecution, nextToNextExecution);
         
-        return eventsBackupRepository.existsByUserIdInAndBackupTimeBefore(
-                userIds,
-                LocalDateTime
-                        .now()
-                        .minusDays(durationBetweenExecutions.toDays())
+        return !eventsBackupRepository.existsByIsManualIsFalseAndBackupTimeAfter(
+                LocalDateTime.now().minusDays(durationBetweenExecutions.toDays())
         );
     }
     
-    private boolean isTimeForManualBackup(long userId) {
-        return !eventsBackupRepository.existsByUserIdAndBackupTimeAfter(
+    private boolean isManualBackupAllowed(long userId) {
+        return !eventsBackupRepository.existsByIsManualIsTrueAndUserIdAndBackupTimeAfter(
                 userId,
                 LocalDateTime.now().minusHours(eventsBackupProperties.getDelayBetweenManualBackups())
         );
     }
     
-    private List<EventBackup> getBackups(List<User> users) {
+    private List<EventBackup> getBackups(List<User> users, boolean isManual) {
         LocalDateTime currentDateTime = LocalDateTime.now();
         LocalDateTime backupStartDate = currentDateTime.minusDays(eventsBackupProperties.getDatesRangeForBackup());
         LocalDateTime backupEndDate = currentDateTime.plusDays(eventsBackupProperties.getDatesRangeForBackup());
@@ -115,6 +106,7 @@ public class EventsBackupService {
             EventBackup backup = new EventBackup();
             backup.setUser(user);
             backup.setEvents(eventsToBackup);
+            backup.setManual(isManual);
             
             backups.add(backup);
         });

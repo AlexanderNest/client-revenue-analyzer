@@ -225,9 +225,10 @@
         <sql>
             CREATE TABLE event_backup
             (
-                id          BIGSERIAL PRIMARY KEY NOT NULL,
-                user_id     BIGINT REFERENCES "user" (id),
-                backup_time TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+                id          BIGSERIAL PRIMARY KEY NOT NULL, -- index
+                user_id     BIGINT REFERENCES "user" (id),  -- index
+                backup_time TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+                is_manual   BOOLEAN               NOT NULL
             );
             CREATE INDEX idx_event_backup_backup_time ON event_backup (backup_time);
         </sql>
@@ -249,8 +250,8 @@
                 summary            VARCHAR(200),
                 start_date         TIMESTAMP,
                 end_date           TIMESTAMP,
-                event_backup_id    BIGINT REFERENCES event_backup (id) ON DELETE CASCADE,
-                event_extension_id BIGINT REFERENCES event_extension (id) ON DELETE CASCADE
+                event_backup_id    BIGINT REFERENCES event_backup (id) ON DELETE CASCADE,  -- index
+                event_extension_id BIGINT REFERENCES event_extension (id) ON DELETE CASCADE  -- index
             );
         </sql>
     </changeSet>

@@ -30,6 +30,8 @@ public class EventBackup {
     @CreationTimestamp
     private LocalDateTime backupTime;
     
+    private boolean isManual;
+    
     @OneToMany(cascade = jakarta.persistence.CascadeType.ALL, fetch = FetchType.EAGER)
     @JoinColumn(name = "event_backup_id")
     private List<Event> events;
