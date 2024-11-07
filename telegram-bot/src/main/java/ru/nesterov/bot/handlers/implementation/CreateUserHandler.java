@@ -1,7 +1,6 @@
 package ru.nesterov.bot.handlers.implementation;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
-import lombok.Data;
 import lombok.RequiredArgsConstructor;
 import lombok.SneakyThrows;
 import lombok.extern.slf4j.Slf4j;
@@ -39,7 +38,7 @@ public class CreateUserHandler extends ClientRevenueAbstractHandler {
 
         CreateUserRequest createUserRequest = keeper.getRequest(userId, CreateUserHandler.class, CreateUserRequest.class);
 
-        if ("/register".equals(text)) {
+        if (getCommand().equals(text)) {
             CreateUserRequest newRequest = CreateUserRequest.builder().build();
             keeper.putRequest(CreateUserHandler.class, userId, newRequest);
             return handleRegisterCommand(userId, chatId);
@@ -57,8 +56,16 @@ public class CreateUserHandler extends ClientRevenueAbstractHandler {
 
     @SneakyThrows
     private BotApiMethod<?> handleCancelledCalendarEnabledInput(Update update, CreateUserRequest createUserRequest) {
-        String data = update.getCallbackQuery().getData();
-        ButtonCallback buttonCallback = objectMapper.readValue(data, ButtonCallback.class);
+        String callbackData = update.getCallbackQuery().getData();
+        ButtonCallback buttonCallback;
+        try {
+            buttonCallback = objectMapper.readValue(callbackData, ButtonCallback.class);
+        } catch (JsonProcessingException e) {
+            buttonCallback = null;
+        }
+        if (buttonCallback == null) {
+            buttonCallback = ButtonCallback.fromShortString(callbackData);
+        }
         createUserRequest.setIsCancelledCalendarEnabled(Boolean.valueOf(buttonCallback.getValue()));
 
         long chatId = TelegramUpdateUtils.getChatId(update);
@@ -112,8 +119,7 @@ public class CreateUserHandler extends ClientRevenueAbstractHandler {
 
     private String formatCreateUserResponse(CreateUserResponse createUserResponse) {
         return String.join(System.lineSeparator(),
-                "Вы успешно зарегистрированы!",
-                " ",
+                "Вы успешно зарегистрированы! ",
                 "ID пользователя: " + createUserResponse.getUserIdentifier(),
                 "ID основного календаря: " + createUserResponse.getMainCalendarId(),
                 "ID календаря с отмененными мероприятиями: " + createUserResponse.getCancelledCalendarId());
@@ -121,7 +127,7 @@ public class CreateUserHandler extends ClientRevenueAbstractHandler {
 
     @Override
     public String getCommand() {
-        return "/register";
+        return "Зарегистрироваться в боте";
     }
 
     @Override

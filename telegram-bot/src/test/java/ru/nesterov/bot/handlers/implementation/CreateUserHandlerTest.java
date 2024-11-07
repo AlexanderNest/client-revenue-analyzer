@@ -2,6 +2,7 @@ package ru.nesterov.bot.handlers.implementation;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
@@ -47,6 +48,13 @@ public class CreateUserHandlerTest {
     @MockBean
     private ClientRevenueAnalyzerIntegrationClient client;
 
+    private String COMMAND;
+
+    @BeforeEach
+    public void setUp() {
+        COMMAND = createUserHandler.getCommand();
+    }
+
     @Test
     void handle() throws JsonProcessingException {
         Chat chat = new Chat();
@@ -72,7 +80,7 @@ public class CreateUserHandlerTest {
         when(client.createUser(any())).thenReturn(createUserResponse);
 
         Message message = new Message();
-        message.setText("/register");
+        message.setText(COMMAND);
         message.setFrom(user);
         message.setChat(chat);
 
@@ -115,7 +123,7 @@ public class CreateUserHandlerTest {
         ButtonCallback callback = new ButtonCallback();
         callbackQuery.setFrom(user);
         callbackQuery.setMessage(message);
-        callback.setCommand("/register");
+        callback.setCommand(COMMAND);
         callback.setValue(request.getIsCancelledCalendarEnabled().toString());
         callbackQuery.setData(objectMapper.writeValueAsString(callback));
 
@@ -123,7 +131,6 @@ public class CreateUserHandlerTest {
 
         botApiMethod = createUserHandler.handle(update);
         sendMessage = (SendMessage) botApiMethod;
-
 
         assertEquals("Введите ID календаря с отмененными мероприятиями:", sendMessage.getText());
 
@@ -157,7 +164,7 @@ public class CreateUserHandlerTest {
                 .build();
 
         Message message = new Message();
-        message.setText("/register");
+        message.setText(COMMAND);
         message.setFrom(user);
         message.setChat(chat);
 
@@ -198,7 +205,7 @@ public class CreateUserHandlerTest {
         ButtonCallback callback = new ButtonCallback();
         callbackQuery.setFrom(user);
         callbackQuery.setMessage(message);
-        callback.setCommand("/register");
+        callback.setCommand(COMMAND);
         callback.setValue(request.getIsCancelledCalendarEnabled().toString());
         callbackQuery.setData(objectMapper.writeValueAsString(callback));
 
@@ -236,7 +243,7 @@ public class CreateUserHandlerTest {
         user.setId(2L);
 
         Message message = new Message();
-        message.setText("/register");
+        message.setText(COMMAND);
         message.setFrom(user);
         message.setChat(chat);
 

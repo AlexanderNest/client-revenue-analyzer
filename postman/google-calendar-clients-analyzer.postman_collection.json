@@ -429,14 +429,4 @@
 			]
 		}
 	],
-	"variable": [
-		{
-			"key": "secret-token",
-			"value": "secret-token"
-		},
-		{
-			"key": "username",
-			"value": "1155310016"
-		}
-	]
 }
