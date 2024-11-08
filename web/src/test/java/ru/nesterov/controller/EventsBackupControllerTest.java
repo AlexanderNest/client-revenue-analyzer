@@ -3,23 +3,25 @@ package ru.nesterov.controller;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.test.autoconfigure.jdbc.AutoConfigureTestDatabase;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.http.MediaType;
-import org.springframework.test.annotation.DirtiesContext;
 import org.springframework.test.web.servlet.MockMvc;
 import ru.nesterov.dto.EventDto;
 import ru.nesterov.dto.EventStatus;
+import ru.nesterov.entity.EventBackup;
 import ru.nesterov.entity.User;
 import ru.nesterov.google.CalendarClient;
 import ru.nesterov.google.GoogleCalendarService;
+import ru.nesterov.repository.EventsBackupRepository;
 import ru.nesterov.repository.UserRepository;
+import ru.nesterov.service.event.EventsBackupProperties;
 
 import java.time.LocalDateTime;
 import java.util.List;
 
+import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyBoolean;
 import static org.mockito.Mockito.when;
@@ -27,33 +29,28 @@ import static org.springframework.test.web.servlet.request.MockMvcRequestBuilder
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
-@SpringBootTest(properties = {
-        "app.calendar.events.backup.enabled=true"
-})
+@SpringBootTest(properties = {"app.calendar.events.backup.enabled=true"})
 @AutoConfigureMockMvc
-@DirtiesContext(classMode = DirtiesContext.ClassMode.BEFORE_EACH_TEST_METHOD)
-@AutoConfigureTestDatabase(replace = AutoConfigureTestDatabase.Replace.ANY)
 public class EventsBackupControllerTest {
     @Autowired
     private MockMvc mockMvc;
     @Autowired
     private UserRepository userRepository;
+    @Autowired
+    private EventsBackupProperties eventsBackupProperties;
+    @Autowired
+    private EventsBackupRepository eventsBackupRepository;
     
     @MockBean
     private GoogleCalendarService googleCalendarService;
     @MockBean
     private CalendarClient calendarClient;
     
+    private final String URL = "/events/backup";
+    private final String HEADER = "X-username";
+    
     @BeforeEach
     public void init() {
-        User user = new User();
-        user.setId(1);
-        user.setUsername("testUsername");
-        user.setMainCalendar("testCalendar");
-        user.setEventsBackupEnabled(true);
-        
-        userRepository.save(user);
-        
         LocalDateTime start = LocalDateTime.now();
         LocalDateTime end = LocalDateTime.now().plusHours(1);
         
@@ -77,28 +74,57 @@ public class EventsBackupControllerTest {
     
     @Test
     public void makeSuccessfulBackup() throws Exception {
-        mockMvc.perform(get("/events/backup")
-                        .header("X-username", "testUsername")
+        User user1 = new User();
+        user1.setUsername("backupTestUsername1");
+        user1.setMainCalendar("testCalendar1");
+        user1.setEventsBackupEnabled(true);
+        userRepository.save(user1);
+        
+        mockMvc.perform(get(URL)
+                        .header(HEADER, user1.getUsername())
                         .contentType(MediaType.APPLICATION_JSON))
                 .andExpect(status().isOk())
-                .andExpect(jsonPath("$.backupDone").value("true"))
-                .andExpect(jsonPath("$.eventsSaved").value(2));
+                .andExpect(jsonPath("$.message").value("Встреч сохранено: 2"));
+        
+        User savedUser = userRepository.findByUsername(user1.getUsername());
+        LocalDateTime checkedTime = LocalDateTime
+                .now().minusMinutes(eventsBackupProperties.getDelayBetweenManualBackups() - 1);
+        EventBackup savedBackup = eventsBackupRepository
+                .findByIsManualIsTrueAndUserIdAndBackupTimeAfter(savedUser.getId(), checkedTime);
+        
+        assertEquals(2, savedBackup.getEvents().size());
     }
     
     @Test
-    public void makeFailedBackup() throws Exception {
-        mockMvc.perform(get("/events/backup")
-                        .header("X-username", "testUsername")
-                        .contentType(MediaType.APPLICATION_JSON))
-                .andExpect(status().isOk())
-                .andExpect(jsonPath("$.backupDone").value("true"))
-                .andExpect(jsonPath("$.eventsSaved").value(2));
+    public void checkDelayBetweenNextBackup() throws Exception {
+        User user2 = new User();
+        user2.setUsername("backupTestUsername2");
+        user2.setMainCalendar("testCalendar2");
+        user2.setEventsBackupEnabled(true);
+        userRepository.save(user2);
         
-        mockMvc.perform(get("/events/backup")
-                        .header("X-username", "testUsername")
+        mockMvc.perform(get(URL)
+                        .header(HEADER, user2.getUsername())
                         .contentType(MediaType.APPLICATION_JSON))
                 .andExpect(status().isOk())
-                .andExpect(jsonPath("$.backupDone").value("false"))
-                .andExpect(jsonPath("$.eventsSaved").value(0));
+                .andExpect(jsonPath("$.message").value("Встреч сохранено: 2"));
+        
+        User savedUser = userRepository.findByUsername(user2.getUsername());
+        LocalDateTime checkedTime = LocalDateTime
+                .now().minusMinutes(eventsBackupProperties.getDelayBetweenManualBackups() - 1);
+        EventBackup savedBackup = eventsBackupRepository
+                .findByIsManualIsTrueAndUserIdAndBackupTimeAfter(savedUser.getId(), checkedTime);
+        
+        mockMvc.perform(get(URL)
+                        .header(HEADER, user2.getUsername())
+                        .contentType(MediaType.APPLICATION_JSON))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.message").value("Следующий бэкап можно будет сделать по прошествии " +
+                        eventsBackupProperties.getDelayBetweenManualBackups() + " минут(ы)"));
+        
+        EventBackup lastSavedBackup = eventsBackupRepository
+                .findByIsManualIsTrueAndUserIdAndBackupTimeAfter(savedUser.getId(), checkedTime);
+        
+        assertEquals(savedBackup.getBackupTime(), lastSavedBackup.getBackupTime());
     }
 }
