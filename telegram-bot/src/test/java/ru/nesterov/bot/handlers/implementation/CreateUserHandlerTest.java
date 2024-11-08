@@ -149,6 +149,32 @@ public class CreateUserHandlerTest {
     }
 
     @Test
+    void handleUnregisteredUserUpdate() {
+        Chat chat = new Chat();
+        chat.setId(4L);
+
+        User user = new User();
+        user.setId(4L);
+
+        Message message = new Message();
+        message.setText("some text");
+        message.setFrom(user);
+        message.setChat(chat);
+
+        Update update = new Update();
+        update.setMessage(message);
+
+        when(client.getUserByUsername(any(GetUserRequest.class))).thenReturn(null);
+
+        BotApiMethod<?> botApiMethod = createUserHandler.handle(update);
+
+        assertInstanceOf(SendMessage.class, botApiMethod);
+
+        SendMessage sendMessage = (SendMessage) botApiMethod;
+        assertEquals("Воспользуйтесь командой Зарегистрироваться в боте", sendMessage.getText());
+    }
+
+    @Test
     void handleWithoutCancelledCalendar() throws JsonProcessingException {
         Chat chat = new Chat();
         chat.setId(3L);
