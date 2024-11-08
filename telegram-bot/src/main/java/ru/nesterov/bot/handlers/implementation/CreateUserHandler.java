@@ -48,17 +48,19 @@ public class CreateUserHandler extends ClientRevenueAbstractHandler {
             return handleCancelledCalendarEnabledInput(update, createUserRequest);
         } else if (createUserRequest != null && createUserRequest.getCancelledCalendarId() == null && createUserRequest.getIsCancelledCalendarEnabled()){
             return handleCancelledCalendarInput(createUserRequest, update);
-        } else if (!isUserExists(String.valueOf(userId))) {
-            //TODO прописать обработчик. Надо предложить пользователю зарегистрироваться и если он согласится,
-            // то перевести его стандартный флоу регистрации
+        } else if (!(update.getMessage() == null)){
+            return handleUnregisteredUserMessage(update);
         }
 
         log.info("CreateUserHandler cannot handle this update [{}]", update);
         throw new RuntimeException("CreateUserHandler cannot handle this update");
     }
 
-    @SneakyThrows
-    private BotApiMethod<?> handleCancelledCalendarEnabledInput(Update update, CreateUserRequest createUserRequest) {
+    private BotApiMethod<?> handleUnregisteredUserMessage(Update update) {
+        return getPlainSendMessage(TelegramUpdateUtils.getChatId(update), "Воспользуйтесь командой Зарегистрироваться в боте");
+    }
+
+    private String getButtonCallbackValue(Update update) {
         String callbackData = update.getCallbackQuery().getData();
         ButtonCallback buttonCallback;
         try {
@@ -69,7 +71,13 @@ public class CreateUserHandler extends ClientRevenueAbstractHandler {
         if (buttonCallback == null) {
             buttonCallback = ButtonCallback.fromShortString(callbackData);
         }
-        createUserRequest.setIsCancelledCalendarEnabled(Boolean.valueOf(buttonCallback.getValue()));
+
+        return buttonCallback.getValue();
+    }
+
+    @SneakyThrows
+    private BotApiMethod<?> handleCancelledCalendarEnabledInput(Update update, CreateUserRequest createUserRequest) {
+        createUserRequest.setIsCancelledCalendarEnabled(Boolean.valueOf(getButtonCallbackValue(update)));
 
         long chatId = TelegramUpdateUtils.getChatId(update);
         if (createUserRequest.getIsCancelledCalendarEnabled()) {
