@@ -48,7 +48,7 @@ public class CreateUserHandler extends ClientRevenueAbstractHandler {
             return handleCancelledCalendarEnabledInput(update, createUserRequest);
         } else if (createUserRequest != null && createUserRequest.getCancelledCalendarId() == null && createUserRequest.getIsCancelledCalendarEnabled()){
             return handleCancelledCalendarInput(createUserRequest, update);
-        } else if (!(update.getMessage() == null)){
+        } else if (update.getMessage() != null){
             return handleUnregisteredUserMessage(update);
         }
 
@@ -62,15 +62,7 @@ public class CreateUserHandler extends ClientRevenueAbstractHandler {
 
     private String getButtonCallbackValue(Update update) {
         String callbackData = update.getCallbackQuery().getData();
-        ButtonCallback buttonCallback;
-        try {
-            buttonCallback = objectMapper.readValue(callbackData, ButtonCallback.class);
-        } catch (JsonProcessingException e) {
-            buttonCallback = null;
-        }
-        if (buttonCallback == null) {
-            buttonCallback = ButtonCallback.fromShortString(callbackData);
-        }
+        ButtonCallback buttonCallback = ButtonCallback.fromShortString(callbackData);
 
         return buttonCallback.getValue();
     }
