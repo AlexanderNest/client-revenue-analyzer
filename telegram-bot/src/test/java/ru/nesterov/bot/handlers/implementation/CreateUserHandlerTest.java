@@ -56,7 +56,7 @@ public class CreateUserHandlerTest {
     }
 
     @Test
-    void handle() throws JsonProcessingException {
+    void handle() {
         Chat chat = new Chat();
         chat.setId(1L);
 
@@ -125,7 +125,8 @@ public class CreateUserHandlerTest {
         callbackQuery.setMessage(message);
         callback.setCommand(COMMAND);
         callback.setValue(request.getIsCancelledCalendarEnabled().toString());
-        callbackQuery.setData(objectMapper.writeValueAsString(callback));
+        String callbackData = callback.toShortString();
+        callbackQuery.setData(callbackData);
 
         update.setCallbackQuery(callbackQuery);
 
