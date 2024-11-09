@@ -3,6 +3,7 @@ package ru.nesterov.integration;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
+import org.springframework.cache.annotation.Cacheable;
 import org.springframework.core.ParameterizedTypeReference;
 import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpHeaders;
@@ -43,6 +44,7 @@ public class ClientRevenueAnalyzerIntegrationClient {
         return post(String.valueOf(userId), getForMonthRequest, "/revenue-analyzer/events/analyzer/getIncomeAnalysisForMonth", GetIncomeAnalysisForMonthResponse.class).getBody();
     }
 
+    @Cacheable("getUserByUsername")
     public GetUserResponse getUserByUsername(GetUserRequest request) {
         ResponseEntity<GetUserResponse> responseEntity = post(request.getUsername(), request, "/revenue-analyzer/user/getUserByUsername", GetUserResponse.class);
         if (responseEntity.getStatusCode().isSameCodeAs(HttpStatus.NOT_FOUND)) {

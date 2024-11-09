@@ -48,16 +48,10 @@ public class CreateUserHandler extends ClientRevenueAbstractHandler {
             return handleCancelledCalendarEnabledInput(update, createUserRequest);
         } else if (createUserRequest != null && createUserRequest.getCancelledCalendarId() == null && createUserRequest.getIsCancelledCalendarEnabled()){
             return handleCancelledCalendarInput(createUserRequest, update);
-        } else if (update.getMessage() != null){
-            return handleUnregisteredUserMessage(update);
         }
 
         log.info("CreateUserHandler cannot handle this update [{}]", update);
         throw new RuntimeException("CreateUserHandler cannot handle this update");
-    }
-
-    private BotApiMethod<?> handleUnregisteredUserMessage(Update update) {
-        return getPlainSendMessage(TelegramUpdateUtils.getChatId(update), "Воспользуйтесь командой Зарегистрироваться в боте");
     }
 
     private String getButtonCallbackValue(Update update) {

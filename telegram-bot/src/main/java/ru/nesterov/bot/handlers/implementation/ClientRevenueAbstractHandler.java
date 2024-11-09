@@ -88,9 +88,8 @@ public abstract class ClientRevenueAbstractHandler implements CommandHandler {
 
         boolean isCallback = callbackQuery != null
                 && (getCommand().equals(ButtonCallback.fromShortString(callbackQuery.getData()).getCommand()) || getCommand().equals(objectMapper.readValue(callbackQuery.getData(), ButtonCallback.class).getCommand()));
-        boolean isPlainText = message != null && message.getText() != null;
 
-        return isCurrentHandlerCommand || isCallback || (isPlainText && !isFinished(TelegramUpdateUtils.getUserId(update)));
+        return isCurrentHandlerCommand || isCallback;
     }
 
     public abstract String getCommand();
