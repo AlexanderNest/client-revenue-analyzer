@@ -7,6 +7,7 @@ import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.stereotype.Component;
 import org.telegram.telegrambots.meta.api.objects.Update;
 import ru.nesterov.bot.TelegramUpdateUtils;
+import ru.nesterov.bot.handlers.implementation.UnregisteredUserHandler;
 
 import java.util.List;
 import java.util.Map;
@@ -20,6 +21,8 @@ public class HandlersService {
     private final Map<Long, CommandHandler> userHandlers = new ConcurrentHashMap<>();
     private final List<CommandHandler> commandHandlers;
 
+    private final UnregisteredUserHandler unregisteredUserHandler;
+
     @Nullable
     public CommandHandler getHandler(Update update) {
         long userId = TelegramUpdateUtils.getUserId(update);
@@ -29,6 +32,11 @@ public class HandlersService {
             return userHandler;
         } else {
             userHandlers.remove(userId);
+        }
+
+        if (unregisteredUserHandler.isApplicable(update)) {
+            log.debug("UnregisteredUserHandler был выбран вне очереди");
+            return unregisteredUserHandler;
         }
 
         for (CommandHandler commandHandler : commandHandlers) {
