@@ -225,11 +225,13 @@
         <sql>
             CREATE TABLE event_backup
             (
-                id          BIGSERIAL PRIMARY KEY NOT NULL, -- index
-                user_id     BIGINT REFERENCES "user" (id),  -- index
+                id          BIGSERIAL PRIMARY KEY NOT NULL,
+                user_id     BIGINT REFERENCES "user" (id),
                 backup_time TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
                 is_manual   BOOLEAN               NOT NULL
             );
+
+            CREATE INDEX idx_event_backup_user_id ON event_backup (user_id);
             CREATE INDEX idx_event_backup_backup_time ON event_backup (backup_time);
         </sql>
     </changeSet>
@@ -250,9 +252,12 @@
                 summary            VARCHAR(200),
                 start_date         TIMESTAMP,
                 end_date           TIMESTAMP,
-                event_backup_id    BIGINT REFERENCES event_backup (id) ON DELETE CASCADE,  -- index
-                event_extension_id BIGINT REFERENCES event_extension (id) ON DELETE CASCADE  -- index
+                event_backup_id    BIGINT REFERENCES event_backup (id) ON DELETE CASCADE,
+                event_extension_id BIGINT REFERENCES event_extension (id) ON DELETE CASCADE
             );
+
+            CREATE INDEX idx_event_event_backup_id ON event (event_backup_id);
+            CREATE INDEX idx_event_event_extension_is ON event (event_extension_id);
         </sql>
     </changeSet>
 
@@ -264,18 +269,5 @@
             ALTER TABLE "user"
                 ADD events_backup_enabled BOOLEAN DEFAULT FALSE;
         </sql>
-    </changeSet>
-
-    <changeSet id="create backup_time + user_id unique index" author="Lizogubov Eugeny">
-        <preConditions onFail="MARK_RAN">
-            <not>
-                <indexExists tableName="client" indexName="IDX_UNIQUE_BACKUP_TIME_PER_USER"/>
-            </not>
-        </preConditions>
-
-        <createIndex tableName="event_backup" indexName="IDX_UNIQUE_BACKUP_TIME_PER_USER" unique="true">
-            <column name="backup_time"/>
-            <column name="user_id"/>
-        </createIndex>
     </changeSet>
 </databaseChangeLog>

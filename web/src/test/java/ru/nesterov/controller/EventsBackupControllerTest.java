@@ -46,8 +46,8 @@ public class EventsBackupControllerTest {
     @MockBean
     private CalendarClient calendarClient;
     
-    private final String URL = "/events/backup";
-    private final String HEADER = "X-username";
+    private static final String URL = "/events/backup";
+    private static final String HEADER = "X-username";
     
     @BeforeEach
     public void init() {
