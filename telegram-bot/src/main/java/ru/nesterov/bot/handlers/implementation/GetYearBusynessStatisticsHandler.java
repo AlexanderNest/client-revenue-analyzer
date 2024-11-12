@@ -18,22 +18,23 @@ public class GetYearBusynessStatisticsHandler extends ClientRevenueAbstractHandl
 
     @Override
     public BotApiMethod<?> handle(Update update) {
-        String text = update.getMessage().getText();
         long userId = getUserId(update);
-        GetYearBusynessStatisticsRequest getYearBusynessStatisticsRequest = handlersKeeper.getRequest(userId, GetYearBusynessStatisticsHandler.class, GetYearBusynessStatisticsRequest.class);
         long chatId = getChatId(update);
 
-        if ("/getyearbusynessstatistics".equals(text)) {
+        GetYearBusynessStatisticsRequest getYearBusynessStatisticsRequest = handlersKeeper.getRequest(userId, GetYearBusynessStatisticsHandler.class, GetYearBusynessStatisticsRequest.class);
+
+        if (getYearBusynessStatisticsRequest == null) {
+            GetYearBusynessStatisticsRequest newGetYearBusynessStatisticsRequest = GetYearBusynessStatisticsRequest.builder().build();
+            handlersKeeper.putRequest(GetYearBusynessStatisticsHandler.class, userId, newGetYearBusynessStatisticsRequest);
             return getPlainSendMessage(chatId, "Введите год для расчета занятости");
-        } else if (getYearBusynessStatisticsRequest == null) {
-            return handleYearInput(update);
+        } else if (getYearBusynessStatisticsRequest.getYear() == null) {
+            return handleYearInput(update, getYearBusynessStatisticsRequest);
         } else {
             return sendYearStatistics(update, getYearBusynessStatisticsRequest);
         }
     }
 
-    private BotApiMethod<?> handleYearInput(Update update) {
-        long userId = getUserId(update);
+    private BotApiMethod<?> handleYearInput(Update update, GetYearBusynessStatisticsRequest request) {
         int year;
 
         try {
@@ -42,22 +43,9 @@ public class GetYearBusynessStatisticsHandler extends ClientRevenueAbstractHandl
             return getPlainSendMessage(update.getMessage().getChatId(), "Введите корректный год");
         }
 
-        GetYearBusynessStatisticsRequest getYearBusynessStatisticsRequest = GetYearBusynessStatisticsRequest.builder()
-                .year(year)
-                .build();
-
-        handlersKeeper.putRequest(GetYearBusynessStatisticsHandler.class, userId, getYearBusynessStatisticsRequest);
-
-        return sendYearStatistics(update, getYearBusynessStatisticsRequest);
+        request.setYear(year);
+        return sendYearStatistics(update, request);
     }
-
-
-    @Override
-    public boolean isFinished(Long userId) {
-        GetYearBusynessStatisticsRequest getYearBusynessStatisticsRequest = handlersKeeper.getRequest(userId, GetYearBusynessStatisticsHandler.class, GetYearBusynessStatisticsRequest.class);
-        return getYearBusynessStatisticsRequest != null && getYearBusynessStatisticsRequest.getYear() != null;
-    }
-
 
     @SneakyThrows
     private BotApiMethod<?> sendYearStatistics(Update update, GetYearBusynessStatisticsRequest getYearBusynessStatisticsRequest) {
@@ -69,7 +57,6 @@ public class GetYearBusynessStatisticsHandler extends ClientRevenueAbstractHandl
     }
 
     private String formatYearStatistics(GetYearBusynessStatisticsResponse response) {
-
         if (response.getMonths().isEmpty()) {
             return "📅 Встречи не запланированы";
         }
@@ -81,7 +68,7 @@ public class GetYearBusynessStatisticsHandler extends ClientRevenueAbstractHandl
                     return String.format("Занятость по месяцам:\n" + monthName + (" - ") + hours);
                 }).collect(Collectors.joining("\n\n"));
 
-       String dayHours =  response.getDays().entrySet().stream()
+        String dayHours =  response.getDays().entrySet().stream()
                 .map(dayStatistics -> {
                     String dayName = dayStatistics.getKey();
                     Double hours = dayStatistics.getValue();
@@ -91,8 +78,6 @@ public class GetYearBusynessStatisticsHandler extends ClientRevenueAbstractHandl
         return "Анализ занятости за год:\n\n" +
                 monthHours + ("\n\n") + "Занятость по дням:\n" +
                 dayHours;
-
-
     }
 
     private Long getUserId(Update update) {
@@ -101,6 +86,12 @@ public class GetYearBusynessStatisticsHandler extends ClientRevenueAbstractHandl
 
     private Long getChatId(Update update) {
         return update.hasMessage() ? update.getMessage().getChatId() : update.getCallbackQuery().getMessage().getChatId();
+    }
+
+    @Override
+    public boolean isFinished(Long userId) {
+        GetYearBusynessStatisticsRequest getYearBusynessStatisticsRequest = handlersKeeper.getRequest(userId, GetYearBusynessStatisticsHandler.class, GetYearBusynessStatisticsRequest.class);
+        return getYearBusynessStatisticsRequest != null && getYearBusynessStatisticsRequest.getYear() != null;
     }
 
     @Override
