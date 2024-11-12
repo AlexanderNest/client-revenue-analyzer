@@ -35,8 +35,7 @@ public class GetClientScheduleHandler extends ClientRevenueAbstractHandler {
     private static final String ENTER_FIRST_DATE = "Введите первую дату";
     private static final String ENTER_SECOND_DATE = "Введите вторую дату";
 
-    public GetClientScheduleHandler(ObjectMapper objectMapper, ClientRevenueAnalyzerIntegrationClient client,
-                                    BotHandlersRequestsKeeper handlersKeeper, InlineCalendarBuilder inlineCalendarBuilder) {
+    public GetClientScheduleHandler(ObjectMapper objectMapper, ClientRevenueAnalyzerIntegrationClient client, BotHandlersRequestsKeeper handlersKeeper, InlineCalendarBuilder inlineCalendarBuilder) {
         this.handlersKeeper = handlersKeeper;
         this.inlineCalendarBuilder = inlineCalendarBuilder;
     }
@@ -139,8 +138,10 @@ public class GetClientScheduleHandler extends ClientRevenueAbstractHandler {
         for (GetActiveClientResponse response : clients) {
             InlineKeyboardButton button = new InlineKeyboardButton();
             button.setText(response.getName());
-            String callbackData = getCommand() + ":" + response.getName();
-            button.setCallbackData(ButtonCallback.fromShortString(callbackData).toShortString());
+            ButtonCallback callback = new ButtonCallback();
+            callback.setCommand(getCommand());
+            callback.setValue(response.getName());
+            button.setCallbackData(objectMapper.writeValueAsString(callback));
 
             List<InlineKeyboardButton> rowInline = new ArrayList<>();
             rowInline.add(button);

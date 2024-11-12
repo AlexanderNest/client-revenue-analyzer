@@ -34,6 +34,8 @@ public class RevenueAnalyzerBot extends TelegramLongPollingBot {
             return;
         }
 
+        log.debug("Выбранный CommandHandler = {}", commandHandler.getClass().getSimpleName());
+
         BotApiMethod<?> sendMessage;
 
         try {

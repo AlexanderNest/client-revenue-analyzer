@@ -1,9 +1,9 @@
 {
 	"info": {
-		"_postman_id": "5b3383c4-949e-4adc-8d4d-45c696cd806f",
+		"_postman_id": "81197df1-bf6a-4072-8132-c6e0940db56f",
 		"name": "google-calendar-clients-analyzer",
 		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
-		"_exporter_id": "33953817"
+		"_exporter_id": "31542889"
 	},
 	"item": [
 		{
@@ -427,16 +427,6 @@
 					"response": []
 				}
 			]
-		}
-	],
-	"variable": [
-		{
-			"key": "secret-token",
-			"value": "secret-token"
-		},
-		{
-			"key": "username",
-			"value": "1155310016"
 		}
 	]
 }
