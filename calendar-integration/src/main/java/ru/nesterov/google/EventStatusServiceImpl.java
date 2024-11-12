@@ -3,6 +3,8 @@ package ru.nesterov.google;
 import com.google.api.services.calendar.model.Event;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
+import ru.nesterov.dto.EventDto;
+import ru.nesterov.dto.EventExtensionDto;
 import ru.nesterov.dto.EventStatus;
 import ru.nesterov.google.exception.UnknownEventColorIdException;
 
@@ -59,5 +61,13 @@ public class EventStatusServiceImpl implements EventStatusService {
         }
 
         throw new UnknownEventColorIdException(eventColorId, event.getSummary(), event.getStart());
+    }
+
+    public EventStatus setShiftedEventStatus(EventDto eventDto) {
+        if ((eventDto.getEventExtensionDto().getIsPlanned() != null && eventDto.getEventExtensionDto().getIsPlanned()) && (eventDto.getStatus() == EventStatus.PLANNED || eventDto.getStatus() == EventStatus.SUCCESS)) {
+
+            return EventStatus.REQUIRES_SHIFT;
+        }
+        return null;
     }
 }
