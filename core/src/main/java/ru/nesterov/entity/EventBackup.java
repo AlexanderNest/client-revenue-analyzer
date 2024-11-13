@@ -1,6 +1,8 @@
 package ru.nesterov.entity;
 
 import jakarta.persistence.Entity;
+import jakarta.persistence.EnumType;
+import jakarta.persistence.Enumerated;
 import jakarta.persistence.FetchType;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
@@ -30,7 +32,8 @@ public class EventBackup {
     @CreationTimestamp
     private LocalDateTime backupTime;
     
-    private boolean isManual;
+    @Enumerated(EnumType.STRING)
+    private BackupType type;
     
     @OneToMany(cascade = jakarta.persistence.CascadeType.ALL, fetch = FetchType.EAGER)
     @JoinColumn(name = "event_backup_id")

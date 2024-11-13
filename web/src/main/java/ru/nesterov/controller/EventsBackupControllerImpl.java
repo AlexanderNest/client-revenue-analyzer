@@ -18,16 +18,16 @@ public class EventsBackupControllerImpl implements EventsBackupController {
     
     public ResponseEntity<ResponseWithMessage> makeBackup(@RequestHeader(name = "X-username") String username) {
         ResponseWithMessage response = new ResponseWithMessage();
-        int savedEvents;
         
+        String message;
         try {
-            savedEvents = eventsBackupService.backupCurrentUserEvents(username);
+            int savedEvents = eventsBackupService.backupCurrentUserEvents(username);
+            message = "Встреч сохранено: " + savedEvents;
         } catch (EventBackupTimeoutException e) {
-            response.setMessage(e.getMessage());
-            return new ResponseEntity<>(response, HttpStatus.OK);
+            message = e.getMessage();
         }
         
-        response.setMessage("Встреч сохранено: " + savedEvents);
+        response.setMessage(message);
         return new ResponseEntity<>(response, HttpStatus.OK);
     }
 }

@@ -228,7 +228,7 @@
                 id          BIGSERIAL PRIMARY KEY NOT NULL,
                 user_id     BIGINT REFERENCES "user" (id),
                 backup_time TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-                is_manual   BOOLEAN               NOT NULL
+                type        VARCHAR(100)          NOT NULL
             );
 
             CREATE INDEX idx_event_backup_user_id ON event_backup (user_id);

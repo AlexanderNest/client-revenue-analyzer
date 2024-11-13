@@ -10,10 +10,10 @@ import org.springframework.http.MediaType;
 import org.springframework.test.web.servlet.MockMvc;
 import ru.nesterov.dto.EventDto;
 import ru.nesterov.dto.EventStatus;
+import ru.nesterov.entity.BackupType;
 import ru.nesterov.entity.EventBackup;
 import ru.nesterov.entity.User;
-import ru.nesterov.google.CalendarClient;
-import ru.nesterov.google.GoogleCalendarService;
+import ru.nesterov.google.GoogleCalendarClient;
 import ru.nesterov.repository.EventsBackupRepository;
 import ru.nesterov.repository.UserRepository;
 import ru.nesterov.service.event.EventsBackupProperties;
@@ -24,6 +24,7 @@ import java.util.List;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyBoolean;
+import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.Mockito.when;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
@@ -42,12 +43,12 @@ public class EventsBackupControllerTest {
     private EventsBackupRepository eventsBackupRepository;
     
     @MockBean
-    private GoogleCalendarService googleCalendarService;
-    @MockBean
-    private CalendarClient calendarClient;
+    private GoogleCalendarClient calendarClient;
     
     private static final String URL = "/events/backup";
-    private static final String HEADER = "X-username";
+    private static final String HEADER_X_USERNAME = "X-username";
+    @Autowired
+    private GoogleCalendarClient googleCalendarClient;
     
     @BeforeEach
     public void init() {
@@ -68,63 +69,63 @@ public class EventsBackupControllerTest {
                 .end(end.minusDays(5))
                 .build();
         
-        when(googleCalendarService.getEventsBetweenDates(any(), any(), anyBoolean(), any(), any()))
+        when(googleCalendarClient.getEventsBetweenDates(anyString(), anyBoolean(), any(), any()))
                 .thenReturn(List.of(eventDto1, eventDto2));
     }
     
     @Test
     public void makeSuccessfulBackup() throws Exception {
-        User user1 = new User();
-        user1.setUsername("backupTestUsername1");
-        user1.setMainCalendar("testCalendar1");
-        user1.setEventsBackupEnabled(true);
-        userRepository.save(user1);
+        User user = createUser(1);
         
         mockMvc.perform(get(URL)
-                        .header(HEADER, user1.getUsername())
+                        .header(HEADER_X_USERNAME, user.getUsername())
                         .contentType(MediaType.APPLICATION_JSON))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.message").value("Встреч сохранено: 2"));
         
-        User savedUser = userRepository.findByUsername(user1.getUsername());
+        User savedUser = userRepository.findByUsername(user.getUsername());
         LocalDateTime checkedTime = LocalDateTime
                 .now().minusMinutes(eventsBackupProperties.getDelayBetweenManualBackups() - 1);
         EventBackup savedBackup = eventsBackupRepository
-                .findByIsManualIsTrueAndUserIdAndBackupTimeAfter(savedUser.getId(), checkedTime);
+                .findByTypeAndUserIdAndBackupTimeAfter(BackupType.MANUAL, savedUser.getId(), checkedTime);
         
         assertEquals(2, savedBackup.getEvents().size());
     }
     
     @Test
     public void checkDelayBetweenNextBackup() throws Exception {
-        User user2 = new User();
-        user2.setUsername("backupTestUsername2");
-        user2.setMainCalendar("testCalendar2");
-        user2.setEventsBackupEnabled(true);
-        userRepository.save(user2);
+        User user = createUser(2);
         
         mockMvc.perform(get(URL)
-                        .header(HEADER, user2.getUsername())
+                        .header(HEADER_X_USERNAME, user.getUsername())
                         .contentType(MediaType.APPLICATION_JSON))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.message").value("Встреч сохранено: 2"));
         
-        User savedUser = userRepository.findByUsername(user2.getUsername());
+        User savedUser = userRepository.findByUsername(user.getUsername());
         LocalDateTime checkedTime = LocalDateTime
                 .now().minusMinutes(eventsBackupProperties.getDelayBetweenManualBackups() - 1);
         EventBackup savedBackup = eventsBackupRepository
-                .findByIsManualIsTrueAndUserIdAndBackupTimeAfter(savedUser.getId(), checkedTime);
+                .findByTypeAndUserIdAndBackupTimeAfter(BackupType.MANUAL, savedUser.getId(), checkedTime);
         
         mockMvc.perform(get(URL)
-                        .header(HEADER, user2.getUsername())
+                        .header(HEADER_X_USERNAME, user.getUsername())
                         .contentType(MediaType.APPLICATION_JSON))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.message").value("Следующий бэкап можно будет сделать по прошествии " +
                         eventsBackupProperties.getDelayBetweenManualBackups() + " минут(ы)"));
         
         EventBackup lastSavedBackup = eventsBackupRepository
-                .findByIsManualIsTrueAndUserIdAndBackupTimeAfter(savedUser.getId(), checkedTime);
+                .findByTypeAndUserIdAndBackupTimeAfter(BackupType.MANUAL, savedUser.getId(), checkedTime);
         
         assertEquals(savedBackup.getBackupTime(), lastSavedBackup.getBackupTime());
+    }
+    
+    private User createUser(int suffix) {
+        User user = new User();
+        user.setUsername("backupTestUsername" + suffix);
+        user.setMainCalendar("testCalendar" + suffix);
+        user.setEventsBackupEnabled(true);
+        return userRepository.save(user);
     }
 }

@@ -6,7 +6,9 @@ import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.scheduling.annotation.Schedules;
 import org.springframework.scheduling.support.CronExpression;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 import ru.nesterov.dto.EventDto;
+import ru.nesterov.entity.BackupType;
 import ru.nesterov.entity.Event;
 import ru.nesterov.entity.EventBackup;
 import ru.nesterov.entity.User;
@@ -38,6 +40,7 @@ public class EventsBackupService {
             ),
             @Scheduled(cron = "#{eventsBackupProperties.backupTime}")
     })
+    @Transactional
     public void backupAllUsersEvents() {
         List<User> users = userRepository.findAllByIsEventsBackupEnabled(true);
         
@@ -49,18 +52,17 @@ public class EventsBackupService {
             return;
         }
         
-        List<EventBackup> backups = getBackups(users, false);
-        eventsBackupRepository.saveAll(backups);
+        saveBackups(users, BackupType.AUTOMATIC);
     }
     
+    @Transactional
     public int backupCurrentUserEvents(String username) throws EventBackupTimeoutException {
         User user = userRepository.findByUsername(username);
         
         checkManualBackupTimeout(user.getId());
         
-        List<EventBackup> backup = getBackups(List.of(user), true);
-        EventBackup saved = eventsBackupRepository.save(backup.get(0));
-        return saved.getEvents().size();
+        List<EventBackup> saved = saveBackups(List.of(user), BackupType.MANUAL);
+        return saved.get(0).getEvents().size();
     }
     
     private boolean isAutomaticBackupRequired() {
@@ -69,7 +71,8 @@ public class EventsBackupService {
         LocalDateTime nextToNextExecution = cronExpression.next(nextExecution);
         Duration durationBetweenExecutions = Duration.between(nextExecution, nextToNextExecution);
         
-        return !eventsBackupRepository.existsByIsManualIsFalseAndBackupTimeAfter(
+        return !eventsBackupRepository.existsByTypeAndBackupTimeAfter(
+                BackupType.AUTOMATIC,
                 LocalDateTime.now().minusDays(durationBetweenExecutions.toDays())
         );
     }
@@ -80,7 +83,7 @@ public class EventsBackupService {
                 .minusMinutes(eventsBackupProperties.getDelayBetweenManualBackups());
         
         EventBackup lastBackup = eventsBackupRepository
-                .findByIsManualIsTrueAndUserIdAndBackupTimeAfter(userId, checkedTime);
+                .findByTypeAndUserIdAndBackupTimeAfter(BackupType.MANUAL, userId, checkedTime);
         
         if (lastBackup != null) {
             Duration durationBetweenBackups = Duration.between(lastBackup.getBackupTime(), LocalDateTime.now());
@@ -89,7 +92,7 @@ public class EventsBackupService {
         }
     }
     
-    private List<EventBackup> getBackups(List<User> users, boolean isManual) {
+    private List<EventBackup> saveBackups(List<User> users, BackupType type) {
         LocalDateTime currentDateTime = LocalDateTime.now();
         LocalDateTime backupStartDate = currentDateTime.minusDays(eventsBackupProperties.getDatesRangeForBackup());
         LocalDateTime backupEndDate = currentDateTime.plusDays(eventsBackupProperties.getDatesRangeForBackup());
@@ -112,11 +115,11 @@ public class EventsBackupService {
             EventBackup backup = new EventBackup();
             backup.setUser(user);
             backup.setEvents(eventsToBackup);
-            backup.setManual(isManual);
+            backup.setType(type);
             
             backups.add(backup);
         });
         
-        return backups;
+        return eventsBackupRepository.saveAll(backups);
     }
 }
