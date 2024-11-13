@@ -8,6 +8,8 @@ public class EventExtensionMapper {
         EventExtensionDto eventExtensionDto = new EventExtensionDto();
         eventExtensionDto.setComment(eventExtension.getComment());
         eventExtensionDto.setIncome(eventExtension.getIncome());
+        eventExtensionDto.setIsPlanned(eventExtension.getIsPlanned());
+        eventExtensionDto.setPreviousDate(eventExtension.getPreviousDate());
         return eventExtensionDto;
     }
     
@@ -17,6 +19,8 @@ public class EventExtensionMapper {
         if (eventExtensionDto != null) {
             eventExtension.setComment(eventExtensionDto.getComment());
             eventExtension.setIncome(eventExtensionDto.getIncome());
+            eventExtension.setIsPlanned(eventExtensionDto.getIsPlanned());
+            eventExtension.setPreviousDate(eventExtensionDto.getPreviousDate());
         }
         
         return eventExtension;

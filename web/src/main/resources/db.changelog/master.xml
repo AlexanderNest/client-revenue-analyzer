@@ -208,9 +208,11 @@
         <sql>
             CREATE TABLE event_extension
             (
-                id       BIGSERIAL PRIMARY KEY NOT NULL,
-                comment  VARCHAR(200),
-                income   INT
+                id            BIGSERIAL PRIMARY KEY NOT NULL,
+                comment       VARCHAR(200),
+                income        INT,
+                is_planned    BOOLEAN,
+                previous_date TIMESTAMP
             );
         </sql>
     </changeSet>

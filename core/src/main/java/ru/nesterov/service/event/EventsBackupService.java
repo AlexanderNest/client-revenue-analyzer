@@ -1,6 +1,7 @@
 package ru.nesterov.service.event;
 
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.scheduling.annotation.Schedules;
@@ -27,6 +28,7 @@ import java.util.concurrent.TimeUnit;
 @Service
 @ConditionalOnProperty("app.calendar.events.backup.enabled")
 @RequiredArgsConstructor
+@Slf4j
 public class EventsBackupService {
     private final UserRepository userRepository;
     private final GoogleCalendarService googleCalendarService;
@@ -52,6 +54,7 @@ public class EventsBackupService {
             return;
         }
         
+        log.debug("Выполнено автоматическое резервное копирование записей для {} пользователей(я)", users.size());
         saveBackups(users, BackupType.AUTOMATIC);
     }
     
@@ -62,6 +65,7 @@ public class EventsBackupService {
         checkManualBackupTimeout(user.getId());
         
         List<EventBackup> saved = saveBackups(List.of(user), BackupType.MANUAL);
+        log.debug("{} выполнил резервное копирование записей", username);
         return saved.get(0).getEvents().size();
     }
     
