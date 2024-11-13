@@ -5,6 +5,7 @@ import lombok.Data;
 @Data
 public class GetIncomeAnalysisForMonthResponse {
     private double actualIncome;
-    private double expectedIncoming;
+    private double expectedIncome;
     private double lostIncome;
+    private double potentialIncome;
 }

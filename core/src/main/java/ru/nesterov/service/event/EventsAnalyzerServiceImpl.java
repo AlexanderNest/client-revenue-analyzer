@@ -71,6 +71,7 @@ public class EventsAnalyzerServiceImpl implements EventsAnalyzerService {
 
         double actualIncome = 0;
         double lostIncome = 0;
+        double potentialIncome = 0;
         double expectedIncome = 0;
 
         for (EventDto eventDto : eventDtos) {
@@ -82,21 +83,25 @@ public class EventsAnalyzerServiceImpl implements EventsAnalyzerService {
             }
 
             double eventPrice = eventService.getEventIncome(userDto, eventDto);
-            expectedIncome += eventPrice;
+            potentialIncome += eventPrice;
 
             if (eventStatus == EventStatus.SUCCESS) {
                 actualIncome += eventPrice;
+                expectedIncome += eventPrice;
             } else if (eventStatus == EventStatus.CANCELLED) {
                 lostIncome += eventPrice;
-            } else if (eventStatus != EventStatus.PLANNED && eventStatus != EventStatus.REQUIRES_SHIFT) {
+            } else if (eventStatus == EventStatus.REQUIRES_SHIFT || eventStatus == EventStatus.PLANNED) {
+                expectedIncome += eventPrice;
+            } else {
                 throw new UnknownEventStatusException(eventStatus);
             }
         }
 
         IncomeAnalysisResult incomeAnalysisResult = new IncomeAnalysisResult();
         incomeAnalysisResult.setLostIncome(lostIncome);
-        incomeAnalysisResult.setExpectedIncoming(expectedIncome);
+        incomeAnalysisResult.setPotentialIncome(potentialIncome);
         incomeAnalysisResult.setActualIncome(actualIncome);
+        incomeAnalysisResult.setExpectedIncome(expectedIncome);
 
         return incomeAnalysisResult;
     }
