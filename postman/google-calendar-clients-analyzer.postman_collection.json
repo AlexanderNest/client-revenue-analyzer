@@ -438,7 +438,7 @@
 							},
 							{
 								"key": "X-secret-token",
-								"value": "{{X-secret-token}}",
+								"value": "{{secret-token}}",
 								"type": "text"
 							}
 						],
@@ -458,18 +458,6 @@
 					"response": []
 				}
 			]
-		}
-	],
-	"variable": [
-		{
-			"key": "username",
-			"value": "NooBik",
-			"type": "default"
-		},
-		{
-			"key": "X-secret-token",
-			"value": "secret-token",
-			"type": "default"
 		}
 	]
 }
