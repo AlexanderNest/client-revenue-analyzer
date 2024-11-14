@@ -1,7 +1,7 @@
 package ru.nesterov.bot.handlers.implementation;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
-import com.fasterxml.jackson.databind.ObjectMapper;
+import lombok.RequiredArgsConstructor;
 import lombok.SneakyThrows;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.stereotype.Component;
@@ -16,7 +16,6 @@ import ru.nesterov.calendar.InlineCalendarBuilder;
 import ru.nesterov.dto.GetActiveClientResponse;
 import ru.nesterov.dto.GetClientScheduleRequest;
 import ru.nesterov.dto.GetClientScheduleResponse;
-import ru.nesterov.integration.ClientRevenueAnalyzerIntegrationClient;
 
 import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
@@ -28,17 +27,13 @@ import java.util.stream.Collectors;
 
 @Component
 @ConditionalOnProperty("bot.enabled")
+@RequiredArgsConstructor
 public class GetClientScheduleHandler extends ClientRevenueAbstractHandler {
     private final BotHandlersRequestsKeeper handlersKeeper;
     private final InlineCalendarBuilder inlineCalendarBuilder;
 
     private static final String ENTER_FIRST_DATE = "Введите первую дату";
     private static final String ENTER_SECOND_DATE = "Введите вторую дату";
-
-    public GetClientScheduleHandler(ObjectMapper objectMapper, ClientRevenueAnalyzerIntegrationClient client, BotHandlersRequestsKeeper handlersKeeper, InlineCalendarBuilder inlineCalendarBuilder) {
-        this.handlersKeeper = handlersKeeper;
-        this.inlineCalendarBuilder = inlineCalendarBuilder;
-    }
 
     @SneakyThrows
     @Override
