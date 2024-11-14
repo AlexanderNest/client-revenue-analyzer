@@ -25,7 +25,7 @@ import static org.mockito.Mockito.when;
 @ContextConfiguration(classes = {UnregisteredUserHandler.class,
         CreateUserHandler.class,
         BotHandlersRequestsKeeper.class,
-        ObjectMapper.class
+        ObjectMapper.class,
 })
 public class UnregisteredUserHandlerTest {
     @Autowired
@@ -60,6 +60,6 @@ public class UnregisteredUserHandlerTest {
         assertInstanceOf(SendMessage.class, botApiMethod);
 
         SendMessage sendMessage = (SendMessage) botApiMethod;
-        assertEquals("Воспользуйтесь командой Зарегистрироваться в боте", sendMessage.getText());
+        assertEquals("Воспользуйтесь командой '" + createUserHandler.getCommand() + "'", sendMessage.getText());
     }
 }
