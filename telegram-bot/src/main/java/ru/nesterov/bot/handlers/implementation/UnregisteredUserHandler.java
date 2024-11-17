@@ -19,7 +19,8 @@ public class UnregisteredUserHandler extends ClientRevenueAbstractHandler {
 
     @Override
     public BotApiMethod<?> handle(Update update) {
-        return getPlainSendMessage(TelegramUpdateUtils.getUserId(update), "Воспользуйтесь командой Зарегистрироваться в боте");
+        String message = "Воспользуйтесь командой '%s'".formatted(createUserHandler.getCommand());
+        return getPlainSendMessage(TelegramUpdateUtils.getUserId(update), message);
     }
 
     @Override

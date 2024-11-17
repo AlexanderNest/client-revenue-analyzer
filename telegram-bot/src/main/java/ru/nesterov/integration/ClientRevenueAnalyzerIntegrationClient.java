@@ -83,13 +83,6 @@ public class ClientRevenueAnalyzerIntegrationClient {
         );
     }
 
-    public GetYearBusynessStatisticsResponse getYearBusynessStatistics(long userId, int year) {
-        GetForYearRequest getForYearRequest = new GetForYearRequest();
-        getForYearRequest.setYear(year);
-
-        return post(String.valueOf(userId), getForYearRequest, "/revenue-analyzer/user/analyzer/getYearBusynessStatistics", GetYearBusynessStatisticsResponse.class).getBody();
-    }
-
     private <T> ResponseEntity<T> post(String username, Object request, String endpoint, Class<T> responseType) {
         HttpEntity<Object> entity = new HttpEntity<>(request, createHeaders(username));
 

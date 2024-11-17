@@ -20,7 +20,6 @@ import java.util.concurrent.ConcurrentHashMap;
 public class HandlersService {
     private final Map<Long, CommandHandler> userHandlers = new ConcurrentHashMap<>();
     private final List<CommandHandler> commandHandlers;
-    private final BotHandlersRequestsKeeper requestsKeeper;
 
     private final UnregisteredUserHandler unregisteredUserHandler;
 
@@ -52,9 +51,6 @@ public class HandlersService {
     }
 
     public void resetHandlers(Long userId) {
-        CommandHandler commandHandler = userHandlers.remove(userId);
-        if (commandHandler != null) {
-            requestsKeeper.removeRequest(userId, commandHandler.getClass());
-        }
+        userHandlers.remove(userId);
     }
 }
