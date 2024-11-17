@@ -33,6 +33,7 @@ import static org.mockito.Mockito.when;
         InlineCalendarBuilder.class,
         BotHandlersRequestsKeeper.class
 })
+
 class GetYearBusynessStatisticsHandlerTest {
     @Autowired
     private GetYearBusynessStatisticsHandler handler;
