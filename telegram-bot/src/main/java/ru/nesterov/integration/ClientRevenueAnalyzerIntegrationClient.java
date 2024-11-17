@@ -19,9 +19,11 @@ import ru.nesterov.dto.GetActiveClientResponse;
 import ru.nesterov.dto.GetClientScheduleResponse;
 import ru.nesterov.dto.GetForClientScheduleRequest;
 import ru.nesterov.dto.GetForMonthRequest;
+import ru.nesterov.dto.GetForYearRequest;
 import ru.nesterov.dto.GetIncomeAnalysisForMonthResponse;
 import ru.nesterov.dto.GetUserRequest;
 import ru.nesterov.dto.GetUserResponse;
+import ru.nesterov.dto.GetYearBusynessStatisticsResponse;
 import ru.nesterov.properties.BotProperties;
 import ru.nesterov.properties.RevenueAnalyzerProperties;
 
@@ -42,6 +44,13 @@ public class ClientRevenueAnalyzerIntegrationClient {
         getForMonthRequest.setMonthName(monthName);
 
         return post(String.valueOf(userId), getForMonthRequest, "/revenue-analyzer/events/analyzer/getIncomeAnalysisForMonth", GetIncomeAnalysisForMonthResponse.class).getBody();
+    }
+
+    public GetYearBusynessStatisticsResponse getYearBusynessStatistics(long userId, int year) {
+        GetForYearRequest getForYearRequest = new GetForYearRequest();
+        getForYearRequest.setYear(year);
+
+        return post(String.valueOf(userId), getForYearRequest, "/revenue-analyzer/user/analyzer/getYearBusynessStatistics", GetYearBusynessStatisticsResponse.class).getBody();
     }
 
     @Cacheable(value = "getUserByUsername", unless = "#result == null")

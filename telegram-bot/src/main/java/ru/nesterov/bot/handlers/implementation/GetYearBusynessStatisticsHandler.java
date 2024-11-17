@@ -9,6 +9,7 @@ import ru.nesterov.bot.handlers.BotHandlersRequestsKeeper;
 import ru.nesterov.dto.GetYearBusynessStatisticsRequest;
 import ru.nesterov.dto.GetYearBusynessStatisticsResponse;
 
+
 import java.util.stream.Collectors;
 
 @Component
@@ -50,8 +51,8 @@ public class GetYearBusynessStatisticsHandler extends ClientRevenueAbstractHandl
     @SneakyThrows
     private BotApiMethod<?> sendYearStatistics(Update update, GetYearBusynessStatisticsRequest getYearBusynessStatisticsRequest) {
         long userId = getUserId(update);
-        GetYearBusynessStatisticsResponse response = client.getYearBusynessStatistics(
-                userId, getYearBusynessStatisticsRequest.getYear());
+
+        GetYearBusynessStatisticsResponse response = client.getYearBusynessStatistics(userId, getYearBusynessStatisticsRequest.getYear());
 
         return getPlainSendMessage(update.getMessage().getChatId(), formatYearStatistics(response));
     }
@@ -65,18 +66,18 @@ public class GetYearBusynessStatisticsHandler extends ClientRevenueAbstractHandl
                 .map(monthStatistics -> {
                     String monthName = monthStatistics.getKey();
                     Double hours = monthStatistics.getValue();
-                    return String.format("Занятость по месяцам:\n" + monthName + (" - ") + hours);
+                    return String.format("Занятость по месяцам:\n" + monthName + " - " + hours);
                 }).collect(Collectors.joining("\n\n"));
 
         String dayHours =  response.getDays().entrySet().stream()
                 .map(dayStatistics -> {
                     String dayName = dayStatistics.getKey();
                     Double hours = dayStatistics.getValue();
-                    return String.format(dayName + (" - ") + hours);
+                    return String.format(dayName + " - " + hours);
                 }).collect(Collectors.joining("\n"));
 
         return "Анализ занятости за год:\n\n" +
-                monthHours + ("\n\n") + "Занятость по дням:\n" +
+                monthHours + "\n\n" + "Занятость по дням:\n" +
                 dayHours;
     }
 
