@@ -77,7 +77,7 @@ public class GetMonthStatisticsHandler extends ClientRevenueAbstractHandler {
                 formatIncomeReport(response),
                 null
         );
-}
+    }
 
     @SneakyThrows
     private SendMessage sendMonthKeyboard(long chatId) {
