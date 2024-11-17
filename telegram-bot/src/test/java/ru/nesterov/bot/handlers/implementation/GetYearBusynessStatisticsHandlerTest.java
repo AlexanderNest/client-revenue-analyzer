@@ -37,7 +37,7 @@ class GetYearBusynessStatisticsHandlerTest {
     @Autowired
     private GetYearBusynessStatisticsHandler handler;
     @MockBean
-    private ClientRevenueAnalyzerIntegrationClient client;
+    private ClientRevenueAnalyzerIntegrationClient clientRevenueAnalyzerIntegrationClient;
 
     @Test
     void handle() {
@@ -62,7 +62,7 @@ class GetYearBusynessStatisticsHandlerTest {
         getYearBusynessStatisticsResponse.setMonths(months);
         getYearBusynessStatisticsResponse.setDays(days);
 
-        when(client.getYearBusynessStatistics(anyLong(), anyInt())).thenReturn(getYearBusynessStatisticsResponse);
+        when(clientRevenueAnalyzerIntegrationClient.getYearBusynessStatistics(anyLong(), anyInt())).thenReturn(getYearBusynessStatisticsResponse);
 
         BotApiMethod<?> botApiMethod = handler.handle(createUpdateWithMessage("2024"));
         assertInstanceOf(SendMessage.class, botApiMethod);

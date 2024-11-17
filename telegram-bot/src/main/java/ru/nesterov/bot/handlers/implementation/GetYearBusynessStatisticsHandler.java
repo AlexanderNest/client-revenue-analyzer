@@ -5,6 +5,7 @@ import lombok.SneakyThrows;
 import org.springframework.stereotype.Component;
 import org.telegram.telegrambots.meta.api.methods.BotApiMethod;
 import org.telegram.telegrambots.meta.api.objects.Update;
+import ru.nesterov.bot.TelegramUpdateUtils;
 import ru.nesterov.bot.handlers.BotHandlersRequestsKeeper;
 import ru.nesterov.dto.GetYearBusynessStatisticsRequest;
 import ru.nesterov.dto.GetYearBusynessStatisticsResponse;
@@ -19,8 +20,8 @@ public class GetYearBusynessStatisticsHandler extends ClientRevenueAbstractHandl
 
     @Override
     public BotApiMethod<?> handle(Update update) {
-        long userId = getUserId(update);
-        long chatId = getChatId(update);
+        long userId = TelegramUpdateUtils.getUserId(update);
+        long chatId = TelegramUpdateUtils.getChatId(update);
 
         GetYearBusynessStatisticsRequest getYearBusynessStatisticsRequest = handlersKeeper.getRequest(userId, GetYearBusynessStatisticsHandler.class, GetYearBusynessStatisticsRequest.class);
 
@@ -50,7 +51,7 @@ public class GetYearBusynessStatisticsHandler extends ClientRevenueAbstractHandl
 
     @SneakyThrows
     private BotApiMethod<?> sendYearStatistics(Update update, GetYearBusynessStatisticsRequest getYearBusynessStatisticsRequest) {
-        long userId = getUserId(update);
+        long userId = TelegramUpdateUtils.getUserId(update);
 
         GetYearBusynessStatisticsResponse response = client.getYearBusynessStatistics(userId, getYearBusynessStatisticsRequest.getYear());
 
@@ -79,14 +80,6 @@ public class GetYearBusynessStatisticsHandler extends ClientRevenueAbstractHandl
         return "Анализ занятости за год:\n\n" +
                 monthHours + "\n\n" + "Занятость по дням:\n" +
                 dayHours;
-    }
-
-    private Long getUserId(Update update) {
-        return update.hasMessage() ? update.getMessage().getFrom().getId() : update.getCallbackQuery().getFrom().getId();
-    }
-
-    private Long getChatId(Update update) {
-        return update.hasMessage() ? update.getMessage().getChatId() : update.getCallbackQuery().getMessage().getChatId();
     }
 
     @Override
