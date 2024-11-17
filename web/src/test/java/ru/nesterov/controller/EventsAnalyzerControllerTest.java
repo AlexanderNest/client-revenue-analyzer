@@ -116,4 +116,9 @@ public class EventsAnalyzerControllerTest {
                 .andExpect(jsonPath("$[2].summary").value("requires shift unpaid"))
                 .andExpect(jsonPath("$[2].eventStart").value(expectedEventStart3.format(formatter)));
     }
+
+    @org.junit.jupiter.api.Test
+    public void getClientStatistics() throws Exception {
+
+    }
 }
