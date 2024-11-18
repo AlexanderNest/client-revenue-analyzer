@@ -31,20 +31,20 @@ public class WebSecurityTest {
     private CalendarClient calendarClient;
     @MockBean
     private UserRepository userRepository;
-
+    
     private final String TEST_URL = "/events/analyzer/getUnpaidEvents";
     private final String HEADER = "X-secret-token";
-
+    
     @BeforeEach
     public void setUp() throws Exception {
         User user = new User();
         user.setMainCalendar("mainCalendarId");
         user.setCancelledCalendar("cancelCalendarId");
         user.setId(1);
-
+        
         when(userRepository.findByUsername(any())).thenReturn(user);
     }
-
+    
     @Test
     public void securityTestUnauthorized() throws Exception {
         mockMvc.perform(get(TEST_URL)
@@ -53,14 +53,14 @@ public class WebSecurityTest {
                 )
                 .andExpect(status().is(401));
     }
-
+    
     @Test
     public void securityTestAuthorized() throws Exception {
         mockMvc.perform(get(TEST_URL)
                         .header(HEADER, "secret-token")
                         .header("X-username", "username")
                         .contentType(MediaType.APPLICATION_JSON)
-            )
-                    .andExpect(status().isOk());
+                )
+                .andExpect(status().isOk());
     }
 }

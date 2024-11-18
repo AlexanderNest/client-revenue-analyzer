@@ -5,6 +5,6 @@ import ru.nesterov.exception.AppException;
 
 public class CannotBuildEventException extends AppException {
     public CannotBuildEventException(String summary, EventDateTime dateTime, Throwable cause) {
-        super("Не удалось собрать Event [" + summary+ "] с датой [" + dateTime + "]", cause);
+        super("Не удалось собрать EventDto [" + summary+ "] с датой [" + dateTime + "]", cause);
     }
 }

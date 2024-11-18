@@ -114,17 +114,17 @@ public class GoogleCalendarClient implements CalendarClient {
 
     @Nullable
     private EventExtensionDto buildEventExtension(com.google.api.services.calendar.model.Event event) {
-        log.trace("Сборка EventExtension для Event с названием [{}] and date [{}]", event.getSummary(), event.getStart());
+        log.trace("Сборка EventExtensionDto для EventDto с названием [{}] and date [{}]", event.getSummary(), event.getStart());
 
         if (event.getDescription() == null) {
-            log.trace("Event не содержит EventExtension");
+            log.trace("EventDto не содержит EventExtensionDto");
             return null;
         }
 
         try {
             return objectMapper.readValue(event.getDescription(), EventExtensionDto.class);
         } catch (Exception e) {
-            log.trace("Не удалось собрать EventExtension, неверный формат", e);
+            log.trace("Не удалось собрать EventExtensionDto, неверный формат", e);
             return null;
         }
     }
