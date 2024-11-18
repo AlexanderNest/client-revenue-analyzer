@@ -5,11 +5,25 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.cache.annotation.Cacheable;
 import org.springframework.core.ParameterizedTypeReference;
-import org.springframework.http.*;
+import org.springframework.http.HttpEntity;
+import org.springframework.http.HttpHeaders;
+import org.springframework.http.HttpMethod;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Component;
 import org.springframework.web.client.HttpClientErrorException;
 import org.springframework.web.client.RestTemplate;
-import ru.nesterov.dto.*;
+import ru.nesterov.dto.CreateUserRequest;
+import ru.nesterov.dto.CreateUserResponse;
+import ru.nesterov.dto.GetActiveClientResponse;
+import ru.nesterov.dto.GetClientScheduleResponse;
+import ru.nesterov.dto.GetForClientScheduleRequest;
+import ru.nesterov.dto.GetForMonthRequest;
+import ru.nesterov.dto.GetForYearRequest;
+import ru.nesterov.dto.GetIncomeAnalysisForMonthResponse;
+import ru.nesterov.dto.GetUserRequest;
+import ru.nesterov.dto.GetUserResponse;
+import ru.nesterov.dto.GetYearBusynessStatisticsResponse;
 import ru.nesterov.properties.BotProperties;
 import ru.nesterov.properties.RevenueAnalyzerProperties;
 
@@ -30,6 +44,13 @@ public class ClientRevenueAnalyzerIntegrationClient {
         getForMonthRequest.setMonthName(monthName);
 
         return post(String.valueOf(userId), getForMonthRequest, "/revenue-analyzer/events/analyzer/getIncomeAnalysisForMonth", GetIncomeAnalysisForMonthResponse.class).getBody();
+    }
+
+    public GetYearBusynessStatisticsResponse getYearBusynessStatistics(long userId, int year) {
+        GetForYearRequest getForYearRequest = new GetForYearRequest();
+        getForYearRequest.setYear(year);
+
+        return post(String.valueOf(userId), getForYearRequest, "/revenue-analyzer/user/analyzer/getYearBusynessStatistics", GetYearBusynessStatisticsResponse.class).getBody();
     }
 
     @Cacheable(value = "getUserByUsername", unless = "#result == null")
