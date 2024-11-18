@@ -1,29 +1,19 @@
 package ru.nesterov.bot.handlers.implementation;
 
-import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.SneakyThrows;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.test.context.SpringBootTest;
-import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.test.context.ContextConfiguration;
 import org.telegram.telegrambots.meta.api.methods.BotApiMethod;
 import org.telegram.telegrambots.meta.api.methods.send.SendMessage;
 import org.telegram.telegrambots.meta.api.methods.updatingmessages.EditMessageText;
-import org.telegram.telegrambots.meta.api.objects.CallbackQuery;
-import org.telegram.telegrambots.meta.api.objects.Chat;
-import org.telegram.telegrambots.meta.api.objects.Message;
-import org.telegram.telegrambots.meta.api.objects.Update;
-import org.telegram.telegrambots.meta.api.objects.User;
+import org.telegram.telegrambots.meta.api.objects.*;
 import org.telegram.telegrambots.meta.api.objects.replykeyboard.InlineKeyboardMarkup;
 import org.telegram.telegrambots.meta.api.objects.replykeyboard.ReplyKeyboard;
 import org.telegram.telegrambots.meta.api.objects.replykeyboard.buttons.InlineKeyboardButton;
-import ru.nesterov.bot.handlers.BotHandlersRequestsKeeper;
 import ru.nesterov.bot.handlers.callback.ButtonCallback;
-import ru.nesterov.calendar.InlineCalendarBuilder;
 import ru.nesterov.dto.GetActiveClientResponse;
 import ru.nesterov.dto.GetClientScheduleResponse;
-import ru.nesterov.integration.ClientRevenueAnalyzerIntegrationClient;
 
 import java.time.LocalDate;
 import java.time.LocalDateTime;
@@ -37,20 +27,12 @@ import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.ArgumentMatchers.anyLong;
 import static org.mockito.Mockito.when;
 
-@SpringBootTest
 @ContextConfiguration(classes = {
-        GetClientScheduleHandler.class,
-        ObjectMapper.class,
-        InlineCalendarBuilder.class,
-        BotHandlersRequestsKeeper.class
+        GetClientScheduleHandler.class
 })
-public class GetClientScheduleHandlerTest {
+public class GetClientScheduleHandlerTest extends RegisteredUserHandler {
     @Autowired
     private GetClientScheduleHandler handler;
-    @Autowired
-    private ObjectMapper objectMapper;
-    @MockBean
-    private ClientRevenueAnalyzerIntegrationClient client;
 
     private static final String COMMAND = "/clientschedule";
     private static final String ENTER_FIRST_DATE = "Введите первую дату";
