@@ -64,7 +64,6 @@ public class GetYearBusynessStatisticsHandler extends ClientRevenueAbstractHandl
             return "📅 Встречи не запланированы";
         }
 
-        // Форматируем месяцы
         String monthHours = response.getMonths().entrySet().stream()
                 .map(monthStatistics -> {
                     String monthName = monthStatistics.getKey();
@@ -73,7 +72,6 @@ public class GetYearBusynessStatisticsHandler extends ClientRevenueAbstractHandl
                 })
                 .collect(Collectors.joining("\n"));
 
-        // Форматируем дни
         String dayHours = response.getDays().entrySet().stream()
                 .map(dayStatistics -> {
                     String dayName = dayStatistics.getKey();
@@ -82,7 +80,6 @@ public class GetYearBusynessStatisticsHandler extends ClientRevenueAbstractHandl
                 })
                 .collect(Collectors.joining("\n"));
 
-        // Возвращаем красиво отформатированную строку
         return "📊 Анализ занятости за год:\n\n" +
                 "🗓️ Занятость по месяцам:\n" + monthHours + "\n\n" +
                 "📅 Занятость по дням недели:\n" + dayHours;
@@ -91,7 +88,7 @@ public class GetYearBusynessStatisticsHandler extends ClientRevenueAbstractHandl
     @Override
     public boolean isFinished(Long userId) {
         GetYearBusynessStatisticsRequest getYearBusynessStatisticsRequest = handlersKeeper.getRequest(userId, GetYearBusynessStatisticsHandler.class, GetYearBusynessStatisticsRequest.class);
-        return getYearBusynessStatisticsRequest != null && getYearBusynessStatisticsRequest.getYear() != null;
+        return getYearBusynessStatisticsRequest == null || getYearBusynessStatisticsRequest.getYear() != null;
     }
 
     @Override
