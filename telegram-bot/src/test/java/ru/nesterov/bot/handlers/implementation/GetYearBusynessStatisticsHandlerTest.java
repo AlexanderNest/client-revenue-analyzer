@@ -62,12 +62,12 @@ class GetYearBusynessStatisticsHandlerTest extends RegisteredUserHandler {
         String expectedMessage = "\uD83D\uDCCA Анализ занятости за год:\n" +
                 "\n" +
                 "\uD83D\uDDD3\uFE0F Занятость по месяцам:\n" +
-                "Август: 10,25 ч.\n" +
-                "Июль: 20,00 ч.\n" +
+                "Август: 10.25 ч.\n" +
+                "Июль: 20.00 ч.\n" +
                 "\n" +
                 "\uD83D\uDCC5 Занятость по дням недели:\n" +
-                "Среда: 7,25 ч.\n" +
-                "Понедельник: 3,00 ч.";
+                "Среда: 7.25 ч.\n" +
+                "Понедельник: 3.00 ч.";
 
         assertEquals(expectedMessage, sendStatistics.getText());
     }

@@ -11,6 +11,7 @@ import ru.nesterov.bot.handlers.BotHandlersRequestsKeeper;
 import ru.nesterov.dto.GetYearBusynessStatisticsRequest;
 import ru.nesterov.dto.GetYearBusynessStatisticsResponse;
 
+import java.util.Locale;
 import java.util.stream.Collectors;
 
 @Component
@@ -68,7 +69,7 @@ public class GetYearBusynessStatisticsHandler extends ClientRevenueAbstractHandl
                 .map(monthStatistics -> {
                     String monthName = monthStatistics.getKey();
                     Double hours = monthStatistics.getValue();
-                    return String.format("%s: %.2f ч.", monthName, hours);
+                    return String.format(Locale.US, "%s: %.2f ч.", monthName, hours);
                 })
                 .collect(Collectors.joining("\n"));
 
@@ -76,7 +77,7 @@ public class GetYearBusynessStatisticsHandler extends ClientRevenueAbstractHandl
                 .map(dayStatistics -> {
                     String dayName = dayStatistics.getKey();
                     Double hours = dayStatistics.getValue();
-                    return String.format("%s: %.2f ч.", dayName, hours);
+                    return String.format(Locale.US, "%s: %.2f ч.", dayName, hours);
                 })
                 .collect(Collectors.joining("\n"));
 
