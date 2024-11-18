@@ -18,7 +18,11 @@ import ru.nesterov.bot.handlers.CommandHandler;
 import ru.nesterov.bot.handlers.callback.ButtonCallback;
 import ru.nesterov.integration.ClientRevenueAnalyzerIntegrationClient;
 
-public abstract class ClientRevenueAbstractHandler implements CommandHandler {
+/**
+ * CommandHandler, который отправляет сообщения. Также содержит полезные методы для быстрого создания сообщений.
+ * В том числе и с клавиатурами, коллбеками и др.
+ */
+public abstract class SendingMessageCommandHandler implements CommandHandler {
     @Autowired
     protected ObjectMapper objectMapper;
     @Autowired
@@ -67,31 +71,14 @@ public abstract class ClientRevenueAbstractHandler implements CommandHandler {
      * @param callbackValue значение, связанное с кнопкой
      * @return созданная кнопка
      */
-    protected InlineKeyboardButton buildButton(String visibleText, String callbackValue) {
+    protected InlineKeyboardButton buildButton(String visibleText, String callbackValue, String command) {
         InlineKeyboardButton button = new InlineKeyboardButton();
         button.setText(visibleText);
         ButtonCallback buttonCallback = new ButtonCallback();
-        buttonCallback.setCommand(getCommand());
+        buttonCallback.setCommand(command);
         buttonCallback.setValue(callbackValue);
 
         button.setCallbackData(buttonCallback.toShortString());
         return button;
     }
-
-    @Override
-    @SneakyThrows
-    public boolean isApplicable(Update update) {
-        Message message = update.getMessage();
-        boolean isCurrentHandlerCommand = message != null && getCommand().equals(message.getText());
-
-        CallbackQuery callbackQuery = update.getCallbackQuery();
-
-        boolean isCallback = callbackQuery != null
-                && (getCommand().equals(ButtonCallback.fromShortString(callbackQuery.getData()).getCommand()) || getCommand().equals(objectMapper.readValue(callbackQuery.getData(), ButtonCallback.class).getCommand()));
-        boolean isPlainText = message != null && message.getText() != null;
-
-        return isCurrentHandlerCommand || isCallback || (isPlainText && !isFinished(TelegramUpdateUtils.getUserId(update)));
-    }
-
-    public abstract String getCommand();
 }

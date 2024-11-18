@@ -39,20 +39,20 @@ import static org.mockito.Mockito.when;
 
 @SpringBootTest
 @ContextConfiguration(classes = {
-        GetClientScheduleHandler.class,
+        GetClientScheduleCommandHandler.class,
         ObjectMapper.class,
         InlineCalendarBuilder.class,
         BotHandlersRequestsKeeper.class
 })
 public class GetClientScheduleHandlerTest {
     @Autowired
-    private GetClientScheduleHandler handler;
+    private GetClientScheduleCommandHandler handler;
     @Autowired
     private ObjectMapper objectMapper;
     @MockBean
     private ClientRevenueAnalyzerIntegrationClient client;
 
-    private static final String COMMAND = "/clientschedule";
+    private static final String COMMAND = "Узнать расписание клиента";
     private static final String ENTER_FIRST_DATE = "Введите первую дату";
     private static final String ENTER_SECOND_DATE = "Введите вторую дату";
 
