@@ -2,15 +2,10 @@ package ru.nesterov.controller;
 
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
-import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.http.MediaType;
 import org.springframework.test.context.TestPropertySource;
-import org.springframework.test.web.servlet.MockMvc;
 import ru.nesterov.entity.User;
-import ru.nesterov.google.CalendarClient;
 import ru.nesterov.repository.UserRepository;
 import ru.nesterov.service.CalendarService;
 
@@ -20,15 +15,9 @@ import static org.springframework.test.web.servlet.request.MockMvcRequestBuilder
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 @TestPropertySource(properties = ("app.secret-token.enabled=true"))
-@SpringBootTest
-@AutoConfigureMockMvc
-public class WebSecurityTest {
-    @Autowired
-    private MockMvc mockMvc;
+public class WebSecurityTest extends AbstractControllerTest {
     @MockBean
     private CalendarService calendarService;
-    @MockBean
-    private CalendarClient calendarClient;
     @MockBean
     private UserRepository userRepository;
     

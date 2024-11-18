@@ -3,11 +3,8 @@ package ru.nesterov.controller;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
-import org.springframework.boot.test.context.SpringBootTest;
-import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.http.MediaType;
-import org.springframework.test.web.servlet.MockMvc;
+import org.springframework.test.context.TestPropertySource;
 import ru.nesterov.dto.EventDto;
 import ru.nesterov.dto.EventStatus;
 import ru.nesterov.entity.BackupType;
@@ -22,33 +19,25 @@ import java.time.LocalDateTime;
 import java.util.List;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.ArgumentMatchers.anyBoolean;
-import static org.mockito.ArgumentMatchers.anyString;
+import static org.mockito.ArgumentMatchers.*;
 import static org.mockito.Mockito.when;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
-@SpringBootTest(properties = {"app.calendar.events.backup.enabled=true"})
-@AutoConfigureMockMvc
-public class EventsBackupControllerTest {
-    @Autowired
-    private MockMvc mockMvc;
+@TestPropertySource(properties = ("app.calendar.events.backup.enabled=true"))
+public class EventsBackupControllerTest extends AbstractControllerTest {
     @Autowired
     private UserRepository userRepository;
     @Autowired
     private EventsBackupProperties eventsBackupProperties;
     @Autowired
     private EventsBackupRepository eventsBackupRepository;
-    
-    @MockBean
-    private GoogleCalendarClient calendarClient;
-    
-    private static final String URL = "/events/backup";
-    private static final String HEADER_X_USERNAME = "X-username";
     @Autowired
     private GoogleCalendarClient googleCalendarClient;
+
+    private static final String URL = "/events/backup";
+    private static final String HEADER_X_USERNAME = "X-username";
     
     @BeforeEach
     public void init() {
