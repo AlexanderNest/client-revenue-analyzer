@@ -1,13 +1,13 @@
 package ru.nesterov.integration;
 
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
+import org.springframework.cache.annotation.Cacheable;
 import org.springframework.core.ParameterizedTypeReference;
-import org.springframework.http.HttpEntity;
-import org.springframework.http.HttpHeaders;
-import org.springframework.http.HttpMethod;
-import org.springframework.http.ResponseEntity;
+import org.springframework.http.*;
 import org.springframework.stereotype.Component;
+import org.springframework.web.client.HttpClientErrorException;
 import org.springframework.web.client.RestTemplate;
 import ru.nesterov.dto.*;
 import ru.nesterov.properties.BotProperties;
@@ -16,8 +16,8 @@ import ru.nesterov.properties.RevenueAnalyzerProperties;
 import java.time.LocalDateTime;
 import java.util.List;
 
-
 @Component
+@Slf4j
 @RequiredArgsConstructor
 @ConditionalOnProperty("bot.enabled")
 public class ClientRevenueAnalyzerIntegrationClient {
@@ -29,7 +29,22 @@ public class ClientRevenueAnalyzerIntegrationClient {
         GetForMonthRequest getForMonthRequest = new GetForMonthRequest();
         getForMonthRequest.setMonthName(monthName);
 
-        return post(String.valueOf(userId), getForMonthRequest, "/revenue-analyzer/events/analyzer/getIncomeAnalysisForMonth", GetIncomeAnalysisForMonthResponse.class);
+        return post(String.valueOf(userId), getForMonthRequest, "/revenue-analyzer/events/analyzer/getIncomeAnalysisForMonth", GetIncomeAnalysisForMonthResponse.class).getBody();
+    }
+
+    @Cacheable(value = "getUserByUsername", unless = "#result == null")
+    public GetUserResponse getUserByUsername(GetUserRequest request) {
+        ResponseEntity<GetUserResponse> responseEntity = post(request.getUsername(), request, "/revenue-analyzer/user/getUserByUsername", GetUserResponse.class);
+        if (responseEntity.getStatusCode().isSameCodeAs(HttpStatus.NOT_FOUND)) {
+            return null;
+        }
+
+        return responseEntity.getBody();
+    }
+
+    public CreateUserResponse createUser(CreateUserRequest createUserRequest) {
+        ResponseEntity<CreateUserResponse> responseEntity = post(createUserRequest.getUserIdentifier(), createUserRequest, "/revenue-analyzer/user/createUser", CreateUserResponse.class);
+        return responseEntity.getBody();
     }
 
     public List<GetClientScheduleResponse> getClientSchedule(long userId, String clientName, LocalDateTime leftDate, LocalDateTime rightDate) {
@@ -56,14 +71,19 @@ public class ClientRevenueAnalyzerIntegrationClient {
         );
     }
 
-    private <T> T post(String username, Object request, String endpoint, Class<T> responseType) {
+    private <T> ResponseEntity<T> post(String username, Object request, String endpoint, Class<T> responseType) {
         HttpEntity<Object> entity = new HttpEntity<>(request, createHeaders(username));
 
-        return restTemplate.postForObject(
-                revenueAnalyzerProperties.getUrl() + endpoint,
-                entity,
-                responseType
-        );
+        try {
+            return restTemplate.exchange(
+                    revenueAnalyzerProperties.getUrl() + endpoint,
+                    HttpMethod.POST,
+                    entity,
+                    responseType
+            );
+        } catch (HttpClientErrorException.NotFound ignore) {
+            return new ResponseEntity<>(HttpStatus.NOT_FOUND);
+        }
     }
 
     private <T> List<T> postForList(String username, Object request, String endpoint, ParameterizedTypeReference<List<T>> typeReference) {

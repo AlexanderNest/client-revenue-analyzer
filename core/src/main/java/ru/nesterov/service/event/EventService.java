@@ -6,7 +6,7 @@ import org.springframework.stereotype.Service;
 import ru.nesterov.dto.EventDto;
 import ru.nesterov.dto.EventExtensionDto;
 import ru.nesterov.entity.Client;
-import ru.nesterov.exception.AppException;
+import ru.nesterov.exception.ClientNotFoundException;
 import ru.nesterov.repository.ClientRepository;
 import ru.nesterov.service.dto.UserDto;
 
@@ -21,7 +21,7 @@ public class EventService {
     public double getEventIncome(UserDto userDto, EventDto eventDto) {
         Client client = clientRepository.findClientByNameAndUserId(eventDto.getSummary(), userDto.getId());
         if (client == null) {
-            throw new AppException("Пользователь с именем '" + eventDto.getSummary() + "' от даты " + eventDto.getStart() + " не найден в базе");
+            throw new ClientNotFoundException(eventDto.getSummary(), eventDto.getStart());
         }
         EventExtensionDto extension = eventDto.getEventExtensionDto();
         if (extension != null && extension.getIncome() != null) {
