@@ -57,7 +57,7 @@ public class StartBotHandlerTest {
 
         SendMessage sendMessage = (SendMessage) result;
         assertEquals("111", sendMessage.getChatId());
-        assertEquals("Выберете опцию:", sendMessage.getText());
+        assertEquals("Выберите опцию:", sendMessage.getText());
 
         ReplyKeyboardMarkup replyKeyboardMarkup = (ReplyKeyboardMarkup) sendMessage.getReplyMarkup();
         assertNotNull(replyKeyboardMarkup);
