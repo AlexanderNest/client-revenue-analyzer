@@ -1,12 +1,10 @@
-package ru.nesterov.bot.handlers.implementation;
+package ru.nesterov.bot.handlers;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.test.context.ContextConfiguration;
-import ru.nesterov.bot.handlers.BotHandlersRequestsKeeper;
-import ru.nesterov.bot.handlers.HandlersService;
 import ru.nesterov.calendar.InlineCalendarBuilder;
 import ru.nesterov.integration.ClientRevenueAnalyzerIntegrationClient;
 
