@@ -1,7 +1,6 @@
 package ru.nesterov.bot.handlers.implementation;
 
 import jakarta.annotation.PostConstruct;
-import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
@@ -13,6 +12,7 @@ import org.telegram.telegrambots.meta.api.objects.Update;
 import org.telegram.telegrambots.meta.api.objects.replykeyboard.ReplyKeyboardMarkup;
 import org.telegram.telegrambots.meta.api.objects.replykeyboard.buttons.KeyboardButton;
 import org.telegram.telegrambots.meta.api.objects.replykeyboard.buttons.KeyboardRow;
+import ru.nesterov.bot.handlers.CommandHandler;
 import ru.nesterov.properties.BotProperties;
 
 import java.util.ArrayList;
@@ -21,8 +21,8 @@ import java.util.List;
 @Component
 @ConditionalOnProperty("bot.enabled")
 @RequiredArgsConstructor
-public class StartBotHandler extends AbstractCommandHandler {
-    private final List<SendingMessageCommandHandler> sendingMessageCommandHandlers;
+public class StartBotHandler extends InvocableCommandHandler {
+    private final List<InvocableCommandHandler> sendingMessageCommandHandlers;
     private final BotProperties botProperties;
 
     @Value("${bot.menu-buttons-per-line}")
@@ -32,6 +32,7 @@ public class StartBotHandler extends AbstractCommandHandler {
 
     @PostConstruct
     private void buildButtons() {
+        sendingMessageCommandHandlers.remove(this);
         buttons.setResizeKeyboard(true);
 
         List<KeyboardRow> keyboardRows = new ArrayList<>();
@@ -69,6 +70,11 @@ public class StartBotHandler extends AbstractCommandHandler {
     public boolean isApplicable(Update update) {
         Message message = update.getMessage();
         return message != null && getCommand().equals(message.getText());
+    }
+
+    @Override
+    public boolean isFinished(Long userId) {
+        return true;
     }
 
     @Override

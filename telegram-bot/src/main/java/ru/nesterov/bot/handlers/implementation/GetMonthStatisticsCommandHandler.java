@@ -21,7 +21,7 @@ import java.util.Locale;
 
 @Component
 @ConditionalOnProperty("bot.enabled")
-public class GetMonthStatisticsCommandHandler extends SendingMessageCommandHandler {
+public class GetMonthStatisticsCommandHandler extends InvocableCommandHandler {
     private static final String[] months = {
             "Январь", "Февраль",
             "Март", "Апрель", "Май",

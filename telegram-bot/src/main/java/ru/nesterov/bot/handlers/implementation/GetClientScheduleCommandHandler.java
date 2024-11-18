@@ -29,7 +29,7 @@ import java.util.stream.Collectors;
 @Component
 @ConditionalOnProperty("bot.enabled")
 @RequiredArgsConstructor
-public class GetClientScheduleCommandHandler extends SendingMessageCommandHandler {
+public class GetClientScheduleCommandHandler extends InvocableCommandHandler {
     private final BotHandlersRequestsKeeper handlersKeeper;
     private final InlineCalendarBuilder inlineCalendarBuilder;
 
