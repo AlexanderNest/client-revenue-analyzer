@@ -42,6 +42,15 @@ public class ClientRevenueAnalyzerIntegrationClient {
         return responseEntity.getBody();
     }
 
+    public CreateClientResponse createClient(String userId, CreateClientRequest createClientRequest) {
+        ResponseEntity<CreateClientResponse> responseEntity = post(userId, createClientRequest, "/revenue-analyzer/client/create", CreateClientResponse.class);
+        if (responseEntity.getStatusCode().isSameCodeAs(HttpStatus.CONFLICT)) {
+            return null;
+        }
+
+        return responseEntity.getBody();
+    }
+
     public CreateUserResponse createUser(CreateUserRequest createUserRequest) {
         ResponseEntity<CreateUserResponse> responseEntity = post(createUserRequest.getUserIdentifier(), createUserRequest, "/revenue-analyzer/user/createUser", CreateUserResponse.class);
         return responseEntity.getBody();
@@ -83,8 +92,10 @@ public class ClientRevenueAnalyzerIntegrationClient {
             );
         } catch (HttpClientErrorException.NotFound ignore) {
             return new ResponseEntity<>(HttpStatus.NOT_FOUND);
-        }
-    }
+        } catch (HttpClientErrorException.Conflict ignore) {
+            return new ResponseEntity<>(HttpStatus.CONFLICT);
+
+        }    }
 
     private <T> List<T> postForList(String username, Object request, String endpoint, ParameterizedTypeReference<List<T>> typeReference) {
         HttpEntity<Object> requestEntity = new HttpEntity<>(request, createHeaders(username));

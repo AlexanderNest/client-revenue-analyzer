@@ -53,13 +53,6 @@ public class CreateUserHandler extends ClientRevenueAbstractHandler {
         throw new RuntimeException("CreateUserHandler cannot handle this update");
     }
 
-    private String getButtonCallbackValue(Update update) {
-        String callbackData = update.getCallbackQuery().getData();
-        ButtonCallback buttonCallback = ButtonCallback.fromShortString(callbackData);
-
-        return buttonCallback.getValue();
-    }
-
     @SneakyThrows
     private BotApiMethod<?> handleCancelledCalendarEnabledInput(Update update, CreateUserRequest createUserRequest) {
         createUserRequest.setIsCancelledCalendarEnabled(Boolean.valueOf(getButtonCallbackValue(update)));
@@ -81,19 +74,11 @@ public class CreateUserHandler extends ClientRevenueAbstractHandler {
     }
 
     private BotApiMethod<?> handleMainCalendarInput(CreateUserRequest createUserRequest, Update update) {
-        long userId = update.getMessage().getFrom().getId();
+        long userId = TelegramUpdateUtils.getUserId(update);
         createUserRequest.setUserIdentifier(String.valueOf(userId));
         createUserRequest.setMainCalendarId(update.getMessage().getText());
 
-        InlineKeyboardMarkup keyboardMarkup = new InlineKeyboardMarkup();
-        List<List<InlineKeyboardButton>> keyboard = new ArrayList<>();
-        List<InlineKeyboardButton> rowInline = new ArrayList<>();
-        rowInline.add(buildButton("Да", "true"));
-        rowInline.add(buildButton("Нет", "false"));
-        keyboard.add(rowInline);
-        keyboardMarkup.setKeyboard(keyboard);
-
-        return getReplyKeyboard(TelegramUpdateUtils.getChatId(update), "Вы хотите сохранять информацию об отмененных мероприятиях с использованием второго календаря?", keyboardMarkup);
+        return sendKeyBoardWithYesNoButtons(TelegramUpdateUtils.getChatId(update), "Вы хотите сохранять информацию об отмененных мероприятиях с использованием второго календаря?");
     }
 
     private BotApiMethod<?> handleCancelledCalendarInput(CreateUserRequest createUserRequest, Update update) {

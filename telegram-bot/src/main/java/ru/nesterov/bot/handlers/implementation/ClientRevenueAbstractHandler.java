@@ -18,6 +18,9 @@ import ru.nesterov.bot.handlers.CommandHandler;
 import ru.nesterov.bot.handlers.callback.ButtonCallback;
 import ru.nesterov.integration.ClientRevenueAnalyzerIntegrationClient;
 
+import java.util.ArrayList;
+import java.util.List;
+
 public abstract class ClientRevenueAbstractHandler implements CommandHandler {
     @Autowired
     protected ObjectMapper objectMapper;
@@ -91,6 +94,25 @@ public abstract class ClientRevenueAbstractHandler implements CommandHandler {
         boolean isPlainText = message != null && message.getText() != null;
 
         return isCurrentHandlerCommand || isCallback || (isPlainText && !isFinished(TelegramUpdateUtils.getUserId(update)));
+    }
+
+    protected BotApiMethod<?> sendKeyBoardWithYesNoButtons(long chatId, String text) {
+        InlineKeyboardMarkup keyboardMarkup = new InlineKeyboardMarkup();
+        List<List<InlineKeyboardButton>> keyboard = new ArrayList<>();
+        List<InlineKeyboardButton> rowInline = new ArrayList<>();
+        rowInline.add(buildButton("Да", "true"));
+        rowInline.add(buildButton("Нет", "false"));
+        keyboard.add(rowInline);
+        keyboardMarkup.setKeyboard(keyboard);
+
+        return getReplyKeyboard(chatId, text, keyboardMarkup);
+    }
+
+    protected String getButtonCallbackValue(Update update) {
+        String callbackData = update.getCallbackQuery().getData();
+        ButtonCallback buttonCallback = ButtonCallback.fromShortString(callbackData);
+
+        return buttonCallback.getValue();
     }
 
     public abstract String getCommand();
