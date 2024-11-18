@@ -38,7 +38,7 @@ public class EventsBackupService {
     @Schedules({
             @Scheduled(
                     initialDelayString = "#{eventsBackupProperties.delayForBackupAfterAppStarting}",
-                    timeUnit = TimeUnit.MINUTES
+                    timeUnit = TimeUnit.SECONDS
             ),
             @Scheduled(cron = "#{eventsBackupProperties.backupTime}")
     })
@@ -53,9 +53,9 @@ public class EventsBackupService {
         if (!isAutomaticBackupRequired()) {
             return;
         }
-        
-        log.debug("Выполнено автоматическое резервное копирование записей для {} пользователей(я)", users.size());
+
         saveBackups(users, BackupType.AUTOMATIC);
+        log.debug("Выполнено автоматическое резервное копирование записей для {} пользователей(я)", users.size());
     }
     
     @Transactional
