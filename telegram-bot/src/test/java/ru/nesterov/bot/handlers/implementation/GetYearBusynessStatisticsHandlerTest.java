@@ -13,6 +13,8 @@ import org.telegram.telegrambots.meta.api.objects.Message;
 import org.telegram.telegrambots.meta.api.objects.Update;
 import org.telegram.telegrambots.meta.api.objects.User;
 import ru.nesterov.bot.handlers.BotHandlersRequestsKeeper;
+import ru.nesterov.bot.handlers.CommandHandler;
+import ru.nesterov.bot.handlers.HandlersService;
 import ru.nesterov.calendar.InlineCalendarBuilder;
 import ru.nesterov.dto.GetYearBusynessStatisticsResponse;
 import ru.nesterov.integration.ClientRevenueAnalyzerIntegrationClient;
@@ -29,26 +31,34 @@ import static org.mockito.Mockito.when;
 @SpringBootTest
 @ContextConfiguration(classes = {
         GetYearBusynessStatisticsHandler.class,
+        HandlersService.class,
         ObjectMapper.class,
         InlineCalendarBuilder.class,
         BotHandlersRequestsKeeper.class
 })
 
 class GetYearBusynessStatisticsHandlerTest {
+
     @Autowired
-    private GetYearBusynessStatisticsHandler handler;
+    private HandlersService handlerService;
     @MockBean
     private ClientRevenueAnalyzerIntegrationClient clientRevenueAnalyzerIntegrationClient;
+    @MockBean
+    private UnregisteredUserHandler unregisteredUserHandler;
 
     @Test
     void handle() {
-        BotApiMethod<?> command = handler.handle(createUpdateWithMessage("/getyearbusynessstatistics"));
+        Update update = createUpdateWithMessage("Анализ занятости за год");
+        CommandHandler commandHandler = handlerService.getHandler(update);
+
+        BotApiMethod<?> command = commandHandler.handle(update);
+
         assertInstanceOf(SendMessage.class, command);
 
         SendMessage sendMessage = (SendMessage) command;
         assertEquals("Введите год для расчета занятости", sendMessage.getText());
 
-        BotApiMethod<?> wrongYearInput = handler.handle(createUpdateWithMessage("fff"));
+        BotApiMethod<?> wrongYearInput = commandHandler.handle(createUpdateWithMessage("fff"));
         SendMessage wrongYear = (SendMessage) wrongYearInput;
         assertEquals("Введите корректный год", wrongYear.getText());
 
@@ -66,7 +76,7 @@ class GetYearBusynessStatisticsHandlerTest {
 
         when(clientRevenueAnalyzerIntegrationClient.getYearBusynessStatistics(anyLong(), anyInt())).thenReturn(getYearBusynessStatisticsResponse);
 
-        BotApiMethod<?> botApiMethod = handler.handle(createUpdateWithMessage("2024"));
+        BotApiMethod<?> botApiMethod = commandHandler.handle(createUpdateWithMessage("2024"));
         assertInstanceOf(SendMessage.class, botApiMethod);
         SendMessage sendStatistics = (SendMessage) botApiMethod;
 
