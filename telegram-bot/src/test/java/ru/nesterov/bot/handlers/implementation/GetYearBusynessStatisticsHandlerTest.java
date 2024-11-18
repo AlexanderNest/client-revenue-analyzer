@@ -53,7 +53,8 @@ class GetYearBusynessStatisticsHandlerTest {
         assertEquals("Введите корректный год", wrongYear.getText());
 
         Map<String, Double> months = new LinkedHashMap<>();
-        months.put("Август", 10.25);
+        months.put("Август", 10.2532133123);
+        months.put("Июль", 20.0);
 
         Map<String, Double> days = new LinkedHashMap<>();
         days.put("Среда", 7.25);
@@ -69,12 +70,16 @@ class GetYearBusynessStatisticsHandlerTest {
         assertInstanceOf(SendMessage.class, botApiMethod);
         SendMessage sendStatistics = (SendMessage) botApiMethod;
 
-        String expectedMessage = "Анализ занятости за год:\n\n" +
-        "Занятость по месяцам:\n" +
-        "Август - 10.25" + ("\n\n") +
-        "Занятость по дням:\n" +
-        "Среда - 7.25\n" +
-        "Понедельник - 3.0";
+        String expectedMessage = "\uD83D\uDCCA Анализ занятости за год:\n" +
+                "\n" +
+                "\uD83D\uDDD3\uFE0F Занятость по месяцам:\n" +
+                "Август: 10,25 ч.\n" +
+                "Июль: 20,00 ч.\n" +
+                "\n" +
+                "\uD83D\uDCC5 Занятость по дням недели:\n" +
+                "Среда: 7,25 ч.\n" +
+                "Понедельник: 3,00 ч.";
+
         assertEquals(expectedMessage, sendStatistics.getText());
     }
 

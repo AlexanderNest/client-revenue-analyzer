@@ -11,7 +11,6 @@ import ru.nesterov.bot.handlers.BotHandlersRequestsKeeper;
 import ru.nesterov.dto.GetYearBusynessStatisticsRequest;
 import ru.nesterov.dto.GetYearBusynessStatisticsResponse;
 
-
 import java.util.stream.Collectors;
 
 @Component
@@ -65,23 +64,28 @@ public class GetYearBusynessStatisticsHandler extends ClientRevenueAbstractHandl
             return "📅 Встречи не запланированы";
         }
 
+        // Форматируем месяцы
         String monthHours = response.getMonths().entrySet().stream()
                 .map(monthStatistics -> {
                     String monthName = monthStatistics.getKey();
                     Double hours = monthStatistics.getValue();
-                    return String.format("Занятость по месяцам:\n" + monthName + " - " + hours);
-                }).collect(Collectors.joining("\n\n"));
+                    return String.format("%s: %.2f ч.", monthName, hours);
+                })
+                .collect(Collectors.joining("\n"));
 
-        String dayHours =  response.getDays().entrySet().stream()
+        // Форматируем дни
+        String dayHours = response.getDays().entrySet().stream()
                 .map(dayStatistics -> {
                     String dayName = dayStatistics.getKey();
                     Double hours = dayStatistics.getValue();
-                    return String.format(dayName + " - " + hours);
-                }).collect(Collectors.joining("\n"));
+                    return String.format("%s: %.2f ч.", dayName, hours);
+                })
+                .collect(Collectors.joining("\n"));
 
-        return "Анализ занятости за год:\n\n" +
-                monthHours + "\n\n" + "Занятость по дням:\n" +
-                dayHours;
+        // Возвращаем красиво отформатированную строку
+        return "📊 Анализ занятости за год:\n\n" +
+                "🗓️ Занятость по месяцам:\n" + monthHours + "\n\n" +
+                "📅 Занятость по дням недели:\n" + dayHours;
     }
 
     @Override
@@ -92,6 +96,6 @@ public class GetYearBusynessStatisticsHandler extends ClientRevenueAbstractHandl
 
     @Override
     public String getCommand() {
-        return "/getyearbusynessstatistics";
+        return "Анализ занятости за год";
     }
 }
