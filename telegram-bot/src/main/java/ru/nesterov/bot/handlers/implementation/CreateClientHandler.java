@@ -5,10 +5,14 @@ import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.stereotype.Component;
 import org.telegram.telegrambots.meta.api.methods.BotApiMethod;
 import org.telegram.telegrambots.meta.api.objects.Update;
+import org.telegram.telegrambots.meta.api.objects.replykeyboard.buttons.InlineKeyboardButton;
 import ru.nesterov.bot.TelegramUpdateUtils;
 import ru.nesterov.bot.handlers.BotHandlersRequestsKeeper;
 import ru.nesterov.dto.CreateClientRequest;
 import ru.nesterov.dto.CreateClientResponse;
+
+import java.util.ArrayList;
+import java.util.List;
 
 @RequiredArgsConstructor
 @ConditionalOnProperty("bot.enabled")
@@ -86,8 +90,12 @@ public class CreateClientHandler extends ClientRevenueAbstractHandler{
 
     private BotApiMethod<?> handlePhoneNumberInput(Update update, CreateClientRequest createClientRequest) {
         createClientRequest.setPhone(update.getMessage().getText());
+        List<InlineKeyboardButton> buttons = new ArrayList<>() {{
+            add(buildButton("Да", "true"));
+            add(buildButton("Нет", "false" ));
+        }};
 
-        return sendKeyBoardWithYesNoButtons(TelegramUpdateUtils.getChatId(update), "Если такой клиент уже создан, сгенерировать ли новое имя?");
+        return sendKeyboardRowInline(TelegramUpdateUtils.getChatId(update), "Если такой клиент уже создан, сгенерировать ли новое имя?", buttons);
     }
 
     private BotApiMethod<?> handleIdGenerationNeededInput(Update update, CreateClientRequest createClientRequest) {

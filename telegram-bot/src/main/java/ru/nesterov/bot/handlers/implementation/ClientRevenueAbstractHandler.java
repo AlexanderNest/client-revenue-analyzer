@@ -96,12 +96,18 @@ public abstract class ClientRevenueAbstractHandler implements CommandHandler {
         return isCurrentHandlerCommand || isCallback || (isPlainText && !isFinished(TelegramUpdateUtils.getUserId(update)));
     }
 
-    protected BotApiMethod<?> sendKeyBoardWithYesNoButtons(long chatId, String text) {
+    /**
+     *
+     * @param chatId
+     * @param text текст клавиатуры
+     * @param buttons кнопки, отображающиеся на клавиатуре
+     * @return
+     */
+    protected BotApiMethod<?> sendKeyboardRowInline(long chatId, String text, List<InlineKeyboardButton> buttons) {
         InlineKeyboardMarkup keyboardMarkup = new InlineKeyboardMarkup();
         List<List<InlineKeyboardButton>> keyboard = new ArrayList<>();
         List<InlineKeyboardButton> rowInline = new ArrayList<>();
-        rowInline.add(buildButton("Да", "true"));
-        rowInline.add(buildButton("Нет", "false"));
+        rowInline.addAll(buttons);
         keyboard.add(rowInline);
         keyboardMarkup.setKeyboard(keyboard);
 
