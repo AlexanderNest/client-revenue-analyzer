@@ -1,6 +1,7 @@
 package ru.nesterov.bot.handlers.implementation;
 
 import jakarta.annotation.PostConstruct;
+import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
@@ -24,6 +25,9 @@ public class StartBotHandler extends AbstractCommandHandler {
     private final List<SendingMessageCommandHandler> sendingMessageCommandHandlers;
     private final BotProperties botProperties;
 
+    @Value("${bot.menu-buttons-per-line}")
+    private int buttonsCount;
+
     private final ReplyKeyboardMarkup buttons = new ReplyKeyboardMarkup();
 
     @PostConstruct
@@ -31,8 +35,8 @@ public class StartBotHandler extends AbstractCommandHandler {
         buttons.setResizeKeyboard(true);
 
         List<KeyboardRow> keyboardRows = new ArrayList<>();
-        KeyboardRow currentRow = new KeyboardRow();
 
+        KeyboardRow currentRow = new KeyboardRow();
         for (int i = 0; i < sendingMessageCommandHandlers.size(); i++) {
             currentRow.add(new KeyboardButton(sendingMessageCommandHandlers.get(i).getCommand()));
 

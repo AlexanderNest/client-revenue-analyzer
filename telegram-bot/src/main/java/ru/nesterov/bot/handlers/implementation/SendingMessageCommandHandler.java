@@ -15,6 +15,10 @@ import ru.nesterov.bot.handlers.CommandHandler;
 import ru.nesterov.bot.handlers.callback.ButtonCallback;
 import ru.nesterov.integration.ClientRevenueAnalyzerIntegrationClient;
 
+/**
+ * CommandHandler, который отправляет сообщения. Также содержит полезные методы для быстрого создания сообщений.
+ * В том числе и с клавиатурами, коллбеками и др.
+ */
 public abstract class SendingMessageCommandHandler extends AbstractCommandHandler {
     protected final ObjectMapper objectMapper;
     protected final ClientRevenueAnalyzerIntegrationClient client;
@@ -74,6 +78,4 @@ public abstract class SendingMessageCommandHandler extends AbstractCommandHandle
 
         return isCommand || isCallback;
     }
-
-
 }
