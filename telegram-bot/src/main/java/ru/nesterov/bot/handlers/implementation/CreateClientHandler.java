@@ -25,15 +25,6 @@ public class CreateClientHandler extends ClientRevenueAbstractHandler{
         return "Добавить клиента";
     }
 
-    /*
-        1. Введите имя:
-        2. Введите стоимость за час
-        3. Введите описание
-        4. Введите номер телефона
-        5. Если такой клиент уже создан, сгенерировать ли новое имя? (да, нет)
-        6. Клиент успешно создан + (инфа о клиенте)   /    Клиент с таким именем уже создан
-
-     */
     @Override
     public BotApiMethod<?> handle(Update update) {
         long chatId = TelegramUpdateUtils.getChatId(update);
