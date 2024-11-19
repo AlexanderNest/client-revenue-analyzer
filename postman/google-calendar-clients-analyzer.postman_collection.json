@@ -1,9 +1,9 @@
 {
 	"info": {
-		"_postman_id": "81197df1-bf6a-4072-8132-c6e0940db56f",
+		"_postman_id": "ddf13009-aae6-4b5f-aad7-fb4cf191bf16",
 		"name": "google-calendar-clients-analyzer",
 		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
-		"_exporter_id": "31542889"
+		"_exporter_id": "25301828"
 	},
 	"item": [
 		{
@@ -299,6 +299,88 @@
 			"name": "Пользователи",
 			"item": [
 				{
+					"name": "Создать пользователя",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "X-username",
+								"value": "{{username}}",
+								"type": "text"
+							},
+							{
+								"key": "X-secret-token",
+								"value": "{{secret-token}}",
+								"type": "text"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{ \r\n    \"userIdentifier\": \"100\",\r\n    \"mainCalendarId\" : \"maincalendar1\",\r\n    \"isCancelledCalendarEnabled\" : true,\r\n    \"cancelledCalendarId\" : \"cancelledcalendar1\"\r\n}\r\n    ",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "http://localhost:8080/revenue-analyzer/user/createUser",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "8080",
+							"path": [
+								"revenue-analyzer",
+								"user",
+								"createUser"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Найти пользователя по идентификатору",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "X-secret-token",
+								"value": "{{secret-token}}",
+								"type": "text"
+							},
+							{
+								"key": "X-username",
+								"value": "{{username}}",
+								"type": "text"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n    \"username\": 1\r\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "http://localhost:8080/revenue-analyzer/user/getUserByUsername",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "8080",
+							"path": [
+								"revenue-analyzer",
+								"user",
+								"getUserByUsername"
+							]
+						}
+					},
+					"response": []
+				},
+				{
 					"name": "Расчет занятости за год",
 					"request": {
 						"method": "POST",
@@ -334,6 +416,42 @@
 								"user",
 								"analyzer",
 								"getYearBusynessStatistics"
+							]
+						}
+					},
+					"response": []
+				}
+			]
+		},
+		{
+			"name": "Бэкап встреч",
+			"item": [
+				{
+					"name": "Создать бэкап встреч",
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "X-username",
+								"value": "{{username}}",
+								"type": "text"
+							},
+							{
+								"key": "X-secret-token",
+								"value": "{{secret-token}}",
+								"type": "text"
+							}
+						],
+						"url": {
+							"raw": "localhost:8080/revenue-analyzer/events/backup",
+							"host": [
+								"localhost"
+							],
+							"port": "8080",
+							"path": [
+								"revenue-analyzer",
+								"events",
+								"backup"
 							]
 						}
 					},

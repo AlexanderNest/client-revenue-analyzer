@@ -21,6 +21,8 @@ public class User {
     private String cancelledCalendar;
     @Column(name = "cancelled_calendar_enabled")
     private boolean isCancelledCalendarEnabled;
+    @Column(name = "events_backup_enabled")
+    private boolean isEventsBackupEnabled;
 
     @OneToMany(mappedBy = "user")
     private List<Client> clients;

@@ -1,17 +1,12 @@
 package ru.nesterov.controller;
 
 import org.junit.jupiter.api.BeforeEach;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
-import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.http.MediaType;
-import org.springframework.test.web.servlet.MockMvc;
-import ru.nesterov.dto.Event;
+import ru.nesterov.dto.EventDto;
 import ru.nesterov.dto.EventStatus;
 import ru.nesterov.entity.Client;
 import ru.nesterov.entity.User;
-import ru.nesterov.google.CalendarClient;
 import ru.nesterov.repository.ClientRepository;
 import ru.nesterov.repository.UserRepository;
 import ru.nesterov.service.CalendarService;
@@ -28,81 +23,75 @@ import static org.springframework.test.web.servlet.request.MockMvcRequestBuilder
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
-@SpringBootTest
-@AutoConfigureMockMvc
-public class EventsAnalyzerControllerTest {
-    @Autowired
-    private MockMvc mockMvc;
+public class EventsAnalyzerControllerTest extends AbstractControllerTest {
     @MockBean
     private ClientRepository clientRepository;
     @MockBean
     private CalendarService calendarService;
     @MockBean
-    private CalendarClient calendarClient;
-    @MockBean
     private UserRepository userRepository;
-
+    
     @BeforeEach
     void init() {
         User user1 = new User();
         user1.setId(1);
         user1.setUsername("testUser1");
         user1.setMainCalendar("someCalendar1");
-
+        
         Client client1 = new Client();
         client1.setId(1);
         client1.setName("testName1");
         client1.setPricePerHour(1000);
-
+        
         when(userRepository.findByUsername("testUser1")).thenReturn(user1);
         when(clientRepository.findClientByNameAndUserId("testName1", 1)).thenReturn(client1);
-
-        Event event1 = Event.builder()
+        
+        EventDto eventDto1 = EventDto.builder()
                 .summary("unpaid1")
                 .status(EventStatus.PLANNED)
                 .start(LocalDateTime.of(2024, 8, 9, 11, 30))
                 .end(LocalDateTime.of(2024, 8, 9, 12, 30))
                 .build();
-
-        Event event2 = Event.builder()
+        
+        EventDto eventDto2 = EventDto.builder()
                 .summary("unpaid2")
                 .status(EventStatus.PLANNED)
                 .start(LocalDateTime.of(2024, 8, 10, 11, 30))
                 .end(LocalDateTime.of(2024, 8, 10, 12, 30))
                 .build();
-
-        Event event3 = Event.builder()
+        
+        EventDto eventDto3 = EventDto.builder()
                 .summary("paid1")
                 .status(EventStatus.SUCCESS)
                 .start(LocalDateTime.of(2024, 8, 11, 11, 30))
                 .end(LocalDateTime.of(2024, 8, 11, 12, 30))
                 .build();
-
-        Event event4 = Event.builder()
+        
+        EventDto eventDto4 = EventDto.builder()
                 .summary("requires shift unpaid")
                 .status(EventStatus.REQUIRES_SHIFT)
                 .start(LocalDateTime.of(2024, 8, 12, 11, 30))
                 .end(LocalDateTime.of(2024, 8, 12, 12, 30))
                 .build();
-
-        Event event5 = Event.builder()
+        
+        EventDto eventDto5 = EventDto.builder()
                 .summary("cancelled")
                 .status(EventStatus.CANCELLED)
                 .start(LocalDateTime.of(2024, 8, 13, 11, 30))
                 .end(LocalDateTime.of(2024, 8, 13, 12, 30))
                 .build();
-
-        when(calendarService.getEventsBetweenDates(any(), any(), anyBoolean(), any(), any())).thenReturn(List.of(event1, event2, event3, event4, event5));
+        
+        when(calendarService.getEventsBetweenDates(any(), any(), anyBoolean(), any(), any())).thenReturn(List.of(eventDto1, eventDto2, eventDto3, eventDto4, eventDto5));
     }
-
+    
     @org.junit.jupiter.api.Test
     public void getUnpaidEvents() throws Exception {
         LocalDateTime expectedEventStart1 = LocalDateTime.of(2024, 8, 9, 11, 30);
         LocalDateTime expectedEventStart2 = LocalDateTime.of(2024, 8, 10, 11, 30);
         LocalDateTime expectedEventStart3 = LocalDateTime.of(2024, 8, 12, 11, 30);
-
+        
         DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd'T'HH:mm:ss");
-
+        
         mockMvc.perform(get("/events/analyzer/getUnpaidEvents")
                         .header("X-username", "testUser1")
                         .contentType(MediaType.APPLICATION_JSON)

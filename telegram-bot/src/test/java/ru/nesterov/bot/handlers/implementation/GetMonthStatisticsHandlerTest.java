@@ -1,11 +1,8 @@
 package ru.nesterov.bot.handlers.implementation;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
-import com.fasterxml.jackson.databind.ObjectMapper;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.test.context.SpringBootTest;
-import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.test.context.ContextConfiguration;
 import org.telegram.telegrambots.meta.api.methods.BotApiMethod;
 import org.telegram.telegrambots.meta.api.methods.send.SendMessage;
@@ -14,9 +11,9 @@ import org.telegram.telegrambots.meta.api.objects.*;
 import org.telegram.telegrambots.meta.api.objects.replykeyboard.InlineKeyboardMarkup;
 import org.telegram.telegrambots.meta.api.objects.replykeyboard.ReplyKeyboard;
 import org.telegram.telegrambots.meta.api.objects.replykeyboard.buttons.InlineKeyboardButton;
+import ru.nesterov.bot.handlers.RegisteredUserHandler;
 import ru.nesterov.bot.handlers.callback.ButtonCallback;
 import ru.nesterov.dto.GetIncomeAnalysisForMonthResponse;
-import ru.nesterov.integration.ClientRevenueAnalyzerIntegrationClient;
 import ru.nesterov.utils.MonthUtil;
 
 import java.util.List;
@@ -26,26 +23,22 @@ import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyLong;
 import static org.mockito.Mockito.when;
 
-@SpringBootTest
 @ContextConfiguration(classes = {
-        GetMonthStatisticsHandler.class,
-        ObjectMapper.class
+        GetMonthStatisticsHandler.class
 })
-class GetMonthStatisticsHandlerTest {
-    private static final String markSymbol = "\u2B50";
+class GetMonthStatisticsHandlerTest extends RegisteredUserHandler {
     @Autowired
     private GetMonthStatisticsHandler handler;
-    @Autowired
-    private ObjectMapper objectMapper;
-    @MockBean
-    private ClientRevenueAnalyzerIntegrationClient client;
+
+    private static final String MARK_SYMBOL = "\u2B50";
 
     @Test
     void handleCallback() throws JsonProcessingException {
         GetIncomeAnalysisForMonthResponse response = new GetIncomeAnalysisForMonthResponse();
         response.setActualIncome(1000);
-        response.setLostIncome(100);
-        response.setExpectedIncoming(20000);
+        response.setLostIncome(16200);
+        response.setExpectedIncome(20000);
+        response.setPotentialIncome(23000);
 
         when(client.getIncomeAnalysisForMonth(anyLong(), any())).thenReturn(response);
 
@@ -54,7 +47,7 @@ class GetMonthStatisticsHandlerTest {
 
         Message message = new Message();
         message.setMessageId(1);
-        message.setText(markSymbol + "august");
+        message.setText(MARK_SYMBOL + "august");
         message.setChat(chat);
 
         Update update = new Update();
@@ -62,7 +55,7 @@ class GetMonthStatisticsHandlerTest {
         callbackQuery.setId(String.valueOf(1));
         ButtonCallback callback = new ButtonCallback();
         callback.setCommand("/monthincome");
-        callback.setValue(markSymbol + "august");
+        callback.setValue(MARK_SYMBOL + "august");
         callbackQuery.setMessage(message);
         callbackQuery.setData(objectMapper.writeValueAsString(callback));
 
@@ -76,12 +69,15 @@ class GetMonthStatisticsHandlerTest {
         assertInstanceOf(EditMessageText.class, botApiMethod);
         EditMessageText editMessage = (EditMessageText) botApiMethod;
 
-        String expectedMessage = "Анализ доходов за текущий месяц:\n\n" +
-                String.format("✅      Фактический доход: %.2f ₽\n", response.getActualIncome()) +
-                String.format("🔮      Ожидаемый доход: %.2f ₽\n", response.getExpectedIncoming()) +
-                String.format("⚠️      Потерянный доход: %.2f ₽\n", response.getLostIncome());
+        String expected = "\uD83D\uDCCA *Анализ доходов за месяц*\n" +
+                "\n" +
+                "Фактический доход:          1 000 ₽\n" +
+                "Ожидаемый доход:           20 000 ₽\n" +
+                "-----------------------------\n" +
+                "Потенциальный доход:       23 000 ₽\n" +
+                "Потерянный доход:          16 200 ₽";
 
-        assertEquals(expectedMessage, editMessage.getText());
+        assertEquals(expected, editMessage.getText());
     }
 
     @Test
@@ -139,6 +135,6 @@ class GetMonthStatisticsHandlerTest {
 
         int currentMonthIndex = MonthUtil.getCurrentMonth() % 3;
 
-        return buttonsText.get(currentMonthIndex).contains(markSymbol);
+        return buttonsText.get(currentMonthIndex).contains(MARK_SYMBOL);
     }
 }

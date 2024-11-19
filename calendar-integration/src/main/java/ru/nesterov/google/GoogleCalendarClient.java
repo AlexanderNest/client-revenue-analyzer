@@ -13,8 +13,8 @@ import lombok.SneakyThrows;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.stereotype.Component;
-import ru.nesterov.dto.Event;
-import ru.nesterov.dto.EventExtension;
+import ru.nesterov.dto.EventDto;
+import ru.nesterov.dto.EventExtensionDto;
 import ru.nesterov.dto.EventStatus;
 import ru.nesterov.google.exception.CannotBuildEventException;
 
@@ -24,6 +24,7 @@ import java.io.IOException;
 import java.time.Instant;
 import java.time.LocalDateTime;
 import java.time.ZoneId;
+import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 
@@ -54,40 +55,57 @@ public class GoogleCalendarClient implements CalendarClient {
     }
 
     @SneakyThrows
-    public List<Event> getEventsBetweenDates(String calendarId, boolean isCancelledCalendar, LocalDateTime leftDate, LocalDateTime rightDate) {
+    public List<EventDto> getEventsBetweenDates(String calendarId, boolean isCancelledCalendar, LocalDateTime leftDate, LocalDateTime rightDate) {
         Date startTime = Date.from(leftDate.atZone(ZoneId.systemDefault()).toInstant());
         Date endTime = Date.from(rightDate.atZone(ZoneId.systemDefault()).toInstant());
 
-        Events events = getEventsBetweenDates(calendarId, startTime, endTime);
-        return convert(events.getItems(), isCancelledCalendar);
+        List<Events> events = getEventsBetweenDates(calendarId, startTime, endTime);
+        return events.stream()
+                .flatMap(e -> e.getItems().stream())
+                .map(event -> buildEvent(event, isCancelledCalendar))
+                .toList();
     }
 
-    private Events getEventsBetweenDates(String calendarId, Date startTime, Date endTime) throws IOException {
+    private List<Events> getEventsBetweenDates(String calendarId, Date startTime, Date endTime) throws IOException {
+        int pageNumber = 1;
+
+        List<Events> allEvents = new ArrayList<>();
+
+        Events events = getEventsBetweenDates(calendarId, startTime, endTime, null);
+        allEvents.add(events);
+        log.debug("Для calendarId = [{}] [{} - {}] извлечена страница №[{}]", calendarId, startTime, endTime, pageNumber);
+
+        while (events.getNextPageToken() != null) {
+            events = getEventsBetweenDates(calendarId, startTime, endTime, events.getNextPageToken());
+            allEvents.add(events);
+            pageNumber++;
+            log.debug("Для calendarId = [{}] [{} - {}] извлечена страница №[{}]", calendarId, startTime, endTime, pageNumber);
+        }
+
+        return allEvents;
+    }
+
+    private Events getEventsBetweenDates(String calendarId, Date startTime, Date endTime, String nextPageToken) throws IOException {
         log.debug("Send request to google");
         Events events = calendar.events().list(calendarId)
                 .setTimeMin(new DateTime(startTime))
                 .setTimeMax(new DateTime(endTime))
                 .setOrderBy("startTime")
                 .setSingleEvents(true)
+                .setPageToken(nextPageToken)
                 .execute();
         log.debug("Response from google received");
         return events;
     }
 
-    private List<Event> convert(List<com.google.api.services.calendar.model.Event> events, boolean isCancelledCalendar) {
-        return events.stream()
-                .map(event -> buildEvent(event, isCancelledCalendar))
-                .toList();
-    }
-
-    private Event buildEvent(com.google.api.services.calendar.model.Event event, boolean isCancelledCalendar) {
+    private EventDto buildEvent(com.google.api.services.calendar.model.Event event, boolean isCancelledCalendar) {
         try {
-            return Event.builder()
+            return EventDto.builder()
                     .status(isCancelledCalendar ? EventStatus.CANCELLED : eventStatusService.getEventStatus(event))
                     .summary(event.getSummary())
                     .start(LocalDateTime.ofInstant(Instant.ofEpochMilli(event.getStart().getDateTime().getValue()), ZoneId.systemDefault()))
                     .end(LocalDateTime.ofInstant(Instant.ofEpochMilli(event.getEnd().getDateTime().getValue()), ZoneId.systemDefault()))
-                    .eventExtension(buildEventExtension(event))
+                    .eventExtensionDto(buildEventExtension(event))
                     .build();
         } catch (Exception e) {
             throw new CannotBuildEventException(event.getSummary(), event.getStart(), e);
@@ -95,18 +113,18 @@ public class GoogleCalendarClient implements CalendarClient {
     }
 
     @Nullable
-    private EventExtension buildEventExtension(com.google.api.services.calendar.model.Event event) {
-        log.trace("Сборка EventExtension для Event с названием [{}] and date [{}]", event.getSummary(), event.getStart());
+    private EventExtensionDto buildEventExtension(com.google.api.services.calendar.model.Event event) {
+        log.trace("Сборка EventExtensionDto для EventDto с названием [{}] and date [{}]", event.getSummary(), event.getStart());
 
         if (event.getDescription() == null) {
-            log.trace("Event не содержит EventExtension");
+            log.trace("EventDto не содержит EventExtensionDto");
             return null;
         }
 
         try {
-            return objectMapper.readValue(event.getDescription(), EventExtension.class);
+            return objectMapper.readValue(event.getDescription(), EventExtensionDto.class);
         } catch (Exception e) {
-            log.trace("Не удалось собрать EventExtension, неверный формат", e);
+            log.trace("Не удалось собрать EventExtensionDto, неверный формат", e);
             return null;
         }
     }

@@ -198,4 +198,78 @@
             <column name="user_id"/>
         </createIndex>
     </changeSet>
+
+    <changeSet id="create-table-event_extension" author="Lizogubov Eugeny">
+        <preConditions>
+            <not>
+                <tableExists tableName="event_extension"/>
+            </not>
+        </preConditions>
+        <sql>
+            CREATE TABLE event_extension
+            (
+                id            BIGSERIAL PRIMARY KEY NOT NULL,
+                comment       VARCHAR(200),
+                income        INT,
+                is_planned    BOOLEAN,
+                previous_date TIMESTAMP
+            );
+        </sql>
+    </changeSet>
+
+    <changeSet id="create-table-event_backup" author="Lizogubov Eugeny">
+        <preConditions>
+            <tableExists tableName="user"/>
+            <not>
+                <tableExists tableName="event_backup"/>
+            </not>
+        </preConditions>
+        <sql>
+            CREATE TABLE event_backup
+            (
+                id          BIGSERIAL PRIMARY KEY NOT NULL,
+                user_id     BIGINT REFERENCES "user" (id),
+                backup_time TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+                type        VARCHAR(100)          NOT NULL
+            );
+
+            CREATE INDEX idx_event_backup_user_id ON event_backup (user_id);
+            CREATE INDEX idx_event_backup_backup_time ON event_backup (backup_time);
+        </sql>
+    </changeSet>
+
+    <changeSet id="create-table-event" author="Lizogubov Eugeny">
+        <preConditions>
+            <tableExists tableName="event_extension"/>
+            <tableExists tableName="event_backup"/>
+            <not>
+                <tableExists tableName="event"/>
+            </not>
+        </preConditions>
+        <sql>
+            CREATE TABLE event
+            (
+                id                 BIGSERIAL PRIMARY KEY NOT NULL,
+                status             VARCHAR(20)           NOT NULL,
+                summary            VARCHAR(200),
+                start_date         TIMESTAMP,
+                end_date           TIMESTAMP,
+                event_backup_id    BIGINT REFERENCES event_backup (id) ON DELETE CASCADE,
+                event_extension_id BIGINT REFERENCES event_extension (id) ON DELETE CASCADE
+            );
+
+            CREATE INDEX idx_event_event_backup_id ON event (event_backup_id);
+            CREATE INDEX idx_event_event_extension_is ON event (event_extension_id);
+        </sql>
+    </changeSet>
+
+    <changeSet id="add events_backup_enabled column" author="Lizogubov Eugeny">
+        <preConditions onFail="MARK_RAN">
+            <tableExists tableName="user"/>
+        </preConditions>
+        <sql>
+            ALTER TABLE "user"
+                ADD events_backup_enabled BOOLEAN DEFAULT FALSE;
+        </sql>
+    </changeSet>
 </databaseChangeLog>
