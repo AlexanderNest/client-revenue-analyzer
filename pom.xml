@@ -24,6 +24,7 @@
         <module>web</module>
         <module>commons</module>
         <module>telegram-bot</module>
+        <module>gigachat-integration</module>
     </modules>
     <properties>
         <java.version>17</java.version>
