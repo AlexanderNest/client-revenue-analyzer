@@ -12,6 +12,8 @@ import org.springframework.web.client.RestTemplate;
 import ru.nesterov.dto.*;
 import ru.nesterov.properties.BotProperties;
 import ru.nesterov.properties.RevenueAnalyzerProperties;
+import ru.nesterov.dto.CreateClientRequest;
+import ru.nesterov.dto.CreateClientResponse;
 
 import java.time.LocalDateTime;
 import java.util.List;
