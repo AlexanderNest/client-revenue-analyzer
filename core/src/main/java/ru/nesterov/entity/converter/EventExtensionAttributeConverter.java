@@ -1,5 +1,6 @@
 package ru.nesterov.entity.converter;
 
+import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import jakarta.persistence.AttributeConverter;
@@ -10,12 +11,13 @@ import ru.nesterov.entity.EventExtension;
 @Converter
 @Slf4j
 public class EventExtensionAttributeConverter implements AttributeConverter<EventExtension, String> {
-    private static final ObjectMapper OBJECT_MAPPER = new ObjectMapper();
+    private static final ObjectMapper objectMapper = new ObjectMapper()
+            .setSerializationInclusion(JsonInclude.Include.NON_NULL);
     
     @Override
     public String convertToDatabaseColumn(EventExtension attribute) {
         try {
-            return OBJECT_MAPPER.writeValueAsString(attribute);
+            return objectMapper.writeValueAsString(attribute);
         } catch (JsonProcessingException e) {
             log.warn("Не получилось сконвертировать EventExtension в JSON");
             return null;
@@ -25,7 +27,7 @@ public class EventExtensionAttributeConverter implements AttributeConverter<Even
     @Override
     public EventExtension convertToEntityAttribute(String dbData) {
         try {
-            return OBJECT_MAPPER.readValue(dbData, EventExtension.class);
+            return objectMapper.readValue(dbData, EventExtension.class);
         } catch (JsonProcessingException e) {
             log.warn("Не получилось сконвертировать JSON в EventExtension");
             return null;

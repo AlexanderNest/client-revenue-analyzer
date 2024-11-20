@@ -292,8 +292,12 @@
     </changeSet>
 
     <changeSet id="drop-event_extension_id-and-add-event_extension-to-event-table" author="Lizogubov Eugeny">
-        <preConditions>
+        <preConditions onFail="MARK_RAN">
             <tableExists tableName="event"/>
+            <columnExists tableName="event" columnName="event_extension_id"/>
+            <not>
+                <columnExists tableName="event" columnName="event_extension"/>
+            </not>
         </preConditions>
         <sql>
             ALTER TABLE event DROP COLUMN event_extension_id;
