@@ -272,4 +272,36 @@
                 ADD events_backup_enabled BOOLEAN DEFAULT FALSE;
         </sql>
     </changeSet>
+
+    <changeSet id="drop-table-event_extension" author="Lizogubov Eugeny">
+        <preConditions>
+            <tableExists tableName="event_extension"/>
+        </preConditions>
+        <sql>
+            DROP TABLE if exists event_extension cascade;
+        </sql>
+    </changeSet>
+
+    <changeSet id="drop-idx_event_event_extension_is" author="Lizogubov Eugeny">
+        <preConditions onFail="MARK_RAN">
+            <indexExists tableName="event" indexName="idx_event_event_extension_is"/>
+        </preConditions>
+        <sql>
+            DROP INDEX idx_event_event_extension_is ON event;
+        </sql>
+    </changeSet>
+
+    <changeSet id="drop-event_extension_id-and-add-event_extension-to-event-table" author="Lizogubov Eugeny">
+        <preConditions onFail="MARK_RAN">
+            <tableExists tableName="event"/>
+            <columnExists tableName="event" columnName="event_extension_id"/>
+            <not>
+                <columnExists tableName="event" columnName="event_extension"/>
+            </not>
+        </preConditions>
+        <sql>
+            ALTER TABLE event DROP COLUMN event_extension_id;
+            ALTER TABLE event ADD event_extension VARCHAR(500);
+        </sql>
+    </changeSet>
 </databaseChangeLog>

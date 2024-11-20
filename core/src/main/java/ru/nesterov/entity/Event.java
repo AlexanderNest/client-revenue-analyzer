@@ -1,18 +1,17 @@
 package ru.nesterov.entity;
 
-import jakarta.persistence.CascadeType;
 import jakarta.persistence.Column;
+import jakarta.persistence.Convert;
 import jakarta.persistence.Entity;
 import jakarta.persistence.EnumType;
 import jakarta.persistence.Enumerated;
-import jakarta.persistence.FetchType;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
-import jakarta.persistence.OneToOne;
 import jakarta.persistence.Table;
 import lombok.Data;
 import ru.nesterov.dto.EventStatus;
+import ru.nesterov.entity.converter.EventExtensionAttributeConverter;
 
 import java.time.LocalDateTime;
 
@@ -34,7 +33,7 @@ public class Event {
     @Column(name = "end_date")
     private LocalDateTime end;
     
-    @OneToOne(cascade = CascadeType.ALL, fetch = FetchType.EAGER)
+    @Convert(converter = EventExtensionAttributeConverter.class)
     private EventExtension eventExtension;
 }
 
