@@ -81,10 +81,10 @@ public class CreateClientHandler extends ClientRevenueAbstractHandler{
 
     private BotApiMethod<?> handlePhoneNumberInput(Update update, CreateClientRequest createClientRequest) {
         createClientRequest.setPhone(update.getMessage().getText());
-        List<InlineKeyboardButton> buttons = new ArrayList<>() {{
-            add(buildButton("Да", "true"));
-            add(buildButton("Нет", "false" ));
-        }};
+        List<InlineKeyboardButton> buttons = List.of(
+                buildButton("Да", "true"),
+                buildButton("Нет", "false" )
+        );
 
         return sendKeybordInline(TelegramUpdateUtils.getChatId(update), "Включить генерацию нового имени, если клиент с таким именем уже существует?", buttons);
     }
@@ -106,13 +106,12 @@ public class CreateClientHandler extends ClientRevenueAbstractHandler{
     }
 
     private BotApiMethod<?> createClient(Update update, CreateClientRequest createClientRequest) {
-        CreateClientResponse response = client.createClient(String.valueOf(TelegramUpdateUtils.getUserId(update)), createClientRequest);
-
         long chatId = TelegramUpdateUtils.getChatId(update);
-        if (response == null) {
+        CreateClientResponse response = client.createClient(String.valueOf(TelegramUpdateUtils.getUserId(update)), createClientRequest);
+        if (response.getResponseCode() == 409) {
             return getPlainSendMessage(chatId, "Клиент с таким именем уже создан");
         }
-         return getPlainSendMessage(chatId, formatCreateClientResponse(response));
+        return getPlainSendMessage(chatId, formatCreateClientResponse(response));
     }
 
 

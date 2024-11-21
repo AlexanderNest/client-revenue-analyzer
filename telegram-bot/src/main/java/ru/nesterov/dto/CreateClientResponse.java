@@ -15,4 +15,5 @@ public class CreateClientResponse {
     private boolean active;
     private Date startDate;
     private String phone;
+    private int responseCode;
 }

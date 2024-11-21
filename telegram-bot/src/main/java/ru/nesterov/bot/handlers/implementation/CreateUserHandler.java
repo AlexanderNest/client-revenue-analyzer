@@ -75,10 +75,10 @@ public class CreateUserHandler extends ClientRevenueAbstractHandler {
         long userId = TelegramUpdateUtils.getUserId(update);
         createUserRequest.setUserIdentifier(String.valueOf(userId));
         createUserRequest.setMainCalendarId(update.getMessage().getText());
-        List<InlineKeyboardButton> buttons = new ArrayList<>() {{
-            add(buildButton("Да", "true"));
-            add(buildButton("Нет", "false" ));
-        }};
+        List<InlineKeyboardButton> buttons = List.of(
+                buildButton("Да", "true"),
+                buildButton("Нет", "false")
+        );
 
         return sendKeybordInline(TelegramUpdateUtils.getChatId(update), "Вы хотите сохранять информацию об отмененных мероприятиях с использованием второго календаря?", buttons);
     }

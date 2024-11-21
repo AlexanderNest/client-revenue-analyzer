@@ -161,7 +161,11 @@ public class CreateClientTest extends RegisteredUserHandler {
                 .description("description")
                 .build();
 
-        when(client.createClient(any(), any())).thenReturn(null);
+        CreateClientResponse response = CreateClientResponse.builder()
+                .responseCode(409)
+                .build();
+
+        when(client.createClient(any(), any())).thenReturn(response);
 
         Message message = new Message();
         message.setText(COMMAND);

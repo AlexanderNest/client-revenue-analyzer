@@ -9,6 +9,7 @@ import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpMethod;
 import org.springframework.http.HttpStatus;
+import org.springframework.http.HttpStatusCode;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Component;
 import org.springframework.web.client.HttpClientErrorException;
@@ -67,8 +68,11 @@ public class ClientRevenueAnalyzerIntegrationClient {
 
     public CreateClientResponse createClient(String userId, CreateClientRequest createClientRequest) {
         ResponseEntity<CreateClientResponse> responseEntity = post(userId, createClientRequest, "/revenue-analyzer/client/create", CreateClientResponse.class);
-        if (responseEntity.getStatusCode().isSameCodeAs(HttpStatus.CONFLICT)) {
-            return null;
+        HttpStatusCode statusCode = responseEntity.getStatusCode();
+        if (statusCode.isSameCodeAs(HttpStatus.CONFLICT)) {
+            return CreateClientResponse.builder()
+                    .responseCode(statusCode.value())
+                    .build();
         }
 
         return responseEntity.getBody();
@@ -117,8 +121,8 @@ public class ClientRevenueAnalyzerIntegrationClient {
             return new ResponseEntity<>(HttpStatus.NOT_FOUND);
         } catch (HttpClientErrorException.Conflict ignore) {
             return new ResponseEntity<>(HttpStatus.CONFLICT);
-
-        }    }
+        }
+    }
 
     private <T> List<T> postForList(String username, Object request, String endpoint, ParameterizedTypeReference<List<T>> typeReference) {
         HttpEntity<Object> requestEntity = new HttpEntity<>(request, createHeaders(username));
