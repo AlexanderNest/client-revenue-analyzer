@@ -1,11 +1,8 @@
 package ru.nesterov.bot.handlers.implementation;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
-import com.fasterxml.jackson.databind.ObjectMapper;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.test.context.SpringBootTest;
-import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.test.context.ContextConfiguration;
 import org.telegram.telegrambots.meta.api.methods.BotApiMethod;
 import org.telegram.telegrambots.meta.api.methods.send.SendMessage;
@@ -14,9 +11,9 @@ import org.telegram.telegrambots.meta.api.objects.*;
 import org.telegram.telegrambots.meta.api.objects.replykeyboard.InlineKeyboardMarkup;
 import org.telegram.telegrambots.meta.api.objects.replykeyboard.ReplyKeyboard;
 import org.telegram.telegrambots.meta.api.objects.replykeyboard.buttons.InlineKeyboardButton;
+import ru.nesterov.bot.handlers.RegisteredUserHandler;
 import ru.nesterov.bot.handlers.callback.ButtonCallback;
 import ru.nesterov.dto.GetIncomeAnalysisForMonthResponse;
-import ru.nesterov.integration.ClientRevenueAnalyzerIntegrationClient;
 import ru.nesterov.utils.MonthUtil;
 
 import java.util.List;
@@ -26,19 +23,14 @@ import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyLong;
 import static org.mockito.Mockito.when;
 
-@SpringBootTest
 @ContextConfiguration(classes = {
-        GetMonthStatisticsHandler.class,
-        ObjectMapper.class
+        GetMonthStatisticsHandler.class
 })
-class GetMonthStatisticsHandlerTest {
-    private static final String markSymbol = "\u2B50";
+class GetMonthStatisticsHandlerTest extends RegisteredUserHandler {
     @Autowired
     private GetMonthStatisticsHandler handler;
-    @Autowired
-    private ObjectMapper objectMapper;
-    @MockBean
-    private ClientRevenueAnalyzerIntegrationClient client;
+
+    private static final String MARK_SYMBOL = "\u2B50";
 
     @Test
     void handleCallback() throws JsonProcessingException {
@@ -55,7 +47,7 @@ class GetMonthStatisticsHandlerTest {
 
         Message message = new Message();
         message.setMessageId(1);
-        message.setText(markSymbol + "august");
+        message.setText(MARK_SYMBOL + "august");
         message.setChat(chat);
 
         Update update = new Update();
@@ -63,7 +55,7 @@ class GetMonthStatisticsHandlerTest {
         callbackQuery.setId(String.valueOf(1));
         ButtonCallback callback = new ButtonCallback();
         callback.setCommand("/monthincome");
-        callback.setValue(markSymbol + "august");
+        callback.setValue(MARK_SYMBOL + "august");
         callbackQuery.setMessage(message);
         callbackQuery.setData(objectMapper.writeValueAsString(callback));
 
@@ -143,6 +135,6 @@ class GetMonthStatisticsHandlerTest {
 
         int currentMonthIndex = MonthUtil.getCurrentMonth() % 3;
 
-        return buttonsText.get(currentMonthIndex).contains(markSymbol);
+        return buttonsText.get(currentMonthIndex).contains(MARK_SYMBOL);
     }
 }

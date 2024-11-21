@@ -17,7 +17,7 @@ import java.time.Duration;
 @AllArgsConstructor
 public class EventService {
     private final ClientRepository clientRepository;
-
+    
     public double getEventIncome(UserDto userDto, EventDto eventDto) {
         Client client = clientRepository.findClientByNameAndUserId(eventDto.getSummary(), userDto.getId());
         if (client == null) {
@@ -29,7 +29,7 @@ public class EventService {
         }
         return getEventDuration(eventDto) * client.getPricePerHour();
     }
-
+    
     public double getEventDuration(EventDto eventDto) {
         Duration duration = Duration.between(eventDto.getStart(), eventDto.getEnd());
         return duration.toMinutes() / 60.0;
