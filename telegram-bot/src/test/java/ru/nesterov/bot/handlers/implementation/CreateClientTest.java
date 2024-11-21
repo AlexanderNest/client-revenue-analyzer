@@ -17,7 +17,9 @@ import org.telegram.telegrambots.meta.api.objects.User;
 import org.telegram.telegrambots.meta.api.objects.replykeyboard.InlineKeyboardMarkup;
 import org.telegram.telegrambots.meta.api.objects.replykeyboard.ReplyKeyboard;
 import org.telegram.telegrambots.meta.api.objects.replykeyboard.buttons.InlineKeyboardButton;
+import ru.nesterov.bot.handlers.AbstractHandlerTest;
 import ru.nesterov.bot.handlers.BotHandlersRequestsKeeper;
+import ru.nesterov.bot.handlers.RegisteredUserHandler;
 import ru.nesterov.bot.handlers.callback.ButtonCallback;
 import ru.nesterov.dto.CreateClientRequest;
 import ru.nesterov.dto.CreateClientResponse;
@@ -37,7 +39,7 @@ import static org.mockito.Mockito.when;
         ObjectMapper.class,
         BotHandlersRequestsKeeper.class
 })
-public class CreateClientTest {
+public class CreateClientTest extends RegisteredUserHandler {
     @Autowired
     private CreateClientHandler createClientHandler;
     @MockBean
