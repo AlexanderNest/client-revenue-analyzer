@@ -3,7 +3,6 @@ package ru.nesterov.bot.handlers.implementation;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.test.context.ContextConfiguration;
 import org.telegram.telegrambots.meta.api.methods.BotApiMethod;
 import org.telegram.telegrambots.meta.api.methods.send.SendMessage;
@@ -19,7 +18,6 @@ import ru.nesterov.bot.handlers.RegisteredUserHandler;
 import ru.nesterov.bot.handlers.callback.ButtonCallback;
 import ru.nesterov.dto.CreateClientRequest;
 import ru.nesterov.dto.CreateClientResponse;
-import ru.nesterov.integration.ClientRevenueAnalyzerIntegrationClient;
 
 import java.util.Date;
 import java.util.List;
