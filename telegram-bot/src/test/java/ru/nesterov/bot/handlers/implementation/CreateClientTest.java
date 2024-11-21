@@ -1,10 +1,8 @@
 package ru.nesterov.bot.handlers.implementation;
 
-import com.fasterxml.jackson.databind.ObjectMapper;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.test.context.ContextConfiguration;
 import org.telegram.telegrambots.meta.api.methods.BotApiMethod;
@@ -17,8 +15,6 @@ import org.telegram.telegrambots.meta.api.objects.User;
 import org.telegram.telegrambots.meta.api.objects.replykeyboard.InlineKeyboardMarkup;
 import org.telegram.telegrambots.meta.api.objects.replykeyboard.ReplyKeyboard;
 import org.telegram.telegrambots.meta.api.objects.replykeyboard.buttons.InlineKeyboardButton;
-import ru.nesterov.bot.handlers.AbstractHandlerTest;
-import ru.nesterov.bot.handlers.BotHandlersRequestsKeeper;
 import ru.nesterov.bot.handlers.RegisteredUserHandler;
 import ru.nesterov.bot.handlers.callback.ButtonCallback;
 import ru.nesterov.dto.CreateClientRequest;
@@ -33,17 +29,12 @@ import static org.junit.jupiter.api.Assertions.assertInstanceOf;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.when;
 
-@SpringBootTest
 @ContextConfiguration(classes = {
         CreateClientHandler.class,
-        ObjectMapper.class,
-        BotHandlersRequestsKeeper.class
 })
 public class CreateClientTest extends RegisteredUserHandler {
     @Autowired
     private CreateClientHandler createClientHandler;
-    @MockBean
-    private ClientRevenueAnalyzerIntegrationClient client;
 
     private String COMMAND;
 
