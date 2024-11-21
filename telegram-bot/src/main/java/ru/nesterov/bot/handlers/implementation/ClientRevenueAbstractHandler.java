@@ -103,7 +103,7 @@ public abstract class ClientRevenueAbstractHandler implements CommandHandler {
      * @param buttons кнопки, отображающиеся на клавиатуре
      * @return
      */
-    protected BotApiMethod<?> sendKeyboardRowInline(long chatId, String text, List<InlineKeyboardButton> buttons) {
+    protected BotApiMethod<?> sendKeybordInline(long chatId, String text, List<InlineKeyboardButton> buttons) {
         InlineKeyboardMarkup keyboardMarkup = new InlineKeyboardMarkup();
         List<List<InlineKeyboardButton>> keyboard = new ArrayList<>();
         List<InlineKeyboardButton> rowInline = new ArrayList<>();

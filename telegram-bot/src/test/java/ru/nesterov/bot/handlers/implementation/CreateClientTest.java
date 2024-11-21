@@ -23,6 +23,7 @@ import ru.nesterov.dto.CreateClientRequest;
 import ru.nesterov.dto.CreateClientResponse;
 import ru.nesterov.integration.ClientRevenueAnalyzerIntegrationClient;
 
+import java.util.Date;
 import java.util.List;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
@@ -70,6 +71,7 @@ public class CreateClientTest {
                 .pricePerHour(2000)
                 .active(true)
                 .phone("8916")
+                .startDate(new Date())
                 .description("description")
                 .build();
 
@@ -110,6 +112,7 @@ public class CreateClientTest {
         update.setMessage(message);
         botApiMethod = createClientHandler.handle(update);
         sendMessage = (SendMessage) botApiMethod;
+        assertEquals("Включить генерацию нового имени, если клиент с таким именем уже существует?", sendMessage.getText());
 
         ReplyKeyboard markup = sendMessage.getReplyMarkup();
         assertInstanceOf(InlineKeyboardMarkup.class, markup);
@@ -143,11 +146,11 @@ public class CreateClientTest {
         sendMessage = (SendMessage) botApiMethod;
         assertEquals(String.join(System.lineSeparator(),
                 "Клиент успешно зарегистрирован!",
-                "Имя: " + response.getName(),
-                "Стоимость за час: " + response.getPricePerHour(),
-                "Описание: " + response.getDescription(),
+                "Имя: Masha",
+                "Стоимость за час: 2000",
+                "Описание: description",
                 "Дата начала встреч: " + response.getStartDate(),
-                "Номер телефона: " + response.getPhone()),
+                "Номер телефона: 8916"),
         sendMessage.getText());
     }
 
@@ -204,6 +207,7 @@ public class CreateClientTest {
         update.setMessage(message);
         botApiMethod = createClientHandler.handle(update);
         sendMessage = (SendMessage) botApiMethod;
+        assertEquals("Включить генерацию нового имени, если клиент с таким именем уже существует?", sendMessage.getText());
 
         ReplyKeyboard markup = sendMessage.getReplyMarkup();
         assertInstanceOf(InlineKeyboardMarkup.class, markup);
@@ -260,6 +264,7 @@ public class CreateClientTest {
                 .pricePerHour(2000)
                 .active(true)
                 .phone("8916")
+                .startDate(new Date())
                 .description("description")
                 .build();
 
@@ -300,6 +305,7 @@ public class CreateClientTest {
         update.setMessage(message);
         botApiMethod = createClientHandler.handle(update);
         sendMessage = (SendMessage) botApiMethod;
+        assertEquals("Включить генерацию нового имени, если клиент с таким именем уже существует?", sendMessage.getText());
 
         ReplyKeyboard markup = sendMessage.getReplyMarkup();
         assertInstanceOf(InlineKeyboardMarkup.class, markup);
@@ -333,11 +339,11 @@ public class CreateClientTest {
         sendMessage = (SendMessage) botApiMethod;
         assertEquals(String.join(System.lineSeparator(),
                         "Клиент успешно зарегистрирован!",
-                        "Имя: " + response.getName(),
-                        "Стоимость за час: " + response.getPricePerHour(),
-                        "Описание: " + response.getDescription(),
+                        "Имя: Sasha 2",
+                        "Стоимость за час: 2000",
+                        "Описание: description",
                         "Дата начала встреч: " + response.getStartDate(),
-                        "Номер телефона: " + response.getPhone()),
+                        "Номер телефона: 8916"),
                 sendMessage.getText());
     }
 }

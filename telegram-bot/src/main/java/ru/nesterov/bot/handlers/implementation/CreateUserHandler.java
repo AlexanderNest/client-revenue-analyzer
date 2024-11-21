@@ -80,7 +80,7 @@ public class CreateUserHandler extends ClientRevenueAbstractHandler {
             add(buildButton("Нет", "false" ));
         }};
 
-        return sendKeyboardRowInline(TelegramUpdateUtils.getChatId(update), "Вы хотите сохранять информацию об отмененных мероприятиях с использованием второго календаря?", buttons);
+        return sendKeybordInline(TelegramUpdateUtils.getChatId(update), "Вы хотите сохранять информацию об отмененных мероприятиях с использованием второго календаря?", buttons);
     }
 
     private BotApiMethod<?> handleCancelledCalendarInput(CreateUserRequest createUserRequest, Update update) {

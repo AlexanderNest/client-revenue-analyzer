@@ -86,7 +86,7 @@ public class CreateClientHandler extends ClientRevenueAbstractHandler{
             add(buildButton("Нет", "false" ));
         }};
 
-        return sendKeyboardRowInline(TelegramUpdateUtils.getChatId(update), "Если такой клиент уже создан, сгенерировать ли новое имя?", buttons);
+        return sendKeybordInline(TelegramUpdateUtils.getChatId(update), "Включить генерацию нового имени, если клиент с таким именем уже существует?", buttons);
     }
 
     private BotApiMethod<?> handleIdGenerationNeededInput(Update update, CreateClientRequest createClientRequest) {
