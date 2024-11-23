@@ -33,6 +33,8 @@ import ru.nesterov.properties.BotProperties;
         BotProperties.class
 })
 @EnableConfigurationProperties(BotProperties.class)
+@TestPropertySource(properties = {
+        "bot.menu-buttons-per-line=1"})
 public class StartBotHandlerTest {
     @MockBean
     private ClientRevenueAnalyzerIntegrationClient client;
@@ -62,5 +64,7 @@ public class StartBotHandlerTest {
         ReplyKeyboardMarkup replyKeyboardMarkup = (ReplyKeyboardMarkup) sendMessage.getReplyMarkup();
         assertNotNull(replyKeyboardMarkup);
         assertNotNull(replyKeyboardMarkup.getKeyboard());
+
+        assertEquals(1, startBotHandler.buttonsCount);
     }
 }

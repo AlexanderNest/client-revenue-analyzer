@@ -26,7 +26,7 @@ public class StartBotHandler extends InvocableCommandHandler {
     private final BotProperties botProperties;
 
     @Value("${bot.menu-buttons-per-line}")
-    private int buttonsCount;
+    protected int buttonsCount;
 
     private final ReplyKeyboardMarkup buttons = new ReplyKeyboardMarkup();
 
