@@ -1,6 +1,8 @@
 package ru.nesterov.controller;
 
+import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 import org.springframework.http.MediaType;
 import ru.nesterov.dto.EventDto;
 import ru.nesterov.dto.EventExtensionDto;
@@ -24,24 +26,18 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 public class EventsAnalyzerControllerTest extends AbstractControllerTest {
+    private final static String USERNAME = "testUser1";
     @BeforeEach
     void init() {
-        User user1 = new User();
-        user1.setId(1);
-        user1.setUsername("testUser1");
-        user1.setMainCalendar("someCalendar1");
-        userRepository.save(user1);
-
-        Client client1 = new Client();
-        client1.setUser(user1);
-        client1.setId(1);
-        client1.setName("testName1");
-        client1.setPricePerHour(1000);
-        clientRepository.save(client1);
+        User user = createUser(USERNAME);
+        Client client1 = createClient("testName1", user);
+        Client client2 = createClient("testName2", user);
 
         EventExtensionDto eventExtensionDto5 = new EventExtensionDto();
         eventExtensionDto5.setIsPlanned(true);
         EventExtensionDto eventExtensionDto6 = new EventExtensionDto();
+        eventExtensionDto6.setIsPlanned(false);
+        EventExtensionDto eventExtensionDto8 = new EventExtensionDto();
         eventExtensionDto6.setIsPlanned(false);
 
         EventDto eventDto1 = EventDto.builder()
@@ -88,10 +84,36 @@ public class EventsAnalyzerControllerTest extends AbstractControllerTest {
                 .eventExtensionDto(eventExtensionDto6)
                 .build();
 
-        when(googleCalendarClient.getEventsBetweenDates(eq("someCalendar1"), anyBoolean(), any(), any())).thenReturn(List.of(eventDto1, eventDto2, eventDto3, eventDto4, eventDto5, eventDto6));
+        EventDto eventDto7 = EventDto.builder()
+                .summary("testName2")
+                .status(EventStatus.CANCELLED)
+                .start(LocalDateTime.of(2024, 8, 14, 11, 30))
+                .end(LocalDateTime.of(2024, 8, 14, 12, 30))
+                .eventExtensionDto(eventExtensionDto6)
+                .build();
+
+        EventDto eventDto8 = EventDto.builder()
+                .summary("testName2")
+                .status(EventStatus.SUCCESS)
+                .start(LocalDateTime.of(2024, 8, 14, 11, 30))
+                .end(LocalDateTime.of(2024, 8, 14, 12, 30))
+                .eventExtensionDto(eventExtensionDto6)
+                .build();
+
+        when(googleCalendarClient.getEventsBetweenDates(eq("someCalendar1"), anyBoolean(), any(), any())).thenReturn(List.of(eventDto1, eventDto2, eventDto3, eventDto4, eventDto5, eventDto6, eventDto7, eventDto8));
     }
 
-    @org.junit.jupiter.api.Test
+    @AfterEach
+    public void cleanup() {
+        User user = userRepository.findByUsername(USERNAME);
+        Client client1 = clientRepository.findClientByNameAndUserId("testName1", user.getId());
+        clientRepository.delete(client1);
+        Client client2 = clientRepository.findClientByNameAndUserId("testName2", user.getId());
+        clientRepository.delete(client2);
+        userRepository.delete(user);
+    }
+
+    @Test
     public void getUnpaidEvents() throws Exception {
         LocalDateTime expectedEventStart1 = LocalDateTime.of(2024, 8, 9, 11, 30);
         LocalDateTime expectedEventStart2 = LocalDateTime.of(2024, 8, 10, 11, 30);
@@ -113,7 +135,7 @@ public class EventsAnalyzerControllerTest extends AbstractControllerTest {
                 .andExpect(jsonPath("$[2].eventStart").value(expectedEventStart3.format(formatter)));
     }
 
-    @org.junit.jupiter.api.Test
+    @Test
     public void getClientStatistics() throws Exception {
         GetForMonthRequest request = new GetForMonthRequest();
         request.setMonthName("august");
@@ -130,6 +152,14 @@ public class EventsAnalyzerControllerTest extends AbstractControllerTest {
                 .andExpect(jsonPath("$.testName1.notPlannedCancelledEventsCount").value(1))
                 .andExpect(jsonPath("$.testName1.incomePerHour").value(1000))
                 .andExpect(jsonPath("$.testName1.actualIncome").value(1000))
-                .andExpect(jsonPath("$.testName1.lostIncome").value(2000));
+                .andExpect(jsonPath("$.testName1.lostIncome").value(2000))
+                .andExpect(jsonPath("$.testName2.successfulMeetingsHours").value(1))
+                .andExpect(jsonPath("$.testName2.cancelledMeetingsHours").value(1))
+                .andExpect(jsonPath("$.testName2.successfulEventsCount").value(1))
+                .andExpect(jsonPath("$.testName2.plannedCancelledEventsCount").value(0))
+                .andExpect(jsonPath("$.testName2.notPlannedCancelledEventsCount").value(1))
+                .andExpect(jsonPath("$.testName2.incomePerHour").value(1000))
+                .andExpect(jsonPath("$.testName2.actualIncome").value(1000))
+                .andExpect(jsonPath("$.testName2.lostIncome").value(1000));
     }
 }
