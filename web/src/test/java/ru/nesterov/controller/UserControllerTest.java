@@ -38,13 +38,7 @@ class UserControllerTest extends AbstractControllerTest {
 
     @Test
     void getUser() throws Exception {
-        User user = new User();
-        user.setId(1);
-        user.setUsername("user");
-        user.setMainCalendar("111111");
-        user.setCancelledCalendarEnabled(false);
-
-        userRepository.save(user);
+        User user = createUser("user");
 
         GetUserRequest request = new GetUserRequest();
         request.setUsername("user");
@@ -55,10 +49,10 @@ class UserControllerTest extends AbstractControllerTest {
                         .content(objectMapper.writeValueAsString(request))
         )
                 .andExpect(status().isOk())
-                .andExpect(jsonPath("$.userId").value(1))
-                .andExpect(jsonPath("$.username").value("user"))
-                .andExpect(jsonPath("$.isCancelledCalendarEnabled").value(false))
-                .andExpect(jsonPath("$.mainCalendarId").value("111111"));
+                .andExpect(jsonPath("$.userId").value(user.getId()))
+                .andExpect(jsonPath("$.username").value(user.getUsername()))
+                .andExpect(jsonPath("$.isCancelledCalendarEnabled").value(user.isCancelledCalendarEnabled()))
+                .andExpect(jsonPath("$.mainCalendarId").value(user.getMainCalendar()));
     }
 
     @Test
