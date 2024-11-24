@@ -1,8 +1,6 @@
 package ru.nesterov.controller;
 
-import com.fasterxml.jackson.databind.ObjectMapper;
 import org.junit.jupiter.api.BeforeEach;
-import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.http.MediaType;
 import ru.nesterov.dto.EventDto;
 import ru.nesterov.dto.EventExtensionDto;
@@ -10,9 +8,6 @@ import ru.nesterov.dto.EventStatus;
 import ru.nesterov.dto.GetForMonthRequest;
 import ru.nesterov.entity.Client;
 import ru.nesterov.entity.User;
-import ru.nesterov.repository.ClientRepository;
-import ru.nesterov.repository.UserRepository;
-import ru.nesterov.service.CalendarService;
 
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
@@ -29,15 +24,6 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 public class EventsAnalyzerControllerTest extends AbstractControllerTest {
-    @Autowired
-    private ClientRepository clientRepository;
-    @MockBean
-    private CalendarService calendarService;
-    @MockBean
-    private CalendarClient calendarClient;
-    @Autowired
-    private UserRepository userRepository;
-
     @BeforeEach
     void init() {
         User user1 = new User();
@@ -102,7 +88,7 @@ public class EventsAnalyzerControllerTest extends AbstractControllerTest {
                 .eventExtensionDto(eventExtensionDto6)
                 .build();
 
-        when(calendarService.getEventsBetweenDates(eq("someCalendar1"), any(), anyBoolean(), any(), any())).thenReturn(List.of(eventDto1, eventDto2, eventDto3, eventDto4, eventDto5, eventDto6));
+        when(googleCalendarClient.getEventsBetweenDates(eq("someCalendar1"), anyBoolean(), any(), any())).thenReturn(List.of(eventDto1, eventDto2, eventDto3, eventDto4, eventDto5, eventDto6));
     }
 
     @org.junit.jupiter.api.Test

@@ -1,47 +1,37 @@
 package ru.nesterov.controller;
 
 import org.junit.jupiter.api.Test;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.http.MediaType;
 import ru.nesterov.controller.request.GetForYearRequest;
 import ru.nesterov.dto.EventDto;
 import ru.nesterov.dto.EventStatus;
 import ru.nesterov.entity.Client;
 import ru.nesterov.entity.User;
-import ru.nesterov.repository.ClientRepository;
-import ru.nesterov.repository.UserRepository;
-import ru.nesterov.service.CalendarService;
 
 import java.time.LocalDateTime;
 import java.util.List;
 
-import static org.mockito.ArgumentMatchers.*;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.anyBoolean;
+import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.when;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 class UserAnalyzerControllerTest extends AbstractControllerTest {
-    @Autowired
-    private UserRepository userRepository;
-    @Autowired
-    private ClientRepository clientRepository;
-    @MockBean
-    private CalendarService calendarService;
-
     private static final String GET_YEAR_STATISTICS_URL = "/user/analyzer/getYearBusynessStatistics";
 
     @Test
     void getYearStatistics() throws Exception {
         User user = new User();
-        user.setUsername("testUser1");
+        user.setUsername("UACT_testUser1");
         user.setMainCalendar("someCalendar1");
         userRepository.save(user);
 
         Client client1 = new Client();
         client1.setUser(user);
-        client1.setName("testName1");
+        client1.setName("testName2");
         client1.setPricePerHour(1000);
         clientRepository.save(client1);
 
@@ -59,7 +49,7 @@ class UserAnalyzerControllerTest extends AbstractControllerTest {
                 .end(LocalDateTime.of(2024, 8, 14, 20, 0))
                 .build();
 
-        when(calendarService.getEventsBetweenDates(eq("someCalendar1"), any(), anyBoolean(), any(), any())).thenReturn(List.of(eventDto1, eventDto2));
+        when(googleCalendarClient.getEventsBetweenDates(eq("someCalendar1"), anyBoolean(), any(), any())).thenReturn(List.of(eventDto1, eventDto2));
 
         GetForYearRequest getForYearRequest = new GetForYearRequest();
         getForYearRequest.setYear(2024);
