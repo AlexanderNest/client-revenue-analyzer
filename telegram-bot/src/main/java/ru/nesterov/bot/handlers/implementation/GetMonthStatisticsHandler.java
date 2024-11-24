@@ -1,6 +1,5 @@
 package ru.nesterov.bot.handlers.implementation;
 
-import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.SneakyThrows;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.stereotype.Component;
@@ -12,7 +11,6 @@ import org.telegram.telegrambots.meta.api.objects.replykeyboard.InlineKeyboardMa
 import org.telegram.telegrambots.meta.api.objects.replykeyboard.buttons.InlineKeyboardButton;
 import ru.nesterov.bot.handlers.callback.ButtonCallback;
 import ru.nesterov.dto.GetIncomeAnalysisForMonthResponse;
-import ru.nesterov.integration.ClientRevenueAnalyzerIntegrationClient;
 import ru.nesterov.utils.MonthUtil;
 
 import java.text.NumberFormat;
@@ -33,10 +31,6 @@ public class GetMonthStatisticsHandler extends ClientRevenueAbstractHandler {
     };
 
     private static final String markSymbol = "\u2B50";
-
-    public GetMonthStatisticsHandler(ObjectMapper objectMapper, ClientRevenueAnalyzerIntegrationClient client) {
-        super(objectMapper, client);
-    }
 
     @Override
     public BotApiMethod<?> handle(Update update) {
@@ -131,5 +125,10 @@ public class GetMonthStatisticsHandler extends ClientRevenueAbstractHandler {
     @Override
     public String getCommand() {
         return "/monthincome";
+    }
+
+    @Override
+    public boolean isFinished(Long userId) {
+        return true;
     }
 }

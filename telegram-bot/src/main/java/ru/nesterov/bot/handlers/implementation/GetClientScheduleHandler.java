@@ -1,7 +1,7 @@
 package ru.nesterov.bot.handlers.implementation;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
-import com.fasterxml.jackson.databind.ObjectMapper;
+import lombok.RequiredArgsConstructor;
 import lombok.SneakyThrows;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.stereotype.Component;
@@ -16,7 +16,6 @@ import ru.nesterov.calendar.InlineCalendarBuilder;
 import ru.nesterov.dto.GetActiveClientResponse;
 import ru.nesterov.dto.GetClientScheduleRequest;
 import ru.nesterov.dto.GetClientScheduleResponse;
-import ru.nesterov.integration.ClientRevenueAnalyzerIntegrationClient;
 
 import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
@@ -28,19 +27,13 @@ import java.util.stream.Collectors;
 
 @Component
 @ConditionalOnProperty("bot.enabled")
+@RequiredArgsConstructor
 public class GetClientScheduleHandler extends ClientRevenueAbstractHandler {
     private final BotHandlersRequestsKeeper handlersKeeper;
     private final InlineCalendarBuilder inlineCalendarBuilder;
 
     private static final String ENTER_FIRST_DATE = "Введите первую дату";
     private static final String ENTER_SECOND_DATE = "Введите вторую дату";
-
-    public GetClientScheduleHandler(ObjectMapper objectMapper, ClientRevenueAnalyzerIntegrationClient client,
-                                    BotHandlersRequestsKeeper handlersKeeper, InlineCalendarBuilder inlineCalendarBuilder) {
-        super(objectMapper, client);
-        this.handlersKeeper = handlersKeeper;
-        this.inlineCalendarBuilder = inlineCalendarBuilder;
-    }
 
     @SneakyThrows
     @Override
@@ -72,6 +65,11 @@ public class GetClientScheduleHandler extends ClientRevenueAbstractHandler {
             message = handleCallbackQuery(update, getClientScheduleRequest);
         }
         return message;
+    }
+
+    @Override
+    public boolean isFinished(Long userId) {
+        return true;
     }
 
     @SneakyThrows
@@ -135,8 +133,10 @@ public class GetClientScheduleHandler extends ClientRevenueAbstractHandler {
         for (GetActiveClientResponse response : clients) {
             InlineKeyboardButton button = new InlineKeyboardButton();
             button.setText(response.getName());
-            String callbackData = getCommand() + ":" + response.getName();
-            button.setCallbackData(ButtonCallback.fromShortString(callbackData).toShortString());
+            ButtonCallback callback = new ButtonCallback();
+            callback.setCommand(getCommand());
+            callback.setValue(response.getName());
+            button.setCallbackData(objectMapper.writeValueAsString(callback));
 
             List<InlineKeyboardButton> rowInline = new ArrayList<>();
             rowInline.add(button);

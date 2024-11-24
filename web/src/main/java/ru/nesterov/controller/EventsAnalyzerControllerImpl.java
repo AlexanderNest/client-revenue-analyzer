@@ -1,13 +1,15 @@
 package ru.nesterov.controller;
 
 import lombok.RequiredArgsConstructor;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestHeader;
 import org.springframework.web.bind.annotation.RestController;
 import ru.nesterov.controller.request.GetForMonthRequest;
 import ru.nesterov.controller.response.EventResponse;
 import ru.nesterov.dto.EventStatus;
-import ru.nesterov.service.UserService;
+import ru.nesterov.service.user.UserService;
 import ru.nesterov.service.dto.ClientMeetingsStatistic;
 import ru.nesterov.service.dto.IncomeAnalysisResult;
 import ru.nesterov.service.event.EventsAnalyzerService;
@@ -29,8 +31,10 @@ public class EventsAnalyzerControllerImpl implements EventsAnalyzerController {
         return eventsAnalyzerService.getEventStatusesByMonthName(userService.getUserByUsername(username), request.getMonthName());
     }
 
-    public IncomeAnalysisResult getIncomeAnalysisForMonth(@RequestHeader(name = "X-username") String username, @RequestBody GetForMonthRequest request) {
-        return eventsAnalyzerService.getIncomeAnalysisByMonth(userService.getUserByUsername(username), request.getMonthName());
+    public ResponseEntity<IncomeAnalysisResult> getIncomeAnalysisForMonth(@RequestHeader(name = "X-username") String username, @RequestBody GetForMonthRequest request) {
+        IncomeAnalysisResult result = eventsAnalyzerService.getIncomeAnalysisByMonth(userService.getUserByUsername(username), request.getMonthName());
+
+        return new ResponseEntity<>(result, HttpStatus.OK);
     }
 
     public List<EventResponse> getUnpaidEvents(@RequestHeader(name = "X-username") String username) {

@@ -6,7 +6,7 @@ import org.springframework.stereotype.Service;
 import ru.nesterov.dto.EventDto;
 import ru.nesterov.dto.EventExtensionDto;
 import ru.nesterov.entity.Client;
-import ru.nesterov.exception.AppException;
+import ru.nesterov.exception.ClientNotFoundException;
 import ru.nesterov.repository.ClientRepository;
 import ru.nesterov.service.dto.UserDto;
 
@@ -17,11 +17,11 @@ import java.time.Duration;
 @AllArgsConstructor
 public class EventService {
     private final ClientRepository clientRepository;
-
+    
     public double getEventIncome(UserDto userDto, EventDto eventDto) {
         Client client = clientRepository.findClientByNameAndUserId(eventDto.getSummary(), userDto.getId());
         if (client == null) {
-            throw new AppException("Пользователь с именем '" + eventDto.getSummary() + "' от даты " + eventDto.getStart() + " не найден в базе");
+            throw new ClientNotFoundException(eventDto.getSummary(), eventDto.getStart());
         }
         EventExtensionDto extension = eventDto.getEventExtensionDto();
         if (extension != null && extension.getIncome() != null) {
@@ -29,7 +29,7 @@ public class EventService {
         }
         return getEventDuration(eventDto) * client.getPricePerHour();
     }
-
+    
     public double getEventDuration(EventDto eventDto) {
         Duration duration = Duration.between(eventDto.getStart(), eventDto.getEnd());
         return duration.toMinutes() / 60.0;

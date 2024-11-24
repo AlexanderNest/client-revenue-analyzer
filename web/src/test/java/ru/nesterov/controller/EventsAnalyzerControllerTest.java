@@ -2,19 +2,14 @@ package ru.nesterov.controller;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.junit.jupiter.api.BeforeEach;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
-import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.http.MediaType;
-import org.springframework.test.web.servlet.MockMvc;
 import ru.nesterov.dto.EventDto;
 import ru.nesterov.dto.EventExtensionDto;
 import ru.nesterov.dto.EventStatus;
 import ru.nesterov.dto.GetForMonthRequest;
 import ru.nesterov.entity.Client;
 import ru.nesterov.entity.User;
-import ru.nesterov.google.CalendarClient;
 import ru.nesterov.repository.ClientRepository;
 import ru.nesterov.repository.UserRepository;
 import ru.nesterov.service.CalendarService;
@@ -33,13 +28,7 @@ import static org.springframework.test.web.servlet.request.MockMvcRequestBuilder
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
-@SpringBootTest
-@AutoConfigureMockMvc
-public class EventsAnalyzerControllerTest {
-    @Autowired
-    private MockMvc mockMvc;
-    @Autowired
-    private ObjectMapper objectMapper;
+public class EventsAnalyzerControllerTest extends AbstractControllerTest {
     @Autowired
     private ClientRepository clientRepository;
     @MockBean
