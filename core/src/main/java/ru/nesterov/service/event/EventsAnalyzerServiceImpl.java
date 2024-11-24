@@ -55,15 +55,32 @@ public class EventsAnalyzerServiceImpl implements EventsAnalyzerService {
 
             double eventDuration = eventService.getEventDuration(eventDto);
             if (eventStatus == EventStatus.SUCCESS) {
-                clientMeetingsStatistic.increaseSuccessful(eventDuration);
+                handleSuccessfulEvent(clientMeetingsStatistic, eventDto);
             } else if (eventStatus == EventStatus.CANCELLED) {
-                clientMeetingsStatistic.increaseCancelled(eventDuration);
+                handleCancelledEvent(clientMeetingsStatistic, eventDto);
             }
+
 
             meetingsStatistics.put(eventDto.getSummary(), clientMeetingsStatistic);
         }
 
         return meetingsStatistics;
+    }
+
+    private void handleSuccessfulEvent(ClientMeetingsStatistic clientMeetingsStatistic, EventDto eventDto){
+        double eventDuration = eventService.getEventDuration(eventDto);
+        clientMeetingsStatistic.increaseSuccessfulHours(eventDuration);
+        clientMeetingsStatistic.increaseSuccessfulEvents(1);
+    }
+
+    private void handleCancelledEvent(ClientMeetingsStatistic clientMeetingsStatistic, EventDto eventDto){
+        double eventDuration = eventService.getEventDuration(eventDto);
+        clientMeetingsStatistic.increaseCancelled(eventDuration);
+        if (eventDto.getEventExtensionDto().getIsPlanned()) {
+            clientMeetingsStatistic.increasePlannedCancelledEvents(1);
+        } else {
+            clientMeetingsStatistic.increaseNotPlannedCancelledEvents(1);
+        }
     }
 
     public IncomeAnalysisResult getIncomeAnalysisByMonth(UserDto userDto, String monthName) {
