@@ -14,15 +14,15 @@ public class EventExtensionMapper {
     }
     
     public static EventExtension mapToEventExtension(EventExtensionDto eventExtensionDto) {
-        EventExtension eventExtension = new EventExtension();
-        
-        if (eventExtensionDto != null) {
-            eventExtension.setComment(eventExtensionDto.getComment());
-            eventExtension.setIncome(eventExtensionDto.getIncome());
-            eventExtension.setIsPlanned(eventExtensionDto.getIsPlanned());
-            eventExtension.setPreviousDate(eventExtensionDto.getPreviousDate());
+        if (eventExtensionDto == null) {
+            return null;
         }
         
+        EventExtension eventExtension = new EventExtension();
+        eventExtension.setComment(eventExtensionDto.getComment());
+        eventExtension.setIncome(eventExtensionDto.getIncome());
+        eventExtension.setIsPlanned(eventExtensionDto.getIsPlanned());
+        eventExtension.setPreviousDate(eventExtensionDto.getPreviousDate());
         return eventExtension;
     }
 }
