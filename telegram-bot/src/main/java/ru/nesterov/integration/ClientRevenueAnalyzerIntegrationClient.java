@@ -24,6 +24,7 @@ import ru.nesterov.dto.GetIncomeAnalysisForMonthResponse;
 import ru.nesterov.dto.GetUserRequest;
 import ru.nesterov.dto.GetUserResponse;
 import ru.nesterov.dto.GetYearBusynessStatisticsResponse;
+import ru.nesterov.dto.MakeEventsBackupResponse;
 import ru.nesterov.properties.BotProperties;
 import ru.nesterov.properties.RevenueAnalyzerProperties;
 
@@ -91,7 +92,30 @@ public class ClientRevenueAnalyzerIntegrationClient {
                 }
         );
     }
-
+    
+    public MakeEventsBackupResponse makeEventsBackup(long userId) {
+        return get(
+                String.valueOf(userId),
+                "/revenue-analyzer/events/backup",
+                MakeEventsBackupResponse.class
+        ).getBody();
+    }
+    
+    private <T> ResponseEntity<T> get(String username, String endpoint, Class<T> responseType) {
+        HttpEntity<Object> entity = new HttpEntity<>(createHeaders(username));
+        
+        try {
+            return restTemplate.exchange(
+                    revenueAnalyzerProperties.getUrl() + endpoint,
+                    HttpMethod.GET,
+                    entity,
+                    responseType
+            );
+        } catch (HttpClientErrorException.NotFound ignore) {
+            return new ResponseEntity<>(HttpStatus.NOT_FOUND);
+        }
+    }
+    
     private <T> ResponseEntity<T> post(String username, Object request, String endpoint, Class<T> responseType) {
         HttpEntity<Object> entity = new HttpEntity<>(request, createHeaders(username));
 
