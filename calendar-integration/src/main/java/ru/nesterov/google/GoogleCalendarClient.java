@@ -17,6 +17,7 @@ import ru.nesterov.dto.EventDto;
 import ru.nesterov.dto.EventExtensionDto;
 import ru.nesterov.dto.EventStatus;
 import ru.nesterov.google.exception.CannotBuildEventException;
+import ru.nesterov.util.PlainTextMapper;
 
 import javax.annotation.Nullable;
 import java.io.FileInputStream;
@@ -36,6 +37,8 @@ public class GoogleCalendarClient implements CalendarClient {
     private final GoogleCalendarProperties properties;
     private final ObjectMapper objectMapper;
     private final EventStatusService eventStatusService;
+
+    private final PlainTextMapper plainTextMapper = new PlainTextMapper();
 
     public GoogleCalendarClient(GoogleCalendarProperties properties, ObjectMapper objectMapper, EventStatusService eventStatusService) {
         this.properties = properties;
@@ -121,10 +124,28 @@ public class GoogleCalendarClient implements CalendarClient {
             return null;
         }
 
+        EventExtensionDto eventExtensionDto = buildFromPlainText(event.getDescription());
+        if (eventExtensionDto != null) {
+            return eventExtensionDto;
+        }
+
+        return buildFromJson(event.getDescription());
+    }
+
+    private EventExtensionDto buildFromJson(String description) {
         try {
-            return objectMapper.readValue(event.getDescription(), EventExtensionDto.class);
+            return objectMapper.readValue(description, EventExtensionDto.class);
         } catch (Exception e) {
-            log.trace("Не удалось собрать EventExtensionDto, неверный формат", e);
+            log.trace("Не удалось собрать EventExtensionDto в виде JSON, неверный формат", e);
+            return null;
+        }
+    }
+
+    private EventExtensionDto buildFromPlainText(String description) {
+        try {
+            return plainTextMapper.fillFromString(description, EventExtensionDto.class);
+        } catch (Exception e) {
+            log.trace("Не удалось собрать EventExtensionDto в виде PLAIN TEXT, неверный формат", e);
             return null;
         }
     }
