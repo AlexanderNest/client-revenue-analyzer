@@ -19,10 +19,9 @@ public class User {
     private String mainCalendar;
     @Column(name = "cancelled_calendar_id")
     private String cancelledCalendar;
-    @Column(name = "cancelled_calendar_enabled")
-    private boolean isCancelledCalendarEnabled;
-    @Column(name = "events_backup_enabled")
-    private boolean isEventsBackupEnabled;
+
+    @Transient
+    private UserSettings userSettings;
 
     @OneToMany(mappedBy = "user")
     private List<Client> clients;
