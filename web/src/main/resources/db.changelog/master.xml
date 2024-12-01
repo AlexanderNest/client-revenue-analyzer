@@ -306,20 +306,6 @@
         </sql>
     </changeSet>
 
-    <changeSet id="drop-columns-in-user-table" author="Uenay">
-        <preConditions onFail="MARK_RAN">
-            <tableExists tableName="user"/>
-            <and>
-                <columnExists tableName="user" columnName="cancelled_calendar_enabled"/>
-                <columnExists tableName="event" columnName="events_backup_enabled"/>
-            </and>
-        </preConditions>
-        <sql>
-            ALTER TABLE user DROP COLUMN cancelled_calendar_enabled;
-            ALTER TABLE user DROP COLUMN events_backup_enabled;
-        </sql>
-    </changeSet>
-
     <changeSet id="create-table-user-settings" author="Uenay">
         <preConditions>
             <tableExists tableName="user"/>
@@ -339,4 +325,33 @@
             CREATE INDEX idx_user_id ON "user" (id);
         </sql>
     </changeSet>
+
+    <changeSet id="insert-into-user-settings" author="Uenay">
+        <preConditions onFail="MARK_RAN">
+            <and>
+                <tableExists tableName="user_settings"/>
+                <tableExists tableName="user"/>
+            </and>
+        </preConditions>
+        <sql>
+            INSERT INTO user_settings (user_id, cancelled_calendar_enabled, events_backup_enabled)
+            SELECT id, cancelled_calendar_enabled, events_backup_enabled
+            FROM "user";
+        </sql>
+    </changeSet>
+
+    <changeSet id="drop-columns-in-user-table" author="Uenay">
+        <preConditions onFail="MARK_RAN">
+            <tableExists tableName="user"/>
+            <and>
+                <columnExists tableName="user" columnName="cancelled_calendar_enabled"/>
+                <columnExists tableName="event" columnName="events_backup_enabled"/>
+            </and>
+        </preConditions>
+        <sql>
+            ALTER TABLE user DROP COLUMN cancelled_calendar_enabled;
+            ALTER TABLE user DROP COLUMN events_backup_enabled;
+        </sql>
+    </changeSet>
+
 </databaseChangeLog>
