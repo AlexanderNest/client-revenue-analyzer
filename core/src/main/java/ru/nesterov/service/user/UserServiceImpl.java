@@ -28,7 +28,7 @@ public class UserServiceImpl implements UserService{
                 .username(user.getUsername())
                 .cancelledCalendar(user.getCancelledCalendar())
                 .mainCalendar(user.getMainCalendar())
-                .isCancelledCalendarEnabled(user.isCancelledCalendarEnabled())
+//                .isCancelledCalendarEnabled(user.isCancelledCalendarEnabled())
                 .build();
     }
 
@@ -37,7 +37,7 @@ public class UserServiceImpl implements UserService{
         user.setId(userDto.getId());
         user.setUsername(userDto.getUsername());
         user.setMainCalendar(userDto.getMainCalendar());
-        user.setCancelledCalendarEnabled(userDto.isCancelledCalendarEnabled());
+//        user.(userDto.isCancelledCalendarEnabled());
         user.setCancelledCalendar(userDto.getCancelledCalendar());
 
         return user;

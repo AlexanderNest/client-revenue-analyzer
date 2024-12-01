@@ -44,10 +44,10 @@
         <sql>
             CREATE TABLE "user"
             (
-                id                 BIGSERIAL PRIMARY KEY NOT NULL,
-                username           VARCHAR(20) UNIQUE    NOT NULL,
-                main_calendar_id      VARCHAR(200)          NOT NULL,
-                cancelled_calendar_id VARCHAR(200),
+                id                         BIGSERIAL PRIMARY KEY NOT NULL,
+                username                   VARCHAR(20) UNIQUE    NOT NULL,
+                main_calendar_id           VARCHAR(200)          NOT NULL,
+                cancelled_calendar_id      VARCHAR(200),
                 cancelled_calendar_enabled boolean DEFAULT false
             )
         </sql>
@@ -139,9 +139,9 @@
         <sql>
             CREATE TABLE PRICE_CHANGE_HISTORY
             (
-                client_id BIGINT REFERENCES client (id),
+                client_id      BIGINT REFERENCES client (id),
                 previous_price INT,
-                current_price INT,
+                current_price  INT,
                 date_of_change DATE default CURRENT_TIMESTAMP
             );
         </sql>
@@ -301,7 +301,42 @@
         </preConditions>
         <sql>
             ALTER TABLE event DROP COLUMN event_extension_id;
-            ALTER TABLE event ADD event_extension VARCHAR(500);
+            ALTER TABLE event
+                ADD event_extension VARCHAR(500);
+        </sql>
+    </changeSet>
+
+    <changeSet id="drop-columns-in-user-table" author="Uenay">
+        <preConditions onFail="MARK_RAN">
+            <tableExists tableName="user"/>
+            <and>
+                <columnExists tableName="user" columnName="cancelled_calendar_enabled"/>
+                <columnExists tableName="event" columnName="events_backup_enabled"/>
+            </and>
+        </preConditions>
+        <sql>
+            ALTER TABLE user DROP COLUMN cancelled_calendar_enabled;
+            ALTER TABLE user DROP COLUMN events_backup_enabled;
+        </sql>
+    </changeSet>
+
+    <changeSet id="create-table-user-settings" author="Uenay">
+        <preConditions>
+            <tableExists tableName="user"/>
+            <not>
+                <tableExists tableName="user_settings"/>
+            </not>
+        </preConditions>
+        <sql>
+            CREATE TABLE user_settings
+            (
+                id                         BIGSERIAL PRIMARY KEY NOT NULL,
+                user_id                    BIGINT REFERENCES "user" (id),
+                cancelled_calendar_enabled boolean DEFAULT false,
+                events_backup_enabled      boolean DEFAULT false
+            );
+
+            CREATE INDEX idx_user_id ON "user" (id);
         </sql>
     </changeSet>
 </databaseChangeLog>

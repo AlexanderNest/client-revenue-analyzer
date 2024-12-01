@@ -20,8 +20,8 @@ public class User {
     @Column(name = "cancelled_calendar_id")
     private String cancelledCalendar;
 
-    @Transient
-    private UserSettings userSettings;
+    @OneToOne(mappedBy = "user")
+    private UserSetting userSettings;
 
     @OneToMany(mappedBy = "user")
     private List<Client> clients;
