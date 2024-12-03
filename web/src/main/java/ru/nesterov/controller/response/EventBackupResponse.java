@@ -1,9 +1,9 @@
-package ru.nesterov.dto;
+package ru.nesterov.controller.response;
 
 import lombok.Data;
 
 @Data
-public class MakeEventsBackupResponse {
+public class EventBackupResponse {
     private Integer savedEventsCount;
     private Boolean isBackupMade;
 }

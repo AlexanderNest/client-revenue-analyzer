@@ -94,56 +94,55 @@ public class ClientRevenueAnalyzerIntegrationClient {
     }
     
     public MakeEventsBackupResponse makeEventsBackup(long userId) {
-        return get(
+        ResponseEntity<MakeEventsBackupResponse> response = get(
                 String.valueOf(userId),
                 "/revenue-analyzer/events/backup",
                 MakeEventsBackupResponse.class
-        ).getBody();
+        );
+        
+        if (!response.getBody().getIsBackupMade()) {
+            return null;
+        }
+        
+        return response.getBody();
     }
     
     private <T> ResponseEntity<T> get(String username, String endpoint, Class<T> responseType) {
-        HttpEntity<Object> entity = new HttpEntity<>(createHeaders(username));
-        
-        try {
-            return restTemplate.exchange(
-                    revenueAnalyzerProperties.getUrl() + endpoint,
-                    HttpMethod.GET,
-                    entity,
-                    responseType
-            );
-        } catch (HttpClientErrorException.NotFound ignore) {
-            return new ResponseEntity<>(HttpStatus.NOT_FOUND);
-        }
+        return exchange(username, null, endpoint, responseType, HttpMethod.GET);
     }
     
     private <T> ResponseEntity<T> post(String username, Object request, String endpoint, Class<T> responseType) {
-        HttpEntity<Object> entity = new HttpEntity<>(request, createHeaders(username));
-
-        try {
-            return restTemplate.exchange(
-                    revenueAnalyzerProperties.getUrl() + endpoint,
-                    HttpMethod.POST,
-                    entity,
-                    responseType
-            );
-        } catch (HttpClientErrorException.NotFound ignore) {
-            return new ResponseEntity<>(HttpStatus.NOT_FOUND);
-        }
+        return exchange(username, request, endpoint, responseType, HttpMethod.POST);
     }
-
+    
     private <T> List<T> postForList(String username, Object request, String endpoint, ParameterizedTypeReference<List<T>> typeReference) {
         HttpEntity<Object> requestEntity = new HttpEntity<>(request, createHeaders(username));
-
+        
         ResponseEntity<List<T>> responseEntity = restTemplate.exchange(
                 revenueAnalyzerProperties.getUrl() + endpoint,
                 HttpMethod.POST,
                 requestEntity,
                 typeReference
         );
-
+        
         return responseEntity.getBody();
     }
-
+    
+    private <T> ResponseEntity<T> exchange(String username, Object request, String endpoint, Class<T> responseType, HttpMethod httpMethod) {
+        HttpEntity<Object> entity = new HttpEntity<>(request, createHeaders(username));
+        
+        try {
+            return restTemplate.exchange(
+                    revenueAnalyzerProperties.getUrl() + endpoint,
+                    httpMethod,
+                    entity,
+                    responseType
+            );
+        } catch (HttpClientErrorException.NotFound ignore) {
+            return new ResponseEntity<>(HttpStatus.NOT_FOUND);
+        }
+    }
+    
     private HttpHeaders createHeaders(String username) {
         HttpHeaders headers = new HttpHeaders();
         headers.set("X-secret-token", botProperties.getSecretToken());

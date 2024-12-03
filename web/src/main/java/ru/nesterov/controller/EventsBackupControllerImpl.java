@@ -6,7 +6,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.RequestHeader;
 import org.springframework.web.bind.annotation.RestController;
-import ru.nesterov.controller.response.ResponseWithMessage;
+import ru.nesterov.controller.response.EventBackupResponse;
 import ru.nesterov.exception.EventBackupTimeoutException;
 import ru.nesterov.service.event.EventsBackupService;
 
@@ -16,18 +16,17 @@ import ru.nesterov.service.event.EventsBackupService;
 public class EventsBackupControllerImpl implements EventsBackupController {
     private final EventsBackupService eventsBackupService;
     
-    public ResponseEntity<ResponseWithMessage> makeBackup(@RequestHeader(name = "X-username") String username) {
-        ResponseWithMessage response = new ResponseWithMessage();
+    public ResponseEntity<EventBackupResponse> makeBackup(@RequestHeader(name = "X-username") String username) {
+        EventBackupResponse response = new EventBackupResponse();
         
-        String message;
         try {
-            int savedEvents = eventsBackupService.backupCurrentUserEvents(username);
-            message = "Встреч сохранено: " + savedEvents;
+            int savedEventsCount = eventsBackupService.backupCurrentUserEvents(username);
+            response.setSavedEventsCount(savedEventsCount);
+            response.setIsBackupMade(true);
         } catch (EventBackupTimeoutException e) {
-            message = e.getMessage();
+            response.setIsBackupMade(false);
         }
         
-        response.setMessage(message);
         return new ResponseEntity<>(response, HttpStatus.OK);
     }
 }
