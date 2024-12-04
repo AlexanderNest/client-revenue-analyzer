@@ -18,6 +18,9 @@ import ru.nesterov.bot.handlers.CommandHandler;
 import ru.nesterov.bot.handlers.callback.ButtonCallback;
 import ru.nesterov.integration.ClientRevenueAnalyzerIntegrationClient;
 
+import java.util.ArrayList;
+import java.util.List;
+
 public abstract class ClientRevenueAbstractHandler implements CommandHandler {
     @Autowired
     protected ObjectMapper objectMapper;
@@ -59,6 +62,17 @@ public abstract class ClientRevenueAbstractHandler implements CommandHandler {
         answerCallbackQuery.setText(message);
 
         return answerCallbackQuery;
+    }
+    
+    protected InlineKeyboardMarkup buildYesNoKeyboardMarkup() {
+        InlineKeyboardMarkup keyboardMarkup = new InlineKeyboardMarkup();
+        List<List<InlineKeyboardButton>> keyboard = new ArrayList<>();
+        List<InlineKeyboardButton> rowInline = new ArrayList<>();
+        rowInline.add(buildButton("Да", "true"));
+        rowInline.add(buildButton("Нет", "false"));
+        keyboard.add(rowInline);
+        keyboardMarkup.setKeyboard(keyboard);
+        return keyboardMarkup;
     }
 
     /**
