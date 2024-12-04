@@ -109,7 +109,7 @@ class MakeEventsBackupHandlerTest extends RegisteredUserHandler {
     @Test
     void handleWithoutBackup() {
         MakeEventsBackupRequest request = MakeEventsBackupRequest.builder()
-                .isEventsBackupMade(true)
+                .isEventsBackupMade(false)
                 .build();
         
         MakeEventsBackupResponse response = MakeEventsBackupResponse.builder()
