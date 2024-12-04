@@ -100,10 +100,6 @@ public class ClientRevenueAnalyzerIntegrationClient {
                 MakeEventsBackupResponse.class
         );
         
-        if (!response.getBody().getIsBackupMade()) {
-            return null;
-        }
-        
         return response.getBody();
     }
     

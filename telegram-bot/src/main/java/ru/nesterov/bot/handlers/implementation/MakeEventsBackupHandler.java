@@ -75,7 +75,11 @@ public class MakeEventsBackupHandler extends ClientRevenueAbstractHandler {
             return makeEventsBackup(update);
         } else {
             long chatId = TelegramUpdateUtils.getChatId(update);
-            return getPlainSendMessage(chatId, "Как хотите");
+            return editMessage(
+                    chatId,
+                    TelegramUpdateUtils.getMessageId(update),
+                    "Вы отказались от выполнения бэкапа",
+                    null);
         }
     }
     
@@ -92,12 +96,16 @@ public class MakeEventsBackupHandler extends ClientRevenueAbstractHandler {
         
         String message;
         
-        if (response == null) {
-            message = "Установлена задержка между бэкапами";
-        } else {
+        if (response.getIsBackupMade()) {
             message = String.format("Событий сохранено: %d", response.getSavedEventsCount());
+        } else {
+            message = "Установлена задержка между бэкапами";
         }
         
-        return getPlainSendMessage(chatId, message);
+        return editMessage(
+                chatId,
+                TelegramUpdateUtils.getMessageId(update),
+                message,
+                null);
     }
 }
