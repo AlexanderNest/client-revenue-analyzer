@@ -341,16 +341,16 @@
     </changeSet>
 
     <changeSet id="drop-columns-in-user-table" author="Uenay">
-        <preConditions onFail="MARK_RAN">
-            <tableExists tableName="user"/>
+        <preConditions>
             <and>
+                <tableExists tableName="user"/>
                 <columnExists tableName="user" columnName="cancelled_calendar_enabled"/>
                 <columnExists tableName="event" columnName="events_backup_enabled"/>
             </and>
         </preConditions>
         <sql>
-            ALTER TABLE user DROP COLUMN cancelled_calendar_enabled;
-            ALTER TABLE user DROP COLUMN events_backup_enabled;
+            ALTER TABLE "user" DROP COLUMN cancelled_calendar_enabled;
+            ALTER TABLE "user" DROP COLUMN events_backup_enabled;
         </sql>
     </changeSet>
 
