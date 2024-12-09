@@ -340,17 +340,26 @@
         </sql>
     </changeSet>
 
+    <changeSet id="rename user-v2" author="asd">
+        <preConditions>
+            <tableExists tableName="user"/>
+        </preConditions>
+        <sql>
+            alter table "user" rename to "USERS";
+        </sql>
+    </changeSet>
+
     <changeSet id="drop-columns-in-user-table" author="Uenay">
         <preConditions>
             <and>
-                <tableExists tableName="user"/>
-                <columnExists tableName="user" columnName="cancelled_calendar_enabled"/>
-                <columnExists tableName="event" columnName="events_backup_enabled"/>
+                <tableExists tableName="users" schemaName="PUBLIC"/>
+                <columnExists tableName="users" columnName="cancelled_calendar_enabled" schemaName="PUBLIC"/>
+                <columnExists tableName="users" columnName="events_backup_enabled" schemaName="PUBLIC"/>
             </and>
         </preConditions>
         <sql>
-            ALTER TABLE "user" DROP COLUMN cancelled_calendar_enabled;
-            ALTER TABLE "user" DROP COLUMN events_backup_enabled;
+            alter table users DROP COLUMN cancelled_calendar_enabled;
+            alter table users DROP COLUMN events_backup_enabled;
         </sql>
     </changeSet>
 
