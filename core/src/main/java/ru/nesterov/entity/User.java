@@ -7,7 +7,7 @@ import java.util.List;
 
 @Entity
 @Data
-@Table(name = "\"user\"")
+@Table(name = "users")
 public class User {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -20,7 +20,7 @@ public class User {
     @Column(name = "cancelled_calendar_id")
     private String cancelledCalendar;
 
-    @OneToOne(mappedBy = "\"user\"")
+    @OneToOne(mappedBy = "user")
     private UserSettings userSettings;
 
     @OneToMany(mappedBy = "user")

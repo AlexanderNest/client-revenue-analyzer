@@ -17,12 +17,12 @@ public class UserSettings {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
-
-    @OneToOne
-    @JoinColumn(name = "user_id")
-    private User user;
     @Column(name = "cancelled_calendar_enabled")
     private boolean isCancelledCalendarEnabled;
     @Column(name = "events_backup_enabled")
     private boolean isEventsBackupEnabled;
+
+    @OneToOne
+    @JoinColumn(name = "user_id")
+    private User user;
 }
