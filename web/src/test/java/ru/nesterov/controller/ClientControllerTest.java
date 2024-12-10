@@ -1,44 +1,20 @@
 package ru.nesterov.controller;
 
-import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.extern.slf4j.Slf4j;
 import org.junit.jupiter.api.Test;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
-import org.springframework.boot.test.context.SpringBootTest;
-import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.http.MediaType;
-import org.springframework.test.web.servlet.MockMvc;
 import ru.nesterov.controller.request.CreateClientRequest;
 import ru.nesterov.entity.Client;
 import ru.nesterov.entity.User;
-import ru.nesterov.google.GoogleCalendarClient;
-import ru.nesterov.repository.ClientRepository;
-import ru.nesterov.repository.UserRepository;
 
 import static org.hamcrest.Matchers.hasSize;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
-@AutoConfigureMockMvc
-@SpringBootTest
 @Slf4j
-class ClientControllerTest {
-    @Autowired
-    private MockMvc mockMvc;
-    @Autowired
-    private ObjectMapper objectMapper;
-    @Autowired
-    private ClientRepository clientRepository;
-    @Autowired
-    private UserRepository userRepository;
-
-    @MockBean
-    private GoogleCalendarClient googleCalendarService;
-
+class ClientControllerTest extends AbstractControllerTest {
     private static final String CREATE_CLIENT_URL = "/client/create";
-
     private static final String GET_ACTIVE_CLIENTS_URL = "/client/getActiveClients";
 
     @Test

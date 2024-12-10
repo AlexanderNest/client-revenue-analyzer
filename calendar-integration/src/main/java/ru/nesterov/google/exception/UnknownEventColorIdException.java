@@ -5,6 +5,6 @@ import ru.nesterov.exception.AppException;
 
 public class UnknownEventColorIdException extends AppException {
     public UnknownEventColorIdException(String colorId, String summary, EventDateTime eventDateTime) {
-        super("Неизвестный eventColorId [" + colorId + "] у Event [" + summary + "] с датой [" + eventDateTime + "]");
+        super("Неизвестный eventColorId [" + colorId + "] у EventDto [" + summary + "] с датой [" + eventDateTime + "]");
     }
 }
