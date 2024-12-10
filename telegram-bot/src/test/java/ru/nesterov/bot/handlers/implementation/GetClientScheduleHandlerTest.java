@@ -33,11 +33,11 @@ import static org.mockito.ArgumentMatchers.anyLong;
 import static org.mockito.Mockito.when;
 
 @ContextConfiguration(classes = {
-        GetClientScheduleHandler.class
+        GetClientScheduleCommandHandler.class
 })
 public class GetClientScheduleHandlerTest extends RegisteredUserHandler {
     @Autowired
-    private GetClientScheduleHandler handler;
+    private GetClientScheduleCommandHandler handler;
 
     private static final String COMMAND = "Узнать расписание клиента";
     private static final String ENTER_FIRST_DATE = "Введите первую дату";

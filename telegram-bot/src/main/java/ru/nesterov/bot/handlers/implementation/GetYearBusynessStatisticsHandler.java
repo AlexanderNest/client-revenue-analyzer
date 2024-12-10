@@ -17,7 +17,7 @@ import java.util.stream.Collectors;
 @Component
 @RequiredArgsConstructor
 @ConditionalOnProperty("bot.enabled")
-public class GetYearBusynessStatisticsHandler extends ClientRevenueAbstractHandler {
+public class GetYearBusynessStatisticsHandler extends InvocableCommandHandler {
     private final BotHandlersRequestsKeeper handlersKeeper;
 
     @Override
