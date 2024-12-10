@@ -14,6 +14,8 @@ import org.telegram.telegrambots.meta.api.objects.replykeyboard.ReplyKeyboardMar
 import ru.nesterov.bot.handlers.RegisteredUserHandlerTest;
 import ru.nesterov.properties.BotProperties;
 
+import java.util.ArrayList;
+
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 
@@ -57,6 +59,8 @@ public class StartBotHandlerTestTest extends RegisteredUserHandlerTest {
         assertNotNull(replyKeyboardMarkup);
         assertNotNull(replyKeyboardMarkup.getKeyboard());
 
-        assertEquals(1, botProperties.getMenuButtonsPerLine());
+        replyKeyboardMarkup.getKeyboard().stream()
+                .map(ArrayList::size)
+                .forEach(size -> assertEquals(1, size));
     }
 }
