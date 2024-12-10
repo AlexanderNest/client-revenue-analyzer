@@ -21,7 +21,7 @@ import java.util.Locale;
 
 @Component
 @ConditionalOnProperty("bot.enabled")
-public class GetMonthStatisticsHandler extends ClientRevenueAbstractHandler {
+public class GetMonthStatisticsCommandHandler extends InvocableCommandHandler {
     private static final String[] months = {
             "Январь", "Февраль",
             "Март", "Апрель", "Май",
@@ -124,7 +124,7 @@ public class GetMonthStatisticsHandler extends ClientRevenueAbstractHandler {
 
     @Override
     public String getCommand() {
-        return "/monthincome";
+        return "Узнать доход";
     }
 
     @Override

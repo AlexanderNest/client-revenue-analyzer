@@ -28,12 +28,13 @@ import java.util.stream.Collectors;
 @Component
 @ConditionalOnProperty("bot.enabled")
 @RequiredArgsConstructor
-public class GetClientScheduleHandler extends ClientRevenueAbstractHandler {
+public class GetClientScheduleCommandHandler extends InvocableCommandHandler {
     private final BotHandlersRequestsKeeper handlersKeeper;
     private final InlineCalendarBuilder inlineCalendarBuilder;
 
     private static final String ENTER_FIRST_DATE = "Введите первую дату";
     private static final String ENTER_SECOND_DATE = "Введите вторую дату";
+
 
     @SneakyThrows
     @Override
@@ -41,11 +42,11 @@ public class GetClientScheduleHandler extends ClientRevenueAbstractHandler {
         long chatId = getChatId(update);
         long userId = getUserId(update);
 
-        GetClientScheduleRequest getClientScheduleRequest = handlersKeeper.getRequest(userId, GetClientScheduleHandler.class, GetClientScheduleRequest.class);
+        GetClientScheduleRequest getClientScheduleRequest = handlersKeeper.getRequest(userId, GetClientScheduleCommandHandler.class, GetClientScheduleRequest.class);
 
         if (getClientScheduleRequest == null) {
             getClientScheduleRequest = handlersKeeper.putRequest(
-                    GetClientScheduleHandler.class,
+                    GetClientScheduleCommandHandler.class,
                     userId,
                     GetClientScheduleRequest.builder()
                             .userId(userId)
@@ -110,7 +111,7 @@ public class GetClientScheduleHandler extends ClientRevenueAbstractHandler {
 
     @Override
     public String getCommand() {
-        return "/clientschedule";
+        return "Узнать расписание клиента";
     }
 
     @SneakyThrows

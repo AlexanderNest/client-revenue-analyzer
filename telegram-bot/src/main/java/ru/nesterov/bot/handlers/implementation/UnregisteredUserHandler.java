@@ -14,7 +14,7 @@ import ru.nesterov.dto.GetUserRequest;
 @Slf4j
 @RequiredArgsConstructor
 @ConditionalOnProperty("bot.enabled")
-public class UnregisteredUserHandler extends ClientRevenueAbstractHandler {
+public class UnregisteredUserHandler extends SendingMessageCommandHandler {
     private final CreateUserHandler createUserHandler;
 
     @Override
@@ -44,10 +44,5 @@ public class UnregisteredUserHandler extends ClientRevenueAbstractHandler {
         GetUserRequest getUserRequest = new GetUserRequest();
         getUserRequest.setUsername(String.valueOf(userId));
         return client.getUserByUsername(getUserRequest) == null;
-    }
-
-    @Override
-    public String getCommand() {
-        return null;
     }
 }

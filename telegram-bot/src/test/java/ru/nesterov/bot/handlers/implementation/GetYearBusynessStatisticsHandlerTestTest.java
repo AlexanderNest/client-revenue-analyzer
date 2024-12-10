@@ -9,7 +9,7 @@ import org.telegram.telegrambots.meta.api.objects.Message;
 import org.telegram.telegrambots.meta.api.objects.Update;
 import org.telegram.telegrambots.meta.api.objects.User;
 import ru.nesterov.bot.handlers.CommandHandler;
-import ru.nesterov.bot.handlers.RegisteredUserHandler;
+import ru.nesterov.bot.handlers.RegisteredUserHandlerTest;
 import ru.nesterov.dto.GetYearBusynessStatisticsResponse;
 
 import java.util.LinkedHashMap;
@@ -24,7 +24,7 @@ import static org.mockito.Mockito.when;
 @ContextConfiguration(classes = {
         GetYearBusynessStatisticsHandler.class,
 })
-class GetYearBusynessStatisticsHandlerTest extends RegisteredUserHandler {
+class GetYearBusynessStatisticsHandlerTestTest extends RegisteredUserHandlerTest {
     @Test
     void handle() {
         Update update = createUpdateWithMessage("Анализ занятости за год");
