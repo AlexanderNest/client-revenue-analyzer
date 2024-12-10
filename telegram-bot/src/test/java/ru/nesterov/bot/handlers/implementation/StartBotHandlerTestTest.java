@@ -1,13 +1,8 @@
 package ru.nesterov.bot.handlers.implementation;
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertNotNull;
-import com.fasterxml.jackson.databind.ObjectMapper;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.context.properties.EnableConfigurationProperties;
-import org.springframework.boot.test.context.SpringBootTest;
-import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.TestPropertySource;
 import org.telegram.telegrambots.meta.api.methods.BotApiMethod;
@@ -16,31 +11,28 @@ import org.telegram.telegrambots.meta.api.objects.Chat;
 import org.telegram.telegrambots.meta.api.objects.Message;
 import org.telegram.telegrambots.meta.api.objects.Update;
 import org.telegram.telegrambots.meta.api.objects.replykeyboard.ReplyKeyboardMarkup;
-import ru.nesterov.bot.handlers.BotHandlersRequestsKeeper;
-import ru.nesterov.calendar.InlineCalendarBuilder;
-import ru.nesterov.integration.ClientRevenueAnalyzerIntegrationClient;
+import ru.nesterov.bot.handlers.RegisteredUserHandlerTest;
 import ru.nesterov.properties.BotProperties;
 
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
 
-@SpringBootTest
+
 @ContextConfiguration(classes = {
         GetClientScheduleCommandHandler.class,
         GetMonthStatisticsCommandHandler.class,
-        ObjectMapper.class,
-        BotHandlersRequestsKeeper.class,
-        InlineCalendarBuilder.class,
         StartBotHandler.class,
         BotProperties.class
 })
 @EnableConfigurationProperties(BotProperties.class)
 @TestPropertySource(properties = {
-        "bot.menu-buttons-per-line=1"})
-public class StartBotHandlerTest {
-    @MockBean
-    private ClientRevenueAnalyzerIntegrationClient client;
-
+        "bot.menu-buttons-per-line=1"
+})
+public class StartBotHandlerTestTest extends RegisteredUserHandlerTest {
     @Autowired
     private StartBotHandler startBotHandler;
+    @Autowired
+    private BotProperties botProperties;
 
     @Test
     public void test() {
@@ -65,6 +57,6 @@ public class StartBotHandlerTest {
         assertNotNull(replyKeyboardMarkup);
         assertNotNull(replyKeyboardMarkup.getKeyboard());
 
-        assertEquals(1, startBotHandler.buttonsCount);
+        assertEquals(1, botProperties.getMenuButtonsPerLine());
     }
 }

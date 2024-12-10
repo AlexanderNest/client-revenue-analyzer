@@ -7,6 +7,9 @@ import org.telegram.telegrambots.meta.api.objects.Update;
 import ru.nesterov.bot.TelegramUpdateUtils;
 import ru.nesterov.bot.handlers.callback.ButtonCallback;
 
+/**
+ * Обработчик, который вызывается по отправленной команде
+ */
 public abstract class InvocableCommandHandler extends SendingMessageCommandHandler {
     public abstract String getCommand();
 

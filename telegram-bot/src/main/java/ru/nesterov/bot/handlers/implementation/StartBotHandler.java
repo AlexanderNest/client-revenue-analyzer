@@ -2,7 +2,6 @@ package ru.nesterov.bot.handlers.implementation;
 
 import jakarta.annotation.PostConstruct;
 import lombok.RequiredArgsConstructor;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.stereotype.Component;
 import org.telegram.telegrambots.meta.api.methods.BotApiMethod;
@@ -23,10 +22,6 @@ import java.util.List;
 public class StartBotHandler extends InvocableCommandHandler {
     private final List<InvocableCommandHandler> sendingMessageCommandHandlers;
     private final BotProperties botProperties;
-
-    @Value("${bot.menu-buttons-per-line}")
-    protected int buttonsCount;
-
     private final ReplyKeyboardMarkup buttons = new ReplyKeyboardMarkup();
 
     @PostConstruct
