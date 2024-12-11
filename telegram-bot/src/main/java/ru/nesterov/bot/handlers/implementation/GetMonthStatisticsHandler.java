@@ -29,9 +29,9 @@ public class GetMonthStatisticsHandler extends ClientRevenueAbstractHandler {
             "Сентябрь", "Октябрь", "Ноябрь",
             "Декабрь"
     };
-
+    
     private static final String markSymbol = "\u2B50";
-
+    
     @Override
     public BotApiMethod<?> handle(Update update) {
         BotApiMethod<?> sendMessage;
@@ -40,16 +40,16 @@ public class GetMonthStatisticsHandler extends ClientRevenueAbstractHandler {
         } else {
             sendMessage = sendMonthKeyboard(update.getMessage().getChatId());
         }
-
+        
         return sendMessage;
     }
-
+    
     private static String formatIncomeReport(GetIncomeAnalysisForMonthResponse response) {
         NumberFormat currencyFormat = NumberFormat.getNumberInstance(new Locale("ru", "RU"));
         currencyFormat.setMinimumFractionDigits(0);
         currencyFormat.setMaximumFractionDigits(0);
-
-
+        
+        
         return String.format(
                 "📊 *Анализ доходов за месяц*\n\n" +
                         "%-22s %10s ₽\n" +
@@ -63,14 +63,15 @@ public class GetMonthStatisticsHandler extends ClientRevenueAbstractHandler {
                 "Потерянный доход:", currencyFormat.format(response.getLostIncome())
         );
     }
-
+    
     @SneakyThrows
     private BotApiMethod<?> sendMonthStatistics(Update update) {
         long userId = update.getCallbackQuery().getFrom().getId();
         CallbackQuery callbackQuery = update.getCallbackQuery();
-        ButtonCallback callback = objectMapper.readValue(callbackQuery.getData(), ButtonCallback.class);
+//        ButtonCallback callback = objectMapper.readValue(callbackQuery.getData(), ButtonCallback.class);
+        ButtonCallback callback = ButtonCallback.fromShortString(callbackQuery.getData());
         GetIncomeAnalysisForMonthResponse response = client.getIncomeAnalysisForMonth(userId, clearFromMark(callback.getValue()));
-
+        
         return editMessage(
                 callbackQuery.getMessage().getChatId(),
                 callbackQuery.getMessage().getMessageId(),
@@ -78,55 +79,65 @@ public class GetMonthStatisticsHandler extends ClientRevenueAbstractHandler {
                 null
         );
     }
-
+    
     @SneakyThrows
     private SendMessage sendMonthKeyboard(long chatId) {
         SendMessage message = new SendMessage();
         message.setChatId(String.valueOf(chatId));
         message.setText("Выберите месяц для анализа дохода:");
-
+        
         InlineKeyboardMarkup keyboardMarkup = new InlineKeyboardMarkup();
         List<List<InlineKeyboardButton>> keyboard = new ArrayList<>();
-
+        
         String[] monthsWithMark = getArrayWithCurrentMonthMark();
-        for (int i = 0; i < monthsWithMark.length; i += 3) {
-            List<InlineKeyboardButton> row = new ArrayList<>();
-            for (int j = i; j < i + 3 && j < monthsWithMark.length; j++) {
-                InlineKeyboardButton button = new InlineKeyboardButton();
-                button.setText(monthsWithMark[j]);
-                ButtonCallback callback = new ButtonCallback();
-                callback.setValue(clearFromMark(monthsWithMark[j]));
-                callback.setCommand(getCommand());
-                button.setCallbackData(objectMapper.writeValueAsString(callback));
-                row.add(button);
+//        for (int i = 0; i < monthsWithMark.length; i += 3) {
+//            List<InlineKeyboardButton> row = new ArrayList<>();
+//            for (int j = i; j < i + 3 && j < monthsWithMark.length; j++) {
+//                InlineKeyboardButton button = new InlineKeyboardButton();
+//                button.setText(monthsWithMark[j]);
+//                ButtonCallback callback = new ButtonCallback();
+//                callback.setValue(clearFromMark(monthsWithMark[j]));
+//                callback.setCommand(getCommand());
+//                button.setCallbackData(objectMapper.writeValueAsString(callback));
+//                row.add(button);
+//            }
+//            keyboard.add(row);
+//        }
+        
+        InlineKeyboardButton[][] buttons = new InlineKeyboardButton[4][3];
+        for (int i = 0; i < 4; i++) {
+            for (int j = 0; j < 3; j++) {
+                buttons[i][j] = buildButton(monthsWithMark[(i * 3) + j], clearFromMark(monthsWithMark[(i * 3) + j]));
             }
-            keyboard.add(row);
         }
 
-        keyboardMarkup.setKeyboard(keyboard);
-        message.setReplyMarkup(keyboardMarkup);
-
+//        keyboardMarkup.setKeyboard(keyboard);
+//        message.setReplyMarkup(keyboardMarkup);
+        
+        InlineKeyboardMarkup keyboardMarkup1 = buildInlineKeyboardMarkup(buttons);
+        message.setReplyMarkup(buildInlineKeyboardMarkup(buttons));
+        
         return message;
     }
-
+    
     private String clearFromMark(String string) {
         return string.replace(markSymbol, "");
     }
-
+    
     private String[] getArrayWithCurrentMonthMark() {
         String[] copy = Arrays.copyOf(months, months.length);
-
+        
         int currentMonth = MonthUtil.getCurrentMonth();
         copy[currentMonth] = markSymbol + copy[currentMonth];
-
+        
         return copy;
     }
-
+    
     @Override
     public String getCommand() {
         return "/monthincome";
     }
-
+    
     @Override
     public boolean isFinished(Long userId) {
         return true;
