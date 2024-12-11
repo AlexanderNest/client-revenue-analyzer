@@ -8,6 +8,7 @@ import org.springframework.stereotype.Component;
 import org.telegram.telegrambots.meta.api.methods.BotApiMethod;
 import org.telegram.telegrambots.meta.api.objects.Update;
 import org.telegram.telegrambots.meta.api.objects.replykeyboard.InlineKeyboardMarkup;
+import org.telegram.telegrambots.meta.api.objects.replykeyboard.buttons.InlineKeyboardButton;
 import ru.nesterov.bot.TelegramUpdateUtils;
 import ru.nesterov.bot.handlers.BotHandlersRequestsKeeper;
 import ru.nesterov.bot.handlers.callback.ButtonCallback;
@@ -81,7 +82,10 @@ public class CreateUserHandler extends ClientRevenueAbstractHandler {
         createUserRequest.setUserIdentifier(String.valueOf(userId));
         createUserRequest.setMainCalendarId(update.getMessage().getText());
         
-        InlineKeyboardMarkup keyboardMarkup = buildYesNoKeyboardMarkup();
+        InlineKeyboardButton button1 = buildButton("Да", "true");
+        InlineKeyboardButton button2 = buildButton("Нет", "false");
+        InlineKeyboardButton[][] buttons = {{button1, button2}};
+        InlineKeyboardMarkup keyboardMarkup = buildInlineKeyboardMarkup(buttons);
         
         return getReplyKeyboard(TelegramUpdateUtils.getChatId(update), "Вы хотите сохранять информацию об отмененных мероприятиях с использованием второго календаря?", keyboardMarkup);
     }

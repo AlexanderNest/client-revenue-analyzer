@@ -7,6 +7,7 @@ import org.springframework.stereotype.Component;
 import org.telegram.telegrambots.meta.api.methods.BotApiMethod;
 import org.telegram.telegrambots.meta.api.objects.Update;
 import org.telegram.telegrambots.meta.api.objects.replykeyboard.InlineKeyboardMarkup;
+import org.telegram.telegrambots.meta.api.objects.replykeyboard.buttons.InlineKeyboardButton;
 import ru.nesterov.bot.TelegramUpdateUtils;
 import ru.nesterov.bot.handlers.BotHandlersRequestsKeeper;
 import ru.nesterov.bot.handlers.callback.ButtonCallback;
@@ -59,7 +60,10 @@ public class MakeEventsBackupHandler extends ClientRevenueAbstractHandler {
     }
     
     private BotApiMethod<?> requestConfirmation(long chatId) {
-        InlineKeyboardMarkup keyboardMarkup = buildYesNoKeyboardMarkup();
+        InlineKeyboardButton button1 = buildButton("Да", "true");
+        InlineKeyboardButton button2 = buildButton("Нет", "false");
+        InlineKeyboardButton[][] buttons = {{button1, button2}};
+        InlineKeyboardMarkup keyboardMarkup = buildInlineKeyboardMarkup(buttons);
         
         return getReplyKeyboard(
                 chatId,

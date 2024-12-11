@@ -19,6 +19,7 @@ import ru.nesterov.bot.handlers.callback.ButtonCallback;
 import ru.nesterov.integration.ClientRevenueAnalyzerIntegrationClient;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 
 public abstract class ClientRevenueAbstractHandler implements CommandHandler {
@@ -64,13 +65,19 @@ public abstract class ClientRevenueAbstractHandler implements CommandHandler {
         return answerCallbackQuery;
     }
     
-    protected InlineKeyboardMarkup buildYesNoKeyboardMarkup() {
+    /**
+     * Создаёт клавиатуру из двумерного массива кнопок. Каждый подмассив кнопок занимает отдельную строку в клавиатуре.
+     * @param buttons кнопки в формате двумерного массива
+     * @return созданная клавиатура
+     */
+    protected InlineKeyboardMarkup buildInlineKeyboardMarkup(InlineKeyboardButton[][] buttons) {
         InlineKeyboardMarkup keyboardMarkup = new InlineKeyboardMarkup();
         List<List<InlineKeyboardButton>> keyboard = new ArrayList<>();
-        List<InlineKeyboardButton> rowInline = new ArrayList<>();
-        rowInline.add(buildButton("Да", "true"));
-        rowInline.add(buildButton("Нет", "false"));
-        keyboard.add(rowInline);
+        
+        for (InlineKeyboardButton[] line : buttons) {
+            keyboard.add(Arrays.asList(line));
+        }
+        
         keyboardMarkup.setKeyboard(keyboard);
         return keyboardMarkup;
     }
