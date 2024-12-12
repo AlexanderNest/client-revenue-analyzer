@@ -1,13 +1,11 @@
-package ru.nesterov.dto;
+package ru.nesterov.service.dto;
 
-import lombok.Builder;
 import lombok.Data;
 
 import java.time.LocalDateTime;
 
 @Data
-@Builder
-public class MakeEventsBackupResponse {
+public class EventBackupDto {
     private Integer savedEventsCount;
     private Boolean isBackupMade;
     private LocalDateTime from;

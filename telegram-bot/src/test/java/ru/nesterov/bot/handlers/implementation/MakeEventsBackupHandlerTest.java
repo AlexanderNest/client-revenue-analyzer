@@ -3,6 +3,7 @@ package ru.nesterov.bot.handlers.implementation;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.test.context.ContextConfiguration;
 import org.telegram.telegrambots.meta.api.methods.BotApiMethod;
 import org.telegram.telegrambots.meta.api.methods.send.SendMessage;
@@ -20,6 +21,8 @@ import ru.nesterov.bot.handlers.callback.ButtonCallback;
 import ru.nesterov.dto.MakeEventsBackupRequest;
 import ru.nesterov.dto.MakeEventsBackupResponse;
 
+import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
 import java.util.List;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
@@ -38,6 +41,12 @@ class MakeEventsBackupHandlerTest extends RegisteredUserHandler {
     private static final long CHAT_ID = 1L;
     private static final long USER_ID = 1L;
     
+    @Value("${app.calendar.events.backup.dates-range-for-backup}")
+    private int datesRangeForBackup;
+    
+    @Value("${app.calendar.events.backup.delay-between-manual-backups}")
+    private int delayBetweenManualBackups;
+    
     @BeforeEach
     public void setUp() {
         command = handler.getCommand();
@@ -52,6 +61,8 @@ class MakeEventsBackupHandlerTest extends RegisteredUserHandler {
         MakeEventsBackupResponse response = MakeEventsBackupResponse.builder()
                 .savedEventsCount(2)
                 .isBackupMade(true)
+                .from(LocalDateTime.now().minusDays(datesRangeForBackup))
+                .to(LocalDateTime.now().plusDays(datesRangeForBackup))
                 .build();
         
         when(client.makeEventsBackup(anyLong())).thenReturn(response);
@@ -74,7 +85,7 @@ class MakeEventsBackupHandlerTest extends RegisteredUserHandler {
         assertInstanceOf(SendMessage.class, botApiMethod);
         
         SendMessage sendMessage = (SendMessage) botApiMethod;
-        assertEquals("Выполнить бэкап событий?", sendMessage.getText());
+        assertEquals("Выполнить резервное копирование событий?", sendMessage.getText());
         
         ReplyKeyboard markup = sendMessage.getReplyMarkup();
         assertInstanceOf(InlineKeyboardMarkup.class, markup);
@@ -105,7 +116,12 @@ class MakeEventsBackupHandlerTest extends RegisteredUserHandler {
         botApiMethod = handler.handle(update);
         EditMessageText editMessageText = (EditMessageText) botApiMethod;
         
-        assertEquals("Событий сохранено: " + response.getSavedEventsCount(), editMessageText.getText());
+        DateTimeFormatter dateTimeFormatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm");
+        
+        assertEquals(
+                String.format("Резервная копия событий (%d шт.) в период с %s по %s сохранена", response.getSavedEventsCount(), response.getFrom().format(dateTimeFormatter), response.getTo().format(dateTimeFormatter)),
+                editMessageText.getText()
+        );
     }
     
     @Test
@@ -116,6 +132,7 @@ class MakeEventsBackupHandlerTest extends RegisteredUserHandler {
         
         MakeEventsBackupResponse response = MakeEventsBackupResponse.builder()
                 .isBackupMade(false)
+                .cooldownMinutes(delayBetweenManualBackups)
                 .build();
         
         when(client.makeEventsBackup(anyLong())).thenReturn(response);
@@ -138,7 +155,7 @@ class MakeEventsBackupHandlerTest extends RegisteredUserHandler {
         assertInstanceOf(SendMessage.class, botApiMethod);
         
         SendMessage sendMessage = (SendMessage) botApiMethod;
-        assertEquals("Выполнить бэкап событий?", sendMessage.getText());
+        assertEquals("Выполнить резервное копирование событий?", sendMessage.getText());
         
         ReplyKeyboard markup = sendMessage.getReplyMarkup();
         assertInstanceOf(InlineKeyboardMarkup.class, markup);
@@ -169,7 +186,10 @@ class MakeEventsBackupHandlerTest extends RegisteredUserHandler {
         botApiMethod = handler.handle(update);
         EditMessageText editMessageText = (EditMessageText) botApiMethod;
         
-        assertEquals("Установлена задержка между бэкапами", editMessageText.getText());
+        assertEquals(
+                String.format("Выполнить резервное копирование событий возможно по прошествии %d минут(ы)", delayBetweenManualBackups),
+                editMessageText.getText()
+        );
     }
     
     @Test
@@ -181,6 +201,8 @@ class MakeEventsBackupHandlerTest extends RegisteredUserHandler {
         MakeEventsBackupResponse response = MakeEventsBackupResponse.builder()
                 .savedEventsCount(2)
                 .isBackupMade(request.getIsEventsBackupMade())
+                .from(LocalDateTime.now().minusDays(datesRangeForBackup))
+                .to(LocalDateTime.now().plusDays(datesRangeForBackup))
                 .build();
         
         when(client.makeEventsBackup(anyLong())).thenReturn(response);
@@ -203,7 +225,7 @@ class MakeEventsBackupHandlerTest extends RegisteredUserHandler {
         assertInstanceOf(SendMessage.class, botApiMethod);
         
         SendMessage sendMessage = (SendMessage) botApiMethod;
-        assertEquals("Выполнить бэкап событий?", sendMessage.getText());
+        assertEquals("Выполнить резервное копирование событий?", sendMessage.getText());
         
         ReplyKeyboard markup = sendMessage.getReplyMarkup();
         assertInstanceOf(InlineKeyboardMarkup.class, markup);
@@ -234,6 +256,6 @@ class MakeEventsBackupHandlerTest extends RegisteredUserHandler {
         botApiMethod = handler.handle(update);
         EditMessageText editMessageText = (EditMessageText) botApiMethod;
         
-        assertEquals("Вы отказались от выполнения бэкапа", editMessageText.getText());
+        assertEquals("Вы отказались от выполнения резервного копирования событий", editMessageText.getText());
     }
 }

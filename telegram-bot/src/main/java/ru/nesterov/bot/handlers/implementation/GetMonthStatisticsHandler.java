@@ -7,16 +7,13 @@ import org.telegram.telegrambots.meta.api.methods.BotApiMethod;
 import org.telegram.telegrambots.meta.api.methods.send.SendMessage;
 import org.telegram.telegrambots.meta.api.objects.CallbackQuery;
 import org.telegram.telegrambots.meta.api.objects.Update;
-import org.telegram.telegrambots.meta.api.objects.replykeyboard.InlineKeyboardMarkup;
 import org.telegram.telegrambots.meta.api.objects.replykeyboard.buttons.InlineKeyboardButton;
 import ru.nesterov.bot.handlers.callback.ButtonCallback;
 import ru.nesterov.dto.GetIncomeAnalysisForMonthResponse;
 import ru.nesterov.utils.MonthUtil;
 
 import java.text.NumberFormat;
-import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.List;
 import java.util.Locale;
 
 @Component
@@ -68,7 +65,6 @@ public class GetMonthStatisticsHandler extends ClientRevenueAbstractHandler {
     private BotApiMethod<?> sendMonthStatistics(Update update) {
         long userId = update.getCallbackQuery().getFrom().getId();
         CallbackQuery callbackQuery = update.getCallbackQuery();
-//        ButtonCallback callback = objectMapper.readValue(callbackQuery.getData(), ButtonCallback.class);
         ButtonCallback callback = ButtonCallback.fromShortString(callbackQuery.getData());
         GetIncomeAnalysisForMonthResponse response = client.getIncomeAnalysisForMonth(userId, clearFromMark(callback.getValue()));
         
@@ -86,37 +82,20 @@ public class GetMonthStatisticsHandler extends ClientRevenueAbstractHandler {
         message.setChatId(String.valueOf(chatId));
         message.setText("Выберите месяц для анализа дохода:");
         
-        InlineKeyboardMarkup keyboardMarkup = new InlineKeyboardMarkup();
-        List<List<InlineKeyboardButton>> keyboard = new ArrayList<>();
-        
         String[] monthsWithMark = getArrayWithCurrentMonthMark();
-//        for (int i = 0; i < monthsWithMark.length; i += 3) {
-//            List<InlineKeyboardButton> row = new ArrayList<>();
-//            for (int j = i; j < i + 3 && j < monthsWithMark.length; j++) {
-//                InlineKeyboardButton button = new InlineKeyboardButton();
-//                button.setText(monthsWithMark[j]);
-//                ButtonCallback callback = new ButtonCallback();
-//                callback.setValue(clearFromMark(monthsWithMark[j]));
-//                callback.setCommand(getCommand());
-//                button.setCallbackData(objectMapper.writeValueAsString(callback));
-//                row.add(button);
-//            }
-//            keyboard.add(row);
-//        }
-        
-        InlineKeyboardButton[][] buttons = new InlineKeyboardButton[4][3];
-        for (int i = 0; i < 4; i++) {
-            for (int j = 0; j < 3; j++) {
-                buttons[i][j] = buildButton(monthsWithMark[(i * 3) + j], clearFromMark(monthsWithMark[(i * 3) + j]));
+        int keyboardLength = 3;
+        int keyboardHeight = 4;
+        InlineKeyboardButton[][] buttons = new InlineKeyboardButton[keyboardHeight][keyboardLength];
+        for (int i = 0; i < keyboardHeight; i++) {
+            for (int j = 0; j < keyboardLength; j++) {
+                buttons[i][j] = buildButton(
+                        monthsWithMark[(i * keyboardLength) + j],
+                        clearFromMark(monthsWithMark[(i * keyboardLength) + j])
+                );
             }
         }
-
-//        keyboardMarkup.setKeyboard(keyboard);
-//        message.setReplyMarkup(keyboardMarkup);
         
-        InlineKeyboardMarkup keyboardMarkup1 = buildInlineKeyboardMarkup(buttons);
         message.setReplyMarkup(buildInlineKeyboardMarkup(buttons));
-        
         return message;
     }
     

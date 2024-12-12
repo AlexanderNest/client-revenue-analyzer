@@ -7,7 +7,8 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.RequestHeader;
 import org.springframework.web.bind.annotation.RestController;
 import ru.nesterov.controller.response.EventBackupResponse;
-import ru.nesterov.exception.EventBackupTimeoutException;
+import ru.nesterov.mapper.EventBackupMapper;
+import ru.nesterov.service.dto.EventBackupDto;
 import ru.nesterov.service.event.EventsBackupService;
 
 @RestController
@@ -17,16 +18,8 @@ public class EventsBackupControllerImpl implements EventsBackupController {
     private final EventsBackupService eventsBackupService;
     
     public ResponseEntity<EventBackupResponse> makeBackup(@RequestHeader(name = "X-username") String username) {
-        EventBackupResponse response = new EventBackupResponse();
-        
-        try {
-            int savedEventsCount = eventsBackupService.backupCurrentUserEvents(username);
-            response.setSavedEventsCount(savedEventsCount);
-            response.setIsBackupMade(true);
-        } catch (EventBackupTimeoutException e) {
-            response.setIsBackupMade(false);
-        }
-        
+        EventBackupDto result = eventsBackupService.backupCurrentUserEvents(username);
+        EventBackupResponse response = EventBackupMapper.mapToEventBackupResponse(result);
         return new ResponseEntity<>(response, HttpStatus.OK);
     }
 }

@@ -106,7 +106,6 @@ public abstract class ClientRevenueAbstractHandler implements CommandHandler {
         boolean isCurrentHandlerCommand = message != null && getCommand().equals(message.getText());
 
         CallbackQuery callbackQuery = update.getCallbackQuery();
-        String command = getCommand();
         boolean isCallback = callbackQuery != null
                 && (getCommand().equals(getCommandFromShortString(callbackQuery)) || getCommand().equals(getCommandFromJson(callbackQuery)));
         boolean isPlainText = message != null && message.getText() != null;

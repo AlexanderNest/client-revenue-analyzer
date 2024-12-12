@@ -14,6 +14,8 @@ import ru.nesterov.bot.handlers.callback.ButtonCallback;
 import ru.nesterov.dto.MakeEventsBackupRequest;
 import ru.nesterov.dto.MakeEventsBackupResponse;
 
+import java.time.format.DateTimeFormatter;
+
 @Component
 @ConditionalOnProperty("bot.enabled")
 @RequiredArgsConstructor
@@ -67,7 +69,7 @@ public class MakeEventsBackupHandler extends ClientRevenueAbstractHandler {
         
         return getReplyKeyboard(
                 chatId,
-                "Выполнить бэкап событий?",
+                "Выполнить резервное копирование событий?",
                 keyboardMarkup
         );
     }
@@ -82,7 +84,7 @@ public class MakeEventsBackupHandler extends ClientRevenueAbstractHandler {
             return editMessage(
                     chatId,
                     TelegramUpdateUtils.getMessageId(update),
-                    "Вы отказались от выполнения бэкапа",
+                    "Вы отказались от выполнения резервного копирования событий",
                     null);
         }
     }
@@ -100,10 +102,20 @@ public class MakeEventsBackupHandler extends ClientRevenueAbstractHandler {
         
         String message;
         
+        DateTimeFormatter dateTimeFormatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm");
+        
         if (response.getIsBackupMade()) {
-            message = String.format("Событий сохранено: %d", response.getSavedEventsCount());
+            message = String.format(
+                    "Резервная копия событий (%d шт.) в период с %s по %s сохранена",
+                    response.getSavedEventsCount(),
+                    response.getFrom().format(dateTimeFormatter),
+                    response.getTo().format(dateTimeFormatter)
+            );
         } else {
-            message = "Установлена задержка между бэкапами";
+            message = String.format(
+                    "Выполнить резервное копирование событий возможно по прошествии %d минут(ы)",
+                    response.getCooldownMinutes()
+            );
         }
         
         return editMessage(
