@@ -10,6 +10,9 @@ import org.telegram.telegrambots.meta.api.objects.Update;
 import org.telegram.telegrambots.meta.api.objects.replykeyboard.buttons.InlineKeyboardButton;
 import ru.nesterov.bot.TelegramUpdateUtils;
 import ru.nesterov.bot.handlers.BotHandlersRequestsKeeper;
+import ru.nesterov.bot.handlers.abstractions.DisplayedCommandHandler;
+import ru.nesterov.bot.handlers.callback.ButtonCallback;
+import ru.nesterov.bot.handlers.service.BotHandlersRequestsKeeper;
 import ru.nesterov.dto.CreateUserRequest;
 import ru.nesterov.dto.CreateUserResponse;
 import ru.nesterov.dto.GetUserRequest;
@@ -21,7 +24,7 @@ import java.util.List;
 @Slf4j
 @RequiredArgsConstructor
 @ConditionalOnProperty("bot.enabled")
-public class CreateUserHandler extends ClientRevenueAbstractHandler {
+public class CreateUserHandler extends DisplayedCommandHandler {
     private final BotHandlersRequestsKeeper keeper;
 
     @Override
@@ -75,12 +78,16 @@ public class CreateUserHandler extends ClientRevenueAbstractHandler {
         long userId = TelegramUpdateUtils.getUserId(update);
         createUserRequest.setUserIdentifier(String.valueOf(userId));
         createUserRequest.setMainCalendarId(update.getMessage().getText());
-        List<InlineKeyboardButton> buttons = List.of(
-                buildButton("Да", "true"),
-                buildButton("Нет", "false")
-        );
 
-        return sendKeybordInline(TelegramUpdateUtils.getChatId(update), "Вы хотите сохранять информацию об отмененных мероприятиях с использованием второго календаря?", buttons);
+        InlineKeyboardMarkup keyboardMarkup = new InlineKeyboardMarkup();
+        List<List<InlineKeyboardButton>> keyboard = new ArrayList<>();
+        List<InlineKeyboardButton> rowInline = new ArrayList<>();
+        rowInline.add(buildButton("Да", "true", getCommand()));
+        rowInline.add(buildButton("Нет", "false", getCommand()));
+        keyboard.add(rowInline);
+        keyboardMarkup.setKeyboard(keyboard);
+
+        return getReplyKeyboard(TelegramUpdateUtils.getChatId(update), "Вы хотите сохранять информацию об отмененных мероприятиях с использованием второго календаря?", keyboardMarkup);
     }
 
     private BotApiMethod<?> handleCancelledCalendarInput(CreateUserRequest createUserRequest, Update update) {
