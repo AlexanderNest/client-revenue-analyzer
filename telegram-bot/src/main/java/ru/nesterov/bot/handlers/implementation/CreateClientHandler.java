@@ -5,9 +5,12 @@ import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.stereotype.Component;
 import org.telegram.telegrambots.meta.api.methods.BotApiMethod;
 import org.telegram.telegrambots.meta.api.objects.Update;
+import org.telegram.telegrambots.meta.api.objects.replykeyboard.InlineKeyboardMarkup;
 import org.telegram.telegrambots.meta.api.objects.replykeyboard.buttons.InlineKeyboardButton;
 import ru.nesterov.bot.TelegramUpdateUtils;
-import ru.nesterov.bot.handlers.BotHandlersRequestsKeeper;
+import ru.nesterov.bot.handlers.abstractions.DisplayedCommandHandler;
+import ru.nesterov.bot.handlers.callback.ButtonCallback;
+import ru.nesterov.bot.handlers.service.BotHandlersRequestsKeeper;
 import ru.nesterov.dto.CreateClientRequest;
 import ru.nesterov.dto.CreateClientResponse;
 
@@ -17,7 +20,7 @@ import java.util.List;
 @RequiredArgsConstructor
 @ConditionalOnProperty("bot.enabled")
 @Component
-public class CreateClientHandler extends ClientRevenueAbstractHandler{
+public class CreateClientHandler extends DisplayedCommandHandler {
     private final BotHandlersRequestsKeeper keeper;
 
     @Override
@@ -81,12 +84,16 @@ public class CreateClientHandler extends ClientRevenueAbstractHandler{
 
     private BotApiMethod<?> handlePhoneNumberInput(Update update, CreateClientRequest createClientRequest) {
         createClientRequest.setPhone(update.getMessage().getText());
-        List<InlineKeyboardButton> buttons = List.of(
-                buildButton("Да", "true"),
-                buildButton("Нет", "false" )
-        );
 
-        return sendKeybordInline(TelegramUpdateUtils.getChatId(update), "Включить генерацию нового имени, если клиент с таким именем уже существует?", buttons);
+        InlineKeyboardMarkup keyboardMarkup = new InlineKeyboardMarkup();
+        List<List<InlineKeyboardButton>> keyboard = new ArrayList<>();
+        List<InlineKeyboardButton> rowInline = new ArrayList<>();
+        rowInline.add(buildButton("Да", "true", getCommand()));
+        rowInline.add(buildButton("Нет", "false", getCommand()));
+        keyboard.add(rowInline);
+        keyboardMarkup.setKeyboard(keyboard);
+
+        return getReplyKeyboard(TelegramUpdateUtils.getChatId(update), "Включить генерацию нового имени, если клиент с таким именем уже существует?", keyboardMarkup);
     }
 
     private BotApiMethod<?> handleIdGenerationNeededInput(Update update, CreateClientRequest createClientRequest) {
@@ -114,10 +121,16 @@ public class CreateClientHandler extends ClientRevenueAbstractHandler{
         return getPlainSendMessage(chatId, formatCreateClientResponse(response));
     }
 
+    private String getButtonCallbackValue(Update update) {
+        String callbackData = update.getCallbackQuery().getData();
+        ButtonCallback buttonCallback = ButtonCallback.fromShortString(callbackData);
+
+        return buttonCallback.getValue();
+    }
 
     @Override
     public boolean isFinished(Long userId) {
         CreateClientRequest request = keeper.getRequest(userId, CreateClientHandler.class, CreateClientRequest.class);
-        return request != null && request.isFilled();
+        return request == null || request.isFilled();
     }
 }

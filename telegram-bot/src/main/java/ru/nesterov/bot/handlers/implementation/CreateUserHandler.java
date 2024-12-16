@@ -7,9 +7,9 @@ import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.stereotype.Component;
 import org.telegram.telegrambots.meta.api.methods.BotApiMethod;
 import org.telegram.telegrambots.meta.api.objects.Update;
+import org.telegram.telegrambots.meta.api.objects.replykeyboard.InlineKeyboardMarkup;
 import org.telegram.telegrambots.meta.api.objects.replykeyboard.buttons.InlineKeyboardButton;
 import ru.nesterov.bot.TelegramUpdateUtils;
-import ru.nesterov.bot.handlers.BotHandlersRequestsKeeper;
 import ru.nesterov.bot.handlers.abstractions.DisplayedCommandHandler;
 import ru.nesterov.bot.handlers.callback.ButtonCallback;
 import ru.nesterov.bot.handlers.service.BotHandlersRequestsKeeper;
@@ -64,6 +64,13 @@ public class CreateUserHandler extends DisplayedCommandHandler {
         } else {
             return registerUser(update, createUserRequest);
         }
+    }
+
+    private String getButtonCallbackValue(Update update) {
+        String callbackData = update.getCallbackQuery().getData();
+        ButtonCallback buttonCallback = ButtonCallback.fromShortString(callbackData);
+
+        return buttonCallback.getValue();
     }
 
     private BotApiMethod<?> handleRegisterCommand(long userId, long chatId) {
