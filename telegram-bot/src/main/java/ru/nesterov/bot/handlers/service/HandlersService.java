@@ -1,4 +1,4 @@
-package ru.nesterov.bot.handlers;
+package ru.nesterov.bot.handlers.service;
 
 import jakarta.annotation.Nullable;
 import lombok.RequiredArgsConstructor;
@@ -7,6 +7,7 @@ import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.stereotype.Component;
 import org.telegram.telegrambots.meta.api.objects.Update;
 import ru.nesterov.bot.TelegramUpdateUtils;
+import ru.nesterov.bot.handlers.abstractions.CommandHandler;
 import ru.nesterov.bot.handlers.implementation.UnregisteredUserHandler;
 
 import java.util.List;
@@ -20,6 +21,7 @@ import java.util.concurrent.ConcurrentHashMap;
 public class HandlersService {
     private final Map<Long, CommandHandler> userHandlers = new ConcurrentHashMap<>();
     private final List<CommandHandler> commandHandlers;
+    private final BotHandlersRequestsKeeper botHandlersRequestsKeeper;
 
     private final UnregisteredUserHandler unregisteredUserHandler;
 
@@ -51,6 +53,7 @@ public class HandlersService {
     }
 
     public void resetHandlers(Long userId) {
-        userHandlers.remove(userId);
+        CommandHandler commandHandler = userHandlers.remove(userId);
+        botHandlersRequestsKeeper.removeRequest(commandHandler.getClass(), userId);
     }
 }

@@ -7,8 +7,8 @@ import org.telegram.telegrambots.bots.TelegramLongPollingBot;
 import org.telegram.telegrambots.meta.api.methods.BotApiMethod;
 import org.telegram.telegrambots.meta.api.objects.Update;
 import org.telegram.telegrambots.meta.exceptions.TelegramApiException;
-import ru.nesterov.bot.handlers.CommandHandler;
-import ru.nesterov.bot.handlers.HandlersService;
+import ru.nesterov.bot.handlers.abstractions.CommandHandler;
+import ru.nesterov.bot.handlers.service.HandlersService;
 import ru.nesterov.properties.BotProperties;
 
 @Service

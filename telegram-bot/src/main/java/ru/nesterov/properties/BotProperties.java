@@ -11,4 +11,5 @@ public class BotProperties {
     private String apiToken;
     private String username;
     private String secretToken;
+    private Integer menuButtonsPerLine;
 }
