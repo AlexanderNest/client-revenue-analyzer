@@ -13,5 +13,6 @@ public class EventExtensionDto {
     private Integer income;
     @FieldAlias("запланировано")
     private Boolean isPlanned;
+    @FieldAlias("предыдущая дата")
     private LocalDateTime previousDate;
 }

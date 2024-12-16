@@ -38,7 +38,6 @@ public class GoogleCalendarClient implements CalendarClient {
     private final ObjectMapper objectMapper;
     private final EventStatusService eventStatusService;
 
-    private final PlainTextMapper plainTextMapper = new PlainTextMapper();
 
     public GoogleCalendarClient(GoogleCalendarProperties properties, ObjectMapper objectMapper, EventStatusService eventStatusService) {
         this.properties = properties;
@@ -143,7 +142,7 @@ public class GoogleCalendarClient implements CalendarClient {
 
     private EventExtensionDto buildFromPlainText(String description) {
         try {
-            return plainTextMapper.fillFromString(description, EventExtensionDto.class);
+            return PlainTextMapper.fillFromString(description, EventExtensionDto.class);
         } catch (Exception e) {
             log.trace("Не удалось собрать EventExtensionDto в виде PLAIN TEXT, неверный формат", e);
             return null;

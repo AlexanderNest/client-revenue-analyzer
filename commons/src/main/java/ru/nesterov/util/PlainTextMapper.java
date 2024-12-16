@@ -4,10 +4,17 @@ import ru.nesterov.annotation.FieldAlias;
 
 import java.lang.reflect.Field;
 import java.lang.reflect.InvocationTargetException;
+import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
+import java.util.List;
+import java.util.Locale;
 
 public class PlainTextMapper {
+    private static final List<String> trueAliases = List.of("yes", "да");
+    private static final List<String> falseAliases = List.of("no");
+    private static final DateTimeFormatter formatter = DateTimeFormatter.ofPattern("dd.MM.yyyy HH:mm");
 
-    public <T> T fillFromString(String data, Class<T> classForBuild) {
+    public static <T> T fillFromString(String data, Class<T> classForBuild) {
         T result;
         try {
             result = classForBuild.getDeclaredConstructor().newInstance();
@@ -41,7 +48,7 @@ public class PlainTextMapper {
         return result;
     }
 
-    private boolean isApplicableField(Field field, String key) {
+    private static boolean isApplicableField(Field field, String key) {
         if (field.getName().equals(key)) {
             return true;
         }
@@ -60,8 +67,14 @@ public class PlainTextMapper {
         return false;
     }
 
-    private <T> void setFieldValue(T object, Field field, String value) {
+    private static <T> void setFieldValue(T object, Field field, String value) {
         try {
+            try {
+                String enrichedDate = value + " 00:00";  // на данный момент конкретное время не интересно, важная фактическая дата переноса
+                LocalDateTime dateTime = LocalDateTime.parse(enrichedDate, formatter);
+                field.set(object, dateTime);
+            } catch (Exception ignored) {}
+
             Class<?> type = field.getType();
 
             if (type == String.class) {
@@ -71,7 +84,7 @@ public class PlainTextMapper {
                 field.set(object, Integer.parseInt(value));
             }
             else if (type == boolean.class || type == Boolean.class) {
-                field.set(object, Boolean.parseBoolean(value));
+                field.set(object, convertToBoolean(value));
             }
             else if (type == long.class || type == Long.class) {
                 field.set(object, Long.parseLong(value));
@@ -85,5 +98,18 @@ public class PlainTextMapper {
         } catch (IllegalAccessException | NumberFormatException e) {
             System.err.println("Ошибка при установке значения для поля " + field.getName() + ": " + e.getMessage());
         }
+    }
+
+    private static boolean convertToBoolean(String value) {
+        value = value.toLowerCase(Locale.ROOT);
+
+        if (trueAliases.contains(value)) {
+            return true;
+        }
+        if (falseAliases.contains(value)) {
+            return false;
+        }
+
+        throw new IllegalArgumentException();
     }
 }
