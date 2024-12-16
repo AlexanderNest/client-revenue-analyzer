@@ -55,8 +55,8 @@ public class CreateUserHandler extends DisplayedCommandHandler {
     }
 
     private String getButtonCallbackValue(Update update) {
-        String callbackData = update.getCallbackQuery().getData();
-        ButtonCallback buttonCallback = ButtonCallback.fromShortString(callbackData);
+        String telegramCallbackString = update.getCallbackQuery().getData();
+        ButtonCallback buttonCallback = buttonCallbackService.buildButtonCallback(telegramCallbackString);
 
         return buttonCallback.getValue();
     }

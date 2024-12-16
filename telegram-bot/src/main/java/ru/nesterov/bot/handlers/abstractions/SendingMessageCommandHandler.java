@@ -2,6 +2,7 @@ package ru.nesterov.bot.handlers.abstractions;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.annotation.Lazy;
 import org.telegram.telegrambots.meta.api.methods.AnswerCallbackQuery;
 import org.telegram.telegrambots.meta.api.methods.BotApiMethod;
 import org.telegram.telegrambots.meta.api.methods.send.SendMessage;
@@ -12,6 +13,7 @@ import org.telegram.telegrambots.meta.api.objects.replykeyboard.InlineKeyboardMa
 import org.telegram.telegrambots.meta.api.objects.replykeyboard.ReplyKeyboard;
 import org.telegram.telegrambots.meta.api.objects.replykeyboard.buttons.InlineKeyboardButton;
 import ru.nesterov.bot.handlers.callback.ButtonCallback;
+import ru.nesterov.bot.handlers.service.ButtonCallbackService;
 import ru.nesterov.integration.ClientRevenueAnalyzerIntegrationClient;
 
 /**
@@ -23,6 +25,9 @@ public abstract class SendingMessageCommandHandler implements CommandHandler {
     protected ObjectMapper objectMapper;
     @Autowired
     protected ClientRevenueAnalyzerIntegrationClient client;
+    @Autowired
+    @Lazy
+    protected ButtonCallbackService buttonCallbackService;
 
     public BotApiMethod<?> getPlainSendMessage(long chatId, String text) {
         return buildSendMessage(chatId, text, null);
@@ -74,7 +79,7 @@ public abstract class SendingMessageCommandHandler implements CommandHandler {
         buttonCallback.setCommand(command);
         buttonCallback.setValue(callbackValue);
 
-        button.setCallbackData(buttonCallback.toShortString());
+        button.setCallbackData(buttonCallbackService.getTelegramButtonCallbackString(buttonCallback));
         return button;
     }
 }
