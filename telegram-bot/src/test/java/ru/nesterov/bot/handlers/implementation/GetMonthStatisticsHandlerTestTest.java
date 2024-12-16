@@ -11,7 +11,7 @@ import org.telegram.telegrambots.meta.api.objects.*;
 import org.telegram.telegrambots.meta.api.objects.replykeyboard.InlineKeyboardMarkup;
 import org.telegram.telegrambots.meta.api.objects.replykeyboard.ReplyKeyboard;
 import org.telegram.telegrambots.meta.api.objects.replykeyboard.buttons.InlineKeyboardButton;
-import ru.nesterov.bot.handlers.RegisteredUserHandler;
+import ru.nesterov.bot.handlers.RegisteredUserHandlerTest;
 import ru.nesterov.bot.handlers.callback.ButtonCallback;
 import ru.nesterov.dto.GetIncomeAnalysisForMonthResponse;
 import ru.nesterov.utils.MonthUtil;
@@ -24,13 +24,14 @@ import static org.mockito.ArgumentMatchers.anyLong;
 import static org.mockito.Mockito.when;
 
 @ContextConfiguration(classes = {
-        GetMonthStatisticsHandler.class
+        GetMonthStatisticsCommandHandler.class
 })
-class GetMonthStatisticsHandlerTest extends RegisteredUserHandler {
+class GetMonthStatisticsHandlerTestTest extends RegisteredUserHandlerTest {
     @Autowired
-    private GetMonthStatisticsHandler handler;
+    private GetMonthStatisticsCommandHandler handler;
 
     private static final String MARK_SYMBOL = "\u2B50";
+    private static final String COMMAND = "Узнать доход";
 
     @Test
     void handleCallback() throws JsonProcessingException {
@@ -54,7 +55,7 @@ class GetMonthStatisticsHandlerTest extends RegisteredUserHandler {
         CallbackQuery callbackQuery = new CallbackQuery();
         callbackQuery.setId(String.valueOf(1));
         ButtonCallback callback = new ButtonCallback();
-        callback.setCommand("/monthincome");
+        callback.setCommand(COMMAND);
         callback.setValue(MARK_SYMBOL + "august");
         callbackQuery.setMessage(message);
         callbackQuery.setData(objectMapper.writeValueAsString(callback));
@@ -86,7 +87,7 @@ class GetMonthStatisticsHandlerTest extends RegisteredUserHandler {
         chat.setId(1L);
 
         Message message = new Message();
-        message.setText("/monthincome");
+        message.setText(COMMAND);
         message.setChat(chat);
 
         Update update = new Update();
