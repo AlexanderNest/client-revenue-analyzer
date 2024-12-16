@@ -9,6 +9,7 @@ import org.telegram.telegrambots.meta.api.objects.CallbackQuery;
 import org.telegram.telegrambots.meta.api.objects.Update;
 import org.telegram.telegrambots.meta.api.objects.replykeyboard.InlineKeyboardMarkup;
 import org.telegram.telegrambots.meta.api.objects.replykeyboard.buttons.InlineKeyboardButton;
+import ru.nesterov.bot.handlers.abstractions.DisplayedCommandHandler;
 import ru.nesterov.bot.handlers.callback.ButtonCallback;
 import ru.nesterov.dto.GetIncomeAnalysisForMonthResponse;
 import ru.nesterov.utils.MonthUtil;
@@ -21,7 +22,7 @@ import java.util.Locale;
 
 @Component
 @ConditionalOnProperty("bot.enabled")
-public class GetMonthStatisticsCommandHandler extends InvocableCommandHandler {
+public class GetMonthStatisticsCommandHandler extends DisplayedCommandHandler {
     private static final String[] months = {
             "Январь", "Февраль",
             "Март", "Апрель", "Май",

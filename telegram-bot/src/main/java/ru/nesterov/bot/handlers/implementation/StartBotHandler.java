@@ -6,11 +6,13 @@ import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.stereotype.Component;
 import org.telegram.telegrambots.meta.api.methods.BotApiMethod;
 import org.telegram.telegrambots.meta.api.methods.send.SendMessage;
-import org.telegram.telegrambots.meta.api.objects.Message;
 import org.telegram.telegrambots.meta.api.objects.Update;
 import org.telegram.telegrambots.meta.api.objects.replykeyboard.ReplyKeyboardMarkup;
 import org.telegram.telegrambots.meta.api.objects.replykeyboard.buttons.KeyboardButton;
 import org.telegram.telegrambots.meta.api.objects.replykeyboard.buttons.KeyboardRow;
+import ru.nesterov.bot.TelegramUpdateUtils;
+import ru.nesterov.bot.handlers.abstractions.DisplayedCommandHandler;
+import ru.nesterov.bot.handlers.abstractions.InvocableCommandHandler;
 import ru.nesterov.properties.BotProperties;
 
 import java.util.ArrayList;
@@ -20,13 +22,12 @@ import java.util.List;
 @ConditionalOnProperty("bot.enabled")
 @RequiredArgsConstructor
 public class StartBotHandler extends InvocableCommandHandler {
-    private final List<InvocableCommandHandler> sendingMessageCommandHandlers;
+    private final List<DisplayedCommandHandler> sendingMessageCommandHandlers;
     private final BotProperties botProperties;
     private final ReplyKeyboardMarkup buttons = new ReplyKeyboardMarkup();
 
     @PostConstruct
     private void buildButtons() {
-        sendingMessageCommandHandlers.remove(this);
         buttons.setResizeKeyboard(true);
 
         List<KeyboardRow> keyboardRows = new ArrayList<>();
@@ -50,20 +51,12 @@ public class StartBotHandler extends InvocableCommandHandler {
 
     @Override
     public BotApiMethod<?> handle(Update update) {
-        String chatId = update.getMessage().getChatId().toString();
-
         SendMessage message = new SendMessage();
-        message.setChatId(chatId);
-        message.setText("Выберите опцию:");
+        message.setChatId(TelegramUpdateUtils.getChatId(update));
+        message.setText("Text");
         message.setReplyMarkup(buttons);
 
         return message;
-    }
-
-    @Override
-    public boolean isApplicable(Update update) {
-        Message message = update.getMessage();
-        return message != null && getCommand().equals(message.getText());
     }
 
     @Override

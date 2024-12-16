@@ -1,4 +1,4 @@
-package ru.nesterov.bot.handlers.implementation;
+package ru.nesterov.bot.handlers.abstractions;
 
 import lombok.SneakyThrows;
 import org.telegram.telegrambots.meta.api.objects.CallbackQuery;
