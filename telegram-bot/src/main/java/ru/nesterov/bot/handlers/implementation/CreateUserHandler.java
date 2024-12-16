@@ -54,13 +54,6 @@ public class CreateUserHandler extends DisplayedCommandHandler {
         throw new RuntimeException("CreateUserHandler cannot handle this update");
     }
 
-    private String getButtonCallbackValue(Update update) {
-        String callbackData = update.getCallbackQuery().getData();
-        ButtonCallback buttonCallback = ButtonCallback.fromShortString(callbackData);
-
-        return buttonCallback.getValue();
-    }
-
     @SneakyThrows
     private BotApiMethod<?> handleCancelledCalendarEnabledInput(Update update, CreateUserRequest createUserRequest) {
         createUserRequest.setIsCancelledCalendarEnabled(Boolean.valueOf(getButtonCallbackValue(update)));
@@ -73,6 +66,13 @@ public class CreateUserHandler extends DisplayedCommandHandler {
         }
     }
 
+    private String getButtonCallbackValue(Update update) {
+        String callbackData = update.getCallbackQuery().getData();
+        ButtonCallback buttonCallback = ButtonCallback.fromShortString(callbackData);
+
+        return buttonCallback.getValue();
+    }
+
     private BotApiMethod<?> handleRegisterCommand(long userId, long chatId) {
         if (isUserExists(String.valueOf(userId))) {
             return getPlainSendMessage(chatId, "Введите ID основного календаря:");
@@ -82,7 +82,7 @@ public class CreateUserHandler extends DisplayedCommandHandler {
     }
 
     private BotApiMethod<?> handleMainCalendarInput(CreateUserRequest createUserRequest, Update update) {
-        long userId = update.getMessage().getFrom().getId();
+        long userId = TelegramUpdateUtils.getUserId(update);
         createUserRequest.setUserIdentifier(String.valueOf(userId));
         createUserRequest.setMainCalendarId(update.getMessage().getText());
 
