@@ -8,7 +8,6 @@ import org.telegram.telegrambots.meta.api.methods.BotApiMethod;
 import org.telegram.telegrambots.meta.api.objects.Update;
 import org.telegram.telegrambots.meta.exceptions.TelegramApiException;
 import ru.nesterov.bot.handlers.abstractions.CommandHandler;
-import ru.nesterov.bot.handlers.service.BotHandlersRequestsKeeper;
 import ru.nesterov.bot.handlers.service.HandlersService;
 import ru.nesterov.properties.BotProperties;
 
@@ -18,13 +17,11 @@ import ru.nesterov.properties.BotProperties;
 public class RevenueAnalyzerBot extends TelegramLongPollingBot {
     private final HandlersService handlersService;
     private final BotProperties botProperties;
-    private final BotHandlersRequestsKeeper botHandlersRequestsKeeper;
 
-    public RevenueAnalyzerBot(BotProperties botProperties, HandlersService handlersService, BotHandlersRequestsKeeper botHandlersRequestsKeeper) {
+    public RevenueAnalyzerBot(BotProperties botProperties, HandlersService handlersService) {
         super(botProperties.getApiToken());
         this.handlersService = handlersService;
         this.botProperties = botProperties;
-        this.botHandlersRequestsKeeper = botHandlersRequestsKeeper;
     }
 
     @Override
@@ -46,7 +43,6 @@ public class RevenueAnalyzerBot extends TelegramLongPollingBot {
         } finally {
             if (commandHandler.isFinished(userId)) {
                 handlersService.resetHandlers(userId);
-                botHandlersRequestsKeeper.removeRequest(commandHandler.getClass(), userId);
             }
         }
 
