@@ -6,8 +6,7 @@ import ru.nesterov.dto.EventExtensionDto;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.*;
 
 class PlainTextMapperTest {
 
@@ -39,5 +38,6 @@ class PlainTextMapperTest {
 
         DateTimeFormatter formatter = DateTimeFormatter.ofPattern("dd.MM.yyyy HH:mm");
         assertEquals(LocalDateTime.parse("12.11.2024 00:00", formatter), eventExtensionDto.getPreviousDate());
+        fail();
     }
 }
