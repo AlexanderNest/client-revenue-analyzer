@@ -5,7 +5,6 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.stereotype.Component;
 import org.telegram.telegrambots.meta.api.methods.BotApiMethod;
-import org.telegram.telegrambots.meta.api.methods.send.SendMessage;
 import org.telegram.telegrambots.meta.api.objects.Update;
 import org.telegram.telegrambots.meta.api.objects.replykeyboard.ReplyKeyboardMarkup;
 import org.telegram.telegrambots.meta.api.objects.replykeyboard.buttons.KeyboardButton;
@@ -51,12 +50,7 @@ public class StartBotHandler extends InvocableCommandHandler {
 
     @Override
     public BotApiMethod<?> handle(Update update) {
-        SendMessage message = new SendMessage();
-        message.setChatId(TelegramUpdateUtils.getChatId(update));
-        message.setText("Text");
-        message.setReplyMarkup(buttons);
-
-        return message;
+        return getReplyKeyboard(TelegramUpdateUtils.getChatId(update), "Выберите опцию:", buttons);
     }
 
     @Override
