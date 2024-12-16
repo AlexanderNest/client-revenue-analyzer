@@ -64,7 +64,7 @@ public class EventsBackupControllerTest extends AbstractControllerTest {
                         .header(HEADER_X_USERNAME, user.getUsername())
                         .contentType(MediaType.APPLICATION_JSON))
                 .andExpect(status().isOk())
-                .andExpect(jsonPath("$.message").value("Встреч сохранено: 2"));
+                .andExpect(jsonPath("$.savedEventsCount").value(2));
         
         User savedUser = userRepository.findByUsername(user.getUsername());
         LocalDateTime checkedTime = LocalDateTime
@@ -83,7 +83,7 @@ public class EventsBackupControllerTest extends AbstractControllerTest {
                         .header(HEADER_X_USERNAME, user.getUsername())
                         .contentType(MediaType.APPLICATION_JSON))
                 .andExpect(status().isOk())
-                .andExpect(jsonPath("$.message").value("Встреч сохранено: 2"));
+                .andExpect(jsonPath("$.savedEventsCount").value(2));
         
         User savedUser = userRepository.findByUsername(user.getUsername());
         LocalDateTime checkedTime = LocalDateTime
@@ -95,8 +95,7 @@ public class EventsBackupControllerTest extends AbstractControllerTest {
                         .header(HEADER_X_USERNAME, user.getUsername())
                         .contentType(MediaType.APPLICATION_JSON))
                 .andExpect(status().isOk())
-                .andExpect(jsonPath("$.message").value("Следующий бэкап можно будет сделать по прошествии " +
-                        eventsBackupProperties.getDelayBetweenManualBackups() + " минут(ы)"));
+                .andExpect(jsonPath("$.isBackupMade").value(false));
         
         EventBackup lastSavedBackup = eventsBackupRepository
                 .findByTypeAndUserIdAndBackupTimeAfter(BackupType.MANUAL, savedUser.getId(), checkedTime);

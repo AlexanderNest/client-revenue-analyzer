@@ -18,6 +18,10 @@ import ru.nesterov.bot.handlers.CommandHandler;
 import ru.nesterov.bot.handlers.callback.ButtonCallback;
 import ru.nesterov.integration.ClientRevenueAnalyzerIntegrationClient;
 
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.List;
+
 public abstract class ClientRevenueAbstractHandler implements CommandHandler {
     @Autowired
     protected ObjectMapper objectMapper;
@@ -60,6 +64,23 @@ public abstract class ClientRevenueAbstractHandler implements CommandHandler {
 
         return answerCallbackQuery;
     }
+    
+    /**
+     * Создаёт клавиатуру из двумерного массива кнопок. Каждый подмассив кнопок занимает отдельную строку в клавиатуре.
+     * @param buttons кнопки в формате двумерного массива
+     * @return созданная клавиатура
+     */
+    protected InlineKeyboardMarkup buildInlineKeyboardMarkup(InlineKeyboardButton[][] buttons) {
+        InlineKeyboardMarkup keyboardMarkup = new InlineKeyboardMarkup();
+        List<List<InlineKeyboardButton>> keyboard = new ArrayList<>();
+        
+        for (InlineKeyboardButton[] line : buttons) {
+            keyboard.add(Arrays.asList(line));
+        }
+        
+        keyboardMarkup.setKeyboard(keyboard);
+        return keyboardMarkup;
+    }
 
     /**
      *
@@ -85,12 +106,27 @@ public abstract class ClientRevenueAbstractHandler implements CommandHandler {
         boolean isCurrentHandlerCommand = message != null && getCommand().equals(message.getText());
 
         CallbackQuery callbackQuery = update.getCallbackQuery();
-
         boolean isCallback = callbackQuery != null
-                && (getCommand().equals(ButtonCallback.fromShortString(callbackQuery.getData()).getCommand()) || getCommand().equals(objectMapper.readValue(callbackQuery.getData(), ButtonCallback.class).getCommand()));
+                && (getCommand().equals(getCommandFromShortString(callbackQuery)) || getCommand().equals(getCommandFromJson(callbackQuery)));
         boolean isPlainText = message != null && message.getText() != null;
 
         return isCurrentHandlerCommand || isCallback || (isPlainText && !isFinished(TelegramUpdateUtils.getUserId(update)));
+    }
+    
+    private String getCommandFromShortString(CallbackQuery callbackQuery) {
+        try {
+            return ButtonCallback.fromShortString(callbackQuery.getData()).getCommand();
+        } catch (Exception ex) {
+            return null;
+        }
+    }
+    
+    private String getCommandFromJson(CallbackQuery callbackQuery) {
+        try {
+            return objectMapper.readValue(callbackQuery.getData(), ButtonCallback.class).getCommand();
+        } catch (Exception ex) {
+            return null;
+        }
     }
 
     public abstract String getCommand();
