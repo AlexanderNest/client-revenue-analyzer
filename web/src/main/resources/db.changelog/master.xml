@@ -44,10 +44,10 @@
         <sql>
             CREATE TABLE "user"
             (
-                id                 BIGSERIAL PRIMARY KEY NOT NULL,
-                username           VARCHAR(20) UNIQUE    NOT NULL,
-                main_calendar_id      VARCHAR(200)          NOT NULL,
-                cancelled_calendar_id VARCHAR(200),
+                id                         BIGSERIAL PRIMARY KEY NOT NULL,
+                username                   VARCHAR(20) UNIQUE    NOT NULL,
+                main_calendar_id           VARCHAR(200)          NOT NULL,
+                cancelled_calendar_id      VARCHAR(200),
                 cancelled_calendar_enabled boolean DEFAULT false
             )
         </sql>
@@ -139,9 +139,9 @@
         <sql>
             CREATE TABLE PRICE_CHANGE_HISTORY
             (
-                client_id BIGINT REFERENCES client (id),
+                client_id      BIGINT REFERENCES client (id),
                 previous_price INT,
-                current_price INT,
+                current_price  INT,
                 date_of_change DATE default CURRENT_TIMESTAMP
             );
         </sql>
@@ -301,7 +301,66 @@
         </preConditions>
         <sql>
             ALTER TABLE event DROP COLUMN event_extension_id;
-            ALTER TABLE event ADD event_extension VARCHAR(500);
+            ALTER TABLE event
+                ADD event_extension VARCHAR(500);
         </sql>
     </changeSet>
+
+    <changeSet id="create-table-user-settings" author="Uenay">
+        <preConditions>
+            <tableExists tableName="user"/>
+            <not>
+                <tableExists tableName="user_settings"/>
+            </not>
+        </preConditions>
+        <sql>
+            CREATE TABLE user_settings
+            (
+                id                         BIGSERIAL PRIMARY KEY NOT NULL,
+                user_id                    BIGINT REFERENCES "user" (id),
+                cancelled_calendar_enabled boolean DEFAULT false,
+                events_backup_enabled      boolean DEFAULT false
+            );
+
+            CREATE INDEX idx_user_id ON "user" (id);
+        </sql>
+    </changeSet>
+
+    <changeSet id="insert-into-user-settings" author="Uenay">
+        <preConditions onFail="MARK_RAN">
+            <and>
+                <tableExists tableName="user_settings"/>
+                <tableExists tableName="user"/>
+            </and>
+        </preConditions>
+        <sql>
+            INSERT INTO user_settings (user_id, cancelled_calendar_enabled, events_backup_enabled)
+            SELECT id, cancelled_calendar_enabled, events_backup_enabled
+            FROM "user";
+        </sql>
+    </changeSet>
+
+    <changeSet id="rename user-v2" author="asd">
+        <preConditions>
+            <tableExists tableName="user"/>
+        </preConditions>
+        <sql>
+            alter table "user" rename to "USERS";
+        </sql>
+    </changeSet>
+
+    <changeSet id="drop-columns-in-user-table" author="Uenay">
+        <preConditions>
+            <and>
+                <tableExists tableName="users" schemaName="PUBLIC"/>
+                <columnExists tableName="users" columnName="cancelled_calendar_enabled" schemaName="PUBLIC"/>
+                <columnExists tableName="users" columnName="events_backup_enabled" schemaName="PUBLIC"/>
+            </and>
+        </preConditions>
+        <sql>
+            alter table users DROP COLUMN cancelled_calendar_enabled;
+            alter table users DROP COLUMN events_backup_enabled;
+        </sql>
+    </changeSet>
+
 </databaseChangeLog>
