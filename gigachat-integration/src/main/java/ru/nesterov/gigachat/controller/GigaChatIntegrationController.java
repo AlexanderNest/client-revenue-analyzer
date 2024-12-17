@@ -5,18 +5,21 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestHeader;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
-import ru.nesterov.gigachat.service.GigaChatIntegrationService;
-import ru.nesterov.gigachat.service.GigaChatTokenService;
+import ru.nesterov.gigachat.service.GigaChatApiService;
+
+import java.util.List;
 
 @RestController
 @RequiredArgsConstructor
 @RequestMapping("/ai")
 public class GigaChatIntegrationController {
-    private final GigaChatIntegrationService service;
-    private final GigaChatTokenService tokenService;
+    private final GigaChatApiService gigaChatApiService;
 
-    @GetMapping("/token")
-    public String getAccessToken(@RequestHeader(name = "X-username") String username) {
-        return tokenService.getTokenForUser();
+    @GetMapping("/generate")
+    public List<String> generateText(@RequestHeader(name = "X-username") String username) {
+        return gigaChatApiService.generateText().getChoices()
+                .stream()
+                .map(choice -> choice.getMessage().getContent())
+                .toList();
     }
 }

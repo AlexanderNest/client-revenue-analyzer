@@ -8,7 +8,7 @@ import org.springframework.stereotype.Component;
 @ConfigurationProperties(prefix = "giga-chat")
 @Data
 public class GigaChatIntegrationProperties {
+    private String authKey;
     private String authUrl;
     private String baseUrl;
-    private String authKey;
 }
