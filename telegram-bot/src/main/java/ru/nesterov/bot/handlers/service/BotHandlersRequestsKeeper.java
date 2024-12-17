@@ -1,4 +1,4 @@
-package ru.nesterov.bot.handlers;
+package ru.nesterov.bot.handlers.service;
 
 import jakarta.annotation.Nullable;
 import lombok.RequiredArgsConstructor;
@@ -26,5 +26,12 @@ public class BotHandlersRequestsKeeper {
         Map<Long, Object> requests = map.computeIfAbsent(handlerType, key -> new ConcurrentHashMap<>());
         requests.put(userId, request);
         return request;
+    }
+
+    public void removeRequest(Class<?> handlerType, long userId) {
+        Map<Long, Object> handlerRequests = map.get(handlerType);
+        if (handlerRequests != null) {
+            handlerRequests.remove(userId);
+        }
     }
 }

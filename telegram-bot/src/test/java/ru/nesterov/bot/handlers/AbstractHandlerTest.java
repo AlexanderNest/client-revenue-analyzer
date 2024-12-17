@@ -5,6 +5,8 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.test.context.ContextConfiguration;
+import ru.nesterov.bot.handlers.service.BotHandlersRequestsKeeper;
+import ru.nesterov.bot.handlers.service.HandlersService;
 import ru.nesterov.calendar.InlineCalendarBuilder;
 import ru.nesterov.integration.ClientRevenueAnalyzerIntegrationClient;
 
