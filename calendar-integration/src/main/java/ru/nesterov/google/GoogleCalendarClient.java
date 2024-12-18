@@ -56,7 +56,47 @@ public class GoogleCalendarClient implements CalendarClient {
     }
 
     @SneakyThrows
-    public List<EventDto> getEventsBetweenDates(String calendarId, boolean isCancelledCalendar, LocalDateTime leftDate, LocalDateTime rightDate) {
+    public void copyCancelledEventsToCancelledCalendar(String sourceCalendarId, String targetCalendarId, LocalDateTime leftDate, LocalDateTime rightDate) {
+        List<EventDto> events = getEventsBetweenDates(sourceCalendarId, false, leftDate, rightDate, List.of(EventStatus.CANCELLED));
+
+        log.info("Копирование {} событий из календаря [{}] в календарь [{}]", events.size(), sourceCalendarId, targetCalendarId);
+
+        for (EventDto eventDto : events) {
+            com.google.api.services.calendar.model.Event eventToInsert = buildGoogleEvent(eventDto);
+
+            calendar.events()
+                    .insert(targetCalendarId, eventToInsert)
+                    .execute();
+
+            log.debug("Событие [{}] перенесено в календарь [{}]", eventDto.getSummary(), targetCalendarId);
+        }
+
+        log.info("Все события успешно перенесены из календаря [{}] в календарь [{}]", sourceCalendarId, targetCalendarId);
+    }
+
+    private com.google.api.services.calendar.model.Event buildGoogleEvent(EventDto eventDto) {
+        com.google.api.services.calendar.model.Event event = new com.google.api.services.calendar.model.Event()
+                .setSummary(eventDto.getSummary())
+                .setStart(new com.google.api.services.calendar.model.EventDateTime()
+                        .setDateTime(new DateTime(eventDto.getStart().atZone(ZoneId.systemDefault()).toInstant().toEpochMilli())))
+                .setEnd(new com.google.api.services.calendar.model.EventDateTime()
+                        .setDateTime(new DateTime(eventDto.getEnd().atZone(ZoneId.systemDefault()).toInstant().toEpochMilli())));
+
+        if (eventDto.getEventExtensionDto() != null) {
+            try {
+                String description = objectMapper.writeValueAsString(eventDto.getEventExtensionDto());
+                event.setDescription(description);
+            } catch (Exception e) {
+                log.warn("Не удалось сериализовать EventExtensionDto для события [{}]", eventDto.getSummary(), e);
+            }
+        }
+
+        return event;
+    }
+
+    @SneakyThrows
+    public List<EventDto> getEventsBetweenDates(String calendarId, boolean isCancelledCalendar, LocalDateTime leftDate,
+                                                LocalDateTime rightDate, List<EventStatus> requiredStatuses) {
         Date startTime = Date.from(leftDate.atZone(ZoneId.systemDefault()).toInstant());
         Date endTime = Date.from(rightDate.atZone(ZoneId.systemDefault()).toInstant());
 
@@ -64,6 +104,12 @@ public class GoogleCalendarClient implements CalendarClient {
         return events.stream()
                 .flatMap(e -> e.getItems().stream())
                 .map(event -> buildEvent(event, isCancelledCalendar))
+                .filter(dto -> {
+                    if (requiredStatuses == null) {
+                        return true;
+                    }
+                    return requiredStatuses.contains(dto.getStatus());
+                })
                 .toList();
     }
 
