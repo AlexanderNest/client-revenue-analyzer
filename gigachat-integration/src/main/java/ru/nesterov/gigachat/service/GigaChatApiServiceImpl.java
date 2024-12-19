@@ -16,23 +16,20 @@ import java.util.List;
 @Service
 public class GigaChatApiServiceImpl implements GigaChatApiService {
     private final GigaChatTokenServiceImpl tokenService;
-    private final PromptService promptService;
     private final RestTemplate restTemplate;
 
-    public GigaChatApiServiceImpl(GigaChatTokenServiceImpl tokenService, PromptService promptService, @Qualifier("gigachatRestTemplate") RestTemplate restTemplate) {
+    public GigaChatApiServiceImpl(GigaChatTokenServiceImpl tokenService, @Qualifier("gigachatRestTemplate") RestTemplate restTemplate) {
         this.tokenService = tokenService;
-        this.promptService = promptService;
         this.restTemplate = restTemplate;
     }
 
     @SneakyThrows
-    public GigaChatTextGenerationResponse generateText() {
-        String prompt = promptService.getPrompt("prompt-template.txt");
+    public GigaChatTextGenerationResponse generateText(String text) {
         String accessToken = tokenService.getToken();
 
         HttpHeaders headers = createHeaders(accessToken);
 
-        GigaChatTextGenerationRequest request = getGigaChatTextGenerationRequest(prompt);
+        GigaChatTextGenerationRequest request = getGigaChatTextGenerationRequest(text);
 
         HttpEntity<GigaChatTextGenerationRequest> httpEntity = new HttpEntity<>(request, headers);
 

@@ -5,6 +5,8 @@ import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.MediaType;
 import org.springframework.stereotype.Service;
+import org.springframework.util.LinkedMultiValueMap;
+import org.springframework.util.MultiValueMap;
 import org.springframework.web.client.RestTemplate;
 import ru.nesterov.gigachat.GigaChatIntegrationProperties;
 import ru.nesterov.gigachat.GigaChatToken;
@@ -38,7 +40,11 @@ public class GigaChatTokenServiceImpl implements GigaChatTokenService {
 
     private GigaChatTokenResponse requestNewToken() {
         HttpHeaders headers = createHeaders();
-        HttpEntity<String> requestEntity = new HttpEntity<>("scope=GIGACHAT_API_PERS", headers);
+
+        MultiValueMap<String, String> requestBody = new LinkedMultiValueMap<>();
+        requestBody.add("scope", "GIGACHAT_API_PERS");
+
+        HttpEntity<MultiValueMap<String, String>> requestEntity = new HttpEntity<>(requestBody, headers);
 
         return restTemplate.postForObject(properties.getAuthUrl(), requestEntity, GigaChatTokenResponse.class);
     }
