@@ -1,7 +1,6 @@
 package ru.nesterov.service.ai;
 
 import jakarta.annotation.PostConstruct;
-import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.core.io.Resource;
 import org.springframework.stereotype.Service;
@@ -12,12 +11,15 @@ import java.io.IOException;
 import java.nio.charset.StandardCharsets;
 
 @Service
-@RequiredArgsConstructor
 public class AiAnalyzerService {
     private final GigaChatApiService gigaChatApiService;
-    @Value("classpath:prompt-template.txt")
     private final Resource promptTemplateResource;
     private String textWithClientAnalytic;
+
+    public AiAnalyzerService(GigaChatApiService gigaChatApiService, @Value("classpath:prompt-template.txt") Resource promptTemplateResource) {
+        this.gigaChatApiService = gigaChatApiService;
+        this.promptTemplateResource = promptTemplateResource;
+    }
 
     @PostConstruct
     private void init() {
@@ -34,7 +36,7 @@ public class AiAnalyzerService {
 
         String content = null;
 
-        if (choice != null) {
+        if (choice != null && choice.getMessage() != null) {
             content = choice.getMessage().getContent();
         }
         return content;
