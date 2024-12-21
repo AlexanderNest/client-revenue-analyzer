@@ -13,7 +13,6 @@ import org.springframework.web.client.RestTemplate;
 import ru.nesterov.gigachat.request.GigaChatTextGenerationRequest;
 import ru.nesterov.gigachat.request.Message;
 import ru.nesterov.gigachat.response.GigaChatTextGenerationResponse;
-import ru.nesterov.gigachat.response.GigaChatTokenResponse;
 
 import java.util.List;
 
