@@ -26,10 +26,10 @@ public class GigaChatTokenServiceImpl implements GigaChatTokenService {
         this.properties = properties;
     }
 
-    public String getToken() {
-        if (isUpdateRequires()) {
+    public String getToken(boolean forceUpdate) {
+        if (isUpdateRequires(forceUpdate)) {
             synchronized (this) {
-                if (isUpdateRequires()) {
+                if (isUpdateRequires(forceUpdate)) {
                     GigaChatTokenResponse response = requestNewToken();
                     updateToken(response);
                 }
@@ -60,8 +60,8 @@ public class GigaChatTokenServiceImpl implements GigaChatTokenService {
         return System.currentTimeMillis() > token.getExpirationTime();
     }
 
-    private boolean isUpdateRequires() {
-        return token == null || isExpired(token);
+    private boolean isUpdateRequires(boolean forceUpdate) {
+        return forceUpdate || token == null || isExpired(token);
     }
 
     private HttpHeaders createHeaders() {

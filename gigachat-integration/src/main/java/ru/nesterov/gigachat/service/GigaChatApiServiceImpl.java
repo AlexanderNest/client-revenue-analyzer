@@ -4,12 +4,16 @@ import lombok.SneakyThrows;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpHeaders;
+import org.springframework.http.HttpMethod;
+import org.springframework.http.HttpStatusCode;
 import org.springframework.http.MediaType;
+import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 import org.springframework.web.client.RestTemplate;
 import ru.nesterov.gigachat.request.GigaChatTextGenerationRequest;
 import ru.nesterov.gigachat.request.Message;
 import ru.nesterov.gigachat.response.GigaChatTextGenerationResponse;
+import ru.nesterov.gigachat.response.GigaChatTokenResponse;
 
 import java.util.List;
 
@@ -25,18 +29,20 @@ public class GigaChatApiServiceImpl implements GigaChatApiService {
 
     @SneakyThrows
     public GigaChatTextGenerationResponse generateText(String text) {
-        String accessToken = tokenService.getToken();
-
+        String accessToken = tokenService.getToken(false);
         HttpHeaders headers = createHeaders(accessToken);
-
         GigaChatTextGenerationRequest request = getGigaChatTextGenerationRequest(text);
-
         HttpEntity<GigaChatTextGenerationRequest> httpEntity = new HttpEntity<>(request, headers);
+        ResponseEntity<GigaChatTextGenerationResponse> response = requestToGigaChat(httpEntity);
 
-        return restTemplate.postForObject(
-                "https://gigachat.devices.sberbank.ru/api/v1/chat/completions",
-                httpEntity,
-                GigaChatTextGenerationResponse.class);
+        if (response.getStatusCode() == HttpStatusCode.valueOf(401)) {
+            accessToken = tokenService.getToken(true);
+            headers = createHeaders(accessToken);
+            httpEntity = new HttpEntity<>(request, headers);
+            response = requestToGigaChat(httpEntity);
+        }
+
+        return response.getBody();
     }
 
     private GigaChatTextGenerationRequest getGigaChatTextGenerationRequest(String prompt) {
@@ -63,5 +69,13 @@ public class GigaChatApiServiceImpl implements GigaChatApiService {
         headers.setAccept(List.of(MediaType.APPLICATION_JSON));
         headers.set("Authorization", "Bearer " + accessToken);
         return headers;
+    }
+
+    private ResponseEntity<GigaChatTextGenerationResponse> requestToGigaChat(HttpEntity<GigaChatTextGenerationRequest> httpEntity) {
+        return restTemplate.exchange(
+                "https://gigachat.devices.sberbank.ru/api/v1/chat/completions",
+                HttpMethod.POST,
+                httpEntity,
+                GigaChatTextGenerationResponse.class);
     }
 }
