@@ -14,16 +14,12 @@ import java.nio.charset.StandardCharsets;
 public class AiAnalyzerService {
     private final GigaChatApiService gigaChatApiService;
     private final Resource promptTemplateResource;
-    private String textWithClientAnalytic;
+    private final String textWithClientAnalytic;
 
     public AiAnalyzerService(GigaChatApiService gigaChatApiService, @Value("classpath:prompt-template.txt") Resource promptTemplateResource) {
         this.gigaChatApiService = gigaChatApiService;
         this.promptTemplateResource = promptTemplateResource;
-    }
-
-    @PostConstruct
-    private void init() {
-        textWithClientAnalytic = getTextFromFile();
+        this.textWithClientAnalytic = getTextFromFile();
     }
 
     public String analyzeClients() {
