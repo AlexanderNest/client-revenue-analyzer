@@ -7,9 +7,9 @@ import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.stereotype.Component;
 import org.telegram.telegrambots.meta.api.methods.BotApiMethod;
 import org.telegram.telegrambots.meta.api.objects.Update;
+import org.telegram.telegrambots.meta.api.objects.replykeyboard.InlineKeyboardMarkup;
 import org.telegram.telegrambots.meta.api.objects.replykeyboard.buttons.InlineKeyboardButton;
 import ru.nesterov.bot.TelegramUpdateUtils;
-import ru.nesterov.bot.handlers.BotHandlersRequestsKeeper;
 import ru.nesterov.bot.handlers.abstractions.DisplayedCommandHandler;
 import ru.nesterov.bot.handlers.callback.ButtonCallback;
 import ru.nesterov.bot.handlers.service.BotHandlersRequestsKeeper;
@@ -79,8 +79,8 @@ public class CreateUserHandler extends DisplayedCommandHandler {
         createUserRequest.setUserIdentifier(String.valueOf(userId));
         createUserRequest.setMainCalendarId(update.getMessage().getText());
         List<InlineKeyboardButton> buttons = List.of(
-                buildButton("Да", "true"),
-                buildButton("Нет", "false")
+                buildButton("Да", "true", getCommand()),
+                buildButton("Нет", "false", getCommand())
         );
 
         InlineKeyboardMarkup keyboardMarkup = new InlineKeyboardMarkup();
@@ -132,5 +132,11 @@ public class CreateUserHandler extends DisplayedCommandHandler {
 
         CreateUserRequest createUserRequest = keeper.getRequest(userId, CreateUserHandler.class, CreateUserRequest.class);
         return createUserRequest != null && createUserRequest.isFilled();
+    }
+    private String getButtonCallbackValue(Update update) {
+        String callbackData = update.getCallbackQuery().getData();
+        ButtonCallback buttonCallback = ButtonCallback.fromShortString(callbackData);
+
+        return buttonCallback.getValue();
     }
 }

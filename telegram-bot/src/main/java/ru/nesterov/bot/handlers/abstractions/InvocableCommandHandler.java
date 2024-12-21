@@ -27,4 +27,5 @@ public abstract class InvocableCommandHandler extends SendingMessageCommandHandl
 
         return isCurrentHandlerCommand || isCallback || (isPlainText && !isFinished(TelegramUpdateUtils.getUserId(update)));
     }
+
 }
