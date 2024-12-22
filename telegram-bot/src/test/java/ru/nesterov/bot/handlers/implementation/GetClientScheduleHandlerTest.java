@@ -35,7 +35,7 @@ import static org.mockito.Mockito.when;
 @ContextConfiguration(classes = {
         GetClientScheduleCommandHandler.class
 })
-public class GetClientScheduleHandlerTestTest extends RegisteredUserHandlerTest {
+public class GetClientScheduleHandlerTest extends RegisteredUserHandlerTest {
     @Autowired
     private GetClientScheduleCommandHandler handler;
 
