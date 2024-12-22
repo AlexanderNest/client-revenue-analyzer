@@ -10,8 +10,9 @@ import org.telegram.telegrambots.meta.api.objects.CallbackQuery;
 import org.telegram.telegrambots.meta.api.objects.Update;
 import org.telegram.telegrambots.meta.api.objects.replykeyboard.InlineKeyboardMarkup;
 import org.telegram.telegrambots.meta.api.objects.replykeyboard.buttons.InlineKeyboardButton;
-import ru.nesterov.bot.handlers.BotHandlersRequestsKeeper;
+import ru.nesterov.bot.handlers.abstractions.DisplayedCommandHandler;
 import ru.nesterov.bot.handlers.callback.ButtonCallback;
+import ru.nesterov.bot.handlers.service.BotHandlersRequestsKeeper;
 import ru.nesterov.calendar.InlineCalendarBuilder;
 import ru.nesterov.dto.GetActiveClientResponse;
 import ru.nesterov.dto.GetClientScheduleRequest;
@@ -28,12 +29,13 @@ import java.util.stream.Collectors;
 @Component
 @ConditionalOnProperty("bot.enabled")
 @RequiredArgsConstructor
-public class GetClientScheduleHandler extends ClientRevenueAbstractHandler {
+public class GetClientScheduleCommandHandler extends DisplayedCommandHandler {
     private final BotHandlersRequestsKeeper handlersKeeper;
     private final InlineCalendarBuilder inlineCalendarBuilder;
 
     private static final String ENTER_FIRST_DATE = "Введите первую дату";
     private static final String ENTER_SECOND_DATE = "Введите вторую дату";
+
 
     @SneakyThrows
     @Override
@@ -41,11 +43,11 @@ public class GetClientScheduleHandler extends ClientRevenueAbstractHandler {
         long chatId = getChatId(update);
         long userId = getUserId(update);
 
-        GetClientScheduleRequest getClientScheduleRequest = handlersKeeper.getRequest(userId, GetClientScheduleHandler.class, GetClientScheduleRequest.class);
+        GetClientScheduleRequest getClientScheduleRequest = handlersKeeper.getRequest(userId, GetClientScheduleCommandHandler.class, GetClientScheduleRequest.class);
 
         if (getClientScheduleRequest == null) {
             getClientScheduleRequest = handlersKeeper.putRequest(
-                    GetClientScheduleHandler.class,
+                    GetClientScheduleCommandHandler.class,
                     userId,
                     GetClientScheduleRequest.builder()
                             .userId(userId)
@@ -83,7 +85,7 @@ public class GetClientScheduleHandler extends ClientRevenueAbstractHandler {
             callback = null;
         }
         if (callback == null) {
-            callback = ButtonCallback.fromShortString(callbackData);
+            callback = buttonCallbackService.buildButtonCallback(callbackData);
         }
 
         if (isValidDate(callback.getValue())) {
@@ -110,7 +112,7 @@ public class GetClientScheduleHandler extends ClientRevenueAbstractHandler {
 
     @Override
     public String getCommand() {
-        return "/clientschedule";
+        return "Узнать расписание клиента";
     }
 
     @SneakyThrows
@@ -136,7 +138,7 @@ public class GetClientScheduleHandler extends ClientRevenueAbstractHandler {
             ButtonCallback callback = new ButtonCallback();
             callback.setCommand(getCommand());
             callback.setValue(response.getName());
-            button.setCallbackData(objectMapper.writeValueAsString(callback));
+            button.setCallbackData(buttonCallbackService.getTelegramButtonCallbackString(callback));
 
             List<InlineKeyboardButton> rowInline = new ArrayList<>();
             rowInline.add(button);

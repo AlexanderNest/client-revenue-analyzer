@@ -10,8 +10,9 @@ import org.telegram.telegrambots.meta.api.objects.Update;
 import org.telegram.telegrambots.meta.api.objects.replykeyboard.InlineKeyboardMarkup;
 import org.telegram.telegrambots.meta.api.objects.replykeyboard.buttons.InlineKeyboardButton;
 import ru.nesterov.bot.TelegramUpdateUtils;
-import ru.nesterov.bot.handlers.BotHandlersRequestsKeeper;
+import ru.nesterov.bot.handlers.abstractions.DisplayedCommandHandler;
 import ru.nesterov.bot.handlers.callback.ButtonCallback;
+import ru.nesterov.bot.handlers.service.BotHandlersRequestsKeeper;
 import ru.nesterov.dto.CreateUserRequest;
 import ru.nesterov.dto.CreateUserResponse;
 import ru.nesterov.dto.GetUserRequest;
@@ -23,7 +24,7 @@ import java.util.List;
 @Slf4j
 @RequiredArgsConstructor
 @ConditionalOnProperty("bot.enabled")
-public class CreateUserHandler extends ClientRevenueAbstractHandler {
+public class CreateUserHandler extends DisplayedCommandHandler {
     private final BotHandlersRequestsKeeper keeper;
 
     @Override
@@ -54,8 +55,8 @@ public class CreateUserHandler extends ClientRevenueAbstractHandler {
     }
 
     private String getButtonCallbackValue(Update update) {
-        String callbackData = update.getCallbackQuery().getData();
-        ButtonCallback buttonCallback = ButtonCallback.fromShortString(callbackData);
+        String telegramCallbackString = update.getCallbackQuery().getData();
+        ButtonCallback buttonCallback = buttonCallbackService.buildButtonCallback(telegramCallbackString);
 
         return buttonCallback.getValue();
     }
@@ -81,15 +82,15 @@ public class CreateUserHandler extends ClientRevenueAbstractHandler {
     }
 
     private BotApiMethod<?> handleMainCalendarInput(CreateUserRequest createUserRequest, Update update) {
-        long userId = update.getMessage().getFrom().getId();
+        long userId = TelegramUpdateUtils.getUserId(update);
         createUserRequest.setUserIdentifier(String.valueOf(userId));
         createUserRequest.setMainCalendarId(update.getMessage().getText());
 
         InlineKeyboardMarkup keyboardMarkup = new InlineKeyboardMarkup();
         List<List<InlineKeyboardButton>> keyboard = new ArrayList<>();
         List<InlineKeyboardButton> rowInline = new ArrayList<>();
-        rowInline.add(buildButton("Да", "true"));
-        rowInline.add(buildButton("Нет", "false"));
+        rowInline.add(buildButton("Да", "true", getCommand()));
+        rowInline.add(buildButton("Нет", "false", getCommand()));
         keyboard.add(rowInline);
         keyboardMarkup.setKeyboard(keyboard);
 
