@@ -13,6 +13,7 @@ import org.telegram.telegrambots.meta.api.objects.replykeyboard.ReplyKeyboard;
 import org.telegram.telegrambots.meta.api.objects.replykeyboard.buttons.InlineKeyboardButton;
 import ru.nesterov.bot.handlers.RegisteredUserHandlerTest;
 import ru.nesterov.bot.handlers.callback.ButtonCallback;
+import ru.nesterov.bot.handlers.service.ButtonCallbackService;
 import ru.nesterov.dto.CreateUserRequest;
 import ru.nesterov.dto.CreateUserResponse;
 import ru.nesterov.dto.GetUserRequest;
@@ -26,11 +27,13 @@ import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.when;
 
 @ContextConfiguration(classes = {
-        CreateUserHandler.class,
+        CreateUserHandler.class
 })
 public class CreateUserHandlerTestTest extends RegisteredUserHandlerTest {
     @Autowired
     private CreateUserHandler createUserHandler;
+    @Autowired
+    private ButtonCallbackService buttonCallbackService;
 
     private String COMMAND;
 
@@ -109,7 +112,7 @@ public class CreateUserHandlerTestTest extends RegisteredUserHandlerTest {
         callbackQuery.setMessage(message);
         callback.setCommand(COMMAND);
         callback.setValue(request.getIsCancelledCalendarEnabled().toString());
-        String callbackData = callback.toShortString();
+        String callbackData = buttonCallbackService.getTelegramButtonCallbackString(callback);
         callbackQuery.setData(callbackData);
 
         update.setCallbackQuery(callbackQuery);
