@@ -82,7 +82,7 @@ public class CreateUserHandler extends DisplayedCommandHandler {
     }
 
     private BotApiMethod<?> handleMainCalendarInput(CreateUserRequest createUserRequest, Update update) {
-        long userId = update.getMessage().getFrom().getId();
+        long userId = TelegramUpdateUtils.getUserId(update);
         createUserRequest.setUserIdentifier(String.valueOf(userId));
         createUserRequest.setMainCalendarId(update.getMessage().getText());
 
