@@ -84,10 +84,6 @@ public class CreateClientHandler extends DisplayedCommandHandler {
 
     private BotApiMethod<?> handlePhoneNumberInput(Update update, CreateClientRequest createClientRequest) {
         createClientRequest.setPhone(update.getMessage().getText());
-        List<InlineKeyboardButton> buttons = List.of(
-                buildButton("Да", "true", getCommand()),
-                buildButton("Нет", "false", getCommand())
-        );
         InlineKeyboardMarkup keyboardMarkup = new InlineKeyboardMarkup();
         List<List<InlineKeyboardButton>> keyboard = new ArrayList<>();
         List<InlineKeyboardButton> rowInline = new ArrayList<>();
@@ -131,8 +127,8 @@ public class CreateClientHandler extends DisplayedCommandHandler {
     }
 
     private String getButtonCallbackValue(Update update) {
-        String callbackData = update.getCallbackQuery().getData();
-        ButtonCallback buttonCallback = ButtonCallback.fromShortString(callbackData);
+        String telegramCallbackString = update.getCallbackQuery().getData();
+        ButtonCallback buttonCallback = buttonCallbackService.buildButtonCallback(telegramCallbackString);
 
         return buttonCallback.getValue();
     }
