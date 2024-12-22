@@ -19,13 +19,30 @@ public abstract class InvocableCommandHandler extends SendingMessageCommandHandl
         Message message = update.getMessage();
         boolean isCurrentHandlerCommand = message != null && getCommand().equals(message.getText());
 
+        if (isCurrentHandlerCommand) {
+            return true;
+        }
+
+        boolean isPlainText = message != null && message.getText() != null;
+        if (isPlainText && !isFinished(TelegramUpdateUtils.getUserId(update))) {
+            return true;
+        }
+
         CallbackQuery callbackQuery = update.getCallbackQuery();
 
-        boolean isCallback = callbackQuery != null
-                && (getCommand().equals(ButtonCallback.fromShortString(callbackQuery.getData()).getCommand()) || getCommand().equals(objectMapper.readValue(callbackQuery.getData(), ButtonCallback.class).getCommand()));
-        boolean isPlainText = message != null && message.getText() != null;
+        if (callbackQuery == null) {
+            return false;
+        }
 
-        return isCurrentHandlerCommand || isCallback || (isPlainText && !isFinished(TelegramUpdateUtils.getUserId(update)));
+        boolean isShortButtonCallback = getCommand().equals(buttonCallbackService.buildButtonCallback(callbackQuery.getData()).getCommand());
+        boolean isJsonButtonCallback = false;
+        try {
+            isJsonButtonCallback = getCommand().equals(objectMapper.readValue(callbackQuery.getData(), ButtonCallback.class).getCommand());
+        } catch (Exception ignored) {
+
+        }
+
+        return isShortButtonCallback || isJsonButtonCallback;
     }
 
 }

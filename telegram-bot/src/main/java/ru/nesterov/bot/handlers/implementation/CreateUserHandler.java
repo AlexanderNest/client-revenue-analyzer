@@ -54,6 +54,13 @@ public class CreateUserHandler extends DisplayedCommandHandler {
         throw new RuntimeException("CreateUserHandler cannot handle this update");
     }
 
+    private String getButtonCallbackValue(Update update) {
+        String telegramCallbackString = update.getCallbackQuery().getData();
+        ButtonCallback buttonCallback = buttonCallbackService.buildButtonCallback(telegramCallbackString);
+
+        return buttonCallback.getValue();
+    }
+
     @SneakyThrows
     private BotApiMethod<?> handleCancelledCalendarEnabledInput(Update update, CreateUserRequest createUserRequest) {
         createUserRequest.setIsCancelledCalendarEnabled(Boolean.valueOf(getButtonCallbackValue(update)));
@@ -78,10 +85,6 @@ public class CreateUserHandler extends DisplayedCommandHandler {
         long userId = TelegramUpdateUtils.getUserId(update);
         createUserRequest.setUserIdentifier(String.valueOf(userId));
         createUserRequest.setMainCalendarId(update.getMessage().getText());
-        List<InlineKeyboardButton> buttons = List.of(
-                buildButton("Да", "true", getCommand()),
-                buildButton("Нет", "false", getCommand())
-        );
 
         InlineKeyboardMarkup keyboardMarkup = new InlineKeyboardMarkup();
         List<List<InlineKeyboardButton>> keyboard = new ArrayList<>();
@@ -132,11 +135,5 @@ public class CreateUserHandler extends DisplayedCommandHandler {
 
         CreateUserRequest createUserRequest = keeper.getRequest(userId, CreateUserHandler.class, CreateUserRequest.class);
         return createUserRequest != null && createUserRequest.isFilled();
-    }
-    private String getButtonCallbackValue(Update update) {
-        String callbackData = update.getCallbackQuery().getData();
-        ButtonCallback buttonCallback = ButtonCallback.fromShortString(callbackData);
-
-        return buttonCallback.getValue();
     }
 }
