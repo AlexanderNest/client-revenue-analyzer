@@ -1,19 +1,15 @@
 package ru.nesterov.controller;
 
+import com.google.api.services.calendar.model.Event;
 import org.junit.jupiter.api.Test;
 import org.springframework.http.MediaType;
 import ru.nesterov.controller.request.GetForYearRequest;
-import ru.nesterov.dto.EventDto;
-import ru.nesterov.dto.EventStatus;
 import ru.nesterov.entity.Client;
 import ru.nesterov.entity.User;
 
-import java.time.LocalDateTime;
 import java.util.List;
 
-import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.ArgumentMatchers.anyBoolean;
-import static org.mockito.ArgumentMatchers.eq;
+import static org.mockito.ArgumentMatchers.*;
 import static org.mockito.Mockito.when;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
@@ -35,21 +31,10 @@ class UserAnalyzerControllerTest extends AbstractControllerTest {
         client1.setPricePerHour(1000);
         clientRepository.save(client1);
 
-        EventDto eventDto1 = EventDto.builder()
-                .summary("paid1")
-                .status(EventStatus.SUCCESS)
-                .start(LocalDateTime.of(2024, 8, 12, 12, 30))
-                .end(LocalDateTime.of(2024, 8, 12, 15, 0))
-                .build();
+        Event event1 = buildEvent("10", "paid1", null, 2024, 8, 12, 12, 30, 2024, 8, 12, 15, 0);
+        Event event2 = buildEvent("10", "paid1", null, 2024, 8, 14, 12, 45, 2024, 8, 14, 20, 0);
 
-        EventDto eventDto2 = EventDto.builder()
-                .summary("paid1")
-                .status(EventStatus.SUCCESS)
-                .start(LocalDateTime.of(2024, 8, 14, 12, 45))
-                .end(LocalDateTime.of(2024, 8, 14, 20, 0))
-                .build();
-
-        when(googleCalendarClient.getEventsBetweenDates(eq("someCalendar1"), anyBoolean(), any(), any())).thenReturn(List.of(eventDto1, eventDto2));
+        when(googleCalendarClient.getEventsBetweenDates(eq("someCalendar1"), anyBoolean(), any(), any(), any())).thenReturn(List.of(event1, event2));
 
         GetForYearRequest getForYearRequest = new GetForYearRequest();
         getForYearRequest.setYear(2024);

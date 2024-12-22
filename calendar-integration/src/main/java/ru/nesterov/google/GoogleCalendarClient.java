@@ -2,10 +2,12 @@ package ru.nesterov.google;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.google.api.client.googleapis.javanet.GoogleNetHttpTransport;
+import com.google.api.client.googleapis.json.GoogleJsonResponseException;
 import com.google.api.client.json.gson.GsonFactory;
 import com.google.api.client.util.DateTime;
 import com.google.api.services.calendar.Calendar;
 import com.google.api.services.calendar.CalendarScopes;
+import com.google.api.services.calendar.model.Event;
 import com.google.api.services.calendar.model.Events;
 import com.google.auth.http.HttpCredentialsAdapter;
 import com.google.auth.oauth2.GoogleCredentials;
@@ -13,21 +15,16 @@ import lombok.SneakyThrows;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.stereotype.Component;
-import ru.nesterov.dto.EventDto;
-import ru.nesterov.dto.EventExtensionDto;
-import ru.nesterov.dto.EventStatus;
-import ru.nesterov.google.exception.CannotBuildEventException;
-import ru.nesterov.util.PlainTextMapper;
 
-import javax.annotation.Nullable;
 import java.io.FileInputStream;
 import java.io.IOException;
-import java.time.Instant;
 import java.time.LocalDateTime;
 import java.time.ZoneId;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
+import java.util.Set;
+import java.util.stream.Collectors;
 
 @Slf4j
 @Component
@@ -36,19 +33,18 @@ public class GoogleCalendarClient implements CalendarClient {
     private final Calendar calendar;
     private final GoogleCalendarProperties properties;
     private final ObjectMapper objectMapper;
-    private final EventStatusService eventStatusService;
 
-    public GoogleCalendarClient(GoogleCalendarProperties properties, ObjectMapper objectMapper, EventStatusService eventStatusService) {
+
+    public GoogleCalendarClient(GoogleCalendarProperties properties, ObjectMapper objectMapper) {
         this.properties = properties;
         this.objectMapper = objectMapper;
-        this.eventStatusService = eventStatusService;
         this.calendar = createCalendarService();
     }
 
     @SneakyThrows
     private Calendar createCalendarService() {
         GoogleCredentials credentials = GoogleCredentials.fromStream(new FileInputStream(properties.getServiceAccountFilePath()))
-                    .createScoped(List.of(CalendarScopes.CALENDAR_READONLY));
+                    .createScoped(List.of(CalendarScopes.CALENDAR));
 
         return new Calendar.Builder(GoogleNetHttpTransport.newTrustedTransport(), GsonFactory.getDefaultInstance(), new HttpCredentialsAdapter(credentials))
                 .setApplicationName(properties.getApplicationName())
@@ -56,59 +52,48 @@ public class GoogleCalendarClient implements CalendarClient {
     }
 
     @SneakyThrows
-    public void copyCancelledEventsToCancelledCalendar(String sourceCalendarId, String targetCalendarId, LocalDateTime leftDate, LocalDateTime rightDate) {
-        List<EventDto> events = getEventsBetweenDates(sourceCalendarId, false, leftDate, rightDate, List.of(EventStatus.CANCELLED));
+    public void copyCancelledEventsToCancelledCalendar(String sourceCalendarId, String targetCalendarId, LocalDateTime leftDate, LocalDateTime rightDate, List<String> cancelledColorIds) {
+        List<Event> events = getEventsBetweenDates(sourceCalendarId, false, leftDate, rightDate, cancelledColorIds);
+        List<Event> targetEvents = getEventsBetweenDates(targetCalendarId, false, leftDate, rightDate, cancelledColorIds);
+        Set<String> targetEventsId = targetEvents.stream()
+                .map(Event::getId)
+                .collect(Collectors.toSet());
 
-        log.info("Копирование {} событий из календаря [{}] в календарь [{}]", events.size(), sourceCalendarId, targetCalendarId);
+        List<Event> eventsToTransfer = events.stream()
+                .filter(e -> !targetEventsId.contains(e.getId()))
+                .toList();
 
-        for (EventDto eventDto : events) {
-            com.google.api.services.calendar.model.Event eventToInsert = buildGoogleEvent(eventDto);
+        log.info("Копирование {} событий из календаря [{}] в календарь [{}]. [{}] событий уже находятся в целевом календаре", eventsToTransfer.size(), sourceCalendarId, targetCalendarId, events.size() - eventsToTransfer.size());
 
-            calendar.events()
-                    .insert(targetCalendarId, eventToInsert)
-                    .execute();
-
-            log.debug("Событие [{}] перенесено в календарь [{}]", eventDto.getSummary(), targetCalendarId);
-        }
-
-        log.info("Все события успешно перенесены из календаря [{}] в календарь [{}]", sourceCalendarId, targetCalendarId);
-    }
-
-    private com.google.api.services.calendar.model.Event buildGoogleEvent(EventDto eventDto) {
-        com.google.api.services.calendar.model.Event event = new com.google.api.services.calendar.model.Event()
-                .setSummary(eventDto.getSummary())
-                .setStart(new com.google.api.services.calendar.model.EventDateTime()
-                        .setDateTime(new DateTime(eventDto.getStart().atZone(ZoneId.systemDefault()).toInstant().toEpochMilli())))
-                .setEnd(new com.google.api.services.calendar.model.EventDateTime()
-                        .setDateTime(new DateTime(eventDto.getEnd().atZone(ZoneId.systemDefault()).toInstant().toEpochMilli())));
-
-        if (eventDto.getEventExtensionDto() != null) {
+        for (Event event : eventsToTransfer) {
             try {
-                String description = objectMapper.writeValueAsString(eventDto.getEventExtensionDto());
-                event.setDescription(description);
-            } catch (Exception e) {
-                log.warn("Не удалось сериализовать EventExtensionDto для события [{}]", eventDto.getSummary(), e);
+                calendar.events()
+                        .insert(targetCalendarId, event)
+                        .execute();
+
+                log.debug("Событие [{}] перенесено в календарь [{}]", event.getSummary(), targetCalendarId);
+            } catch (GoogleJsonResponseException e) {
+                log.debug("Событие [{}] не будет перенесено", event, e);
+                if (e.getStatusCode() == 409) {
+                    log.debug("Событие [{}] уже имеется в календаре [{}]", event, targetCalendarId);
+                }
             }
         }
-
-        return event;
     }
 
     @SneakyThrows
-    public List<EventDto> getEventsBetweenDates(String calendarId, boolean isCancelledCalendar, LocalDateTime leftDate,
-                                                LocalDateTime rightDate, List<EventStatus> requiredStatuses) {
+    public List<Event> getEventsBetweenDates(String calendarId, boolean isCancelledCalendar, LocalDateTime leftDate, LocalDateTime rightDate, List<String> colorsId) {
         Date startTime = Date.from(leftDate.atZone(ZoneId.systemDefault()).toInstant());
         Date endTime = Date.from(rightDate.atZone(ZoneId.systemDefault()).toInstant());
 
         List<Events> events = getEventsBetweenDates(calendarId, startTime, endTime);
         return events.stream()
                 .flatMap(e -> e.getItems().stream())
-                .map(event -> buildEvent(event, isCancelledCalendar))
-                .filter(dto -> {
-                    if (requiredStatuses == null) {
+                .filter(event -> {
+                    if (colorsId == null) {
                         return true;
                     }
-                    return requiredStatuses.contains(dto.getStatus());
+                    return colorsId.contains(event.getColorId());
                 })
                 .toList();
     }
@@ -143,54 +128,5 @@ public class GoogleCalendarClient implements CalendarClient {
                 .execute();
         log.debug("Response from google received");
         return events;
-    }
-
-    private EventDto buildEvent(com.google.api.services.calendar.model.Event event, boolean isCancelledCalendar) {
-        try {
-            return EventDto.builder()
-                    .status(isCancelledCalendar ? EventStatus.CANCELLED : eventStatusService.getEventStatus(event))
-                    .summary(event.getSummary())
-                    .start(LocalDateTime.ofInstant(Instant.ofEpochMilli(event.getStart().getDateTime().getValue()), ZoneId.systemDefault()))
-                    .end(LocalDateTime.ofInstant(Instant.ofEpochMilli(event.getEnd().getDateTime().getValue()), ZoneId.systemDefault()))
-                    .eventExtensionDto(buildEventExtension(event))
-                    .build();
-        } catch (Exception e) {
-            throw new CannotBuildEventException(event.getSummary(), event.getStart(), e);
-        }
-    }
-
-    @Nullable
-    private EventExtensionDto buildEventExtension(com.google.api.services.calendar.model.Event event) {
-        log.trace("Сборка EventExtensionDto для EventDto с названием [{}] and date [{}]", event.getSummary(), event.getStart());
-
-        if (event.getDescription() == null) {
-            log.trace("EventDto не содержит EventExtensionDto");
-            return null;
-        }
-
-        EventExtensionDto eventExtensionDto = buildFromPlainText(event.getDescription());
-        if (eventExtensionDto != null) {
-            return eventExtensionDto;
-        }
-
-        return buildFromJson(event.getDescription());
-    }
-
-    private EventExtensionDto buildFromJson(String description) {
-        try {
-            return objectMapper.readValue(description, EventExtensionDto.class);
-        } catch (Exception e) {
-            log.trace("Не удалось собрать EventExtensionDto в виде JSON, неверный формат", e);
-            return null;
-        }
-    }
-
-    private EventExtensionDto buildFromPlainText(String description) {
-        try {
-            return PlainTextMapper.fillFromString(description, EventExtensionDto.class);
-        } catch (Exception e) {
-            log.trace("Не удалось собрать EventExtensionDto в виде PLAIN TEXT, неверный формат", e);
-            return null;
-        }
     }
 }

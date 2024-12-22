@@ -76,6 +76,7 @@ public class EventsAnalyzerServiceImpl implements EventsAnalyzerService {
     private void handleCancelledEvent(ClientMeetingsStatistic clientMeetingsStatistic, EventDto eventDto){
         double eventDuration = eventService.getEventDuration(eventDto);
         clientMeetingsStatistic.increaseCancelled(eventDuration);
+
         if (eventDto.getEventExtensionDto().getIsPlanned()) {
             clientMeetingsStatistic.increasePlannedCancelledEvents(1);
         } else {
