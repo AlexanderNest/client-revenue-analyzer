@@ -14,6 +14,7 @@ import ru.nesterov.bot.handlers.service.BotHandlersRequestsKeeper;
 import ru.nesterov.dto.CreateClientRequest;
 import ru.nesterov.dto.CreateClientResponse;
 
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -101,12 +102,13 @@ public class CreateClientHandler extends DisplayedCommandHandler {
     }
 
     private String formatCreateClientResponse(CreateClientResponse response) {
+        SimpleDateFormat formatter = new SimpleDateFormat("dd.MM.yyyy");
         return String.join(System.lineSeparator(),
                 "Клиент успешно зарегистрирован!",
                         "Имя: " + response.getName(),
                         "Стоимость за час: " + response.getPricePerHour(),
                         "Описание: " + response.getDescription(),
-                        "Дата начала встреч: " + response.getStartDate(),
+                        "Дата начала встреч: " + formatter.format(response.getStartDate()),
                         "Номер телефона: " + response.getPhone());
     }
 
@@ -123,7 +125,7 @@ public class CreateClientHandler extends DisplayedCommandHandler {
     @Override
     public boolean isFinished(Long userId) {
         CreateClientRequest request = keeper.getRequest(userId, CreateClientHandler.class, CreateClientRequest.class);
-        return request != null && request.isFilled();
+        return request == null || request.isFilled();
     }
 
     private String getButtonCallbackValue(Update update) {
