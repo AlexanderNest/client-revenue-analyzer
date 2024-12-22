@@ -16,9 +16,11 @@ import org.telegram.telegrambots.meta.api.objects.replykeyboard.ReplyKeyboard;
 import org.telegram.telegrambots.meta.api.objects.replykeyboard.buttons.InlineKeyboardButton;
 import ru.nesterov.bot.handlers.RegisteredUserHandlerTest;
 import ru.nesterov.bot.handlers.callback.ButtonCallback;
+import ru.nesterov.bot.handlers.service.ButtonCallbackService;
 import ru.nesterov.dto.CreateClientRequest;
 import ru.nesterov.dto.CreateClientResponse;
 
+import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.List;
 
@@ -33,7 +35,8 @@ import static org.mockito.Mockito.when;
 public class CreateClientTest extends RegisteredUserHandlerTest {
     @Autowired
     private CreateClientHandler createClientHandler;
-
+    @Autowired
+    private ButtonCallbackService buttonCallbackService;
     private String COMMAND;
 
     @BeforeEach
@@ -48,6 +51,8 @@ public class CreateClientTest extends RegisteredUserHandlerTest {
 
         User user = new User();
         user.setId(1L);
+
+        SimpleDateFormat formatter = new SimpleDateFormat("dd.MM.yyyy");
 
         CreateClientRequest request = CreateClientRequest.builder()
                 .name("Masha")
@@ -128,7 +133,7 @@ public class CreateClientTest extends RegisteredUserHandlerTest {
         callbackQuery.setMessage(message);
         callback.setCommand(COMMAND);
         callback.setValue(request.getIdGenerationNeeded().toString());
-        String callbackData = callback.toShortString();
+        String callbackData = buttonCallbackService.getTelegramButtonCallbackString(callback);
         callbackQuery.setData(callbackData);
 
         update.setCallbackQuery(callbackQuery);
@@ -140,7 +145,7 @@ public class CreateClientTest extends RegisteredUserHandlerTest {
                 "Имя: Masha",
                 "Стоимость за час: 2000",
                 "Описание: description",
-                "Дата начала встреч: " + response.getStartDate(),
+                "Дата начала встреч: " + formatter.format(response.getStartDate()),
                 "Номер телефона: 8916"),
         sendMessage.getText());
     }
@@ -227,7 +232,7 @@ public class CreateClientTest extends RegisteredUserHandlerTest {
         callbackQuery.setMessage(message);
         callback.setCommand(COMMAND);
         callback.setValue(request.getIdGenerationNeeded().toString());
-        String callbackData = callback.toShortString();
+        String callbackData = buttonCallbackService.getTelegramButtonCallbackString(callback);
         callbackQuery.setData(callbackData);
 
         update.setCallbackQuery(callbackQuery);
@@ -245,6 +250,8 @@ public class CreateClientTest extends RegisteredUserHandlerTest {
 
         User user = new User();
         user.setId(3L);
+
+        SimpleDateFormat formatter = new SimpleDateFormat("dd.MM.yyyy");
 
         CreateClientRequest request = CreateClientRequest.builder()
                 .name("Sasha")
@@ -325,7 +332,7 @@ public class CreateClientTest extends RegisteredUserHandlerTest {
         callbackQuery.setMessage(message);
         callback.setCommand(COMMAND);
         callback.setValue(request.getIdGenerationNeeded().toString());
-        String callbackData = callback.toShortString();
+        String callbackData = buttonCallbackService.getTelegramButtonCallbackString(callback);
         callbackQuery.setData(callbackData);
 
         update.setCallbackQuery(callbackQuery);
@@ -337,7 +344,7 @@ public class CreateClientTest extends RegisteredUserHandlerTest {
                         "Имя: Sasha 2",
                         "Стоимость за час: 2000",
                         "Описание: description",
-                        "Дата начала встреч: " + response.getStartDate(),
+                        "Дата начала встреч: " + formatter.format(response.getStartDate()),
                         "Номер телефона: 8916"),
                 sendMessage.getText());
     }

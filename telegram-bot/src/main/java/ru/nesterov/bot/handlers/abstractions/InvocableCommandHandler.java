@@ -44,5 +44,4 @@ public abstract class InvocableCommandHandler extends SendingMessageCommandHandl
 
         return isShortButtonCallback || isJsonButtonCallback;
     }
-
 }
