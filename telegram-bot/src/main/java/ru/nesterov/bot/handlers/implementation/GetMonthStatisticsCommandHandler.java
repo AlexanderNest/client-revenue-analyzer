@@ -137,5 +137,4 @@ public class GetMonthStatisticsCommandHandler extends DisplayedCommandHandler {
     public int getOrder() {
         return 1;
     }
-
 }
