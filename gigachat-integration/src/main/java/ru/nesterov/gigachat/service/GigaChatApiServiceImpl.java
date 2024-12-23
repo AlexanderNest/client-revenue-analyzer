@@ -10,6 +10,7 @@ import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 import org.springframework.web.client.RestTemplate;
+import ru.nesterov.gigachat.GigaChatIntegrationProperties;
 import ru.nesterov.gigachat.request.GigaChatTextGenerationRequest;
 import ru.nesterov.gigachat.request.Message;
 import ru.nesterov.gigachat.response.GigaChatTextGenerationResponse;
@@ -18,10 +19,14 @@ import java.util.List;
 
 @Service
 public class GigaChatApiServiceImpl implements GigaChatApiService {
+    private final GigaChatIntegrationProperties properties;
     private final GigaChatTokenServiceImpl tokenService;
     private final RestTemplate restTemplate;
 
-    public GigaChatApiServiceImpl(GigaChatTokenServiceImpl tokenService, @Qualifier("gigachatRestTemplate") RestTemplate restTemplate) {
+    public GigaChatApiServiceImpl(GigaChatIntegrationProperties properties,
+                                  GigaChatTokenServiceImpl tokenService,
+                                  @Qualifier("gigachatRestTemplate") RestTemplate restTemplate) {
+        this.properties = properties;
         this.tokenService = tokenService;
         this.restTemplate = restTemplate;
     }
@@ -72,7 +77,7 @@ public class GigaChatApiServiceImpl implements GigaChatApiService {
 
     private ResponseEntity<GigaChatTextGenerationResponse> requestToGigaChat(HttpEntity<GigaChatTextGenerationRequest> httpEntity) {
         return restTemplate.exchange(
-                "https://gigachat.devices.sberbank.ru/api/v1/chat/completions",
+                properties.getTextGenerationUrl(),
                 HttpMethod.POST,
                 httpEntity,
                 GigaChatTextGenerationResponse.class);

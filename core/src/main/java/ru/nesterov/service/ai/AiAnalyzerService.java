@@ -15,7 +15,7 @@ public class AiAnalyzerService {
     private final String textWithClientAnalytic;
 
     @SneakyThrows
-    public AiAnalyzerService(GigaChatApiService gigaChatApiService, @Value("classpath:prompt-template.txt") Resource promptTemplateResource) {
+    public AiAnalyzerService(GigaChatApiService gigaChatApiService, @Value("${prompt.path}") Resource promptTemplateResource) {
         this.gigaChatApiService = gigaChatApiService;
         this.textWithClientAnalytic = promptTemplateResource.getContentAsString(StandardCharsets.UTF_8);
     }

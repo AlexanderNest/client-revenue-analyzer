@@ -11,4 +11,5 @@ public class GigaChatIntegrationProperties {
     private String authKey;
     private String authUrl;
     private String baseUrl;
+    private String textGenerationUrl;
 }
