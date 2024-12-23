@@ -32,6 +32,7 @@ import java.util.stream.Collectors;
 public class GetClientScheduleCommandHandler extends DisplayedCommandHandler {
     private final BotHandlersRequestsKeeper handlersKeeper;
     private final InlineCalendarBuilder inlineCalendarBuilder;
+
     private static final String ENTER_FIRST_DATE = "Введите первую дату";
     private static final String ENTER_SECOND_DATE = "Введите вторую дату";
 
@@ -261,5 +262,4 @@ public class GetClientScheduleCommandHandler extends DisplayedCommandHandler {
     public int getOrder() {
         return 6;
     }
-
 }

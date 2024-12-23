@@ -11,7 +11,6 @@ import org.telegram.telegrambots.meta.api.objects.replykeyboard.InlineKeyboardMa
 import org.telegram.telegrambots.meta.api.objects.replykeyboard.buttons.InlineKeyboardButton;
 import ru.nesterov.bot.handlers.abstractions.DisplayedCommandHandler;
 import ru.nesterov.bot.handlers.callback.ButtonCallback;
-import ru.nesterov.dto.GetActiveClientResponse;
 import ru.nesterov.dto.GetIncomeAnalysisForMonthResponse;
 import ru.nesterov.utils.MonthUtil;
 
