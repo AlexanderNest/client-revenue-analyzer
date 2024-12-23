@@ -25,7 +25,9 @@ import java.util.List;
 @RequiredArgsConstructor
 @ConditionalOnProperty("bot.enabled")
 public class CreateUserHandler extends DisplayedCommandHandler {
+
     private final BotHandlersRequestsKeeper keeper;
+    private final int priority = 10;
 
     @Override
     public BotApiMethod<?> handle(Update update) {
@@ -135,5 +137,10 @@ public class CreateUserHandler extends DisplayedCommandHandler {
 
         CreateUserRequest createUserRequest = keeper.getRequest(userId, CreateUserHandler.class, CreateUserRequest.class);
         return createUserRequest != null && createUserRequest.isFilled();
+    }
+
+    @Override
+    public int getOrder() {
+        return 10;
     }
 }

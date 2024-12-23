@@ -30,8 +30,10 @@ import java.util.stream.Collectors;
 @ConditionalOnProperty("bot.enabled")
 @RequiredArgsConstructor
 public class GetClientScheduleCommandHandler extends DisplayedCommandHandler {
+
     private final BotHandlersRequestsKeeper handlersKeeper;
     private final InlineCalendarBuilder inlineCalendarBuilder;
+    private final int priority = 20;
 
     private static final String ENTER_FIRST_DATE = "Введите первую дату";
     private static final String ENTER_SECOND_DATE = "Введите вторую дату";
@@ -257,4 +259,10 @@ public class GetClientScheduleCommandHandler extends DisplayedCommandHandler {
     private boolean isMessageWithText(Update update) {
         return update.getMessage() != null && update.getMessage().hasText();
     }
+
+    @Override
+    public int getOrder() {
+        return 6;
+    }
+
 }

@@ -21,7 +21,7 @@ import java.util.List;
 @ConditionalOnProperty("bot.enabled")
 @RequiredArgsConstructor
 public class StartBotHandler extends InvocableCommandHandler {
-    private final List<DisplayedCommandHandler> sendingMessageCommandHandlers;
+    private final List<DisplayedCommandHandler> sendingMessageCommandHandlers; // здесь НЕ отсортировано
     private final BotProperties botProperties;
     private final ReplyKeyboardMarkup buttons = new ReplyKeyboardMarkup();
 
@@ -32,7 +32,7 @@ public class StartBotHandler extends InvocableCommandHandler {
         List<KeyboardRow> keyboardRows = new ArrayList<>();
 
         KeyboardRow currentRow = new KeyboardRow();
-        for (int i = 0; i < sendingMessageCommandHandlers.size(); i++) {
+        for (int i = 0; i < sendingMessageCommandHandlers.size(); i++) { // тут надо бежать по ОТСОРТИРОВАННОМУ
             currentRow.add(new KeyboardButton(sendingMessageCommandHandlers.get(i).getCommand()));
 
             if ((i + 1) % botProperties.getMenuButtonsPerLine() == 0) {

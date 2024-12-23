@@ -46,4 +46,5 @@ public class UnregisteredUserHandler extends SendingMessageCommandHandler {
         getUserRequest.setUsername(String.valueOf(userId));
         return client.getUserByUsername(getUserRequest) == null;
     }
+
 }
