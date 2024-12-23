@@ -257,4 +257,9 @@ public class GetClientScheduleCommandHandler extends DisplayedCommandHandler {
     private boolean isMessageWithText(Update update) {
         return update.getMessage() != null && update.getMessage().hasText();
     }
+
+    @Override
+    public int getOrder() {
+        return 6;
+    }
 }

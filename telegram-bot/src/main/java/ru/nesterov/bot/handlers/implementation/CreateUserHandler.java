@@ -136,4 +136,9 @@ public class CreateUserHandler extends DisplayedCommandHandler {
         CreateUserRequest createUserRequest = keeper.getRequest(userId, CreateUserHandler.class, CreateUserRequest.class);
         return createUserRequest != null && createUserRequest.isFilled();
     }
+
+    @Override
+    public int getOrder() {
+        return 10;
+    }
 }
