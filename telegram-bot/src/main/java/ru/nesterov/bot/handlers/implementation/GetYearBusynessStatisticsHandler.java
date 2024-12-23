@@ -97,5 +97,4 @@ public class GetYearBusynessStatisticsHandler extends DisplayedCommandHandler {
     public String getCommand() {
         return "Анализ занятости за год";
     }
-
 }
