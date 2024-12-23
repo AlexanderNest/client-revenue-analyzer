@@ -85,7 +85,7 @@ public class GetClientScheduleCommandHandler extends DisplayedCommandHandler {
             callback = null;
         }
         if (callback == null) {
-            callback = ButtonCallback.fromShortString(callbackData);
+            callback = buttonCallbackService.buildButtonCallback(callbackData);
         }
 
         if (isValidDate(callback.getValue())) {
@@ -138,7 +138,7 @@ public class GetClientScheduleCommandHandler extends DisplayedCommandHandler {
             ButtonCallback callback = new ButtonCallback();
             callback.setCommand(getCommand());
             callback.setValue(response.getName());
-            button.setCallbackData(objectMapper.writeValueAsString(callback));
+            button.setCallbackData(buttonCallbackService.getTelegramButtonCallbackString(callback));
 
             List<InlineKeyboardButton> rowInline = new ArrayList<>();
             rowInline.add(button);
@@ -256,5 +256,10 @@ public class GetClientScheduleCommandHandler extends DisplayedCommandHandler {
 
     private boolean isMessageWithText(Update update) {
         return update.getMessage() != null && update.getMessage().hasText();
+    }
+
+    @Override
+    public int getOrder() {
+        return 6;
     }
 }
