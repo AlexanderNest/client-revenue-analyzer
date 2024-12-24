@@ -8,6 +8,7 @@ import org.springframework.stereotype.Component;
 import org.telegram.telegrambots.meta.api.objects.Update;
 import ru.nesterov.bot.TelegramUpdateUtils;
 import ru.nesterov.bot.handlers.abstractions.CommandHandler;
+import ru.nesterov.bot.handlers.implementation.UndefinedHandler;
 import ru.nesterov.bot.handlers.implementation.UnregisteredUserHandler;
 
 import java.util.List;
@@ -22,7 +23,7 @@ public class HandlersService {
     private final Map<Long, CommandHandler> userHandlers = new ConcurrentHashMap<>();
     private final List<CommandHandler> commandHandlers;
     private final BotHandlersRequestsKeeper botHandlersRequestsKeeper;
-
+    private final UndefinedHandler undefinedHandler;
     private final UnregisteredUserHandler unregisteredUserHandler;
 
     @Nullable
@@ -49,7 +50,7 @@ public class HandlersService {
         }
 
         log.warn("Не удалось найти Handler для этого Update [{}]", update);
-        return null;
+        return undefinedHandler;
     }
 
     public void resetHandlers(Long userId) {
