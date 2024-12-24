@@ -41,6 +41,10 @@
             <artifactId>liquibase-core</artifactId>
             <version>4.29.1</version>
         </dependency>
-
+        <dependency>
+            <groupId>ru.nesterov</groupId>
+            <artifactId>gigachat-integration</artifactId>
+            <version>0.0.1-SNAPSHOT</version>
+        </dependency>
     </dependencies>
 </project>
