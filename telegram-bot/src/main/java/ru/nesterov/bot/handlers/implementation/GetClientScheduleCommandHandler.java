@@ -1,6 +1,5 @@
 package ru.nesterov.bot.handlers.implementation;
 
-import com.fasterxml.jackson.core.JsonProcessingException;
 import lombok.RequiredArgsConstructor;
 import lombok.SneakyThrows;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
@@ -51,6 +50,7 @@ public class GetClientScheduleCommandHandler extends DisplayedCommandHandler {
                     userId,
                     GetClientScheduleRequest.builder()
                             .userId(userId)
+                            .displayedMonth(LocalDate.now())
                             .build()
             );
         }
@@ -71,43 +71,8 @@ public class GetClientScheduleCommandHandler extends DisplayedCommandHandler {
 
     @Override
     public boolean isFinished(Long userId) {
-        return true;
-    }
-
-    @SneakyThrows
-    private BotApiMethod<?> handleCallbackQuery(Update update, GetClientScheduleRequest getClientScheduleRequest) {
-        CallbackQuery callbackQuery = update.getCallbackQuery();
-        String callbackData = callbackQuery.getData();
-        ButtonCallback callback;
-        try {
-            callback = objectMapper.readValue(callbackData, ButtonCallback.class);
-        } catch (JsonProcessingException e) {
-            callback = null;
-        }
-        if (callback == null) {
-            callback = buttonCallbackService.buildButtonCallback(callbackData);
-        }
-
-        if (isValidDate(callback.getValue())) {
-            return handleSelectedDate(callback.getValue(),
-                    callbackQuery.getMessage().getChatId(),
-                    callbackQuery.getMessage().getMessageId(),
-                    getClientScheduleRequest);
-        } else {
-            return switch (callback.getValue()) {
-                case "Next", "Prev" -> handleMonthSwitch(
-                        callback.getValue(),
-                        callbackQuery.getMessage().getChatId(),
-                        callbackQuery.getMessage().getMessageId(),
-                        getClientScheduleRequest);
-                default -> handleClientName(
-                        callbackQuery.getMessage().getChatId(),
-                        callbackQuery.getMessage().getMessageId(),
-                        getClientScheduleRequest,
-                        callback.getValue()
-                );
-            };
-        }
+        GetClientScheduleRequest request = handlersKeeper.getRequest(userId, GetClientScheduleCommandHandler.class, GetClientScheduleRequest.class);
+        return request == null || request.isFilled();
     }
 
     @Override
@@ -150,13 +115,31 @@ public class GetClientScheduleCommandHandler extends DisplayedCommandHandler {
     }
 
     @SneakyThrows
-    private BotApiMethod<?> sendCalendarKeyBoard(long chatId, int messageId, String text, LocalDate date) {
-        return editMessage(
-                chatId,
-                messageId,
-                text,
-                inlineCalendarBuilder.createCalendarMarkup(date, getCommand())
-        );
+    private BotApiMethod<?> handleCallbackQuery(Update update, GetClientScheduleRequest getClientScheduleRequest) {
+        CallbackQuery callbackQuery = update.getCallbackQuery();
+        String callbackData = callbackQuery.getData();
+        ButtonCallback callback = buttonCallbackService.buildButtonCallback(callbackData);
+
+        if (isValidDate(callback.getValue())) {
+            return handleSelectedDate(callback.getValue(),
+                    callbackQuery.getMessage().getChatId(),
+                    callbackQuery.getMessage().getMessageId(),
+                    getClientScheduleRequest);
+        } else {
+            return switch (callback.getValue()) {
+                case "Next", "Prev" -> handleMonthSwitch(
+                        callback.getValue(),
+                        callbackQuery.getMessage().getChatId(),
+                        callbackQuery.getMessage().getMessageId(),
+                        getClientScheduleRequest);
+                default -> handleClientName(
+                        callbackQuery.getMessage().getChatId(),
+                        callbackQuery.getMessage().getMessageId(),
+                        getClientScheduleRequest,
+                        callback.getValue()
+                );
+            };
+        }
     }
 
     private BotApiMethod<?> handleClientName(long chatId, int messageId, GetClientScheduleRequest getClientScheduleRequest, String clientName) {
@@ -261,5 +244,18 @@ public class GetClientScheduleCommandHandler extends DisplayedCommandHandler {
     @Override
     public int getOrder() {
         return 6;
+    }
+
+
+    //////////////////
+
+    @SneakyThrows
+    private BotApiMethod<?> sendCalendarKeyBoard(long chatId, int messageId, String text, LocalDate date) {
+        return editMessage(
+                chatId,
+                messageId,
+                text,
+                inlineCalendarBuilder.createCalendarMarkup(date, getCommand(), buttonCallbackService)
+        );
     }
 }
