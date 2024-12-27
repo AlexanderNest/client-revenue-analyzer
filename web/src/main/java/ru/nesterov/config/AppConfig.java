@@ -8,5 +8,4 @@ import org.springframework.scheduling.annotation.EnableScheduling;
 @EnableCaching
 @EnableScheduling
 public class AppConfig {
-    //TODO
 }
