@@ -54,6 +54,8 @@ public class HandlersService {
 
     public void resetHandlers(Long userId) {
         CommandHandler commandHandler = userHandlers.remove(userId);
-        botHandlersRequestsKeeper.removeRequest(commandHandler.getClass(), userId);
+        if (commandHandler != null) {
+            botHandlersRequestsKeeper.removeRequest(commandHandler.getClass(), userId);
+        }
     }
 }
