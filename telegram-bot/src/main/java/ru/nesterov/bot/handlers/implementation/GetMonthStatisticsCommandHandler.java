@@ -132,4 +132,9 @@ public class GetMonthStatisticsCommandHandler extends DisplayedCommandHandler {
     public boolean isFinished(Long userId) {
         return true;
     }
+
+    @Override
+    public int getOrder() {
+        return 1;
+    }
 }
