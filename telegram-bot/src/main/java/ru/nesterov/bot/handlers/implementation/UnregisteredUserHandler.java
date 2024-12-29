@@ -11,6 +11,10 @@ import ru.nesterov.bot.TelegramUpdateUtils;
 import ru.nesterov.bot.handlers.abstractions.SendingMessageCommandHandler;
 import ru.nesterov.dto.GetUserRequest;
 
+/**
+ * Отлавливает незарегистрированного пользователя
+ */
+
 @Component
 @Slf4j
 @RequiredArgsConstructor

@@ -20,6 +20,10 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.Locale;
 
+/**
+ * Получение месячного отчета для выбранного месяца
+ */
+
 @Component
 @ConditionalOnProperty("bot.enabled")
 public class GetMonthStatisticsCommandHandler extends DisplayedCommandHandler {

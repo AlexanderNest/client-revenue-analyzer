@@ -25,6 +25,10 @@ import java.util.List;
 import java.util.Locale;
 import java.util.stream.Collectors;
 
+/**
+ * Получение информации о расписании указанного клиента
+ */
+
 @Component
 @ConditionalOnProperty("bot.enabled")
 @RequiredArgsConstructor

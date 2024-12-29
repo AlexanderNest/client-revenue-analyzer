@@ -18,6 +18,10 @@ import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.List;
 
+/**
+ * Процесс регистрации нового пользователя
+ */
+
 @RequiredArgsConstructor
 @ConditionalOnProperty("bot.enabled")
 @Component
