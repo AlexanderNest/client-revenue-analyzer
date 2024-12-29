@@ -26,4 +26,11 @@ public interface CommandHandler {
      *      false - если надо, чтобы при следующем обновлении в чате вызвался тот же обработчик
      */
     boolean isFinished(Long userId);
+
+    /**
+     * Приоритет, с которым обработчики будут проверяться на соответствие
+     */
+    default Priority getPriority() {
+        return Priority.NORMAL;
+    }
 }
