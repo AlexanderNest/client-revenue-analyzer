@@ -101,8 +101,4 @@ public class HandlersService {
 
         return null;
     }
-
-    private void saveHandlers() {
-
-    }
 }
