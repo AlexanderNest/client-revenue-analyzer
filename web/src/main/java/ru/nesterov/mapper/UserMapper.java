@@ -6,6 +6,7 @@ import ru.nesterov.controller.response.GetUserResponse;
 import ru.nesterov.dto.CreateUserRequest;
 import ru.nesterov.dto.CreateUserResponse;
 import ru.nesterov.service.dto.UserDto;
+import ru.nesterov.service.dto.UserSettingsDto;
 
 public class UserMapper {
     public static YearBusynessStatisticsResponse mapToResponse(BusynessAnalysisResult busynessAnalysisResult) {
@@ -18,7 +19,11 @@ public class UserMapper {
     public UserDto mapToUserDto(CreateUserRequest request) {
         return UserDto.builder()
                 .mainCalendar(request.getMainCalendarId())
-                .isCancelledCalendarEnabled(request.getIsCancelledCalendarEnabled())
+                .userSettings(
+                        UserSettingsDto.builder()
+                                .isCancelledCalendarEnabled(request.getIsCancelledCalendarEnabled())
+                        .build()
+                )
                 .username(request.getUserIdentifier())
                 .cancelledCalendar(request.getCancelledCalendarId())
                 .build();
@@ -28,7 +33,7 @@ public class UserMapper {
         return CreateUserResponse.builder()
                 .id(userDto.getId())
                 .userIdentifier(userDto.getUsername())
-                .isCancelledCalendarEnabled(userDto.isCancelledCalendarEnabled())
+                .isCancelledCalendarEnabled(userDto.getUserSettings().isCancelledCalendarEnabled())
                 .cancelledCalendarId(userDto.getCancelledCalendar())
                 .mainCalendarId(userDto.getMainCalendar())
                 .build();
@@ -43,7 +48,7 @@ public class UserMapper {
                 .cancelledCalendarId(userDto.getCancelledCalendar())
                 .mainCalendarId(userDto.getMainCalendar())
                 .username(userDto.getUsername())
-                .isCancelledCalendarEnabled(userDto.isCancelledCalendarEnabled())
+                .isCancelledCalendarEnabled(userDto.getUserSettings().isCancelledCalendarEnabled())
                 .build();
     }
 }
