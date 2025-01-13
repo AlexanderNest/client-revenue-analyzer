@@ -11,12 +11,14 @@ import ru.nesterov.dto.EventExtensionDto;
 import ru.nesterov.dto.EventStatus;
 import ru.nesterov.entity.Client;
 import ru.nesterov.entity.User;
+import ru.nesterov.entity.UserSettings;
 import ru.nesterov.google.EventStatusServiceImpl;
 import ru.nesterov.google.GoogleCalendarService;
 import ru.nesterov.repository.ClientRepository;
 import ru.nesterov.repository.UserRepository;
 import ru.nesterov.service.dto.IncomeAnalysisResult;
 import ru.nesterov.service.dto.UserDto;
+import ru.nesterov.service.dto.UserSettingsDto;
 
 import java.time.LocalDateTime;
 import java.util.List;
@@ -53,11 +55,17 @@ class EventsAnalyzerServiceImplTest {
         client.setPricePerHour(1000);
         when(clientRepository.findClientByNameAndUserId("testName", 1)).thenReturn(client);
 
+        UserSettings userSettings = new UserSettings();
+        userSettings.setEventsBackupEnabled(false);
+        userSettings.setCancelledCalendarEnabled(false);
+
         User user = new User();
         user.setId(1);
         user.setUsername("testUsername");
         user.setCancelledCalendar("cancelledCalendar");
         user.setMainCalendar("mainCalendar");
+        user.setUserSettings(userSettings);
+
         when(userRepository.findByUsername("testUsername")).thenReturn(user);
 
         LocalDateTime start = LocalDateTime.of(2024, 8, 9, 22, 30);
@@ -120,6 +128,12 @@ class EventsAnalyzerServiceImplTest {
         UserDto userDto = UserDto.builder()
                 .username("testUsername")
                 .id(1)
+                .userSettings(
+                        UserSettingsDto.builder()
+                                .isEventsBackupEnabled(false)
+                                .isCancelledCalendarEnabled(false)
+                                .build()
+                )
                 .build();
 
         IncomeAnalysisResult incomeAnalysisResult = eventsAnalyzerService.getIncomeAnalysisByMonth(userDto, "august");
@@ -134,7 +148,14 @@ class EventsAnalyzerServiceImplTest {
         UserDto userDto = UserDto.builder()
                 .username("testUsername")
                 .id(1)
+                .userSettings(
+                        UserSettingsDto.builder()
+                                .isEventsBackupEnabled(false)
+                                .isCancelledCalendarEnabled(false)
+                                .build()
+                )
                 .build();
+
 
         Map<EventStatus, Integer> statuses = eventsAnalyzerService.getEventStatusesByMonthName(userDto, "august");
         assertEquals(4, statuses.size());

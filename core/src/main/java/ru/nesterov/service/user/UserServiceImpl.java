@@ -5,6 +5,7 @@ import org.springframework.stereotype.Service;
 import ru.nesterov.entity.User;
 import ru.nesterov.entity.UserSettings;
 import ru.nesterov.repository.UserRepository;
+import ru.nesterov.repository.UserSettingsRepository;
 import ru.nesterov.service.dto.UserDto;
 import ru.nesterov.service.dto.UserSettingsDto;
 
@@ -12,6 +13,7 @@ import ru.nesterov.service.dto.UserSettingsDto;
 @RequiredArgsConstructor
 public class UserServiceImpl implements UserService{
     private final UserRepository userRepository;
+    private final UserSettingsRepository userSettingsRepository;
 
     public UserDto getUserByUsername(String username) {
         User user = userRepository.findByUsername(username);
@@ -20,6 +22,10 @@ public class UserServiceImpl implements UserService{
 
     public UserDto createUser(UserDto userDto) {
         User user = userRepository.save(convert(userDto));
+        UserSettings userSettings = new UserSettings();
+        userSettings.setUser(user);
+        UserSettings savedUserSettings = userSettingsRepository.save(userSettings);
+        user.setUserSettings(savedUserSettings);
         return convert(user);
     }
 

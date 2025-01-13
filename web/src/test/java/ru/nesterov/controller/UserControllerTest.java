@@ -5,6 +5,8 @@ import org.springframework.http.MediaType;
 import ru.nesterov.dto.CreateUserRequest;
 import ru.nesterov.dto.GetUserRequest;
 import ru.nesterov.entity.User;
+import ru.nesterov.entity.UserSettings;
+import ru.nesterov.service.dto.UserDto;
 
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
@@ -38,8 +40,7 @@ class UserControllerTest extends AbstractControllerTest {
 
     @Test
     void getUser() throws Exception {
-        User user = createUser("user");
-
+        UserDto user = createUserWithEnabledSettings("user");
         GetUserRequest request = new GetUserRequest();
         request.setUsername("user");
         mockMvc.perform(
@@ -51,7 +52,7 @@ class UserControllerTest extends AbstractControllerTest {
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.userId").value(user.getId()))
                 .andExpect(jsonPath("$.username").value(user.getUsername()))
-                .andExpect(jsonPath("$.isCancelledCalendarEnabled").value(user.isCancelledCalendarEnabled()))
+                .andExpect(jsonPath("$.isCancelledCalendarEnabled").value(user.getUserSettings().isCancelledCalendarEnabled()))
                 .andExpect(jsonPath("$.mainCalendarId").value(user.getMainCalendar()));
     }
 

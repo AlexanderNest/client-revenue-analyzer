@@ -1,12 +1,16 @@
 package ru.nesterov.controller;
 
 import org.junit.jupiter.api.Test;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.MediaType;
 import ru.nesterov.controller.request.GetForYearRequest;
 import ru.nesterov.dto.EventDto;
 import ru.nesterov.dto.EventStatus;
 import ru.nesterov.entity.Client;
 import ru.nesterov.entity.User;
+import ru.nesterov.service.client.ClientService;
+import ru.nesterov.service.dto.ClientDto;
+import ru.nesterov.service.dto.UserDto;
 
 import java.time.LocalDateTime;
 import java.util.List;
@@ -20,20 +24,20 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 class UserAnalyzerControllerTest extends AbstractControllerTest {
+    @Autowired
+    private ClientService clientService;
     private static final String GET_YEAR_STATISTICS_URL = "/user/analyzer/getYearBusynessStatistics";
 
     @Test
     void getYearStatistics() throws Exception {
-        User user = new User();
-        user.setUsername("UACT_testUser1");
-        user.setMainCalendar("someCalendar1");
-        userRepository.save(user);
-
-        Client client1 = new Client();
-        client1.setUser(user);
-        client1.setName("testName2");
-        client1.setPricePerHour(1000);
-        clientRepository.save(client1);
+        UserDto user = createUserWithEnabledSettings("UACT_testUser1");
+        ClientDto clientDto1 = ClientDto.builder()
+                .active(true)
+                .name("testName2")
+                .description("aa")
+                .pricePerHour(1000)
+                .build();
+        ClientDto client1 = clientService.createClient(user, clientDto1, false);
 
         EventDto eventDto1 = EventDto.builder()
                 .summary("paid1")

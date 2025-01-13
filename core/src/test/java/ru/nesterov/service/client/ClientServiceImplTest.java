@@ -17,6 +17,7 @@ import ru.nesterov.repository.UserRepository;
 import ru.nesterov.service.CalendarService;
 import ru.nesterov.service.date.helper.MonthDatesPair;
 import ru.nesterov.service.dto.UserDto;
+import ru.nesterov.service.dto.UserSettingsDto;
 
 import java.time.LocalDateTime;
 import java.util.List;
@@ -191,6 +192,12 @@ public class ClientServiceImplTest {
                 .username("testUser")
                 .cancelledCalendar("cancelledCalendar")
                 .mainCalendar("mainCalendar")
+                .userSettings(
+                        UserSettingsDto.builder()
+                                .isEventsBackupEnabled(false)
+                                .isCancelledCalendarEnabled(false)
+                                .build()
+                )
                 .id(1)
                 .build();
     }

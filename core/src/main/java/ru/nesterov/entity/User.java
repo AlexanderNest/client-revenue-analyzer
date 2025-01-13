@@ -20,7 +20,7 @@ public class User {
     @Column(name = "cancelled_calendar_id")
     private String cancelledCalendar;
 
-    @OneToOne(mappedBy = "user")
+    @OneToOne(mappedBy = "user", cascade = CascadeType.ALL, orphanRemoval = true)
     private UserSettings userSettings;
 
     @OneToMany(mappedBy = "user")

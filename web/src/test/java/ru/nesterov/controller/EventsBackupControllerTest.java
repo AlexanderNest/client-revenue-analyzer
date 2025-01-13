@@ -10,6 +10,7 @@ import ru.nesterov.dto.EventStatus;
 import ru.nesterov.entity.BackupType;
 import ru.nesterov.entity.EventBackup;
 import ru.nesterov.entity.User;
+import ru.nesterov.entity.UserSettings;
 import ru.nesterov.repository.EventsBackupRepository;
 import ru.nesterov.service.event.EventsBackupProperties;
 
@@ -106,9 +107,13 @@ public class EventsBackupControllerTest extends AbstractControllerTest {
     
     private User createUser(int suffix) {
         User user = new User();
+        UserSettings userSettings = new UserSettings();
+        userSettings.setUser(user);
+        userSettings.setCancelledCalendarEnabled(false);
+        userSettings.setEventsBackupEnabled(false);
         user.setUsername("backupTestUsername" + suffix);
         user.setMainCalendar("testCalendar" + suffix);
-        user.setEventsBackupEnabled(true);
+        user.setUserSettings(userSettings);
         return userRepository.save(user);
     }
 }
