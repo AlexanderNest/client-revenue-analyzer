@@ -1,12 +1,12 @@
 package ru.nesterov.calendar;
 
-import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.RequiredArgsConstructor;
 import lombok.SneakyThrows;
 import org.springframework.stereotype.Service;
 import org.telegram.telegrambots.meta.api.objects.replykeyboard.InlineKeyboardMarkup;
 import org.telegram.telegrambots.meta.api.objects.replykeyboard.buttons.InlineKeyboardButton;
 import ru.nesterov.bot.handlers.callback.ButtonCallback;
+import ru.nesterov.bot.handlers.service.ButtonCallbackService;
 
 import java.time.DayOfWeek;
 import java.time.LocalDate;
@@ -20,7 +20,6 @@ import java.util.Map;
 @RequiredArgsConstructor
 @Service
 public class InlineCalendarBuilder {
-    private final ObjectMapper objectMapper;
     private static final Map<DayOfWeek, String> shortDaysOfWeek = Map.of(
             DayOfWeek.MONDAY, "ПН",
             DayOfWeek.TUESDAY, "ВТ",
@@ -31,7 +30,7 @@ public class InlineCalendarBuilder {
             DayOfWeek.SUNDAY, "ВС"
     );
 
-    public InlineKeyboardMarkup createCalendarMarkup(LocalDate dateForDisplay, String command) {
+    public InlineKeyboardMarkup createCalendarMarkup(LocalDate dateForDisplay, String command, ButtonCallbackService buttonCallbackService) {
         YearMonth yearMonth = YearMonth.of(dateForDisplay.getYear(), dateForDisplay.getMonth());
         LocalDate firstDayOfMonth = yearMonth.atDay(1);
         LocalDate lastDayOfMonth = yearMonth.atEndOfMonth();
@@ -41,9 +40,9 @@ public class InlineCalendarBuilder {
                 .getMonth()
                 .getDisplayName(TextStyle.FULL_STANDALONE, new Locale("ru"))
                 .toUpperCase();
-        rowsInline.add(getHeaderRow(displayedDate + " " + dateForDisplay.getYear(), command));
+        rowsInline.add(getHeaderRow(displayedDate + " " + dateForDisplay.getYear(), command, buttonCallbackService));
         rowsInline.add(getDaysOfWeek());
-        rowsInline.addAll(getDaysOfMonthRows(firstDayOfMonth, lastDayOfMonth, command));
+        rowsInline.addAll(getDaysOfMonthRows(firstDayOfMonth, lastDayOfMonth, command, buttonCallbackService));
 
         InlineKeyboardMarkup keyboardMarkup = new InlineKeyboardMarkup();
         keyboardMarkup.setKeyboard(rowsInline);
@@ -52,7 +51,7 @@ public class InlineCalendarBuilder {
     }
 
     @SneakyThrows
-    private List<InlineKeyboardButton> getHeaderRow(String text, String command) {
+    private List<InlineKeyboardButton> getHeaderRow(String text, String command, ButtonCallbackService buttonCallbackService) {
         List<InlineKeyboardButton> headerRow = new ArrayList<>();
         ButtonCallback prevCallback = new ButtonCallback();
         prevCallback.setCommand(command);
@@ -64,7 +63,7 @@ public class InlineCalendarBuilder {
 
         headerRow.add(InlineKeyboardButton.builder()
                 .text("◀")
-                .callbackData(objectMapper.writeValueAsString(prevCallback))
+                .callbackData(buttonCallbackService.getTelegramButtonCallbackString(prevCallback))
                 .build());
         headerRow.add(InlineKeyboardButton.builder()
                 .text(text)
@@ -72,7 +71,7 @@ public class InlineCalendarBuilder {
                 .build());
         headerRow.add(InlineKeyboardButton.builder()
                 .text("▶")
-                .callbackData(objectMapper.writeValueAsString(nextCallback))
+                .callbackData(buttonCallbackService.getTelegramButtonCallbackString(nextCallback))
                 .build());
 
         return headerRow;
@@ -91,8 +90,9 @@ public class InlineCalendarBuilder {
 
     @SneakyThrows
     private List<List<InlineKeyboardButton>> getDaysOfMonthRows(LocalDate firstDayOfMonth,
-                                                                       LocalDate lastDayOfMonth,
-                                                                       String command) {
+                                                                LocalDate lastDayOfMonth,
+                                                                String command,
+                                                                ButtonCallbackService buttonCallbackService) {
         List<List<InlineKeyboardButton>> rowsInline = new ArrayList<>();
         List<InlineKeyboardButton> rowInline = new ArrayList<>();
 
@@ -110,7 +110,7 @@ public class InlineCalendarBuilder {
 
             rowInline.add(InlineKeyboardButton.builder()
                     .text(String.valueOf(day.getDayOfMonth()))
-                    .callbackData(objectMapper.writeValueAsString(dayCallback))
+                    .callbackData(buttonCallbackService.getTelegramButtonCallbackString(dayCallback))
                     .build());
 
             if (rowInline.size() == 7) {

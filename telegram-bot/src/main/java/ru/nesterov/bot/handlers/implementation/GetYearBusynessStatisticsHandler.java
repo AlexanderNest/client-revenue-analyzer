@@ -15,6 +15,10 @@ import ru.nesterov.dto.GetYearBusynessStatisticsResponse;
 import java.util.Locale;
 import java.util.stream.Collectors;
 
+/**
+ * Получение годового отчета за указанный год
+ */
+
 @Component
 @RequiredArgsConstructor
 @ConditionalOnProperty("bot.enabled")
