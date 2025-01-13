@@ -17,6 +17,10 @@ import ru.nesterov.properties.BotProperties;
 import java.util.ArrayList;
 import java.util.List;
 
+/**
+ * Отображает кнопки для управления ботом
+ */
+
 @Component
 @ConditionalOnProperty("bot.enabled")
 @RequiredArgsConstructor

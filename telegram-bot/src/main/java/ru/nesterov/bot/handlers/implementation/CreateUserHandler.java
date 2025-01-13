@@ -20,6 +20,10 @@ import ru.nesterov.dto.GetUserRequest;
 import java.util.ArrayList;
 import java.util.List;
 
+/**
+ * Процесс создания нового клиента для зарегистрированного пользователя
+ */
+
 @Component
 @Slf4j
 @RequiredArgsConstructor
