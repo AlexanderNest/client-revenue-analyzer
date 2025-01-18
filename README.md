@@ -1,5 +1,9 @@
 # Client Revenue Analyzer
 
+## Базовая настройка приложения
+
+1. `app.secret-token.enabled = true`, если требуется проверять токен при каждом запросе
+
 ## Настройка интеграции с Google Calendar
 
 > **Важно:** Храните файл с ключами доступа локально и не отправляйте коммиты с этими файлами в ветку. Для этого можно использовать папку `data` в корне проекта, которая уже добавлена в `.gitignore` и не будет отслеживаться GIT.
@@ -8,10 +12,13 @@
 2. Включить Calendar API.
 3. Сформировать OAuth2 файл в формате JSON с ключами доступа к этому аккаунту.
 4. Сохранить файл локально.
-5. В настройке `app.calendar.serviceAccountFilePath` указать путь к этому файлу.
+5. В настройке `app.google.calendar.serviceAccountFilePath` указать путь к этому файлу.
 6. Добавить непосредственно в календаре сервисный аккаунт в список тех, кому доступен выбранный календарь, выдав полные права доступа. Делается это в настройках календаря. E-mail сервисного аккаунта взять из Cloud Console.
 7. В настройке `app.google.calendar.mainCalendarId` указать ID календаря, к которому требуется получить доступ.
-
+8. Включить интеграцию календаря `app.google.calendar.integration.enabled`
+9. Задать цвета для запланированных мероприятий `app.calendar.color.planned`. Смотреть в файл `calendar-integration/src/main/resources/GoogleEventColors.txt`
+10. Задать настройку 
+``
 ## Swagger
 
 В приложении активен Swagger и доступен по пути: [http://localhost:8080/revenue-analyzer/swagger-ui/index.html](http://localhost:8080/revenue-analyzer/swagger-ui/index.html)

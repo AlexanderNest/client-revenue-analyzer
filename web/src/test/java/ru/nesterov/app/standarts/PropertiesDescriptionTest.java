@@ -12,24 +12,27 @@ import java.util.Objects;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
+import static org.junit.jupiter.api.Assertions.assertTrue;
+
 
 public class PropertiesDescriptionTest {
-    private final List<String> propertiesRequiresDescription = List.of(
+    private static final List<String> propertiesRequiresDescription = List.of(
 
     );
-
 
     @Test
     void verifyStandaloneDependentPropertiesAreMentionedInReadme() throws IOException {
         List<List<String>> string = loadPropertiesFromFile();
         String readmeContent = loadReadmeContent();
 
-        string.forEach(property -> readmeContent.contains(property.getFirst()));
-        System.out.println(string);
+        string.forEach(
+                property -> assertTrue(readmeContent.contains(property.get(0)), "property " + property.get(0) + " not found in README.md")
+        );
     }
 
     private String loadReadmeContent() throws IOException {
-        return Files.readString(Paths.get("README.md"), StandardCharsets.UTF_8);
+        String path = Paths.get("").toAbsolutePath().getParent() + "/README.md";
+        return Files.readString(Paths.get(path), StandardCharsets.UTF_8);
     }
 
     private List<List<String>> loadPropertiesFromFile() {
@@ -39,9 +42,7 @@ public class PropertiesDescriptionTest {
                     .filter(line -> line.contains("="))
                     .map(String::strip)
                     .map(line -> List.of(line.split("=")))
-                    .filter(property -> {
-                        return isPropertyForDescription(property.getFirst(), property.size() == 1 ? null : property.getLast());
-                    })
+                    .filter(property -> isPropertyForDescription(property.get(0), property.size() == 1 ? null : property.get(1)))
                     .collect(Collectors.toList());
 
         } catch (IOException e) {
@@ -53,6 +54,5 @@ public class PropertiesDescriptionTest {
         return StringUtils.isBlank(value)
                 || propertiesRequiresDescription.contains(name)
                 || name.endsWith(".enabled");
-
     }
 }
