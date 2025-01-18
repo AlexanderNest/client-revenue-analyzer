@@ -40,12 +40,12 @@ class UserControllerTest extends AbstractControllerTest {
 
     @Test
     void getUser() throws Exception {
-        UserDto user = createUserWithEnabledSettings("user");
+        UserDto user = createUserWithEnabledSettings("testUser2");
         GetUserRequest request = new GetUserRequest();
-        request.setUsername("user");
+        request.setUsername("testUser2");
         mockMvc.perform(
                 post(GET_USER_URL)
-                        .header("X-username", "user")
+                        .header("X-username", "testUser2")
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(objectMapper.writeValueAsString(request))
         )

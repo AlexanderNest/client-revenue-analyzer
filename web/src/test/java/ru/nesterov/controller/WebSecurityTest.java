@@ -18,7 +18,7 @@ public class WebSecurityTest extends AbstractControllerTest {
 
     @Test
     public void securityTestUnauthorized() throws Exception {
-        createUserWithEnabledSettings("user");
+        createUserWithEnabledSettings(USERNAME + 1);
         mockMvc.perform(get(TEST_URL)
                         .header("X-username", USERNAME + 1)
                         .contentType(MediaType.APPLICATION_JSON)
@@ -28,7 +28,7 @@ public class WebSecurityTest extends AbstractControllerTest {
     
     @Test
     public void securityTestAuthorized() throws Exception {
-        createUserWithEnabledSettings("user1");
+        createUserWithEnabledSettings(USERNAME + 2);
         mockMvc.perform(get(TEST_URL)
                         .header(HEADER, "secret-token")
                         .header("X-username", USERNAME + 2)
