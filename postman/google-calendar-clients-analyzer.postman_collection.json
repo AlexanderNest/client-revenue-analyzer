@@ -1,9 +1,9 @@
 {
 	"info": {
-		"_postman_id": "ddf13009-aae6-4b5f-aad7-fb4cf191bf16",
+		"_postman_id": "972c6bb3-f740-4ff9-9f94-860bf1a5c78f",
 		"name": "google-calendar-clients-analyzer",
 		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
-		"_exporter_id": "25301828"
+		"_exporter_id": "32540896"
 	},
 	"item": [
 		{
@@ -27,7 +27,7 @@
 						],
 						"body": {
 							"mode": "raw",
-							"raw": "{\r\n    \"name\" : \"Client 1\",\r\n    \"pricePerHour\": 100,\r\n    \"description\" : null,\r\n    \"idGenerationNeeded\": false\r\n}",
+							"raw": "{\r\n    \"name\" : \"C new\",\r\n    \"pricePerHour\": 100,\r\n    \"description\" : \"description 1\",\r\n    \"idGenerationNeeded\": false\r\n}",
 							"options": {
 								"raw": {
 									"language": "json"
@@ -113,7 +113,7 @@
 						],
 						"body": {
 							"mode": "raw",
-							"raw": "{\r\n    \"monthName\": \"august\"\r\n}",
+							"raw": "{\r\n    \"monthName\": \"january\"\r\n}",
 							"options": {
 								"raw": {
 									"language": "json"
@@ -452,6 +452,55 @@
 								"revenue-analyzer",
 								"events",
 								"backup"
+							]
+						}
+					},
+					"response": []
+				}
+			]
+		},
+		{
+			"name": "Гигачат",
+			"item": [
+				{
+					"name": "Аналитика клиентов с помощью Гигачат",
+					"protocolProfileBehavior": {
+						"disableBodyPruning": true
+					},
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "X-username",
+								"value": "{{name}}",
+								"type": "text"
+							},
+							{
+								"key": "X-secret-token",
+								"value": "{{X-secret-token}}",
+								"type": "text"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"monthName\": \"january\"\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "http://localhost:8080/revenue-analyzer/ai/generateText",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "8080",
+							"path": [
+								"revenue-analyzer",
+								"ai",
+								"generateText"
 							]
 						}
 					},

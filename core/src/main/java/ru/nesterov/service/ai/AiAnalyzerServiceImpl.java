@@ -12,17 +12,17 @@ import java.nio.charset.StandardCharsets;
 @Service
 public class AiAnalyzerServiceImpl implements AiAnalyzerService {
     private final GigaChatApiService gigaChatApiService;
-    private final String textWithClientAnalytic;
+    private final String prompt;
 
     @SneakyThrows
     public AiAnalyzerServiceImpl(GigaChatApiService gigaChatApiService, @Value("${prompt.path}") Resource promptTemplateResource) {
         this.gigaChatApiService = gigaChatApiService;
-        this.textWithClientAnalytic = promptTemplateResource.getContentAsString(StandardCharsets.UTF_8);
+        this.prompt = promptTemplateResource.getContentAsString(StandardCharsets.UTF_8);
     }
 
-    public String analyzeClients() {
+    public String analyzeClients(String formattedText) {
         Choice choice = gigaChatApiService
-                .generateText(textWithClientAnalytic)
+                .generateText(prompt.replace("{{ClientData}}", formattedText))
                 .getChoices()
                 .stream()
                 .findFirst()
