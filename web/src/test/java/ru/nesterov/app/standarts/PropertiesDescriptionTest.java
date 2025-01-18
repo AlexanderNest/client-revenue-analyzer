@@ -1,5 +1,6 @@
 package ru.nesterov.app.standarts;
 
+import lombok.SneakyThrows;
 import org.junit.jupiter.api.Test;
 
 import java.io.IOException;
@@ -20,15 +21,11 @@ public class PropertiesDescriptionTest {
     );
 
     private final String readmeContent = loadReadmeContent();
-
-    public PropertiesDescriptionTest() throws IOException {
-    }
+    private final List<List<String>> propertiesFromFile = loadPropertiesFromFile();
 
     @Test
     void checkThatEmptyPropertiesAreDocumented() {
-        List<List<String>> string = loadPropertiesFromFile();
-
-        for (List<String> property : string) {
+        for (List<String> property : propertiesFromFile) {
             if (property.size() == 1) {
                 String name = property.get(0);
                 assertTrue(readmeContent.contains(name), "property " + name + " not found in README.md");
@@ -38,10 +35,7 @@ public class PropertiesDescriptionTest {
 
     @Test
     void checkThatEnabledPropertiesAreDocumented() throws IOException {
-        List<List<String>> string = loadPropertiesFromFile();
-        String readmeContent = loadReadmeContent();
-
-        for (List<String> property : string) {
+        for (List<String> property : propertiesFromFile) {
             if (property.size() == 2) {
                 String name = property.get(0);
                 if (name.endsWith(".enabled")) {
@@ -51,7 +45,8 @@ public class PropertiesDescriptionTest {
         }
     }
 
-    private String loadReadmeContent() throws IOException {
+    @SneakyThrows
+    private String loadReadmeContent() {
         String path = Paths.get("").toAbsolutePath().getParent() + "/README.md";
         return Files.readString(Paths.get(path), StandardCharsets.UTF_8);
     }
