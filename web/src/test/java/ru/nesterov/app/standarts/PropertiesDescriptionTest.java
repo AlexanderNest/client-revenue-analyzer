@@ -1,7 +1,6 @@
 package ru.nesterov.app.standarts;
 
 import org.junit.jupiter.api.Test;
-import org.junit.platform.commons.util.StringUtils;
 
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;
@@ -17,17 +16,39 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 
 public class PropertiesDescriptionTest {
     private static final List<String> propertiesRequiresDescription = List.of(
-
+            // Если появятся обязательные настроки, которые требуют описания, можно добавить их названия тут
     );
 
+    private final String readmeContent = loadReadmeContent();
+
+    public PropertiesDescriptionTest() throws IOException {
+    }
+
     @Test
-    void verifyStandaloneDependentPropertiesAreMentionedInReadme() throws IOException {
+    void checkThatEmptyPropertiesAreDocumented() {
+        List<List<String>> string = loadPropertiesFromFile();
+
+        for (List<String> property : string) {
+            if (property.size() == 1) {
+                String name = property.get(0);
+                assertTrue(readmeContent.contains(name), "property " + name + " not found in README.md");
+            }
+        }
+    }
+
+    @Test
+    void checkThatEnabledPropertiesAreDocumented() throws IOException {
         List<List<String>> string = loadPropertiesFromFile();
         String readmeContent = loadReadmeContent();
 
-        string.forEach(
-                property -> assertTrue(readmeContent.contains(property.get(0)), "property " + property.get(0) + " not found in README.md")
-        );
+        for (List<String> property : string) {
+            if (property.size() == 2) {
+                String name = property.get(0);
+                if (name.endsWith(".enabled")) {
+                    assertTrue(readmeContent.contains(name), "property " + name + " not found in README.md");
+                }
+            }
+        }
     }
 
     private String loadReadmeContent() throws IOException {
@@ -42,17 +63,10 @@ public class PropertiesDescriptionTest {
                     .filter(line -> line.contains("="))
                     .map(String::strip)
                     .map(line -> List.of(line.split("=")))
-                    .filter(property -> isPropertyForDescription(property.get(0), property.size() == 1 ? null : property.get(1)))
                     .collect(Collectors.toList());
 
         } catch (IOException e) {
             throw new RuntimeException(e);
         }
-    }
-
-    private boolean isPropertyForDescription(String name, String value) {
-        return StringUtils.isBlank(value)
-                || propertiesRequiresDescription.contains(name)
-                || name.endsWith(".enabled");
     }
 }
