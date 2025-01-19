@@ -1,4 +1,4 @@
-package ru.nesterov.controller;
+package ru.nesterov.app.standards;
 
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
