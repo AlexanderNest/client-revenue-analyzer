@@ -10,8 +10,6 @@ import ru.nesterov.google.GoogleCalendarClient;
 import ru.nesterov.repository.ClientRepository;
 import ru.nesterov.repository.UserRepository;
 import ru.nesterov.repository.UserSettingsRepository;
-import ru.nesterov.service.CalendarService;
-import ru.nesterov.service.client.ClientService;
 import ru.nesterov.service.dto.UserDto;
 import ru.nesterov.service.dto.UserSettingsDto;
 import ru.nesterov.service.user.UserService;
@@ -30,11 +28,7 @@ public abstract class AbstractControllerTest {
     @Autowired
     protected UserSettingsRepository userSettingsRepository;
     @Autowired
-    private CalendarService calendarService;
-    @Autowired
     private UserService userService;
-    @Autowired
-    private ClientService clientService;
 
     @MockBean
     protected GoogleCalendarClient googleCalendarClient;
