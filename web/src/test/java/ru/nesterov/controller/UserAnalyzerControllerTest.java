@@ -7,6 +7,7 @@ import ru.nesterov.controller.request.GetForYearRequest;
 import ru.nesterov.dto.EventDto;
 import ru.nesterov.dto.EventStatus;
 import ru.nesterov.service.client.ClientService;
+import ru.nesterov.service.dto.ClientDto;
 import ru.nesterov.service.dto.UserDto;
 
 import java.time.LocalDateTime;
@@ -21,11 +22,20 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 class UserAnalyzerControllerTest extends AbstractControllerTest {
+    @Autowired
+    private ClientService clientService;
     private static final String GET_YEAR_STATISTICS_URL = "/user/analyzer/getYearBusynessStatistics";
 
     @Test
     void getYearStatistics() throws Exception {
         UserDto user = createUserWithEnabledSettings("UACT_testUser1");
+        ClientDto clientDto1 = ClientDto.builder()
+                .active(true)
+                .name("testName2")
+                .description("aa")
+                .pricePerHour(1000)
+                .build();
+        clientService.createClient(user, clientDto1, false);
 
         EventDto eventDto1 = EventDto.builder()
                 .summary("paid1")
