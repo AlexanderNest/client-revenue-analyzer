@@ -8,8 +8,13 @@ import org.springframework.stereotype.Component;
 import org.telegram.telegrambots.meta.api.methods.BotApiMethod;
 import org.telegram.telegrambots.meta.api.objects.Update;
 import ru.nesterov.bot.TelegramUpdateUtils;
+import ru.nesterov.bot.handlers.abstractions.Priority;
 import ru.nesterov.bot.handlers.abstractions.SendingMessageCommandHandler;
 import ru.nesterov.dto.GetUserRequest;
+
+/**
+ * Отлавливает незарегистрированного пользователя
+ */
 
 @Component
 @Slf4j
@@ -45,5 +50,10 @@ public class UnregisteredUserHandler extends SendingMessageCommandHandler {
         GetUserRequest getUserRequest = new GetUserRequest();
         getUserRequest.setUsername(String.valueOf(userId));
         return client.getUserByUsername(getUserRequest) == null;
+    }
+
+    @Override
+    public Priority getPriority() {
+        return Priority.HIGHEST;
     }
 }

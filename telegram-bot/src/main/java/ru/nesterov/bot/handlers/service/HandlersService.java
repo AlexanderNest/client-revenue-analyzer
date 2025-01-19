@@ -1,14 +1,13 @@
 package ru.nesterov.bot.handlers.service;
 
 import jakarta.annotation.Nullable;
-import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.stereotype.Component;
 import org.telegram.telegrambots.meta.api.objects.Update;
 import ru.nesterov.bot.TelegramUpdateUtils;
 import ru.nesterov.bot.handlers.abstractions.CommandHandler;
-import ru.nesterov.bot.handlers.implementation.UnregisteredUserHandler;
+import ru.nesterov.bot.handlers.abstractions.Priority;
 
 import java.util.List;
 import java.util.Map;
@@ -16,36 +15,55 @@ import java.util.concurrent.ConcurrentHashMap;
 
 @Component
 @Slf4j
-@RequiredArgsConstructor
 @ConditionalOnProperty("bot.enabled")
 public class HandlersService {
-    private final Map<Long, CommandHandler> userHandlers = new ConcurrentHashMap<>();
-    private final List<CommandHandler> commandHandlers;
+    private final List<CommandHandler> highestPriorityCommandHandlers;
+    private final List<CommandHandler> normalPriorityCommandHandlers;
+    private final List<CommandHandler> lowestPriorityCommandHandlers;
     private final BotHandlersRequestsKeeper botHandlersRequestsKeeper;
 
-    private final UnregisteredUserHandler unregisteredUserHandler;
+    private final Map<Long, CommandHandler> startedUserHandlers = new ConcurrentHashMap<>();
+
+    public HandlersService(List<CommandHandler> commandHandlers,
+                           BotHandlersRequestsKeeper botHandlersRequestsKeeper) {
+
+        highestPriorityCommandHandlers = commandHandlers.stream()
+                .filter(ch -> ch.getPriority() == Priority.HIGHEST)
+                .toList();
+
+        normalPriorityCommandHandlers = commandHandlers.stream()
+                .filter(ch -> ch.getPriority() == Priority.NORMAL)
+                .toList();
+
+        lowestPriorityCommandHandlers = commandHandlers.stream()
+                .filter(ch -> ch.getPriority() == Priority.LOWEST)
+                .toList();
+
+        this.botHandlersRequestsKeeper = botHandlersRequestsKeeper;
+    }
 
     @Nullable
     public CommandHandler getHandler(Update update) {
-        long userId = TelegramUpdateUtils.getUserId(update);
+        CommandHandler commandHandler;
 
-        CommandHandler userHandler = userHandlers.get(userId);
-        if (userHandler != null && userHandler.isApplicable(update)) {
-            return userHandler;
-        } else {
-            userHandlers.remove(userId);
+        commandHandler = getStartedHandler(update);
+        if (commandHandler != null) {
+            return commandHandler;
         }
 
-        if (unregisteredUserHandler.isApplicable(update)) {
-            log.debug("UnregisteredUserHandler был выбран вне очереди");
-            return unregisteredUserHandler;
+        commandHandler = selectHandler(highestPriorityCommandHandlers, update);
+        if (commandHandler != null) {
+            return commandHandler;
         }
 
-        for (CommandHandler commandHandler : commandHandlers) {
-            if (commandHandler.isApplicable(update)) {
-                userHandlers.put(userId, commandHandler);
-                return commandHandler;
-            }
+        commandHandler = selectHandler(normalPriorityCommandHandlers, update);
+        if (commandHandler != null) {
+            return commandHandler;
+        }
+
+        commandHandler = selectHandler(lowestPriorityCommandHandlers, update);
+        if (commandHandler != null) {
+            return commandHandler;
         }
 
         log.warn("Не удалось найти Handler для этого Update [{}]", update);
@@ -53,7 +71,34 @@ public class HandlersService {
     }
 
     public void resetHandlers(Long userId) {
-        CommandHandler commandHandler = userHandlers.remove(userId);
-        botHandlersRequestsKeeper.removeRequest(commandHandler.getClass(), userId);
+        CommandHandler commandHandler = startedUserHandlers.remove(userId);
+        if (commandHandler != null) {
+            botHandlersRequestsKeeper.removeRequest(commandHandler.getClass(), userId);
+        }
+    }
+
+    private CommandHandler getStartedHandler(Update update) {
+        long userId = TelegramUpdateUtils.getUserId(update);
+
+        CommandHandler userHandler = startedUserHandlers.get(userId);
+        if (userHandler != null && userHandler.isApplicable(update)) {
+            return userHandler;
+        }
+
+        startedUserHandlers.remove(userId);
+        return null;
+    }
+
+    private CommandHandler selectHandler(List<CommandHandler> commandHandlers, Update update) {
+        long userId = TelegramUpdateUtils.getUserId(update);
+
+        for (CommandHandler commandHandler : commandHandlers) {
+            if (commandHandler.isApplicable(update)) {
+                startedUserHandlers.put(userId, commandHandler);
+                return commandHandler;
+            }
+        }
+
+        return null;
     }
 }

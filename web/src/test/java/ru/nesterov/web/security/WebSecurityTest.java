@@ -1,8 +1,9 @@
-package ru.nesterov.controller;
+package ru.nesterov.web.security;
 
 import org.junit.jupiter.api.Test;
 import org.springframework.http.MediaType;
 import org.springframework.test.context.TestPropertySource;
+import ru.nesterov.controller.AbstractControllerTest;
 import ru.nesterov.entity.User;
 import ru.nesterov.entity.UserSettings;
 

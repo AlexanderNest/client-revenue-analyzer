@@ -20,6 +20,10 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.Locale;
 
+/**
+ * Получение месячного отчета для выбранного месяца
+ */
+
 @Component
 @ConditionalOnProperty("bot.enabled")
 public class GetMonthStatisticsCommandHandler extends DisplayedCommandHandler {
@@ -131,5 +135,10 @@ public class GetMonthStatisticsCommandHandler extends DisplayedCommandHandler {
     @Override
     public boolean isFinished(Long userId) {
         return true;
+    }
+
+    @Override
+    public int getOrder() {
+        return 1;
     }
 }

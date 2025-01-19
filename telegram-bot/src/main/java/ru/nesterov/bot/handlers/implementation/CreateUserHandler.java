@@ -20,6 +20,10 @@ import ru.nesterov.dto.GetUserRequest;
 import java.util.ArrayList;
 import java.util.List;
 
+/**
+ * Процесс создания нового клиента для зарегистрированного пользователя
+ */
+
 @Component
 @Slf4j
 @RequiredArgsConstructor
@@ -135,5 +139,10 @@ public class CreateUserHandler extends DisplayedCommandHandler {
 
         CreateUserRequest createUserRequest = keeper.getRequest(userId, CreateUserHandler.class, CreateUserRequest.class);
         return createUserRequest != null && createUserRequest.isFilled();
+    }
+
+    @Override
+    public int getOrder() {
+        return 10;
     }
 }
