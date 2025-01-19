@@ -3,7 +3,6 @@ package ru.nesterov.service.dto;
 
 import lombok.Builder;
 import lombok.Data;
-import ru.nesterov.entity.User;
 
 @Builder
 @Data

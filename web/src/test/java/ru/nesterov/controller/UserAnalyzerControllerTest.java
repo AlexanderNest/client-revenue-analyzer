@@ -6,8 +6,6 @@ import org.springframework.http.MediaType;
 import ru.nesterov.controller.request.GetForYearRequest;
 import ru.nesterov.dto.EventDto;
 import ru.nesterov.dto.EventStatus;
-import ru.nesterov.entity.Client;
-import ru.nesterov.entity.User;
 import ru.nesterov.service.client.ClientService;
 import ru.nesterov.service.dto.ClientDto;
 import ru.nesterov.service.dto.UserDto;

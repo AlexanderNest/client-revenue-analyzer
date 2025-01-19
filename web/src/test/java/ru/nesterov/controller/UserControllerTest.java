@@ -4,8 +4,6 @@ import org.junit.jupiter.api.Test;
 import org.springframework.http.MediaType;
 import ru.nesterov.dto.CreateUserRequest;
 import ru.nesterov.dto.GetUserRequest;
-import ru.nesterov.entity.User;
-import ru.nesterov.entity.UserSettings;
 import ru.nesterov.service.dto.UserDto;
 
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;

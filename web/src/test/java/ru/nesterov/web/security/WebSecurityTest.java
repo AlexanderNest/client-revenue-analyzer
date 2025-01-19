@@ -4,8 +4,6 @@ import org.junit.jupiter.api.Test;
 import org.springframework.http.MediaType;
 import org.springframework.test.context.TestPropertySource;
 import ru.nesterov.controller.AbstractControllerTest;
-import ru.nesterov.entity.User;
-import ru.nesterov.entity.UserSettings;
 
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
