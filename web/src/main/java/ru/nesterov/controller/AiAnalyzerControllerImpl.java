@@ -18,7 +18,7 @@ public class AiAnalyzerControllerImpl implements AiAnalyzerController {
     @Override
     public GetClientAnalyticResponse analyzeClients(@RequestHeader(name = "X-username") String username, @RequestBody GetForMonthRequest request) {
         GetClientAnalyticResponse response = new GetClientAnalyticResponse();
-        response.setContent(aiAnalyzerService.analyzeClients(userService.getUserByUsername(username),request.getMonthName()));
+        response.setContent(aiAnalyzerService.analyzeClients(userService.getUserByUsername(username), request.getMonthName()));
 
         return response;
     }

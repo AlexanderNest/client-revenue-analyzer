@@ -5,7 +5,6 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.core.io.Resource;
 import org.springframework.stereotype.Service;
 import ru.nesterov.formatter.ClientAnalyticsFormatter;
-import ru.nesterov.gigachat.response.Choice;
 import ru.nesterov.gigachat.service.GigaChatApiService;
 import ru.nesterov.service.dto.ClientMeetingsStatistic;
 import ru.nesterov.service.dto.UserDto;
@@ -21,7 +20,7 @@ public class AiAnalyzerServiceImpl implements AiAnalyzerService {
     private final String prompt;
 
     @SneakyThrows
-    public AiAnalyzerServiceImpl(GigaChatApiService gigaChatApiService, EventsAnalyzerService eventsAnalyzerService, @Value("${prompt.path}") Resource promptTemplateResource) {
+    public AiAnalyzerServiceImpl(GigaChatApiService gigaChatApiService, EventsAnalyzerService eventsAnalyzerService, @Value("${giga-chat.prompt.path}") Resource promptTemplateResource) {
         this.gigaChatApiService = gigaChatApiService;
         this.eventsAnalyzerService = eventsAnalyzerService;
         this.prompt = promptTemplateResource.getContentAsString(StandardCharsets.UTF_8);
