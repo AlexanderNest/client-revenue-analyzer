@@ -8,7 +8,6 @@ import lombok.Setter;
 public class ClientMeetingsStatistic {
     private double successfulMeetingsHours;
     private double cancelledMeetingsHours;
-    private double successfulMeetingsPercentage;
     private double incomePerHour;
     private int successfulEventsCount;
     private int plannedCancelledEventsCount;
