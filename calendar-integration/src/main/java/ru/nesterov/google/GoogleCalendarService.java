@@ -4,6 +4,8 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.stereotype.Component;
+import ru.nesterov.dto.CalendarServiceDto;
+import ru.nesterov.dto.CalendarType;
 import ru.nesterov.dto.EventDto;
 import ru.nesterov.service.CalendarService;
 
@@ -18,11 +20,11 @@ import java.util.List;
 public class GoogleCalendarService implements CalendarService {
     private final GoogleCalendarClient googleCalendarClient;
 
-    public List<EventDto> getEventsBetweenDates(String mainCalendar, String cancelledCalendar, boolean isCancelledCalendarEnabled, LocalDateTime leftDate, LocalDateTime rightDate) {
-        List<EventDto> eventsFromMainCalendar = googleCalendarClient.getEventsBetweenDates(mainCalendar, false, leftDate, rightDate);
+    public List<EventDto> getEventsBetweenDates(CalendarServiceDto calendarServiceDto) {
+        List<EventDto> eventsFromMainCalendar = googleCalendarClient.getEventsBetweenDates(calendarServiceDto.getMainCalendar(), CalendarType.MAIN, calendarServiceDto.getLeftDate(), calendarServiceDto.getRightDate());
 
-        if (cancelledCalendar != null && isCancelledCalendarEnabled) {
-            List<EventDto> eventsFromCancelledCalendar = googleCalendarClient.getEventsBetweenDates(cancelledCalendar, true, leftDate, rightDate);
+        if (calendarServiceDto.getCancelledCalendar() != null) {
+            List<EventDto> eventsFromCancelledCalendar = googleCalendarClient.getEventsBetweenDates(calendarServiceDto.getCancelledCalendar(), CalendarType.CANCELLED, calendarServiceDto.getLeftDate(), calendarServiceDto.getRightDate());
             return mergeEvents(eventsFromMainCalendar, eventsFromCancelledCalendar);
         }
 
@@ -32,7 +34,10 @@ public class GoogleCalendarService implements CalendarService {
     private List<EventDto> mergeEvents(List<EventDto> eventsFromMainCalendar, List<EventDto> eventsFromCancelledCalendar) {
         List<EventDto> eventDtos = new ArrayList<>(eventsFromMainCalendar);
         eventDtos.addAll(eventsFromCancelledCalendar);
-
         return eventDtos;
+    }
+
+    public List<EventDto> holidayDays(String calendarId, CalendarType calendarType, LocalDateTime leftDate, LocalDateTime rightDate) {
+        return googleCalendarClient.getEventsBetweenDates(calendarId, calendarType, leftDate, rightDate);
     }
 }

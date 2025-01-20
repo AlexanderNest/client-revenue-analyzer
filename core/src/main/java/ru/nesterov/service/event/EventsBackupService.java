@@ -8,6 +8,7 @@ import org.springframework.scheduling.annotation.Schedules;
 import org.springframework.scheduling.support.CronExpression;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import ru.nesterov.dto.CalendarServiceDto;
 import ru.nesterov.dto.EventDto;
 import ru.nesterov.entity.BackupType;
 import ru.nesterov.entity.Event;
@@ -102,15 +103,17 @@ public class EventsBackupService {
         LocalDateTime backupEndDate = currentDateTime.plusDays(eventsBackupProperties.getDatesRangeForBackup());
         
         List<EventBackup> backups = new ArrayList<>();
+
         
         users.forEach(user -> {
-            List<EventDto> eventDtos = googleCalendarService.getEventsBetweenDates(
-                    user.getMainCalendar(),
-                    user.getCancelledCalendar(),
-                    user.isCancelledCalendarEnabled(),
-                    backupStartDate,
-                    backupEndDate
-            );
+
+            CalendarServiceDto calendarServiceDto = CalendarServiceDto.builder()
+                    .mainCalendar(user.getMainCalendar())
+                    .cancelledCalendar(user.getCancelledCalendar())
+                    .rightDate(backupEndDate)
+                    .leftDate(backupStartDate)
+                    .build();
+            List<EventDto> eventDtos = googleCalendarService.getEventsBetweenDates(calendarServiceDto);
             
             List<Event> eventsToBackup = eventDtos.stream()
                     .map(EventMapper::mapToEvent)

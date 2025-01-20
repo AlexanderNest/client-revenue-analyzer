@@ -13,6 +13,7 @@ import lombok.SneakyThrows;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.stereotype.Component;
+import ru.nesterov.dto.CalendarType;
 import ru.nesterov.dto.EventDto;
 import ru.nesterov.dto.EventExtensionDto;
 import ru.nesterov.dto.EventStatus;
@@ -56,14 +57,14 @@ public class GoogleCalendarClient implements CalendarClient {
     }
 
     @SneakyThrows
-    public List<EventDto> getEventsBetweenDates(String calendarId, boolean isCancelledCalendar, LocalDateTime leftDate, LocalDateTime rightDate) {
+    public List<EventDto> getEventsBetweenDates(String calendarId, CalendarType calendarType, LocalDateTime leftDate, LocalDateTime rightDate) {
         Date startTime = Date.from(leftDate.atZone(ZoneId.systemDefault()).toInstant());
         Date endTime = Date.from(rightDate.atZone(ZoneId.systemDefault()).toInstant());
 
         List<Events> events = getEventsBetweenDates(calendarId, startTime, endTime);
         return events.stream()
                 .flatMap(e -> e.getItems().stream())
-                .map(event -> buildEvent(event, isCancelledCalendar))
+                .map(event -> buildEvent(event, calendarType))
                 .toList();
     }
 
@@ -99,10 +100,19 @@ public class GoogleCalendarClient implements CalendarClient {
         return events;
     }
 
-    private EventDto buildEvent(com.google.api.services.calendar.model.Event event, boolean isCancelledCalendar) {
+    private EventDto buildEvent(com.google.api.services.calendar.model.Event event, CalendarType calendarType) {
+        boolean flag = true;
+
+        if (calendarType == CalendarType.MAIN.MAIN) {
+            flag = false;
+        } else if (calendarType == CalendarType.CANCELLED.CANCELLED) {
+            flag = true;
+        }
+//      if (eventType == EventType.PLAIN) ->  null
+
         try {
             return EventDto.builder()
-                    .status(isCancelledCalendar ? EventStatus.CANCELLED : eventStatusService.getEventStatus(event))
+                    .status(flag ? EventStatus.CANCELLED : eventStatusService.getEventStatus(event))
                     .summary(event.getSummary())
                     .start(LocalDateTime.ofInstant(Instant.ofEpochMilli(event.getStart().getDateTime().getValue()), ZoneId.systemDefault()))
                     .end(LocalDateTime.ofInstant(Instant.ofEpochMilli(event.getEnd().getDateTime().getValue()), ZoneId.systemDefault()))
