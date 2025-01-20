@@ -491,7 +491,7 @@
 							}
 						},
 						"url": {
-							"raw": "http://localhost:8080/revenue-analyzer/ai/generateText",
+							"raw": "http://localhost:8080/revenue-analyzer/ai/generateRecommendation",
 							"protocol": "http",
 							"host": [
 								"localhost"
@@ -500,7 +500,7 @@
 							"path": [
 								"revenue-analyzer",
 								"ai",
-								"generateText"
+								"generateRecommendation"
 							]
 						}
 					},

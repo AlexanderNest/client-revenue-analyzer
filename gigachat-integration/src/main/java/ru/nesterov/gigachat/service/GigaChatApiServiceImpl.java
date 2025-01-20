@@ -5,6 +5,7 @@ import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpMethod;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.HttpStatusCode;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
@@ -13,9 +14,11 @@ import org.springframework.web.client.RestTemplate;
 import ru.nesterov.gigachat.GigaChatIntegrationProperties;
 import ru.nesterov.gigachat.request.GigaChatTextGenerationRequest;
 import ru.nesterov.gigachat.request.Message;
+import ru.nesterov.gigachat.response.Choice;
 import ru.nesterov.gigachat.response.GigaChatTextGenerationResponse;
 
 import java.util.List;
+import java.util.Optional;
 
 @Service
 public class GigaChatApiServiceImpl implements GigaChatApiService {
@@ -32,21 +35,26 @@ public class GigaChatApiServiceImpl implements GigaChatApiService {
     }
 
     @SneakyThrows
-    public GigaChatTextGenerationResponse generateText(String text) {
+    public String generateText(String text) {
         String accessToken = tokenService.getToken(false);
         HttpHeaders headers = createHeaders(accessToken);
         GigaChatTextGenerationRequest request = getGigaChatTextGenerationRequest(text);
         HttpEntity<GigaChatTextGenerationRequest> httpEntity = new HttpEntity<>(request, headers);
         ResponseEntity<GigaChatTextGenerationResponse> response = requestToGigaChat(httpEntity);
 
-        if (response.getStatusCode() == HttpStatusCode.valueOf(401)) {
+        if (response.getStatusCode() == HttpStatus.UNAUTHORIZED) {
             accessToken = tokenService.getToken(true);
             headers = createHeaders(accessToken);
             httpEntity = new HttpEntity<>(request, headers);
             response = requestToGigaChat(httpEntity);
         }
 
-        return response.getBody();
+        return Optional.ofNullable(response.getBody())
+                    .map(GigaChatTextGenerationResponse::getChoices)
+                    .flatMap(choices -> choices.stream().findFirst())
+                    .map(Choice::getMessage)
+                    .map(ru.nesterov.gigachat.response.Message::getContent)
+                    .orElse(null);
     }
 
     private GigaChatTextGenerationRequest getGigaChatTextGenerationRequest(String prompt) {
