@@ -43,6 +43,14 @@ public class ClientMeetingsStatistic {
 
     public void increaseNotPlannedCancelledEvents(int events) { notPlannedCancelledEventsCount += events;}
 
+    public boolean isFilledStatistic() {
+        return successfulMeetingsHours == 0.0 &&
+                cancelledMeetingsHours == 0.0 &&
+                incomePerHour == 0.0 &&
+                successfulEventsCount == 0 &&
+                plannedCancelledEventsCount == 0 &&
+                notPlannedCancelledEventsCount == 0;
+    }
     @Override
     public String toString() {
         return "ClientMeetingsStatistic{" +

@@ -3,12 +3,15 @@ package ru.nesterov.formatter;
 import ru.nesterov.service.dto.ClientMeetingsStatistic;
 
 import java.util.Map;
+import java.util.Set;
 
 public class ClientAnalyticsFormatter {
-    public static String format(Map<String, ClientMeetingsStatistic> statistics) {
+    public static String format(Set<Map.Entry<String, ClientMeetingsStatistic>> statistics) {
         StringBuilder result = new StringBuilder();
         if (statistics != null) {
-            statistics.forEach((clientName, stat) -> {
+            statistics.forEach(entry -> {
+                String clientName = entry.getKey();
+                ClientMeetingsStatistic stat = entry.getValue();
                 result.append(clientName)
                         .append(":")
                         .append("SuccessfulHours|").append(stat.getSuccessfulMeetingsHours())
