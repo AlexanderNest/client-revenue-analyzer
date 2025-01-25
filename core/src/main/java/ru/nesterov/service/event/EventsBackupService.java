@@ -48,15 +48,17 @@ public class EventsBackupService {
         List<User> users = userRepository.findAllByIsEventsBackupEnabled(true);
         
         if (users.isEmpty()) {
+            log.debug("Нет пользователей для выполнения автоматического резервного копирование встреч");
             return;
         }
         
         if (!isAutomaticBackupRequired()) {
+            log.debug("Автоматическое резервное копирование встреч для пользователей уже было выполнено в рамках периода");
             return;
         }
 
         saveBackups(users, BackupType.AUTOMATIC);
-        log.debug("Выполнено автоматическое резервное копирование записей для {} пользователей(я)", users.size());
+        log.debug("Выполнено автоматическое резервное копирование встреч для {} пользователей(я)", users.size());
     }
     
     @Transactional

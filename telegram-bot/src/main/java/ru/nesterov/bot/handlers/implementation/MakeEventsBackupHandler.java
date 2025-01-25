@@ -9,18 +9,21 @@ import org.telegram.telegrambots.meta.api.objects.Update;
 import org.telegram.telegrambots.meta.api.objects.replykeyboard.InlineKeyboardMarkup;
 import org.telegram.telegrambots.meta.api.objects.replykeyboard.buttons.InlineKeyboardButton;
 import ru.nesterov.bot.TelegramUpdateUtils;
-import ru.nesterov.bot.handlers.BotHandlersRequestsKeeper;
+import ru.nesterov.bot.handlers.abstractions.DisplayedCommandHandler;
 import ru.nesterov.bot.handlers.callback.ButtonCallback;
+import ru.nesterov.bot.handlers.service.BotHandlersRequestsKeeper;
 import ru.nesterov.dto.MakeEventsBackupRequest;
 import ru.nesterov.dto.MakeEventsBackupResponse;
 
 import java.time.format.DateTimeFormatter;
+import java.util.ArrayList;
+import java.util.List;
 
 @Component
 @ConditionalOnProperty("bot.enabled")
 @RequiredArgsConstructor
 @Slf4j
-public class MakeEventsBackupHandler extends ClientRevenueAbstractHandler {
+public class MakeEventsBackupHandler extends DisplayedCommandHandler {
     private final BotHandlersRequestsKeeper keeper;
     
     @Override
@@ -62,11 +65,14 @@ public class MakeEventsBackupHandler extends ClientRevenueAbstractHandler {
     }
     
     private BotApiMethod<?> requestConfirmation(long chatId) {
-        InlineKeyboardButton button1 = buildButton("Да", "true");
-        InlineKeyboardButton button2 = buildButton("Нет", "false");
-        InlineKeyboardButton[][] buttons = {{button1, button2}};
-        InlineKeyboardMarkup keyboardMarkup = buildInlineKeyboardMarkup(buttons);
-        
+        InlineKeyboardMarkup keyboardMarkup = new InlineKeyboardMarkup();
+        List<List<InlineKeyboardButton>> keyboard = new ArrayList<>();
+        List<InlineKeyboardButton> rowInline = new ArrayList<>();
+        rowInline.add(buildButton("Да", "true", getCommand()));
+        rowInline.add(buildButton("Нет", "false", getCommand()));
+        keyboard.add(rowInline);
+        keyboardMarkup.setKeyboard(keyboard);
+
         return getReplyKeyboard(
                 chatId,
                 "Выполнить резервное копирование событий?",
@@ -91,7 +97,7 @@ public class MakeEventsBackupHandler extends ClientRevenueAbstractHandler {
     
     private String getButtonCallbackValue(Update update) {
         String callbackData = update.getCallbackQuery().getData();
-        ButtonCallback buttonCallback = ButtonCallback.fromShortString(callbackData);
+        ButtonCallback buttonCallback = buttonCallbackService.buildButtonCallback(callbackData);
         return buttonCallback.getValue();
     }
     
