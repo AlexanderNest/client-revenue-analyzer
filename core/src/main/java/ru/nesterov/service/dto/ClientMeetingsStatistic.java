@@ -37,11 +37,26 @@ public class ClientMeetingsStatistic {
         return successfulMeetingsHours * incomePerHour;
     }
 
-    public void increaseSuccessfulEvents(int events) { successfulEventsCount += events;}
+    public void increaseSuccessfulEvents(int events) {
+        successfulEventsCount += events;
+    }
 
-    public void increasePlannedCancelledEvents(int events) { plannedCancelledEventsCount += events;}
+    public void increasePlannedCancelledEvents(int events) {
+        plannedCancelledEventsCount += events;
+    }
 
-    public void increaseNotPlannedCancelledEvents(int events) { notPlannedCancelledEventsCount += events;}
+    public void increaseNotPlannedCancelledEvents(int events) {
+        notPlannedCancelledEventsCount += events;
+    }
+
+    public boolean isFilledStatistic() {
+        return successfulMeetingsHours != 0.0
+                || cancelledMeetingsHours != 0.0
+                || incomePerHour != 0.0
+                || successfulEventsCount != 0
+                || plannedCancelledEventsCount != 0
+                || notPlannedCancelledEventsCount != 0;
+    }
 
     @Override
     public String toString() {
