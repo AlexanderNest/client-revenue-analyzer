@@ -10,9 +10,7 @@ import ru.nesterov.dto.EventStatus;
 import ru.nesterov.entity.BackupType;
 import ru.nesterov.entity.EventBackup;
 import ru.nesterov.entity.User;
-import ru.nesterov.google.GoogleCalendarClient;
 import ru.nesterov.repository.EventsBackupRepository;
-import ru.nesterov.repository.UserRepository;
 import ru.nesterov.service.event.EventsBackupProperties;
 
 import java.time.LocalDateTime;
@@ -28,13 +26,9 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 @TestPropertySource(properties = ("app.calendar.events.backup.enabled=true"))
 public class EventsBackupControllerTest extends AbstractControllerTest {
     @Autowired
-    private UserRepository userRepository;
-    @Autowired
     private EventsBackupProperties eventsBackupProperties;
     @Autowired
     private EventsBackupRepository eventsBackupRepository;
-    @Autowired
-    private GoogleCalendarClient googleCalendarClient;
 
     private static final String URL = "/events/backup";
     private static final String HEADER_X_USERNAME = "X-username";

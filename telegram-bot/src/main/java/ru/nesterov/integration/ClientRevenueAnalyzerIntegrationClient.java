@@ -9,6 +9,7 @@ import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpMethod;
 import org.springframework.http.HttpStatus;
+import org.springframework.http.HttpStatusCode;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Component;
 import org.springframework.web.client.HttpClientErrorException;
@@ -27,6 +28,8 @@ import ru.nesterov.dto.GetYearBusynessStatisticsResponse;
 import ru.nesterov.dto.MakeEventsBackupResponse;
 import ru.nesterov.properties.BotProperties;
 import ru.nesterov.properties.RevenueAnalyzerProperties;
+import ru.nesterov.dto.CreateClientRequest;
+import ru.nesterov.dto.CreateClientResponse;
 
 import java.time.LocalDateTime;
 import java.util.List;
@@ -54,11 +57,23 @@ public class ClientRevenueAnalyzerIntegrationClient {
         return post(String.valueOf(userId), getForYearRequest, "/revenue-analyzer/user/analyzer/getYearBusynessStatistics", GetYearBusynessStatisticsResponse.class).getBody();
     }
 
-    @Cacheable(value = "getUserByUsername", unless = "#result == null")
+    @Cacheable(value = "getUserByUsername", key = "#request.username", unless = "#result == null")
     public GetUserResponse getUserByUsername(GetUserRequest request) {
         ResponseEntity<GetUserResponse> responseEntity = post(request.getUsername(), request, "/revenue-analyzer/user/getUserByUsername", GetUserResponse.class);
         if (responseEntity.getStatusCode().isSameCodeAs(HttpStatus.NOT_FOUND)) {
             return null;
+        }
+
+        return responseEntity.getBody();
+    }
+
+    public CreateClientResponse createClient(String userId, CreateClientRequest createClientRequest) {
+        ResponseEntity<CreateClientResponse> responseEntity = post(userId, createClientRequest, "/revenue-analyzer/client/create", CreateClientResponse.class);
+        HttpStatusCode statusCode = responseEntity.getStatusCode();
+        if (statusCode.isSameCodeAs(HttpStatus.CONFLICT)) {
+            return CreateClientResponse.builder()
+                    .responseCode(statusCode.value())
+                    .build();
         }
 
         return responseEntity.getBody();
@@ -136,6 +151,8 @@ public class ClientRevenueAnalyzerIntegrationClient {
             );
         } catch (HttpClientErrorException.NotFound ignore) {
             return new ResponseEntity<>(HttpStatus.NOT_FOUND);
+        } catch (HttpClientErrorException.Conflict ignore) {
+            return new ResponseEntity<>(HttpStatus.CONFLICT);
         }
     }
     

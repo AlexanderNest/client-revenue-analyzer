@@ -18,7 +18,7 @@ public class TelegramUpdateUtils {
             return update.getCallbackQuery().getMessage().getChatId();
         }
     }
-    
+
     public static int getMessageId(Update update) {
         if (update.hasMessage()) {
             return update.getMessage().getMessageId();

@@ -1,9 +1,9 @@
 {
 	"info": {
-		"_postman_id": "ddf13009-aae6-4b5f-aad7-fb4cf191bf16",
+		"_postman_id": "9745d05e-2e33-476b-8692-91e64012c035",
 		"name": "google-calendar-clients-analyzer",
 		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
-		"_exporter_id": "25301828"
+		"_exporter_id": "19227667"
 	},
 	"item": [
 		{
@@ -16,7 +16,7 @@
 						"header": [
 							{
 								"key": "X-username",
-								"value": "{{username}}",
+								"value": "{{X-username}}",
 								"type": "text"
 							},
 							{
@@ -27,7 +27,7 @@
 						],
 						"body": {
 							"mode": "raw",
-							"raw": "{\r\n    \"name\" : \"Client 1\",\r\n    \"pricePerHour\": 100,\r\n    \"description\" : null,\r\n    \"idGenerationNeeded\": false\r\n}",
+							"raw": "{\r\n    \"name\" : \"C new\",\r\n    \"pricePerHour\": 100,\r\n    \"description\" : \"description 1\",\r\n    \"idGenerationNeeded\": false\r\n}",
 							"options": {
 								"raw": {
 									"language": "json"
@@ -63,7 +63,7 @@
 						"header": [
 							{
 								"key": "X-username",
-								"value": "{{username}}",
+								"value": "{{X-username}}",
 								"type": "text"
 							},
 							{
@@ -103,7 +103,7 @@
 						"header": [
 							{
 								"key": "X-username",
-								"value": "{{username}}"
+								"value": "{{X-username}}"
 							},
 							{
 								"key": "X-secret-token",
@@ -113,7 +113,7 @@
 						],
 						"body": {
 							"mode": "raw",
-							"raw": "{\r\n    \"monthName\": \"august\"\r\n}",
+							"raw": "{\r\n    \"monthName\": \"january\"\r\n}",
 							"options": {
 								"raw": {
 									"language": "json"
@@ -143,7 +143,7 @@
 						"header": [
 							{
 								"key": "X-username",
-								"value": "{{username}}",
+								"value": "{{X-username}}",
 								"type": "text"
 							},
 							{
@@ -180,7 +180,7 @@
 						"header": [
 							{
 								"key": "X-username",
-								"value": "{{username}}",
+								"value": "{{X-username}}",
 								"type": "text"
 							},
 							{
@@ -221,7 +221,7 @@
 						"header": [
 							{
 								"key": "X-username",
-								"value": "{{username}}",
+								"value": "{{X-username}}",
 								"type": "text"
 							},
 							{
@@ -268,7 +268,7 @@
 						"header": [
 							{
 								"key": "X-username",
-								"value": "{{username}}",
+								"value": "{{X-username}}",
 								"type": "text"
 							},
 							{
@@ -305,12 +305,12 @@
 						"header": [
 							{
 								"key": "X-username",
-								"value": "{{username}}",
+								"value": "{{X-username}}",
 								"type": "text"
 							},
 							{
 								"key": "X-secret-token",
-								"value": "{{secret-token}}",
+								"value": "{{X-secret-token}}",
 								"type": "text"
 							}
 						],
@@ -346,12 +346,12 @@
 						"header": [
 							{
 								"key": "X-secret-token",
-								"value": "{{secret-token}}",
+								"value": "{{X-secret-token}}",
 								"type": "text"
 							},
 							{
 								"key": "X-username",
-								"value": "{{username}}",
+								"value": "{{X-username}}",
 								"type": "text"
 							}
 						],
@@ -387,7 +387,7 @@
 						"header": [
 							{
 								"key": "X-username",
-								"value": "{{username}}",
+								"value": "{{X-username}}",
 								"type": "text"
 							},
 							{
@@ -433,12 +433,12 @@
 						"header": [
 							{
 								"key": "X-username",
-								"value": "{{username}}",
+								"value": "{{X-username}}",
 								"type": "text"
 							},
 							{
 								"key": "X-secret-token",
-								"value": "{{secret-token}}",
+								"value": "{{X-secret-token}}",
 								"type": "text"
 							}
 						],
@@ -452,6 +452,55 @@
 								"revenue-analyzer",
 								"events",
 								"backup"
+							]
+						}
+					},
+					"response": []
+				}
+			]
+		},
+		{
+			"name": "Гигачат",
+			"item": [
+				{
+					"name": "Аналитика клиентов с помощью Гигачат",
+					"protocolProfileBehavior": {
+						"disableBodyPruning": true
+					},
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "X-username",
+								"value": "{{X-username}}",
+								"type": "text"
+							},
+							{
+								"key": "X-secret-token",
+								"value": "{{X-secret-token}}",
+								"type": "text"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"monthName\": \"january\"\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "http://localhost:8080/revenue-analyzer/ai/generateRecommendation",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "8080",
+							"path": [
+								"revenue-analyzer",
+								"ai",
+								"generateRecommendation"
 							]
 						}
 					},

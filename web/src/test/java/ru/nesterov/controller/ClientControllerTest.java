@@ -2,13 +2,10 @@ package ru.nesterov.controller;
 
 import lombok.extern.slf4j.Slf4j;
 import org.junit.jupiter.api.Test;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.MediaType;
 import ru.nesterov.controller.request.CreateClientRequest;
 import ru.nesterov.entity.Client;
 import ru.nesterov.entity.User;
-import ru.nesterov.repository.ClientRepository;
-import ru.nesterov.repository.UserRepository;
 
 import static org.hamcrest.Matchers.hasSize;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
@@ -17,11 +14,6 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 
 @Slf4j
 class ClientControllerTest extends AbstractControllerTest {
-    @Autowired
-    private ClientRepository clientRepository;
-    @Autowired
-    private UserRepository userRepository;
-
     private static final String CREATE_CLIENT_URL = "/client/create";
     private static final String GET_ACTIVE_CLIENTS_URL = "/client/getActiveClients";
 
@@ -106,7 +98,7 @@ class ClientControllerTest extends AbstractControllerTest {
                                 .contentType(MediaType.APPLICATION_JSON)
                                 .content(objectMapper.writeValueAsString(createClientRequest3))
                 )
-                .andExpect(status().isInternalServerError());
+                .andExpect(status().is(409));
     }
 
     @Test

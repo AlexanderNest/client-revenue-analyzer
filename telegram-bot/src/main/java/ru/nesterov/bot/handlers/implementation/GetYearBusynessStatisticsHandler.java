@@ -7,17 +7,22 @@ import org.springframework.stereotype.Component;
 import org.telegram.telegrambots.meta.api.methods.BotApiMethod;
 import org.telegram.telegrambots.meta.api.objects.Update;
 import ru.nesterov.bot.TelegramUpdateUtils;
-import ru.nesterov.bot.handlers.BotHandlersRequestsKeeper;
+import ru.nesterov.bot.handlers.abstractions.DisplayedCommandHandler;
+import ru.nesterov.bot.handlers.service.BotHandlersRequestsKeeper;
 import ru.nesterov.dto.GetYearBusynessStatisticsRequest;
 import ru.nesterov.dto.GetYearBusynessStatisticsResponse;
 
 import java.util.Locale;
 import java.util.stream.Collectors;
 
+/**
+ * Получение годового отчета за указанный год
+ */
+
 @Component
 @RequiredArgsConstructor
 @ConditionalOnProperty("bot.enabled")
-public class GetYearBusynessStatisticsHandler extends ClientRevenueAbstractHandler {
+public class GetYearBusynessStatisticsHandler extends DisplayedCommandHandler {
     private final BotHandlersRequestsKeeper handlersKeeper;
 
     @Override

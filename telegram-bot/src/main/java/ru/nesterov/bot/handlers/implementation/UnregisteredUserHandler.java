@@ -8,13 +8,19 @@ import org.springframework.stereotype.Component;
 import org.telegram.telegrambots.meta.api.methods.BotApiMethod;
 import org.telegram.telegrambots.meta.api.objects.Update;
 import ru.nesterov.bot.TelegramUpdateUtils;
+import ru.nesterov.bot.handlers.abstractions.Priority;
+import ru.nesterov.bot.handlers.abstractions.SendingMessageCommandHandler;
 import ru.nesterov.dto.GetUserRequest;
+
+/**
+ * Отлавливает незарегистрированного пользователя
+ */
 
 @Component
 @Slf4j
 @RequiredArgsConstructor
 @ConditionalOnProperty("bot.enabled")
-public class UnregisteredUserHandler extends ClientRevenueAbstractHandler {
+public class UnregisteredUserHandler extends SendingMessageCommandHandler {
     private final CreateUserHandler createUserHandler;
 
     @Override
@@ -47,7 +53,7 @@ public class UnregisteredUserHandler extends ClientRevenueAbstractHandler {
     }
 
     @Override
-    public String getCommand() {
-        return null;
+    public Priority getPriority() {
+        return Priority.HIGHEST;
     }
 }
