@@ -8,15 +8,11 @@ import org.springframework.test.context.ContextConfiguration;
 import org.telegram.telegrambots.meta.api.methods.BotApiMethod;
 import org.telegram.telegrambots.meta.api.methods.send.SendMessage;
 import org.telegram.telegrambots.meta.api.methods.updatingmessages.EditMessageText;
-import org.telegram.telegrambots.meta.api.objects.CallbackQuery;
-import org.telegram.telegrambots.meta.api.objects.Chat;
-import org.telegram.telegrambots.meta.api.objects.Message;
-import org.telegram.telegrambots.meta.api.objects.Update;
-import org.telegram.telegrambots.meta.api.objects.User;
+import org.telegram.telegrambots.meta.api.objects.*;
 import org.telegram.telegrambots.meta.api.objects.replykeyboard.InlineKeyboardMarkup;
 import org.telegram.telegrambots.meta.api.objects.replykeyboard.ReplyKeyboard;
 import org.telegram.telegrambots.meta.api.objects.replykeyboard.buttons.InlineKeyboardButton;
-import ru.nesterov.bot.handlers.RegisteredUserHandler;
+import ru.nesterov.bot.handlers.RegisteredUserHandlerTest;
 import ru.nesterov.bot.handlers.callback.ButtonCallback;
 import ru.nesterov.dto.MakeEventsBackupRequest;
 import ru.nesterov.dto.MakeEventsBackupResponse;
@@ -33,7 +29,7 @@ import static org.mockito.Mockito.when;
 @ContextConfiguration(classes = {
         MakeEventsBackupHandler.class
 })
-class MakeEventsBackupHandlerTest extends RegisteredUserHandler {
+class MakeEventsBackupHandlerTest extends RegisteredUserHandlerTest {
     @Autowired
     private MakeEventsBackupHandler handler;
     
@@ -108,7 +104,7 @@ class MakeEventsBackupHandlerTest extends RegisteredUserHandler {
         callbackQuery.setMessage(message);
         callback.setCommand(command);
         callback.setValue(request.getIsEventsBackupMade().toString());
-        String callbackData = callback.toShortString();
+        String callbackData = buttonCallbackService.getTelegramButtonCallbackString(callback);
         callbackQuery.setData(callbackData);
         
         update.setCallbackQuery(callbackQuery);
@@ -178,7 +174,7 @@ class MakeEventsBackupHandlerTest extends RegisteredUserHandler {
         callbackQuery.setMessage(message);
         callback.setCommand(command);
         callback.setValue(request.getIsEventsBackupMade().toString());
-        String callbackData = callback.toShortString();
+        String callbackData = buttonCallbackService.getTelegramButtonCallbackString(callback);
         callbackQuery.setData(callbackData);
         
         update.setCallbackQuery(callbackQuery);
@@ -248,7 +244,7 @@ class MakeEventsBackupHandlerTest extends RegisteredUserHandler {
         callbackQuery.setMessage(message);
         callback.setCommand(command);
         callback.setValue(request.getIsEventsBackupMade().toString());
-        String callbackData = callback.toShortString();
+        String callbackData = buttonCallbackService.getTelegramButtonCallbackString(callback);
         callbackQuery.setData(callbackData);
         
         update.setCallbackQuery(callbackQuery);
