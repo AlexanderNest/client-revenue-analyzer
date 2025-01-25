@@ -91,7 +91,6 @@ public class GetClientScheduleHandlerTest extends RegisteredUserHandlerTest {
 
     @SneakyThrows
     @Test
-    @Disabled
     void handleFirstDateShouldReturnCalendarKeyboard() {
         Update updateWithCommand = createUpdateWithMessage();
         handler.handle(updateWithCommand);
@@ -115,7 +114,6 @@ public class GetClientScheduleHandlerTest extends RegisteredUserHandlerTest {
     }
 
     @Test
-    @Disabled
     void handleSecondDateShouldReturnClientSchedule() {
         Update updateWithCommand = createUpdateWithMessage();
         handler.handle(updateWithCommand);
@@ -186,7 +184,6 @@ public class GetClientScheduleHandlerTest extends RegisteredUserHandlerTest {
     }
 
     @Test
-    @Disabled
     void handleSwitchMonthWhenSelectedFirstDate1() {
         Update updateWithCommand = createUpdateWithMessage();
         handler.handle(updateWithCommand);
@@ -211,7 +208,6 @@ public class GetClientScheduleHandlerTest extends RegisteredUserHandlerTest {
     }
 
     @Test
-    @Disabled
     void handleSwitchMonthWhenSelectedFirstDate2() {
         Update updateWithCommand = createUpdateWithMessage();
         handler.handle(updateWithCommand);
@@ -327,7 +323,7 @@ public class GetClientScheduleHandlerTest extends RegisteredUserHandlerTest {
         ButtonCallback buttonCallback = new ButtonCallback();
         buttonCallback.setCommand(COMMAND);
         buttonCallback.setValue(callbackValue);
-        callbackQuery.setData(objectMapper.writeValueAsString(buttonCallback));
+        callbackQuery.setData(buttonCallbackService.getTelegramButtonCallbackString(buttonCallback));
 
         Update update = new Update();
         update.setCallbackQuery(callbackQuery);

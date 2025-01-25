@@ -26,7 +26,7 @@ import static org.mockito.Mockito.when;
 @ContextConfiguration(classes = {
         GetMonthStatisticsCommandHandler.class
 })
-class GetMonthStatisticsHandlerTestTest extends RegisteredUserHandlerTest {
+class GetMonthStatisticsHandlerTest extends RegisteredUserHandlerTest {
     @Autowired
     private GetMonthStatisticsCommandHandler handler;
 
@@ -58,7 +58,7 @@ class GetMonthStatisticsHandlerTestTest extends RegisteredUserHandlerTest {
         callback.setCommand(COMMAND);
         callback.setValue(MARK_SYMBOL + "august");
         callbackQuery.setMessage(message);
-        callbackQuery.setData(objectMapper.writeValueAsString(callback));
+        callbackQuery.setData(buttonCallbackService.getTelegramButtonCallbackString(callback));
 
         User user = new User();
         user.setId(1L);

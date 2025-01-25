@@ -23,8 +23,6 @@ import ru.nesterov.integration.ClientRevenueAnalyzerIntegrationClient;
  */
 public abstract class SendingMessageCommandHandler implements CommandHandler {
     @Autowired
-    protected ObjectMapper objectMapper;
-    @Autowired
     protected ClientRevenueAnalyzerIntegrationClient client;
     @Autowired
     @Lazy

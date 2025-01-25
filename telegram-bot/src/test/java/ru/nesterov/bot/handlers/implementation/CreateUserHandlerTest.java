@@ -29,11 +29,9 @@ import static org.mockito.Mockito.when;
 @ContextConfiguration(classes = {
         CreateUserHandler.class
 })
-public class CreateUserHandlerTestTest extends RegisteredUserHandlerTest {
+public class CreateUserHandlerTest extends RegisteredUserHandlerTest {
     @Autowired
     private CreateUserHandler createUserHandler;
-    @Autowired
-    private ButtonCallbackService buttonCallbackService;
 
     private String COMMAND;
 
@@ -194,7 +192,7 @@ public class CreateUserHandlerTestTest extends RegisteredUserHandlerTest {
         callbackQuery.setMessage(message);
         callback.setCommand(COMMAND);
         callback.setValue(request.getIsCancelledCalendarEnabled().toString());
-        callbackQuery.setData(objectMapper.writeValueAsString(callback));
+        callbackQuery.setData(this.buttonCallbackService.getTelegramButtonCallbackString(callback));
 
         update.setCallbackQuery(callbackQuery);
 

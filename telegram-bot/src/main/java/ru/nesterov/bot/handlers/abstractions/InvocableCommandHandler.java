@@ -34,14 +34,6 @@ public abstract class InvocableCommandHandler extends SendingMessageCommandHandl
             return false;
         }
 
-        boolean isShortButtonCallback = getCommand().equals(buttonCallbackService.buildButtonCallback(callbackQuery.getData()).getCommand());
-        boolean isJsonButtonCallback = false;
-        try {
-            isJsonButtonCallback = getCommand().equals(objectMapper.readValue(callbackQuery.getData(), ButtonCallback.class).getCommand());
-        } catch (Exception ignored) {
-
-        }
-
-        return isShortButtonCallback || isJsonButtonCallback;
+        return getCommand().equals(buttonCallbackService.buildButtonCallback(callbackQuery.getData()).getCommand());
     }
 }

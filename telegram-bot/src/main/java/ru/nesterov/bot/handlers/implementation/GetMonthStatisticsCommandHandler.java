@@ -73,7 +73,7 @@ public class GetMonthStatisticsCommandHandler extends DisplayedCommandHandler {
     private BotApiMethod<?> sendMonthStatistics(Update update) {
         long userId = update.getCallbackQuery().getFrom().getId();
         CallbackQuery callbackQuery = update.getCallbackQuery();
-        ButtonCallback callback = objectMapper.readValue(callbackQuery.getData(), ButtonCallback.class);
+        ButtonCallback callback = buttonCallbackService.buildButtonCallback(callbackQuery.getData());
         GetIncomeAnalysisForMonthResponse response = client.getIncomeAnalysisForMonth(userId, clearFromMark(callback.getValue()));
 
         return editMessage(
@@ -102,7 +102,7 @@ public class GetMonthStatisticsCommandHandler extends DisplayedCommandHandler {
                 ButtonCallback callback = new ButtonCallback();
                 callback.setValue(clearFromMark(monthsWithMark[j]));
                 callback.setCommand(getCommand());
-                button.setCallbackData(objectMapper.writeValueAsString(callback));
+                button.setCallbackData(buttonCallbackService.getTelegramButtonCallbackString(callback));
                 row.add(button);
             }
             keyboard.add(row);
