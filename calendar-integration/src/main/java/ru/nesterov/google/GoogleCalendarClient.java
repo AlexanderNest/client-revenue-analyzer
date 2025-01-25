@@ -101,18 +101,19 @@ public class GoogleCalendarClient implements CalendarClient {
     }
 
     private EventDto buildEvent(com.google.api.services.calendar.model.Event event, CalendarType calendarType) {
-        boolean flag = true;
+        EventStatus eventStatus = null;
 
-        if (calendarType == CalendarType.MAIN.MAIN) {
-            flag = false;
-        } else if (calendarType == CalendarType.CANCELLED.CANCELLED) {
-            flag = true;
+        if (calendarType == CalendarType.MAIN) {
+            eventStatus = EventStatus.SUCCESS;
+        } else if (calendarType == CalendarType.CANCELLED) {
+            eventStatus = EventStatus.CANCELLED;
+        } else if (calendarType == CalendarType.PLAIN) {
+            eventStatus = EventStatus.PLANNED;
         }
-//      if (eventType == EventType.PLAIN) ->  null
 
         try {
             return EventDto.builder()
-                    .status(flag ? EventStatus.CANCELLED : eventStatusService.getEventStatus(event))
+                    .status(eventStatus)
                     .summary(event.getSummary())
                     .start(LocalDateTime.ofInstant(Instant.ofEpochMilli(event.getStart().getDateTime().getValue()), ZoneId.systemDefault()))
                     .end(LocalDateTime.ofInstant(Instant.ofEpochMilli(event.getEnd().getDateTime().getValue()), ZoneId.systemDefault()))

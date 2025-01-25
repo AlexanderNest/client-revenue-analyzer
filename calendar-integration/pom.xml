@@ -55,11 +55,5 @@
             <artifactId>google-auth-library-oauth2-http</artifactId>
             <version>${google.oauth2-version}</version>
         </dependency>
-        <dependency>
-            <groupId>ru.nesterov</groupId>
-            <artifactId>telegram-bot</artifactId>
-            <version>0.0.1-SNAPSHOT</version>
-            <scope>compile</scope>
-        </dependency>
     </dependencies>
 </project>
