@@ -10,12 +10,14 @@ import ru.nesterov.dto.EventDto;
 import ru.nesterov.dto.EventStatus;
 import ru.nesterov.entity.Client;
 import ru.nesterov.entity.User;
+import ru.nesterov.entity.UserSettings;
 import ru.nesterov.exception.ClientNotFoundException;
 import ru.nesterov.repository.ClientRepository;
 import ru.nesterov.repository.UserRepository;
 import ru.nesterov.service.CalendarService;
 import ru.nesterov.service.date.helper.MonthDatesPair;
 import ru.nesterov.service.dto.UserDto;
+import ru.nesterov.service.dto.UserSettingsDto;
 
 import java.time.LocalDateTime;
 import java.util.List;
@@ -39,11 +41,16 @@ public class ClientServiceImplTest {
 
     @BeforeEach
     public void init() {
+        UserSettings userSettings = new UserSettings();
         User user = new User();
         user.setId(1);
         user.setCancelledCalendar("cancelledCalendar");
         user.setMainCalendar("mainCalendar");
         user.setUsername("testUser");
+        userSettings.setUser(user);
+        userSettings.setCancelledCalendarEnabled(true);
+        userSettings.setEventsBackupEnabled(true);
+        user.setUserSettings(userSettings);
         when(userRepository.findByUsername(user.getUsername())).thenReturn(user);
 
         Client client1 = new Client();
@@ -185,6 +192,12 @@ public class ClientServiceImplTest {
                 .username("testUser")
                 .cancelledCalendar("cancelledCalendar")
                 .mainCalendar("mainCalendar")
+                .userSettings(
+                        UserSettingsDto.builder()
+                                .isEventsBackupEnabled(false)
+                                .isCancelledCalendarEnabled(false)
+                                .build()
+                )
                 .id(1)
                 .build();
     }

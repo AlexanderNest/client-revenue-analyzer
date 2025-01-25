@@ -3,6 +3,7 @@ package ru.nesterov.controller;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.MediaType;
 import ru.nesterov.dto.EventDto;
 import ru.nesterov.dto.EventExtensionDto;
@@ -10,6 +11,9 @@ import ru.nesterov.dto.EventStatus;
 import ru.nesterov.dto.GetForMonthRequest;
 import ru.nesterov.entity.Client;
 import ru.nesterov.entity.User;
+import ru.nesterov.service.client.ClientService;
+import ru.nesterov.service.dto.ClientDto;
+import ru.nesterov.service.dto.UserDto;
 
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
@@ -26,19 +30,33 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 public class EventsAnalyzerControllerTest extends AbstractControllerTest {
+    @Autowired
+    private ClientService clientService;
     private final static String USERNAME = "testUser1";
     @BeforeEach
     void init() {
-        User user = createUser(USERNAME);
-        Client client1 = createClient("testName1", user);
-        Client client2 = createClient("testName2", user);
+        UserDto user = createUserWithEnabledSettings(USERNAME);
+        ClientDto clientDto1 = ClientDto.builder()
+                .active(true)
+                .name("testName1")
+                .description("aa")
+                .pricePerHour(100)
+                .build();
+        clientService.createClient(user, clientDto1, false);
+        ClientDto clientDto2 = ClientDto.builder()
+                .active(true)
+                .name("testName2")
+                .description("aa")
+                .pricePerHour(100)
+                .build();
+        clientService.createClient(user, clientDto2, false);
 
         EventExtensionDto eventExtensionDto5 = new EventExtensionDto();
         eventExtensionDto5.setIsPlanned(true);
         EventExtensionDto eventExtensionDto6 = new EventExtensionDto();
         eventExtensionDto6.setIsPlanned(false);
         EventExtensionDto eventExtensionDto8 = new EventExtensionDto();
-        eventExtensionDto6.setIsPlanned(false);
+        eventExtensionDto8.setIsPlanned(false);
 
         EventDto eventDto1 = EventDto.builder()
                 .summary("testName1")
@@ -150,16 +168,16 @@ public class EventsAnalyzerControllerTest extends AbstractControllerTest {
                 .andExpect(jsonPath("$.testName1.successfulEventsCount").value(1))
                 .andExpect(jsonPath("$.testName1.plannedCancelledEventsCount").value(1))
                 .andExpect(jsonPath("$.testName1.notPlannedCancelledEventsCount").value(1))
-                .andExpect(jsonPath("$.testName1.incomePerHour").value(1000))
-                .andExpect(jsonPath("$.testName1.actualIncome").value(1000))
-                .andExpect(jsonPath("$.testName1.lostIncome").value(2000))
+                .andExpect(jsonPath("$.testName1.incomePerHour").value(100))
+                .andExpect(jsonPath("$.testName1.actualIncome").value(100))
+                .andExpect(jsonPath("$.testName1.lostIncome").value(200))
                 .andExpect(jsonPath("$.testName2.successfulMeetingsHours").value(1))
                 .andExpect(jsonPath("$.testName2.cancelledMeetingsHours").value(1))
                 .andExpect(jsonPath("$.testName2.successfulEventsCount").value(1))
                 .andExpect(jsonPath("$.testName2.plannedCancelledEventsCount").value(0))
                 .andExpect(jsonPath("$.testName2.notPlannedCancelledEventsCount").value(1))
-                .andExpect(jsonPath("$.testName2.incomePerHour").value(1000))
-                .andExpect(jsonPath("$.testName2.actualIncome").value(1000))
-                .andExpect(jsonPath("$.testName2.lostIncome").value(1000));
+                .andExpect(jsonPath("$.testName2.incomePerHour").value(100))
+                .andExpect(jsonPath("$.testName2.actualIncome").value(100))
+                .andExpect(jsonPath("$.testName2.lostIncome").value(100));
     }
 }

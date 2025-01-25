@@ -7,7 +7,7 @@ import java.util.List;
 
 @Entity
 @Data
-@Table(name = "\"user\"")
+@Table(name = "users")
 public class User {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -19,10 +19,9 @@ public class User {
     private String mainCalendar;
     @Column(name = "cancelled_calendar_id")
     private String cancelledCalendar;
-    @Column(name = "cancelled_calendar_enabled")
-    private boolean isCancelledCalendarEnabled;
-    @Column(name = "events_backup_enabled")
-    private boolean isEventsBackupEnabled;
+
+    @OneToOne(mappedBy = "user", cascade = CascadeType.ALL, orphanRemoval = true)
+    private UserSettings userSettings;
 
     @OneToMany(mappedBy = "user")
     private List<Client> clients;
