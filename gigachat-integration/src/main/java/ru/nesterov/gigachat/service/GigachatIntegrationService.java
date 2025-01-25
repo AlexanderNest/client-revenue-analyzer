@@ -2,13 +2,7 @@ package ru.nesterov.gigachat.service;
 
 import lombok.SneakyThrows;
 import org.springframework.beans.factory.annotation.Qualifier;
-import org.springframework.http.HttpEntity;
-import org.springframework.http.HttpHeaders;
-import org.springframework.http.HttpMethod;
-import org.springframework.http.HttpStatus;
-import org.springframework.http.HttpStatusCode;
-import org.springframework.http.MediaType;
-import org.springframework.http.ResponseEntity;
+import org.springframework.http.*;
 import org.springframework.stereotype.Service;
 import org.springframework.web.client.RestTemplate;
 import ru.nesterov.gigachat.GigaChatIntegrationProperties;
@@ -21,14 +15,14 @@ import java.util.List;
 import java.util.Optional;
 
 @Service
-public class GigaChatApiServiceImpl implements GigaChatApiService {
+public class GigachatIntegrationService implements AIIntegrationService {
     private final GigaChatIntegrationProperties properties;
     private final GigaChatTokenServiceImpl tokenService;
     private final RestTemplate restTemplate;
 
-    public GigaChatApiServiceImpl(GigaChatIntegrationProperties properties,
-                                  GigaChatTokenServiceImpl tokenService,
-                                  @Qualifier("gigachatRestTemplate") RestTemplate restTemplate) {
+    public GigachatIntegrationService(GigaChatIntegrationProperties properties,
+                                      GigaChatTokenServiceImpl tokenService,
+                                      @Qualifier("gigachatRestTemplate") RestTemplate restTemplate) {
         this.properties = properties;
         this.tokenService = tokenService;
         this.restTemplate = restTemplate;

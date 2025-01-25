@@ -1,5 +1,5 @@
 package ru.nesterov.gigachat.service;
 
-public interface GigaChatApiService {
+public interface AIIntegrationService {
     String generateText(String text);
 }

@@ -1,11 +1,11 @@
 package ru.nesterov.controller;
 
+import org.junit.jupiter.api.Test;
 import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.http.MediaType;
 import ru.nesterov.controller.request.GetForMonthRequest;
 import ru.nesterov.controller.response.GetClientAnalyticResponse;
-import ru.nesterov.gigachat.service.GigaChatApiService;
-import org.junit.jupiter.api.Test;
+import ru.nesterov.gigachat.service.AIIntegrationService;
 
 import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.Mockito.verify;
@@ -17,10 +17,10 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 public class AiAnalyzerControllerTest extends AbstractControllerTest {
     private final static String USERNAME = "testAiAnalyzerUser";
     @MockBean
-    private GigaChatApiService gigaChatApiService;
+    private AIIntegrationService AIIntegrationService;
 
     @Test
-    void analyzeClients_shouldReturnRecommendations() throws Exception {
+    void analyzeClientsShouldReturnRecommendations() throws Exception {
         createUser(USERNAME);
         String monthName = "January";
         String recommendation = "Recommendations for the client data.";
@@ -28,7 +28,7 @@ public class AiAnalyzerControllerTest extends AbstractControllerTest {
         GetForMonthRequest request = new GetForMonthRequest();
         request.setMonthName(monthName);
 
-        when(gigaChatApiService.generateText(anyString()))
+        when(AIIntegrationService.generateText(anyString()))
                 .thenReturn(recommendation);
 
         GetClientAnalyticResponse expectedResponse = new GetClientAnalyticResponse();
@@ -41,6 +41,6 @@ public class AiAnalyzerControllerTest extends AbstractControllerTest {
                 .andExpect(status().isOk())
                 .andExpect(content().json(objectMapper.writeValueAsString(expectedResponse)));
 
-        verify(gigaChatApiService).generateText(anyString());
+        verify(AIIntegrationService).generateText(anyString());
     }
 }
