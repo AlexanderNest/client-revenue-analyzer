@@ -50,12 +50,12 @@ public class ClientMeetingsStatistic {
     }
 
     public boolean isFilledStatistic() {
-        return successfulMeetingsHours == 0.0
-                && cancelledMeetingsHours == 0.0
-                && incomePerHour == 0.0
-                && successfulEventsCount == 0
-                && plannedCancelledEventsCount == 0
-                && notPlannedCancelledEventsCount == 0;
+        return successfulMeetingsHours != 0.0
+                || cancelledMeetingsHours != 0.0
+                || incomePerHour != 0.0
+                || successfulEventsCount != 0
+                || plannedCancelledEventsCount != 0
+                || notPlannedCancelledEventsCount != 0;
     }
 
     @Override

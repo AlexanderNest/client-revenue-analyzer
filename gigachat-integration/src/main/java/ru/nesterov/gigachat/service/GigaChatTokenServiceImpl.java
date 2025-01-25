@@ -1,5 +1,7 @@
 package ru.nesterov.gigachat.service;
 
+import org.apache.commons.lang3.StringUtils;
+import org.apache.http.util.Asserts;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpHeaders;
@@ -68,6 +70,9 @@ public class GigaChatTokenServiceImpl implements GigaChatTokenService {
         HttpHeaders headers = new HttpHeaders();
         headers.setContentType(MediaType.APPLICATION_FORM_URLENCODED);
         headers.setAccept(List.of(MediaType.APPLICATION_JSON));
+
+        Asserts.check(StringUtils.isNotBlank(properties.getAuthKey()), "auth key is required");
+
         headers.set("Authorization", "Basic " + properties.getAuthKey());
         headers.set("RqUID", UUID.randomUUID().toString());
         return headers;
