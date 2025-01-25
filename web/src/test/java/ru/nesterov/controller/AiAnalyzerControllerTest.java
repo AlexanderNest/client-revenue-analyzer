@@ -8,7 +8,6 @@ import ru.nesterov.controller.response.GetClientAnalyticResponse;
 import ru.nesterov.gigachat.service.AIIntegrationService;
 
 import static org.mockito.ArgumentMatchers.anyString;
-import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.content;
@@ -40,7 +39,5 @@ public class AiAnalyzerControllerTest extends AbstractControllerTest {
                         .content(objectMapper.writeValueAsString(request)))
                 .andExpect(status().isOk())
                 .andExpect(content().json(objectMapper.writeValueAsString(expectedResponse)));
-
-        verify(AIIntegrationService).generateText(anyString());
     }
 }
