@@ -21,14 +21,15 @@ public class LoggingFilter extends OncePerRequestFilter {
     @Override
     protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain filterChain) throws IOException, ServletException {
         CachedBodyHttpServletRequest wrappedRequest = new CachedBodyHttpServletRequest(request);
+        CachedBodyHttpServletResponse wrappedResponse = new CachedBodyHttpServletResponse(response);
 
         // Буфер для формирования лога
         StringBuilder logMessage = new StringBuilder();
 
         // Логируем информацию о запросе
         logMessage.append("\n=== HTTP Request ===\n")
-                .append("Method: ").append(wrappedRequest.getMethod()).append("\n")
-                .append("URI: ").append(wrappedRequest.getRequestURI()).append("\n")
+                .append("Method: ").append(wrappedRequest.getMethod()).append("\n\n")
+                .append("URI: ").append(wrappedRequest.getRequestURI()).append("\n\n")
                 .append("Headers:\n").append(formatHeaders(wrappedRequest)).append("\n")
                 .append("Parameters:\n").append(formatParameters(wrappedRequest.getParameterMap())).append("\n")
                 .append("Body:\n").append(wrappedRequest.getCachedBody()).append("\n");
@@ -42,7 +43,8 @@ public class LoggingFilter extends OncePerRequestFilter {
         // Логируем информацию об ответе
         logMessage.setLength(0); // Очищаем StringBuilder для ответа
         logMessage.append("\n=== HTTP Response ===\n")
-                .append("Status: ").append(response.getStatus()).append("\n");
+                .append("Status: ").append(response.getStatus()).append("\n")
+                .append("Body:\n").append(wrappedResponse.getCachedBody());
 
         logger.info(logMessage.toString());
     }
@@ -74,6 +76,6 @@ public class LoggingFilter extends OncePerRequestFilter {
             }
             params.append("\n");
         });
-        return params.toString().trim();
+        return params.toString();
     }
 }
