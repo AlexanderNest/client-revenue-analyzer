@@ -20,7 +20,7 @@ public class AiAnalyzerControllerTest extends AbstractControllerTest {
 
     @Test
     void analyzeClientsShouldReturnRecommendations() throws Exception {
-//        createUser(USERNAME);
+        createUserWithEnabledSettings(USERNAME);
         String monthName = "January";
         String recommendation = "Recommendations for the client data.";
 
