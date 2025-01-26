@@ -18,9 +18,7 @@ public class HolidayControllerImpl implements HolidayController {
     private final GoogleCalendarService googleCalendarService;
 
     public List<EventDto> getHolidays(@RequestBody GetHolidaysRequest getHolidaysRequest) {
-//        String leftDateStr = "2025-01-01 15:00";
         LocalDateTime leftDate = LocalDateTime.parse(getHolidaysRequest.getLeftDateStr(), DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm"));
-//        String rightDateStr = "2025-01-12 21:00";
         LocalDateTime rightDate = LocalDateTime.parse(getHolidaysRequest.getRightDateStr(), DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm"));
         return googleCalendarService.getHolidays(CalendarType.PLAIN, leftDate, rightDate);
     }
