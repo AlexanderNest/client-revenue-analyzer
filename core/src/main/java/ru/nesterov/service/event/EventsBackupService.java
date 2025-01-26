@@ -103,7 +103,6 @@ public class EventsBackupService {
         LocalDateTime backupEndDate = currentDateTime.plusDays(eventsBackupProperties.getDatesRangeForBackup());
         
         List<EventBackup> backups = new ArrayList<>();
-
         
         users.forEach(user -> {
 

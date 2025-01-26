@@ -6,9 +6,11 @@ import com.google.api.client.json.gson.GsonFactory;
 import com.google.api.client.util.DateTime;
 import com.google.api.services.calendar.Calendar;
 import com.google.api.services.calendar.CalendarScopes;
+import com.google.api.services.calendar.model.EventDateTime;
 import com.google.api.services.calendar.model.Events;
 import com.google.auth.http.HttpCredentialsAdapter;
 import com.google.auth.oauth2.GoogleCredentials;
+import lombok.Data;
 import lombok.SneakyThrows;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
@@ -101,27 +103,35 @@ public class GoogleCalendarClient implements CalendarClient {
     }
 
     private EventDto buildEvent(com.google.api.services.calendar.model.Event event, CalendarType calendarType) {
-        EventStatus eventStatus = null;
+        EventStatus eventStatus;
 
-        if (calendarType == CalendarType.MAIN) {
-            eventStatus = EventStatus.SUCCESS;
-        } else if (calendarType == CalendarType.CANCELLED) {
+        if (calendarType == CalendarType.CANCELLED) {
             eventStatus = EventStatus.CANCELLED;
-        } else if (calendarType == CalendarType.PLAIN) {
-            eventStatus = EventStatus.PLANNED;
+        } else {
+            eventStatus = eventStatusService.getEventStatus(event);
         }
 
         try {
             return EventDto.builder()
                     .status(eventStatus)
                     .summary(event.getSummary())
-                    .start(LocalDateTime.ofInstant(Instant.ofEpochMilli(event.getStart().getDateTime().getValue()), ZoneId.systemDefault()))
-                    .end(LocalDateTime.ofInstant(Instant.ofEpochMilli(event.getEnd().getDateTime().getValue()), ZoneId.systemDefault()))
+                    .start(getLocalDateTime(event.getStart()))
+                    .end(getLocalDateTime(event.getEnd()))
                     .eventExtensionDto(buildEventExtension(event))
                     .build();
         } catch (Exception e) {
             throw new CannotBuildEventException(event.getSummary(), event.getStart(), e);
         }
+    }
+
+    private LocalDateTime getLocalDateTime (EventDateTime eventDateTime) {
+        DateTime date;
+        if(eventDateTime.getDateTime() != null) {
+            date = eventDateTime.getDateTime();
+        } else {
+            date = eventDateTime.getDate();
+        }
+        return LocalDateTime.ofInstant(Instant.ofEpochMilli(date.getValue()), ZoneId.systemDefault());
     }
 
     @Nullable

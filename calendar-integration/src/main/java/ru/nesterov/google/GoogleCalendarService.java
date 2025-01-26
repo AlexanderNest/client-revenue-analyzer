@@ -2,6 +2,7 @@ package ru.nesterov.google;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.stereotype.Component;
 import ru.nesterov.dto.CalendarServiceDto;
@@ -19,6 +20,8 @@ import java.util.List;
 @RequiredArgsConstructor
 public class GoogleCalendarService implements CalendarService {
     private final GoogleCalendarClient googleCalendarClient;
+    @Value("${holiday.calendar}")
+    private String calendarId;
 
     public List<EventDto> getEventsBetweenDates(CalendarServiceDto calendarServiceDto) {
         List<EventDto> eventsFromMainCalendar = googleCalendarClient.getEventsBetweenDates(calendarServiceDto.getMainCalendar(), CalendarType.MAIN, calendarServiceDto.getLeftDate(), calendarServiceDto.getRightDate());
@@ -37,7 +40,7 @@ public class GoogleCalendarService implements CalendarService {
         return eventDtos;
     }
 
-    public List<EventDto> holidayDays(String calendarId, CalendarType calendarType, LocalDateTime leftDate, LocalDateTime rightDate) {
+    public List<EventDto> getHolidays(CalendarType calendarType, LocalDateTime leftDate, LocalDateTime rightDate) {
         return googleCalendarClient.getEventsBetweenDates(calendarId, calendarType, leftDate, rightDate);
     }
 }
