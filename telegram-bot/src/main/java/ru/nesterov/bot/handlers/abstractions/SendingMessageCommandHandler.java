@@ -1,7 +1,9 @@
 package ru.nesterov.bot.handlers.abstractions;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
+import jakarta.annotation.Nullable;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.annotation.Lazy;
 import org.telegram.telegrambots.meta.api.methods.AnswerCallbackQuery;
 import org.telegram.telegrambots.meta.api.methods.BotApiMethod;
 import org.telegram.telegrambots.meta.api.methods.send.SendMessage;
@@ -12,6 +14,7 @@ import org.telegram.telegrambots.meta.api.objects.replykeyboard.InlineKeyboardMa
 import org.telegram.telegrambots.meta.api.objects.replykeyboard.ReplyKeyboard;
 import org.telegram.telegrambots.meta.api.objects.replykeyboard.buttons.InlineKeyboardButton;
 import ru.nesterov.bot.handlers.callback.ButtonCallback;
+import ru.nesterov.bot.handlers.service.ButtonCallbackService;
 import ru.nesterov.integration.ClientRevenueAnalyzerIntegrationClient;
 
 /**
@@ -23,16 +26,28 @@ public abstract class SendingMessageCommandHandler implements CommandHandler {
     protected ObjectMapper objectMapper;
     @Autowired
     protected ClientRevenueAnalyzerIntegrationClient client;
+    @Autowired
+    @Lazy
+    protected ButtonCallbackService buttonCallbackService;
 
+    /**
+     * Вернет метод для отправки простого сообщения в чат
+     * @param text - сообщение для отправки
+     */
     public BotApiMethod<?> getPlainSendMessage(long chatId, String text) {
         return buildSendMessage(chatId, text, null);
     }
+
 
     public BotApiMethod<?> getReplyKeyboard(long chatId, String text, ReplyKeyboard replyKeyboard) {
         return buildSendMessage(chatId, text, replyKeyboard);
     }
 
-    public EditMessageText editMessage(long chatId, int messageId, String text, InlineKeyboardMarkup keyboardMarkup) {
+    /**
+     * Метод для изменения уже отправленного сообщения в чат
+     * @param keyboardMarkup - если в сообщении нужно добавить клавиатуру
+     */
+    public EditMessageText editMessage(long chatId, int messageId, String text, @Nullable InlineKeyboardMarkup keyboardMarkup) {
         EditMessageText editMessageText = new EditMessageText();
         editMessageText.setChatId(chatId);
         editMessageText.setMessageId(messageId);
@@ -42,15 +57,9 @@ public abstract class SendingMessageCommandHandler implements CommandHandler {
         return editMessageText;
     }
 
-    private SendMessage buildSendMessage(long chatId, String text, ReplyKeyboard replyKeyboard) {
-        SendMessage message = new SendMessage();
-        message.setChatId(String.valueOf(chatId));
-        message.setText(text);
-        message.setReplyMarkup(replyKeyboard);
-
-        return message;
-    }
-
+    /**
+     * Метод для отправки всплывающего сообщения. Оно появится на некоторое время поверх чата, потом исчезнет
+     */
     public BotApiMethod<?> getCallbackQuery(Update update, String message) {
         CallbackQuery callbackQuery = update.getCallbackQuery();
 
@@ -61,10 +70,22 @@ public abstract class SendingMessageCommandHandler implements CommandHandler {
         return answerCallbackQuery;
     }
 
+
+    private SendMessage buildSendMessage(long chatId, String text, ReplyKeyboard replyKeyboard) {
+        SendMessage message = new SendMessage();
+        message.setChatId(String.valueOf(chatId));
+        message.setText(text);
+        message.setReplyMarkup(replyKeyboard);
+
+        return message;
+    }
+
+
     /**
+     * Собирает inline кнопку с указанным значением для коллбека
      *
      * @param visibleText текст, который будет отображаться на кнопке
-     * @param callbackValue значение, связанное с кнопкой
+     * @param callbackValue значение коллбека для этой кнопки
      * @return созданная кнопка
      */
     protected InlineKeyboardButton buildButton(String visibleText, String callbackValue, String command) {
@@ -74,7 +95,7 @@ public abstract class SendingMessageCommandHandler implements CommandHandler {
         buttonCallback.setCommand(command);
         buttonCallback.setValue(callbackValue);
 
-        button.setCallbackData(buttonCallback.toShortString());
+        button.setCallbackData(buttonCallbackService.getTelegramButtonCallbackString(buttonCallback));
         return button;
     }
 }

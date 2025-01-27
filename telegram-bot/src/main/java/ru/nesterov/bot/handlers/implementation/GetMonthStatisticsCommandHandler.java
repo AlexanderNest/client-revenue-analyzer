@@ -20,6 +20,10 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.Locale;
 
+/**
+ * Получение месячного отчета для выбранного месяца
+ */
+
 @Component
 @ConditionalOnProperty("bot.enabled")
 public class GetMonthStatisticsCommandHandler extends DisplayedCommandHandler {
@@ -32,18 +36,6 @@ public class GetMonthStatisticsCommandHandler extends DisplayedCommandHandler {
     };
 
     private static final String markSymbol = "\u2B50";
-
-    @Override
-    public BotApiMethod<?> handle(Update update) {
-        BotApiMethod<?> sendMessage;
-        if (update.getMessage() == null) {
-            sendMessage = sendMonthStatistics(update);
-        } else {
-            sendMessage = sendMonthKeyboard(update.getMessage().getChatId());
-        }
-
-        return sendMessage;
-    }
 
     private static String formatIncomeReport(GetIncomeAnalysisForMonthResponse response) {
         NumberFormat currencyFormat = NumberFormat.getNumberInstance(new Locale("ru", "RU"));
@@ -63,6 +55,18 @@ public class GetMonthStatisticsCommandHandler extends DisplayedCommandHandler {
                 "Потенциальный доход:", currencyFormat.format(response.getPotentialIncome()),
                 "Потерянный доход:", currencyFormat.format(response.getLostIncome())
         );
+    }
+
+    @Override
+    public BotApiMethod<?> handle(Update update) {
+        BotApiMethod<?> sendMessage;
+        if (update.getMessage() == null) {
+            sendMessage = sendMonthStatistics(update);
+        } else {
+            sendMessage = sendMonthKeyboard(update.getMessage().getChatId());
+        }
+
+        return sendMessage;
     }
 
     @SneakyThrows
@@ -131,5 +135,10 @@ public class GetMonthStatisticsCommandHandler extends DisplayedCommandHandler {
     @Override
     public boolean isFinished(Long userId) {
         return true;
+    }
+
+    @Override
+    public int getOrder() {
+        return 1;
     }
 }

@@ -9,6 +9,7 @@ import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpMethod;
 import org.springframework.http.HttpStatus;
+import org.springframework.http.HttpStatusCode;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Component;
 import org.springframework.web.client.HttpClientErrorException;
@@ -24,8 +25,11 @@ import ru.nesterov.dto.GetIncomeAnalysisForMonthResponse;
 import ru.nesterov.dto.GetUserRequest;
 import ru.nesterov.dto.GetUserResponse;
 import ru.nesterov.dto.GetYearBusynessStatisticsResponse;
+import ru.nesterov.dto.MakeEventsBackupResponse;
 import ru.nesterov.properties.BotProperties;
 import ru.nesterov.properties.RevenueAnalyzerProperties;
+import ru.nesterov.dto.CreateClientRequest;
+import ru.nesterov.dto.CreateClientResponse;
 
 import java.time.LocalDateTime;
 import java.util.List;
@@ -53,11 +57,23 @@ public class ClientRevenueAnalyzerIntegrationClient {
         return post(String.valueOf(userId), getForYearRequest, "/revenue-analyzer/user/analyzer/getYearBusynessStatistics", GetYearBusynessStatisticsResponse.class).getBody();
     }
 
-    @Cacheable(value = "getUserByUsername", unless = "#result == null")
+    @Cacheable(value = "getUserByUsername", key = "#request.username", unless = "#result == null")
     public GetUserResponse getUserByUsername(GetUserRequest request) {
         ResponseEntity<GetUserResponse> responseEntity = post(request.getUsername(), request, "/revenue-analyzer/user/getUserByUsername", GetUserResponse.class);
         if (responseEntity.getStatusCode().isSameCodeAs(HttpStatus.NOT_FOUND)) {
             return null;
+        }
+
+        return responseEntity.getBody();
+    }
+
+    public CreateClientResponse createClient(String userId, CreateClientRequest createClientRequest) {
+        ResponseEntity<CreateClientResponse> responseEntity = post(userId, createClientRequest, "/revenue-analyzer/client/create", CreateClientResponse.class);
+        HttpStatusCode statusCode = responseEntity.getStatusCode();
+        if (statusCode.isSameCodeAs(HttpStatus.CONFLICT)) {
+            return CreateClientResponse.builder()
+                    .responseCode(statusCode.value())
+                    .build();
         }
 
         return responseEntity.getBody();
@@ -91,35 +107,55 @@ public class ClientRevenueAnalyzerIntegrationClient {
                 }
         );
     }
-
-    private <T> ResponseEntity<T> post(String username, Object request, String endpoint, Class<T> responseType) {
-        HttpEntity<Object> entity = new HttpEntity<>(request, createHeaders(username));
-
-        try {
-            return restTemplate.exchange(
-                    revenueAnalyzerProperties.getUrl() + endpoint,
-                    HttpMethod.POST,
-                    entity,
-                    responseType
-            );
-        } catch (HttpClientErrorException.NotFound ignore) {
-            return new ResponseEntity<>(HttpStatus.NOT_FOUND);
-        }
+    
+    public MakeEventsBackupResponse makeEventsBackup(long userId) {
+        ResponseEntity<MakeEventsBackupResponse> response = get(
+                String.valueOf(userId),
+                "/revenue-analyzer/events/backup",
+                MakeEventsBackupResponse.class
+        );
+        
+        return response.getBody();
     }
-
+    
+    private <T> ResponseEntity<T> get(String username, String endpoint, Class<T> responseType) {
+        return exchange(username, null, endpoint, responseType, HttpMethod.GET);
+    }
+    
+    private <T> ResponseEntity<T> post(String username, Object request, String endpoint, Class<T> responseType) {
+        return exchange(username, request, endpoint, responseType, HttpMethod.POST);
+    }
+    
     private <T> List<T> postForList(String username, Object request, String endpoint, ParameterizedTypeReference<List<T>> typeReference) {
         HttpEntity<Object> requestEntity = new HttpEntity<>(request, createHeaders(username));
-
+        
         ResponseEntity<List<T>> responseEntity = restTemplate.exchange(
                 revenueAnalyzerProperties.getUrl() + endpoint,
                 HttpMethod.POST,
                 requestEntity,
                 typeReference
         );
-
+        
         return responseEntity.getBody();
     }
-
+    
+    private <T> ResponseEntity<T> exchange(String username, Object request, String endpoint, Class<T> responseType, HttpMethod httpMethod) {
+        HttpEntity<Object> entity = new HttpEntity<>(request, createHeaders(username));
+        
+        try {
+            return restTemplate.exchange(
+                    revenueAnalyzerProperties.getUrl() + endpoint,
+                    httpMethod,
+                    entity,
+                    responseType
+            );
+        } catch (HttpClientErrorException.NotFound ignore) {
+            return new ResponseEntity<>(HttpStatus.NOT_FOUND);
+        } catch (HttpClientErrorException.Conflict ignore) {
+            return new ResponseEntity<>(HttpStatus.CONFLICT);
+        }
+    }
+    
     private HttpHeaders createHeaders(String username) {
         HttpHeaders headers = new HttpHeaders();
         headers.set("X-secret-token", botProperties.getSecretToken());

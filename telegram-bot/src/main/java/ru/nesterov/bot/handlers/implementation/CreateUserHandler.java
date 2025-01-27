@@ -20,6 +20,10 @@ import ru.nesterov.dto.GetUserRequest;
 import java.util.ArrayList;
 import java.util.List;
 
+/**
+ * Процесс создания нового клиента для зарегистрированного пользователя
+ */
+
 @Component
 @Slf4j
 @RequiredArgsConstructor
@@ -55,8 +59,8 @@ public class CreateUserHandler extends DisplayedCommandHandler {
     }
 
     private String getButtonCallbackValue(Update update) {
-        String callbackData = update.getCallbackQuery().getData();
-        ButtonCallback buttonCallback = ButtonCallback.fromShortString(callbackData);
+        String telegramCallbackString = update.getCallbackQuery().getData();
+        ButtonCallback buttonCallback = buttonCallbackService.buildButtonCallback(telegramCallbackString);
 
         return buttonCallback.getValue();
     }
@@ -82,7 +86,7 @@ public class CreateUserHandler extends DisplayedCommandHandler {
     }
 
     private BotApiMethod<?> handleMainCalendarInput(CreateUserRequest createUserRequest, Update update) {
-        long userId = update.getMessage().getFrom().getId();
+        long userId = TelegramUpdateUtils.getUserId(update);
         createUserRequest.setUserIdentifier(String.valueOf(userId));
         createUserRequest.setMainCalendarId(update.getMessage().getText());
 
@@ -135,5 +139,10 @@ public class CreateUserHandler extends DisplayedCommandHandler {
 
         CreateUserRequest createUserRequest = keeper.getRequest(userId, CreateUserHandler.class, CreateUserRequest.class);
         return createUserRequest != null && createUserRequest.isFilled();
+    }
+
+    @Override
+    public int getOrder() {
+        return 10;
     }
 }

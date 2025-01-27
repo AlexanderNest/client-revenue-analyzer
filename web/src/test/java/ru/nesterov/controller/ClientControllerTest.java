@@ -98,7 +98,7 @@ class ClientControllerTest extends AbstractControllerTest {
                                 .contentType(MediaType.APPLICATION_JSON)
                                 .content(objectMapper.writeValueAsString(createClientRequest3))
                 )
-                .andExpect(status().isInternalServerError());
+                .andExpect(status().is(409));
     }
 
     @Test
