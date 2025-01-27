@@ -33,44 +33,44 @@ class GoogleCalendarServiceTest {
     private static final String MAIN_CALENDAR_ID = "main_calendar_id";
     private static final String CANCELLED_CALENDAR_ID = "cancelled_calendar_id";
 
-    @BeforeEach
-    public void init() {
-        when(googleCalendarClient
-                .getEventsBetweenDates(eq(MAIN_CALENDAR_ID), eq(false), any(), any()))
-                .thenReturn(List.of(
-                        EventDto.builder()
-                                .status(EventStatus.SUCCESS)
-                                .summary("event from main calendar 1")
-                                .start(LocalDateTime.of(2024, 01, 01, 00, 00))
-                                .end(LocalDateTime.of(2024, 01, 01, 01, 00))
-                                .build(),
-                        EventDto.builder()
-                                .status(EventStatus.SUCCESS)
-                                .summary("event from main calendar 2")
-                                .start(LocalDateTime.of(2024, 01, 01, 00, 00))
-                                .end(LocalDateTime.of(2024, 01, 01, 01, 00))
-                                .build()
-                        )
-                );
-
-        when(googleCalendarClient
-                .getEventsBetweenDates(eq(CANCELLED_CALENDAR_ID), eq(true), any(), any()))
-                .thenReturn(List.of(
-                                EventDto.builder()
-                                        .status(EventStatus.CANCELLED)
-                                        .summary("event from cancelled calendar 1")
-                                        .start(LocalDateTime.of(2023, 12, 01, 00, 00))
-                                        .end(LocalDateTime.of(2023, 12, 01, 01, 00))
-                                        .build(),
-                                EventDto.builder()
-                                        .status(EventStatus.CANCELLED)
-                                        .summary("event from cancelled calendar 2")
-                                        .start(LocalDateTime.of(2023, 12, 01, 00, 00))
-                                        .end(LocalDateTime.of(2023, 12, 01, 01, 00))
-                                        .build()
-                        )
-                );
-    }
+//    @BeforeEach
+//    public void init() {
+//        when(googleCalendarClient
+//                .getEventsBetweenDates(eq(MAIN_CALENDAR_ID), eq(false), any(), any()))
+//                .thenReturn(List.of(
+//                        EventDto.builder()
+//                                .status(EventStatus.SUCCESS)
+//                                .summary("event from main calendar 1")
+//                                .start(LocalDateTime.of(2024, 01, 01, 00, 00))
+//                                .end(LocalDateTime.of(2024, 01, 01, 01, 00))
+//                                .build(),
+//                        EventDto.builder()
+//                                .status(EventStatus.SUCCESS)
+//                                .summary("event from main calendar 2")
+//                                .start(LocalDateTime.of(2024, 01, 01, 00, 00))
+//                                .end(LocalDateTime.of(2024, 01, 01, 01, 00))
+//                                .build()
+//                        )
+//                );
+//
+//        when(googleCalendarClient
+//                .getEventsBetweenDates(eq(CANCELLED_CALENDAR_ID), eq(true), any(), any()))
+//                .thenReturn(List.of(
+//                                EventDto.builder()
+//                                        .status(EventStatus.CANCELLED)
+//                                        .summary("event from cancelled calendar 1")
+//                                        .start(LocalDateTime.of(2023, 12, 01, 00, 00))
+//                                        .end(LocalDateTime.of(2023, 12, 01, 01, 00))
+//                                        .build(),
+//                                EventDto.builder()
+//                                        .status(EventStatus.CANCELLED)
+//                                        .summary("event from cancelled calendar 2")
+//                                        .start(LocalDateTime.of(2023, 12, 01, 00, 00))
+//                                        .end(LocalDateTime.of(2023, 12, 01, 01, 00))
+//                                        .build()
+//                        )
+//                );
+//    }
 
     @Test
     public void getEventsBetweenDateWhenCancelledCalendarEnabled() {
