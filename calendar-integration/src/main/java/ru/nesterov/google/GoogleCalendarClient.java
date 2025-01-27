@@ -65,7 +65,7 @@ public class GoogleCalendarClient implements CalendarClient {
             com.google.api.services.calendar.model.Event eventToInsert = buildGoogleEvent(eventDto);
 
             calendar.events()
-                    .insert(targetCalendarId, eventToInsert)
+                    .move(sourceCalendarId, eventToInsert.getId(), targetCalendarId)
                     .execute();
 
             log.debug("Событие [{}] перенесено в календарь [{}]", eventDto.getSummary(), targetCalendarId);
