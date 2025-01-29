@@ -6,6 +6,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.test.context.ContextConfiguration;
+import ru.nesterov.dto.CalendarServiceDto;
 import ru.nesterov.dto.EventDto;
 import ru.nesterov.dto.EventStatus;
 import ru.nesterov.entity.Client;
@@ -98,7 +99,14 @@ public class ClientServiceImplTest {
         LocalDateTime from = LocalDateTime.of(2024, 8, 9, 11, 30);
         LocalDateTime to = LocalDateTime.of(2024, 8, 13, 12, 30);
 
-        when(calendarService.getEventsBetweenDates(eq(user.getMainCalendar()), eq(user.getCancelledCalendar()), anyBoolean(), eq(from), eq(to)))
+        CalendarServiceDto calendarServiceDto = CalendarServiceDto.builder()
+                .mainCalendar(user.getMainCalendar())
+                .cancelledCalendar(user.getCancelledCalendar())
+                .leftDate(from)
+                .rightDate(to)
+                .build();
+
+        when(calendarService.getEventsBetweenDates(calendarServiceDto))
                 .thenReturn(List.of(eventDto1, eventDto2, eventDto3, eventDto4, eventDto5));
     }
 

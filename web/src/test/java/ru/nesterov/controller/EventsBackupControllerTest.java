@@ -5,6 +5,7 @@ import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.MediaType;
 import org.springframework.test.context.TestPropertySource;
+import ru.nesterov.dto.CalendarType;
 import ru.nesterov.dto.EventDto;
 import ru.nesterov.dto.EventStatus;
 import ru.nesterov.entity.BackupType;
@@ -52,7 +53,7 @@ public class EventsBackupControllerTest extends AbstractControllerTest {
                 .end(end.minusDays(5))
                 .build();
         
-        when(googleCalendarClient.getEventsBetweenDates(anyString(), anyBoolean(), any(), any()))
+        when(googleCalendarClient.getEventsBetweenDates(anyString(), CalendarType.PLAIN, any(), any()))
                 .thenReturn(List.of(eventDto1, eventDto2));
     }
     
