@@ -2,10 +2,14 @@ package ru.nesterov.controller;
 
 import lombok.extern.slf4j.Slf4j;
 import org.junit.jupiter.api.Test;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.MediaType;
 import ru.nesterov.controller.request.CreateClientRequest;
 import ru.nesterov.entity.Client;
 import ru.nesterov.entity.User;
+import ru.nesterov.service.client.ClientService;
+import ru.nesterov.service.dto.ClientDto;
+import ru.nesterov.service.dto.UserDto;
 
 import static org.hamcrest.Matchers.hasSize;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
@@ -14,16 +18,14 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 
 @Slf4j
 class ClientControllerTest extends AbstractControllerTest {
+    @Autowired
+    private ClientService clientService;
     private static final String CREATE_CLIENT_URL = "/client/create";
     private static final String GET_ACTIVE_CLIENTS_URL = "/client/getActiveClients";
 
     @Test
     void createClientWithoutIdGeneration() throws Exception {
-        User user = new User();
-        user.setUsername("testUser2");
-        user.setMainCalendar("mainCalendar");
-        user.setCancelledCalendar("cancelCalendar");
-        user = userRepository.save(user);
+        UserDto user = createUserWithEnabledSettings("user");
 
         CreateClientRequest createClientRequest = new CreateClientRequest();
         createClientRequest.setDescription("desc");
@@ -45,15 +47,13 @@ class ClientControllerTest extends AbstractControllerTest {
                 .andExpect(jsonPath("$.active").value(true))
                 .andExpect(jsonPath("$.phone").value("89001112233"))
                 .andExpect(jsonPath("$.pricePerHour").value(100));
+
+
     }
 
     @Test
     void createClientWithTheSameNameWithoutIdGeneration() throws Exception {
-        User user = new User();
-        user.setUsername("testUser4");
-        user.setMainCalendar("mainCalendar");
-        user.setCancelledCalendar("cancelCalendar");
-        user = userRepository.save(user);
+        UserDto user = createUserWithEnabledSettings("user1");
 
         CreateClientRequest createClientRequest = new CreateClientRequest();
         createClientRequest.setDescription("desc");
@@ -103,11 +103,7 @@ class ClientControllerTest extends AbstractControllerTest {
 
     @Test
     void createClientWithTheSameNameWithIdGeneration() throws Exception {
-        User user = new User();
-        user.setUsername("testUser5");
-        user.setMainCalendar("mainCalendar");
-        user.setCancelledCalendar("cancelCalendar");
-        user = userRepository.save(user);
+        UserDto user = createUserWithEnabledSettings("user2");
 
         CreateClientRequest createClientRequest0 = new CreateClientRequest();
         createClientRequest0.setDescription("desc");
@@ -195,38 +191,31 @@ class ClientControllerTest extends AbstractControllerTest {
 
     @Test
     void getActiveClients() throws Exception {
-        User user = new User();
-        user.setUsername("testUser3");
-        user.setMainCalendar("mainCalendar");
-        user.setCancelledCalendar("cancelCalendar");
-        user = userRepository.save(user);
+        UserDto user = createUserWithEnabledSettings("user3");
 
-        Client client1 = new Client();
-        client1.setActive(true);
-        client1.setName("a");
-        client1.setDescription("aa");
-        client1.setPricePerHour(100);
-        client1.setUser(user);
+        ClientDto clientDto1 = ClientDto.builder()
+                .active(true)
+                .name("a")
+                .description("aa")
+                .pricePerHour(100)
+                .build();
+        ClientDto client1 = clientService.createClient(user, clientDto1, false);
 
-        clientRepository.save(client1);
+        ClientDto clientDto2 = ClientDto.builder()
+                .active(true)
+                .name("b")
+                .description("bbb")
+                .pricePerHour(200)
+                .build();
+        ClientDto client2 = clientService.createClient(user, clientDto2, false);
 
-        Client client2 = new Client();
-        client2.setActive(true);
-        client2.setName("b");
-        client2.setDescription("bbb");
-        client2.setPricePerHour(200);
-        client2.setUser(user);
-
-        clientRepository.save(client2);
-
-        Client client3 = new Client();
-        client3.setActive(false);
-        client3.setName("c");
-        client3.setDescription("ccc");
-        client3.setPricePerHour(200);
-        client3.setUser(user);
-
-        clientRepository.save(client3);
+        ClientDto clientDto3 = ClientDto.builder()
+                .active(false)
+                .name("c")
+                .description("ccc")
+                .pricePerHour(200)
+                .build();
+        clientService.createClient(user, clientDto3, false);
 
         mockMvc.perform(
                         post(GET_ACTIVE_CLIENTS_URL)
