@@ -30,7 +30,6 @@ public class GoogleCalendarService implements CalendarService {
             List<EventDto> eventsFromCancelledCalendar = googleCalendarClient.getEventsBetweenDates(calendarServiceDto.getCancelledCalendar(), CalendarType.CANCELLED, calendarServiceDto.getLeftDate(), calendarServiceDto.getRightDate());
             return mergeEvents(eventsFromMainCalendar, eventsFromCancelledCalendar);
         }
-
         return eventsFromMainCalendar;
     }
 
