@@ -39,7 +39,7 @@ public class GoogleCalendarService implements CalendarService {
         return eventDtos;
     }
 
-    public List<EventDto> getHolidays(CalendarType calendarType, LocalDateTime leftDate, LocalDateTime rightDate) {
-        return googleCalendarClient.getEventsBetweenDates(calendarId, calendarType, leftDate, rightDate);
+    public List<EventDto> getHolidays(LocalDateTime leftDate, LocalDateTime rightDate) {
+        return googleCalendarClient.getEventsBetweenDates(calendarId, CalendarType.PLAIN, leftDate, rightDate);
     }
 }

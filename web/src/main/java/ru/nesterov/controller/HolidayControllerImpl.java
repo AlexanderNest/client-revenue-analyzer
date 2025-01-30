@@ -20,6 +20,6 @@ public class HolidayControllerImpl implements HolidayController {
     public List<EventDto> getHolidays(@RequestBody GetHolidaysRequest getHolidaysRequest) {
         LocalDateTime leftDate = LocalDateTime.parse(getHolidaysRequest.getLeftDateStr(), DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm"));
         LocalDateTime rightDate = LocalDateTime.parse(getHolidaysRequest.getRightDateStr(), DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm"));
-        return googleCalendarService.getHolidays(CalendarType.PLAIN, leftDate, rightDate);
+        return googleCalendarService.getHolidays(leftDate, rightDate);
     }
 }

@@ -74,7 +74,7 @@ public class HolidayControllerImplTest {
 
         List<EventDto> expectedEvents = Arrays.asList(event1, event2);
 
-        when(googleCalendarService.getHolidays(CalendarType.PLAIN, leftDate, rightDate)).thenReturn(expectedEvents);
+        when(googleCalendarService.getHolidays(leftDate, rightDate)).thenReturn(expectedEvents);
 
         // Act & Assert
         mockMvc.perform(get("/revenue-analyzer/holidayDay")
@@ -92,6 +92,6 @@ public class HolidayControllerImplTest {
                 .andExpect(jsonPath("$[1].end").value("2025-02-21 12:00"))
                 .andExpect(jsonPath("$[1].eventExtensionDto").value(""));
 
-        verify(googleCalendarService, times(1)).getHolidays(CalendarType.PLAIN, leftDate, rightDate);
+        verify(googleCalendarService, times(1)).getHolidays(leftDate, rightDate);
     }
 }
