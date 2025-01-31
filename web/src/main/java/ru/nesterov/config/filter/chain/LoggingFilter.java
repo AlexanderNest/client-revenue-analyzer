@@ -9,7 +9,6 @@ import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Component;
 import org.springframework.web.filter.OncePerRequestFilter;
 
-import java.io.BufferedReader;
 import java.io.IOException;
 import java.util.Enumeration;
 import java.util.Map;
@@ -38,13 +37,13 @@ public class LoggingFilter extends OncePerRequestFilter {
         logger.info(logMessage.toString());
 
         // Продолжаем выполнение цепочки фильтров с обернутым запросом
-        filterChain.doFilter(wrappedRequest, response);
+        filterChain.doFilter(wrappedRequest, wrappedResponse);
 
         // Логируем информацию об ответе
         logMessage.setLength(0); // Очищаем StringBuilder для ответа
         logMessage.append("\n=== HTTP Response ===\n")
-                .append("Status: ").append(response.getStatus()).append("\n")
-                .append("Body:\n").append(wrappedResponse.getCachedBody());
+                .append("Status: ").append(response.getStatus()).append("\n\n")
+                .append("Body:\n").append(wrappedResponse.getCachedBody()).append("\n");
 
         logger.info(logMessage.toString());
     }
