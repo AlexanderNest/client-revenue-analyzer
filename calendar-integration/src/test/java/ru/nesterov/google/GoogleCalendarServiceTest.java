@@ -38,7 +38,7 @@ class GoogleCalendarServiceTest {
     @BeforeEach
     public void init() {
         when(googleCalendarClient
-                .getEventsBetweenDates(eq(MAIN_CALENDAR_ID), eq(CalendarType.PLAIN), any(), any()))
+                .getEventsBetweenDates(eq(MAIN_CALENDAR_ID), eq(CalendarType.MAIN), any(), any()))
                 .thenReturn(List.of(
                         EventDto.builder()
                                 .status(EventStatus.SUCCESS)
@@ -56,7 +56,7 @@ class GoogleCalendarServiceTest {
                 );
 
         when(googleCalendarClient
-                .getEventsBetweenDates(eq(CANCELLED_CALENDAR_ID), eq(CalendarType.PLAIN), any(), any()))
+                .getEventsBetweenDates(eq(CANCELLED_CALENDAR_ID), eq(CalendarType.CANCELLED), any(), any()))
                 .thenReturn(List.of(
                                 EventDto.builder()
                                         .status(EventStatus.CANCELLED)
@@ -120,7 +120,7 @@ class GoogleCalendarServiceTest {
 
         CalendarServiceDto calendarServiceDto = CalendarServiceDto.builder()
                 .mainCalendar(MAIN_CALENDAR_ID)
-                .cancelledCalendar(CANCELLED_CALENDAR_ID)
+                .cancelledCalendar(null)
                 .leftDate(leftDate)
                 .rightDate(rightDate)
                 .build();

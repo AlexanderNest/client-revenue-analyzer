@@ -6,7 +6,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.test.context.ContextConfiguration;
-import ru.nesterov.dto.CalendarServiceDto;
 import ru.nesterov.dto.EventDto;
 import ru.nesterov.dto.EventExtensionDto;
 import ru.nesterov.dto.EventStatus;
@@ -25,7 +24,6 @@ import java.util.Map;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.ArgumentMatchers.anyBoolean;
 import static org.mockito.Mockito.when;
 
 @SpringBootTest
@@ -109,14 +107,7 @@ class EventsAnalyzerServiceImplTest {
                 .status(EventStatus.SUCCESS)
                 .build();
 
-        CalendarServiceDto calendarServiceDto = CalendarServiceDto.builder()
-                .mainCalendar(any())
-                .cancelledCalendar(any())
-                .leftDate(any())
-                .rightDate(any())
-                .build();
-
-        when(googleCalendarService.getEventsBetweenDates(calendarServiceDto)).thenReturn(List.of(eventDto1, eventDto2, eventDto3, eventDto4, eventDto5, eventDto6));
+        when(googleCalendarService.getEventsBetweenDates(any())).thenReturn(List.of(eventDto1, eventDto2, eventDto3, eventDto4, eventDto5, eventDto6));
     }
 
     @Test

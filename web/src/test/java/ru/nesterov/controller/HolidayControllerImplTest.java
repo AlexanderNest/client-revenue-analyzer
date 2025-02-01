@@ -20,7 +20,7 @@ import org.springframework.test.web.servlet.MockMvc;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import ru.nesterov.controller.request.GetHolidaysRequest;
-import ru.nesterov.dto.CalendarType;
+
 import ru.nesterov.dto.EventDto;
 import ru.nesterov.dto.EventExtensionDto;
 import ru.nesterov.dto.EventStatus;
@@ -28,7 +28,6 @@ import ru.nesterov.google.GoogleCalendarService;
 
 @ExtendWith(MockitoExtension.class)
 public class HolidayControllerImplTest {
-
     @Mock
     private GoogleCalendarService googleCalendarService;
 

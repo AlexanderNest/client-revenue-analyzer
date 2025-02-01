@@ -106,6 +106,8 @@ public class GoogleCalendarClient implements CalendarClient {
         EventStatus eventStatus;
         if (calendarType == CalendarType.CANCELLED) {
             eventStatus = EventStatus.CANCELLED;
+        } else if (calendarType == CalendarType.PLAIN) {
+            eventStatus = null;
         } else {
             eventStatus = eventStatusService.getEventStatus(event);
         }
@@ -126,9 +128,9 @@ public class GoogleCalendarClient implements CalendarClient {
     private LocalDateTime getLocalDateTime (EventDateTime eventDateTime) {
         DateTime date;
         if(eventDateTime.getDateTime() != null) {
-            date = eventDateTime.getDateTime();
+            date = eventDateTime.getDateTime();  // событие со временем и датой
         } else {
-            date = eventDateTime.getDate();
+            date = eventDateTime.getDate(); // событие с датой на весь день
         }
         return LocalDateTime.ofInstant(Instant.ofEpochMilli(date.getValue()), ZoneId.systemDefault());
     }

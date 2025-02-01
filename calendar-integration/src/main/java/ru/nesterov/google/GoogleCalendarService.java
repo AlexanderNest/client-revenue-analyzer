@@ -23,6 +23,7 @@ public class GoogleCalendarService implements CalendarService {
     @Value("${holiday.calendar}")
     private String calendarId;
 
+    @Override
     public List<EventDto> getEventsBetweenDates(CalendarServiceDto calendarServiceDto) {
         List<EventDto> eventsFromMainCalendar = googleCalendarClient.getEventsBetweenDates(calendarServiceDto.getMainCalendar(), CalendarType.MAIN, calendarServiceDto.getLeftDate(), calendarServiceDto.getRightDate());
 
@@ -33,13 +34,14 @@ public class GoogleCalendarService implements CalendarService {
         return eventsFromMainCalendar;
     }
 
+    @Override
+    public List<EventDto> getHolidays(LocalDateTime leftDate, LocalDateTime rightDate) {
+        return googleCalendarClient.getEventsBetweenDates(calendarId, CalendarType.PLAIN, leftDate, rightDate);
+    }
+
     private List<EventDto> mergeEvents(List<EventDto> eventsFromMainCalendar, List<EventDto> eventsFromCancelledCalendar) {
         List<EventDto> eventDtos = new ArrayList<>(eventsFromMainCalendar);
         eventDtos.addAll(eventsFromCancelledCalendar);
         return eventDtos;
-    }
-
-    public List<EventDto> getHolidays(LocalDateTime leftDate, LocalDateTime rightDate) {
-        return googleCalendarClient.getEventsBetweenDates(calendarId, CalendarType.PLAIN, leftDate, rightDate);
     }
 }
