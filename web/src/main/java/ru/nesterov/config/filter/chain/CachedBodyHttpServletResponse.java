@@ -57,8 +57,8 @@ public class CachedBodyHttpServletResponse extends HttpServletResponseWrapper {
 
         @Override
         public void write(int b) throws IOException {
-            cachedBody.write(b); // Кэшируем тело ответа
-            originalStream.write(b); // Записываем в оригинальный поток
+            cachedBody.write(b);
+            originalStream.write(b);
         }
     }
 }

@@ -4,8 +4,7 @@ import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Component;
 import org.springframework.web.filter.OncePerRequestFilter;
 
@@ -14,18 +13,16 @@ import java.util.Enumeration;
 import java.util.Map;
 
 @Component
+@Slf4j
 public class LoggingFilter extends OncePerRequestFilter {
-    private static final Logger logger = LoggerFactory.getLogger(LoggingFilter.class);
 
     @Override
     protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain filterChain) throws IOException, ServletException {
         CachedBodyHttpServletRequest wrappedRequest = new CachedBodyHttpServletRequest(request);
         CachedBodyHttpServletResponse wrappedResponse = new CachedBodyHttpServletResponse(response);
 
-        // Буфер для формирования лога
         StringBuilder logMessage = new StringBuilder();
 
-        // Логируем информацию о запросе
         logMessage.append("\n=== HTTP Request ===\n")
                 .append("Method: ").append(wrappedRequest.getMethod()).append("\n\n")
                 .append("URI: ").append(wrappedRequest.getRequestURI()).append("\n\n")
@@ -33,14 +30,11 @@ public class LoggingFilter extends OncePerRequestFilter {
                 .append("Parameters:\n").append(formatParameters(wrappedRequest.getParameterMap())).append("\n")
                 .append("Body:\n").append(wrappedRequest.getCachedBody()).append("\n");
 
-        // Логируем запрос
         logger.info(logMessage.toString());
 
-        // Продолжаем выполнение цепочки фильтров с обернутым запросом
         filterChain.doFilter(wrappedRequest, wrappedResponse);
 
-        // Логируем информацию об ответе
-        logMessage.setLength(0); // Очищаем StringBuilder для ответа
+        logMessage.setLength(0);
         logMessage.append("\n=== HTTP Response ===\n")
                 .append("Status: ").append(response.getStatus()).append("\n\n")
                 .append("Body:\n").append(wrappedResponse.getCachedBody()).append("\n");
