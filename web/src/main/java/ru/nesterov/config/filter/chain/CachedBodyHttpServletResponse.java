@@ -25,7 +25,7 @@ public class CachedBodyHttpServletResponse extends HttpServletResponseWrapper {
     }
 
     @Override
-    public PrintWriter getWriter() throws IOException {
+    public PrintWriter getWriter() {
         if (writer == null) {
             writer = new PrintWriter(cachedStream, true, StandardCharsets.UTF_8);
         }
