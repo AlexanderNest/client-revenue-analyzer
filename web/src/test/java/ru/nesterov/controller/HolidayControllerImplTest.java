@@ -27,7 +27,7 @@ import ru.nesterov.dto.EventStatus;
 import ru.nesterov.google.GoogleCalendarService;
 
 @ExtendWith(MockitoExtension.class)
-public class HolidayControllerImplTest {
+public class HolidayControllerImplTest extends AbstractControllerTest {
     @Mock
     private GoogleCalendarService googleCalendarService;
 
