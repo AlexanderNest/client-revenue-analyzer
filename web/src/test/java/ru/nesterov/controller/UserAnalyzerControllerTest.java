@@ -49,7 +49,7 @@ class UserAnalyzerControllerTest extends AbstractControllerTest {
                 .end(LocalDateTime.of(2024, 8, 14, 20, 0))
                 .build();
 
-        when(googleCalendarClient.getEventsBetweenDates(eq("someCalendar1"), anyBoolean(), any(), any())).thenReturn(List.of(eventDto1, eventDto2));
+        when(googleCalendarClient.getEventsBetweenDates(eq("someCalendar1"), any(), any(), any())).thenReturn(List.of(eventDto1, eventDto2));
 
         GetForYearRequest getForYearRequest = new GetForYearRequest();
         getForYearRequest.setYear(2024);
