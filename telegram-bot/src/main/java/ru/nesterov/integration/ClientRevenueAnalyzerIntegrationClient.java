@@ -68,6 +68,15 @@ public class ClientRevenueAnalyzerIntegrationClient {
         return post(String.valueOf(userId), request, "/revenue-analyzer/ai/generateRecommendation", AiAnalyzerResponse.class).getBody();
     }
 
+//    public AiAnalyzerResponse getAiStatistics(long userId) {
+//        String currentMonth = LocalDate.now().getMonth().name().toLowerCase();
+//
+//        GetForMonthRequest request = new GetForMonthRequest();
+//        request.setMonthName(currentMonth);
+//
+//        return get(String.valueOf(userId), "/revenue-analyzer/ai/generateRecommendation", AiAnalyzerResponse.class).getBody();
+//    }
+
 
     @Cacheable(value = "getUserByUsername", key = "#request.username", unless = "#result == null")
     public GetUserResponse getUserByUsername(GetUserRequest request) {
