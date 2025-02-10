@@ -37,18 +37,6 @@ public class GetMonthStatisticsCommandHandler extends DisplayedCommandHandler {
 
     private static final String markSymbol = "\u2B50";
 
-    @Override
-    public BotApiMethod<?> handle(Update update) {
-        BotApiMethod<?> sendMessage;
-        if (update.getMessage() == null) {
-            sendMessage = sendMonthStatistics(update);
-        } else {
-            sendMessage = sendMonthKeyboard(update.getMessage().getChatId());
-        }
-
-        return sendMessage;
-    }
-
     private static String formatIncomeReport(GetIncomeAnalysisForMonthResponse response) {
         NumberFormat currencyFormat = NumberFormat.getNumberInstance(new Locale("ru", "RU"));
         currencyFormat.setMinimumFractionDigits(0);
@@ -67,6 +55,18 @@ public class GetMonthStatisticsCommandHandler extends DisplayedCommandHandler {
                 "Потенциальный доход:", currencyFormat.format(response.getPotentialIncome()),
                 "Потерянный доход:", currencyFormat.format(response.getLostIncome())
         );
+    }
+
+    @Override
+    public BotApiMethod<?> handle(Update update) {
+        BotApiMethod<?> sendMessage;
+        if (update.getMessage() == null) {
+            sendMessage = sendMonthStatistics(update);
+        } else {
+            sendMessage = sendMonthKeyboard(update.getMessage().getChatId());
+        }
+
+        return sendMessage;
     }
 
     @SneakyThrows

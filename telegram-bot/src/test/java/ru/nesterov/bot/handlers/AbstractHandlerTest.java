@@ -6,6 +6,7 @@ import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.test.context.ContextConfiguration;
 import ru.nesterov.bot.handlers.service.BotHandlersRequestsKeeper;
+import ru.nesterov.bot.handlers.service.ButtonCallbackService;
 import ru.nesterov.bot.handlers.service.HandlersService;
 import ru.nesterov.calendar.InlineCalendarBuilder;
 import ru.nesterov.integration.ClientRevenueAnalyzerIntegrationClient;
@@ -17,7 +18,8 @@ import ru.nesterov.integration.ClientRevenueAnalyzerIntegrationClient;
         ObjectMapper.class,
         BotHandlersRequestsKeeper.class,
         InlineCalendarBuilder.class,
-        HandlersService.class
+        HandlersService.class,
+        ButtonCallbackService.class
 })
 @SpringBootTest
 public abstract class AbstractHandlerTest {
@@ -27,6 +29,8 @@ public abstract class AbstractHandlerTest {
     protected ObjectMapper objectMapper;
     @Autowired
     protected HandlersService handlerService;
+    @Autowired
+    protected ButtonCallbackService buttonCallbackService;
 
     @MockBean
     protected ClientRevenueAnalyzerIntegrationClient client;
