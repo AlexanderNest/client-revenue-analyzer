@@ -4,5 +4,5 @@ import lombok.Data;
 
 @Data
 public class AiAnalyzerResponse {
-    String content;
+    private String content;
 }

@@ -30,10 +30,6 @@ public class AiAnalyzerHandler extends DisplayedCommandHandler {
     public BotApiMethod<?> handle(Update update) {
         long userId = TelegramUpdateUtils.getUserId(update);
 
-        AiAnalyzerRequest aiAnalyzerRequest = handlersKeeper.getRequest(userId, AiAnalyzerHandler.class, AiAnalyzerRequest.class);
-
-
-        if (aiAnalyzerRequest == null) {
             String currentMonth = LocalDate.now().getMonth().name().toLowerCase();
 
             AiAnalyzerRequest newAiAnalyzerRequest = AiAnalyzerRequest.builder()
@@ -41,21 +37,12 @@ public class AiAnalyzerHandler extends DisplayedCommandHandler {
                     .build();
             handlersKeeper.putRequest(AiAnalyzerHandler.class, userId, newAiAnalyzerRequest);
 
-            return sendAiResponse(update, newAiAnalyzerRequest);
-        } else {
-            if (aiAnalyzerRequest.getMonthName() == null) {
-                String currentMonth = LocalDate.now().getMonth().name().toLowerCase();
-
-                aiAnalyzerRequest.setMonthName(currentMonth);
-                handlersKeeper.putRequest(AiAnalyzerHandler.class, userId, aiAnalyzerRequest);
-            }
-
-            return sendAiResponse(update, aiAnalyzerRequest);
+            return getAiResponse(update);
         }
-    }
+
 
     @SneakyThrows
-    private BotApiMethod<?> sendAiResponse(Update update, AiAnalyzerRequest aiAnalyzerRequest) {
+    private BotApiMethod<?> getAiResponse(Update update) {
         long userId = TelegramUpdateUtils.getUserId(update);
 
         AiAnalyzerResponse response = client.getAiStatistics(userId);
@@ -66,7 +53,6 @@ public class AiAnalyzerHandler extends DisplayedCommandHandler {
 
     @Override
     public boolean isFinished(Long userId) {
-        AiAnalyzerRequest aiAnalyzerRequest = handlersKeeper.getRequest(userId, AiAnalyzerHandler.class, AiAnalyzerRequest.class);
-        return aiAnalyzerRequest == null || aiAnalyzerRequest.getMonthName() != null;
+        return true;
     }
 }
