@@ -14,7 +14,6 @@ import ru.nesterov.dto.AiAnalyzerResponse;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertInstanceOf;
-
 import static org.mockito.ArgumentMatchers.anyLong;
 import static org.mockito.Mockito.when;
 
@@ -27,17 +26,17 @@ class AiAnalyzerHandlerTest extends RegisteredUserHandlerTest {
         Update update = createUpdateWithMessage("Анализ клиентов ИИ");
         CommandHandler commandHandler = handlerService.getHandler(update);
 
-        AiAnalyzerResponse aiAnalyzerResponse = new AiAnalyzerResponse();
-        aiAnalyzerResponse.setContent("Клиент 1 показал отличные результаты в плане продуктивности и дохода. У него не было отмененных запланированных событий, а его успешная ставка составила 100%. Потери потенциального дохода отсутствуют. Таким образом, рекомендации для этого клиента будут продолжать текущие условия без изменений.");
+        assertInstanceOf(AiAnalyzerHandler.class, commandHandler);
 
+        AiAnalyzerResponse aiAnalyzerResponse = new AiAnalyzerResponse();
+        aiAnalyzerResponse.setContent("Клиент 1 показал отличные результаты в плане продуктивности и дохода.");
         when(client.getAiStatistics(anyLong())).thenReturn(aiAnalyzerResponse);
 
         BotApiMethod<?> command = commandHandler.handle(update);
         assertInstanceOf(SendMessage.class, command);
         SendMessage sendStatistics = (SendMessage) command;
 
-        String expectedMessage = "Клиент 1 показал отличные результаты в плане продуктивности и дохода. У него не было отмененных запланированных событий, а его успешная ставка составила 100%. Потери потенциального дохода отсутствуют. Таким образом, рекомендации для этого клиента будут продолжать текущие условия без изменений.";
-        assertEquals(expectedMessage, sendStatistics.getText());
+        assertEquals(aiAnalyzerResponse.getContent(), sendStatistics.getText());
     }
 
     private Update createUpdateWithMessage(String text) {
