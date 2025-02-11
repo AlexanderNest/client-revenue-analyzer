@@ -36,7 +36,7 @@ public class MakeEventsBackupHandler extends DisplayedCommandHandler {
         long userId = TelegramUpdateUtils.getUserId(update);
         long chatId = TelegramUpdateUtils.getChatId(update);
         String text = null;
-        
+
         if (update.getMessage() != null) {
             text = update.getMessage().getText();
         }
