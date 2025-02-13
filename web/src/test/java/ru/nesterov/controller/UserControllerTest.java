@@ -4,7 +4,7 @@ import org.junit.jupiter.api.Test;
 import org.springframework.http.MediaType;
 import ru.nesterov.dto.CreateUserRequest;
 import ru.nesterov.dto.GetUserRequest;
-import ru.nesterov.entity.User;
+import ru.nesterov.service.dto.UserDto;
 
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
@@ -38,20 +38,19 @@ class UserControllerTest extends AbstractControllerTest {
 
     @Test
     void getUser() throws Exception {
-        User user = createUser("user");
-
+        UserDto user = createUserWithEnabledSettings("testUser2");
         GetUserRequest request = new GetUserRequest();
-        request.setUsername("user");
+        request.setUsername("testUser2");
         mockMvc.perform(
                 post(GET_USER_URL)
-                        .header("X-username", "user")
+                        .header("X-username", "testUser2")
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(objectMapper.writeValueAsString(request))
         )
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.userId").value(user.getId()))
                 .andExpect(jsonPath("$.username").value(user.getUsername()))
-                .andExpect(jsonPath("$.isCancelledCalendarEnabled").value(user.isCancelledCalendarEnabled()))
+                .andExpect(jsonPath("$.isCancelledCalendarEnabled").value(user.getUserSettings().isCancelledCalendarEnabled()))
                 .andExpect(jsonPath("$.mainCalendarId").value(user.getMainCalendar()));
     }
 
