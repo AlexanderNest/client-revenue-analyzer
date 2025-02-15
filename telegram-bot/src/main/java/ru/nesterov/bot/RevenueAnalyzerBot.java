@@ -5,6 +5,7 @@ import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.stereotype.Service;
 import org.telegram.telegrambots.bots.TelegramLongPollingBot;
 import org.telegram.telegrambots.meta.api.methods.BotApiMethod;
+import org.telegram.telegrambots.meta.api.methods.send.SendMessage;
 import org.telegram.telegrambots.meta.api.objects.Update;
 import org.telegram.telegrambots.meta.exceptions.TelegramApiException;
 import ru.nesterov.bot.handlers.abstractions.CommandHandler;
@@ -24,6 +25,14 @@ public class RevenueAnalyzerBot extends TelegramLongPollingBot {
         this.botProperties = botProperties;
     }
 
+    private String getErrorMessage(Exception e) {
+        String errorMessage = e.getMessage();
+
+        errorMessage = errorMessage.replaceAll("^\\d+\\s+", "").replaceAll("\\{|\\}|\"|\\s*:\\s*|message", "");
+        errorMessage = errorMessage.trim();
+
+        return errorMessage;
+    }
     @Override
     public void onUpdateReceived(Update update) {
         long userId = TelegramUpdateUtils.getUserId(update);
@@ -36,18 +45,25 @@ public class RevenueAnalyzerBot extends TelegramLongPollingBot {
 
         log.debug("Выбранный CommandHandler = {}", commandHandler.getClass().getSimpleName());
 
-        BotApiMethod<?> sendMessage;
+        BotApiMethod<?> botApiMethod;
 
         try {
-            sendMessage = commandHandler.handle(update);
+            botApiMethod = commandHandler.handle(update);
+        } catch (Exception exception) {
+            String errorMessage = getErrorMessage(exception);
+            SendMessage sendMessage = new SendMessage();
+            sendMessage.setChatId(TelegramUpdateUtils.getChatId(update));
+            sendMessage.setText(errorMessage);
+            botApiMethod = sendMessage;
         } finally {
             if (commandHandler.isFinished(userId)) {
                 handlersService.resetHandlers(userId);
             }
         }
 
-        sendMessage(sendMessage);
+        sendMessage(botApiMethod);
     }
+
 
     @Override
     public String getBotUsername() {
