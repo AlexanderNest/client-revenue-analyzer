@@ -14,6 +14,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Component;
 import org.springframework.web.client.HttpClientErrorException;
 import org.springframework.web.client.RestTemplate;
+import ru.nesterov.dto.AiAnalyzerResponse;
 import ru.nesterov.dto.CreateUserRequest;
 import ru.nesterov.dto.CreateUserResponse;
 import ru.nesterov.dto.GetActiveClientResponse;
@@ -31,6 +32,7 @@ import ru.nesterov.properties.RevenueAnalyzerProperties;
 import ru.nesterov.dto.CreateClientRequest;
 import ru.nesterov.dto.CreateClientResponse;
 
+import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.List;
 
@@ -56,6 +58,16 @@ public class ClientRevenueAnalyzerIntegrationClient {
 
         return post(String.valueOf(userId), getForYearRequest, "/revenue-analyzer/user/analyzer/getYearBusynessStatistics", GetYearBusynessStatisticsResponse.class).getBody();
     }
+
+    public AiAnalyzerResponse getAiStatistics(long userId) {
+        String currentMonth = LocalDate.now().getMonth().name().toLowerCase();
+
+        GetForMonthRequest request = new GetForMonthRequest();
+        request.setMonthName(currentMonth);
+
+        return post(String.valueOf(userId), request, "/revenue-analyzer/ai/generateRecommendation", AiAnalyzerResponse.class).getBody();
+    }
+
 
     @Cacheable(value = "getUserByUsername", key = "#request.username", unless = "#result == null")
     public GetUserResponse getUserByUsername(GetUserRequest request) {
@@ -107,41 +119,41 @@ public class ClientRevenueAnalyzerIntegrationClient {
                 }
         );
     }
-    
+
     public MakeEventsBackupResponse makeEventsBackup(long userId) {
         ResponseEntity<MakeEventsBackupResponse> response = get(
                 String.valueOf(userId),
                 "/revenue-analyzer/events/backup",
                 MakeEventsBackupResponse.class
         );
-        
+
         return response.getBody();
     }
-    
+
     private <T> ResponseEntity<T> get(String username, String endpoint, Class<T> responseType) {
         return exchange(username, null, endpoint, responseType, HttpMethod.GET);
     }
-    
+
     private <T> ResponseEntity<T> post(String username, Object request, String endpoint, Class<T> responseType) {
         return exchange(username, request, endpoint, responseType, HttpMethod.POST);
     }
-    
+
     private <T> List<T> postForList(String username, Object request, String endpoint, ParameterizedTypeReference<List<T>> typeReference) {
         HttpEntity<Object> requestEntity = new HttpEntity<>(request, createHeaders(username));
-        
+
         ResponseEntity<List<T>> responseEntity = restTemplate.exchange(
                 revenueAnalyzerProperties.getUrl() + endpoint,
                 HttpMethod.POST,
                 requestEntity,
                 typeReference
         );
-        
+
         return responseEntity.getBody();
     }
-    
+
     private <T> ResponseEntity<T> exchange(String username, Object request, String endpoint, Class<T> responseType, HttpMethod httpMethod) {
         HttpEntity<Object> entity = new HttpEntity<>(request, createHeaders(username));
-        
+
         try {
             return restTemplate.exchange(
                     revenueAnalyzerProperties.getUrl() + endpoint,
@@ -155,7 +167,7 @@ public class ClientRevenueAnalyzerIntegrationClient {
             return new ResponseEntity<>(HttpStatus.CONFLICT);
         }
     }
-    
+
     private HttpHeaders createHeaders(String username) {
         HttpHeaders headers = new HttpHeaders();
         headers.set("X-secret-token", botProperties.getSecretToken());

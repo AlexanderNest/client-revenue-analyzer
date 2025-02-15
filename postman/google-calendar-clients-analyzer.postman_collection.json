@@ -1,9 +1,9 @@
 {
 	"info": {
-		"_postman_id": "9745d05e-2e33-476b-8692-91e64012c035",
+		"_postman_id": "b5565ca5-ce86-4b2b-86d3-63271fcfa3ab",
 		"name": "google-calendar-clients-analyzer",
 		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
-		"_exporter_id": "19227667"
+		"_exporter_id": "31542889"
 	},
 	"item": [
 		{
@@ -464,11 +464,8 @@
 			"item": [
 				{
 					"name": "Аналитика клиентов с помощью Гигачат",
-					"protocolProfileBehavior": {
-						"disableBodyPruning": true
-					},
 					"request": {
-						"method": "GET",
+						"method": "POST",
 						"header": [
 							{
 								"key": "X-username",
@@ -483,7 +480,7 @@
 						],
 						"body": {
 							"mode": "raw",
-							"raw": "{\n    \"monthName\": \"january\"\n}",
+							"raw": "{\n    \"monthName\": \"february\"\n}",
 							"options": {
 								"raw": {
 									"language": "json"
