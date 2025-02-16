@@ -13,6 +13,7 @@ import ru.nesterov.exception.UnknownEventStatusException;
 import ru.nesterov.repository.ClientRepository;
 import ru.nesterov.repository.UserRepository;
 import ru.nesterov.service.CalendarService;
+import ru.nesterov.service.EvenExtensionService;
 import ru.nesterov.service.date.helper.MonthDatesPair;
 import ru.nesterov.service.date.helper.MonthHelper;
 import ru.nesterov.service.date.helper.WeekHelper;
@@ -54,7 +55,6 @@ public class EventsAnalyzerServiceImpl implements EventsAnalyzerService {
                 clientMeetingsStatistic = new ClientMeetingsStatistic(client.getPricePerHour());
             }
 
-            double eventDuration = eventService.getEventDuration(eventDto);
             if (eventStatus == EventStatus.SUCCESS) {
                 handleSuccessfulEvent(clientMeetingsStatistic, eventDto);
             } else if (eventStatus == EventStatus.CANCELLED) {
@@ -77,7 +77,7 @@ public class EventsAnalyzerServiceImpl implements EventsAnalyzerService {
     private void handleCancelledEvent(ClientMeetingsStatistic clientMeetingsStatistic, EventDto eventDto){
         double eventDuration = eventService.getEventDuration(eventDto);
         clientMeetingsStatistic.increaseCancelled(eventDuration);
-        if (eventDto.getEventExtensionDto().getIsPlanned()) {
+        if (EvenExtensionService.isPlannedStatus(eventDto)) {
             clientMeetingsStatistic.increasePlannedCancelledEvents(1);
         } else {
             clientMeetingsStatistic.increaseNotPlannedCancelledEvents(1);

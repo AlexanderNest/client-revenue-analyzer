@@ -31,6 +31,12 @@
 
         <dependency>
             <groupId>ru.nesterov</groupId>
+            <artifactId>gigachat-integration</artifactId>
+            <version>0.0.1-SNAPSHOT</version>
+        </dependency>
+
+        <dependency>
+            <groupId>ru.nesterov</groupId>
             <artifactId>telegram-bot</artifactId>
             <version>0.0.1-SNAPSHOT</version>
         </dependency>
@@ -52,7 +58,7 @@
             <groupId>org.springframework.boot</groupId>
             <artifactId>spring-boot-starter-security</artifactId>
         </dependency>
-
+        
     </dependencies>
 
     <build>

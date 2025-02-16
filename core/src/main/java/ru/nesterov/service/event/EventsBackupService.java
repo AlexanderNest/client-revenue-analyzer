@@ -18,6 +18,7 @@ import ru.nesterov.exception.EventBackupTimeoutException;
 import ru.nesterov.google.GoogleCalendarService;
 import ru.nesterov.repository.EventsBackupRepository;
 import ru.nesterov.repository.UserRepository;
+import ru.nesterov.service.dto.EventBackupDto;
 import ru.nesterov.service.mapper.EventMapper;
 
 import java.time.Duration;
@@ -48,26 +49,40 @@ public class EventsBackupService {
         List<User> users = userRepository.findAllByIsEventsBackupEnabled(true);
         
         if (users.isEmpty()) {
+            log.debug("Нет пользователей для выполнения автоматического резервного копирование встреч");
             return;
         }
         
         if (!isAutomaticBackupRequired()) {
+            log.debug("Автоматическое резервное копирование встреч для пользователей уже было выполнено в рамках периода");
             return;
         }
 
         saveBackups(users, BackupType.AUTOMATIC);
-        log.debug("Выполнено автоматическое резервное копирование записей для {} пользователей(я)", users.size());
+        log.debug("Выполнено автоматическое резервное копирование встреч для {} пользователей(я)", users.size());
     }
     
     @Transactional
-    public int backupCurrentUserEvents(String username) throws EventBackupTimeoutException {
+    public EventBackupDto backupCurrentUserEvents(String username) {
         User user = userRepository.findByUsername(username);
+        EventBackupDto result = new EventBackupDto();
         
-        checkManualBackupTimeout(user.getId());
+        try {
+            checkManualBackupTimeout(user.getId());
+        } catch (EventBackupTimeoutException e) {
+            result.setIsBackupMade(false);
+            result.setCooldownMinutes(Integer.parseInt(e.getMessage()));
+            return result;
+        }
         
         List<EventBackup> saved = saveBackups(List.of(user), BackupType.MANUAL);
         log.debug("{} выполнил резервное копирование записей", username);
-        return saved.get(0).getEvents().size();
+        
+        result.setIsBackupMade(true);
+        result.setSavedEventsCount(saved.get(0).getEvents().size());
+        result.setFrom(LocalDateTime.now().minusDays(eventsBackupProperties.getDatesRangeForBackup()));
+        result.setTo(LocalDateTime.now().plusDays(eventsBackupProperties.getDatesRangeForBackup()));
+        return result;
     }
     
     private boolean isAutomaticBackupRequired() {
