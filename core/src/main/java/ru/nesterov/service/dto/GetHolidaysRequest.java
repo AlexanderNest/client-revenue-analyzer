@@ -1,8 +1,6 @@
-package ru.nesterov.controller.request;
+package ru.nesterov.service.dto;
 
 import lombok.Data;
-import lombok.Getter;
-import lombok.Setter;
 
 @Data
 public class GetHolidaysRequest {
