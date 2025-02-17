@@ -10,6 +10,7 @@ import ru.nesterov.gigachat.service.AIIntegrationService;
 import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.Mockito.when;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.content;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
@@ -33,7 +34,7 @@ public class AiAnalyzerControllerTest extends AbstractControllerTest {
         GetClientAnalyticResponse expectedResponse = new GetClientAnalyticResponse();
         expectedResponse.setContent(recommendation);
 
-        mockMvc.perform(get("/ai/generateRecommendation")
+        mockMvc.perform(post("/ai/generateRecommendation")
                         .header("X-username", USERNAME)
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(objectMapper.writeValueAsString(request)))

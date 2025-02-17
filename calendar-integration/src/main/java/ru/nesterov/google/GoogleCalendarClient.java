@@ -29,6 +29,40 @@ import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 
+/*
+Основные методы Google Calendar API для работы с событиями:
+
+1. delete(String calendarId, String eventId)
+   - Удаляет событие из календаря.
+
+2. get(String calendarId, String eventId)
+   - Получает информацию о конкретном событии.
+
+3. importEvent(String calendarId, Event event)
+   - Импортирует событие в календарь без отправки приглашений.
+
+4. insert(String calendarId, Event event)
+   - Создаёт новое событие в календаре.
+
+5. instances(String calendarId, String eventId)
+   - Возвращает список экземпляров повторяющегося события.
+
+6. list(String calendarId)
+   - Получает список событий с возможностью фильтрации и сортировки.
+
+7. move(String calendarId, String eventId, String destinationCalendarId)
+   - Перемещает событие в другой календарь.
+
+8. patch(String calendarId, String eventId, Event event)
+   - Частично обновляет событие (обновляет только указанные поля).
+
+9. update(String calendarId, String eventId, Event event)
+   - Полностью обновляет событие.
+
+10. watch(String calendarId, Channel channel)
+    - Устанавливает уведомления об изменении событий в календаре.
+*/
+
 @Slf4j
 @Component
 @ConditionalOnProperty("app.google.calendar.integration.enabled")
