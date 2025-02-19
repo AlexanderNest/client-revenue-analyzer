@@ -1,12 +1,11 @@
 package ru.nesterov.controller;
 
+import com.google.api.services.calendar.model.Event;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.MediaType;
 import org.springframework.test.context.TestPropertySource;
-import ru.nesterov.dto.EventDto;
-import ru.nesterov.dto.EventStatus;
 import ru.nesterov.entity.BackupType;
 import ru.nesterov.entity.EventBackup;
 import ru.nesterov.entity.User;
@@ -37,23 +36,12 @@ public class EventsBackupControllerTest extends AbstractControllerTest {
     public void init() {
         LocalDateTime start = LocalDateTime.now();
         LocalDateTime end = LocalDateTime.now().plusHours(1);
-        
-        EventDto eventDto1 = EventDto.builder()
-                .summary("event1")
-                .status(EventStatus.SUCCESS)
-                .start(start.minusDays(10))
-                .end(end.minusDays(10))
-                .build();
-        
-        EventDto eventDto2 = EventDto.builder()
-                .summary("event2")
-                .status(EventStatus.SUCCESS)
-                .start(start.minusDays(5))
-                .end(end.minusDays(5))
-                .build();
-        
-//        when(googleCalendarClient.getEventsBetweenDates(anyString(), anyBoolean(), any(), any()))
-//                .thenReturn(List.of(eventDto1, eventDto2));
+
+        Event event1 = buildEvent("10", "event1", "", 2024, 10, 11, 10, 10, 2024, 10, 11, 10, 40);
+        Event event2 = buildEvent("10", "event2", "", 2024, 11, 11, 10, 10, 2024, 11, 11, 10, 40);
+
+        when(googleCalendarClient.getEventsBetweenDates(anyString(), anyBoolean(), any(), any(), any()))
+                .thenReturn(List.of(event1, event2));
     }
     
     @Test
@@ -64,7 +52,7 @@ public class EventsBackupControllerTest extends AbstractControllerTest {
                         .header(HEADER_X_USERNAME, user.getUsername())
                         .contentType(MediaType.APPLICATION_JSON))
                 .andExpect(status().isOk())
-                .andExpect(jsonPath("$.savedEventsCount").value(2));
+                .andExpect(jsonPath("$.message").value("Встреч сохранено: 2"));
         
         User savedUser = userRepository.findByUsername(user.getUsername());
         LocalDateTime checkedTime = LocalDateTime
@@ -83,7 +71,7 @@ public class EventsBackupControllerTest extends AbstractControllerTest {
                         .header(HEADER_X_USERNAME, user.getUsername())
                         .contentType(MediaType.APPLICATION_JSON))
                 .andExpect(status().isOk())
-                .andExpect(jsonPath("$.savedEventsCount").value(2));
+                .andExpect(jsonPath("$.message").value("Встреч сохранено: 2"));
         
         User savedUser = userRepository.findByUsername(user.getUsername());
         LocalDateTime checkedTime = LocalDateTime
@@ -95,7 +83,8 @@ public class EventsBackupControllerTest extends AbstractControllerTest {
                         .header(HEADER_X_USERNAME, user.getUsername())
                         .contentType(MediaType.APPLICATION_JSON))
                 .andExpect(status().isOk())
-                .andExpect(jsonPath("$.isBackupMade").value(false));
+                .andExpect(jsonPath("$.message").value("Следующий бэкап можно будет сделать по прошествии " +
+                        eventsBackupProperties.getDelayBetweenManualBackups() + " минут(ы)"));
         
         EventBackup lastSavedBackup = eventsBackupRepository
                 .findByTypeAndUserIdAndBackupTimeAfter(BackupType.MANUAL, savedUser.getId(), checkedTime);
