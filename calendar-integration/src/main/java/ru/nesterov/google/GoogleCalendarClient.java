@@ -1,11 +1,17 @@
 package ru.nesterov.google;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.google.api.client.googleapis.batch.BatchRequest;
+import com.google.api.client.googleapis.batch.json.JsonBatchCallback;
 import com.google.api.client.googleapis.javanet.GoogleNetHttpTransport;
+import com.google.api.client.googleapis.json.GoogleJsonError;
+import com.google.api.client.googleapis.json.GoogleJsonResponseException;
+import com.google.api.client.http.HttpHeaders;
 import com.google.api.client.json.gson.GsonFactory;
 import com.google.api.client.util.DateTime;
 import com.google.api.services.calendar.Calendar;
 import com.google.api.services.calendar.CalendarScopes;
+import com.google.api.services.calendar.model.Event;
 import com.google.api.services.calendar.model.Events;
 import com.google.auth.http.HttpCredentialsAdapter;
 import com.google.auth.oauth2.GoogleCredentials;
@@ -82,30 +88,92 @@ public class GoogleCalendarClient implements CalendarClient {
     @SneakyThrows
     private Calendar createCalendarService() {
         GoogleCredentials credentials = GoogleCredentials.fromStream(new FileInputStream(properties.getServiceAccountFilePath()))
-                    .createScoped(List.of(CalendarScopes.CALENDAR_READONLY));
+                .createScoped(List.of(CalendarScopes.CALENDAR));
 
         return new Calendar.Builder(GoogleNetHttpTransport.newTrustedTransport(), GsonFactory.getDefaultInstance(), new HttpCredentialsAdapter(credentials))
                 .setApplicationName(properties.getApplicationName())
                 .build();
     }
 
+    /**
+     * Работает только с неповторяющимися событиями. Для повторяющихся использовать метод copy insertEventsToOtherCalendar
+     * @param sourceCalendarId
+     * @param targetCalendarId
+     * @param leftDate
+     * @param rightDate
+     */
     @SneakyThrows
-    public void copyCancelledEventsToCancelledCalendar(String sourceCalendarId, String targetCalendarId, LocalDateTime leftDate, LocalDateTime rightDate) {
-        List<EventDto> events = getEventsBetweenDates(sourceCalendarId, false, leftDate, rightDate, List.of(EventStatus.CANCELLED));
+    public void moveEventsToOtherCalendar(String sourceCalendarId, String targetCalendarId, LocalDateTime leftDate, LocalDateTime rightDate) {
+        List<Events> eventsList = getEventsBetweenDates(
+                sourceCalendarId,
+                Date.from(leftDate.atZone(ZoneId.systemDefault()).toInstant()),
+                Date.from(rightDate.atZone(ZoneId.systemDefault()).toInstant())
+        );
 
-        log.info("Копирование {} событий из календаря [{}] в календарь [{}]", events.size(), sourceCalendarId, targetCalendarId);
+        List<Event> events = eventsList.stream()
+                .flatMap(e -> e.getItems().stream())
+                .toList();
 
-        for (EventDto eventDto : events) {
-            com.google.api.services.calendar.model.Event eventToInsert = buildGoogleEvent(eventDto);
-
+        log.info("Перенос {} событий из календаря [{}] в календарь [{}]", events.size(), sourceCalendarId, targetCalendarId);
+        for (Event event: events) {
             calendar.events()
-                    .move(sourceCalendarId, eventToInsert.getId(), targetCalendarId)
+                    .move(sourceCalendarId, event.getId(), targetCalendarId)
                     .execute();
-
-            log.debug("Событие [{}] перенесено в календарь [{}]", eventDto.getSummary(), targetCalendarId);
+            log.debug("Событие [{}] перенесено в календарь [{}]", event.getSummary(), targetCalendarId);
         }
 
         log.info("Все события успешно перенесены из календаря [{}] в календарь [{}]", sourceCalendarId, targetCalendarId);
+    }
+
+    @SneakyThrows
+    public void insertEventsToOtherCalendar(String sourceCalendarId, String targetCalendarId, LocalDateTime leftDate, LocalDateTime rightDate) {
+        List<Events> eventsList = getEventsBetweenDates(
+                sourceCalendarId,
+                Date.from(leftDate.atZone(ZoneId.systemDefault()).toInstant()),
+                Date.from(rightDate.atZone(ZoneId.systemDefault()).toInstant())
+        );
+
+        BatchRequest batch = calendar.batch();
+
+        List<Event> events = eventsList.stream()
+                .flatMap(e -> e.getItems().stream())
+                .toList();
+
+        for (Event event : events) {
+            try {
+                Event newEvent = new Event()
+                        .setSummary(event.getSummary())
+                        .setDescription(event.getDescription())
+                        .setStart(event.getStart())
+                        .setEnd(event.getEnd())
+                        .setAttendees(event.getAttendees());
+
+                calendar.events()
+                        .insert(targetCalendarId, newEvent)
+                        .queue(batch, new JsonBatchCallback<Event>() {
+                            @Override
+                            public void onFailure(GoogleJsonError googleJsonError, HttpHeaders httpHeaders) throws IOException {
+                                log.debug("Событие [{}] не будет перенесено", event);
+                            }
+
+                            @Override
+                            public void onSuccess(Event event, HttpHeaders httpHeaders) throws IOException {
+                                if (event.getSummary().equals("error")) {
+                                    throw new RuntimeException();
+                                }
+
+                                log.debug("Событие [{}] перенесено в календарь [{}]", event.getSummary(), targetCalendarId);
+                            }
+                        });
+
+            } catch (GoogleJsonResponseException e) {
+                if (e.getStatusCode() == 409) {
+                    log.debug("Событие [{}] уже имеется в календаре [{}]", event, targetCalendarId);
+                }
+            }
+        }
+
+        batch.execute();
     }
 
     private com.google.api.services.calendar.model.Event buildGoogleEvent(EventDto eventDto) {

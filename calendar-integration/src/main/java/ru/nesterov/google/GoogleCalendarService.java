@@ -33,7 +33,7 @@ public class GoogleCalendarService implements CalendarService {
         LocalDateTime now = LocalDateTime.now();
         LocalDateTime oneMonthAgo = now.minusMonths(1);
         LocalDateTime oneMonthFuture = now.plusMonths(1);
-        googleCalendarClient.copyCancelledEventsToCancelledCalendar(mainCalendar, cancelledCalendar, oneMonthAgo, oneMonthFuture);
+        googleCalendarClient.insertEventsToOtherCalendar(mainCalendar, cancelledCalendar, oneMonthAgo, oneMonthFuture);
     }
 
     private List<EventDto> mergeEvents(List<EventDto> eventsFromMainCalendar, List<EventDto> eventsFromCancelledCalendar) {
