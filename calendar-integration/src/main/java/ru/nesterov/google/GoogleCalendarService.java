@@ -27,7 +27,7 @@ public class GoogleCalendarService implements CalendarService {
     public List<EventDto> getEventsBetweenDates(CalendarServiceDto calendarServiceDto) {
         List<EventDto> eventsFromMainCalendar = googleCalendarClient.getEventsBetweenDates(calendarServiceDto.getMainCalendar(), CalendarType.MAIN, calendarServiceDto.getLeftDate(), calendarServiceDto.getRightDate());
 
-        if (calendarServiceDto.getCancelledCalendar() != null) {
+        if (calendarServiceDto.getCancelledCalendar() != null && calendarServiceDto.isCancelledCalendarEnabled()) {
             List<EventDto> eventsFromCancelledCalendar = googleCalendarClient.getEventsBetweenDates(calendarServiceDto.getCancelledCalendar(), CalendarType.CANCELLED, calendarServiceDto.getLeftDate(), calendarServiceDto.getRightDate());
             return mergeEvents(eventsFromMainCalendar, eventsFromCancelledCalendar);
         }

@@ -131,6 +131,7 @@ public class EventsAnalyzerServiceImpl implements EventsAnalyzerService {
                 .cancelledCalendar(userDto.getCancelledCalendar())
                 .rightDate(rightDate)
                 .leftDate(leftDate)
+                .isCancelledCalendarEnabled(userDto.isCancelledCalendarEnabled())
                 .build();
 
         return calendarService.getEventsBetweenDates(calendarServiceDto).stream()
@@ -161,6 +162,7 @@ public class EventsAnalyzerServiceImpl implements EventsAnalyzerService {
                 .cancelledCalendar(userDto.getCancelledCalendar())
                 .rightDate(rightDate)
                 .leftDate(leftDate)
+                .isCancelledCalendarEnabled(userDto.isCancelledCalendarEnabled())
                 .build();
 
         List<EventDto> eventDtos = calendarService.getEventsBetweenDates(calendarServiceDto);
@@ -182,6 +184,7 @@ public class EventsAnalyzerServiceImpl implements EventsAnalyzerService {
                 .cancelledCalendar(userDto.getCancelledCalendar())
                 .rightDate(monthDatesPair.getFirstDate())
                 .leftDate(monthDatesPair.getLastDate())
+                .isCancelledCalendarEnabled(userDto.isCancelledCalendarEnabled())
                 .build();
         return calendarService.getEventsBetweenDates(calendarServiceDto);
     }
@@ -194,6 +197,7 @@ public class EventsAnalyzerServiceImpl implements EventsAnalyzerService {
                 .cancelledCalendar(userDto.getCancelledCalendar())
                 .rightDate(startOfYear)
                 .leftDate(endOfYear)
+                .isCancelledCalendarEnabled(userDto.isCancelledCalendarEnabled())
                 .build();
         return calendarService.getEventsBetweenDates(calendarServiceDto);
     }

@@ -84,6 +84,7 @@ class GoogleCalendarServiceTest {
                 .cancelledCalendar(CANCELLED_CALENDAR_ID)
                 .leftDate(leftDate)
                 .rightDate(rightDate)
+                .isCancelledCalendarEnabled(true)
                 .build();
 
         List<EventDto> eventDtos = googleCalendarService.getEventsBetweenDates(calendarServiceDto);
@@ -123,6 +124,7 @@ class GoogleCalendarServiceTest {
                 .cancelledCalendar(null)
                 .leftDate(leftDate)
                 .rightDate(rightDate)
+                .isCancelledCalendarEnabled(false)
                 .build();
 
         List<EventDto> eventDtos = googleCalendarService.getEventsBetweenDates(calendarServiceDto);

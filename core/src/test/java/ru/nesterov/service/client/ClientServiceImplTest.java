@@ -104,6 +104,7 @@ public class ClientServiceImplTest {
                 .cancelledCalendar(user.getCancelledCalendar())
                 .leftDate(from)
                 .rightDate(to)
+                .isCancelledCalendarEnabled(user.isCancelledCalendarEnabled())
                 .build();
 
         when(calendarService.getEventsBetweenDates(calendarServiceDto))

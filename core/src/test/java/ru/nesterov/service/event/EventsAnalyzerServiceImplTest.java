@@ -57,6 +57,7 @@ class EventsAnalyzerServiceImplTest {
         user.setUsername("testUsername");
         user.setCancelledCalendar("cancelledCalendar");
         user.setMainCalendar("mainCalendar");
+        user.setCancelledCalendarEnabled(true);
         when(userRepository.findByUsername("testUsername")).thenReturn(user);
 
         LocalDateTime start = LocalDateTime.of(2024, 8, 9, 22, 30);

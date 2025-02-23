@@ -126,6 +126,7 @@ public class EventsBackupService {
                     .cancelledCalendar(user.getCancelledCalendar())
                     .rightDate(backupEndDate)
                     .leftDate(backupStartDate)
+                    .isCancelledCalendarEnabled(user.isCancelledCalendarEnabled())
                     .build();
             List<EventDto> eventDtos = googleCalendarService.getEventsBetweenDates(calendarServiceDto);
             
