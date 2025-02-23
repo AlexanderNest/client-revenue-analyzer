@@ -1,5 +1,5 @@
 package ru.nesterov.service.holiday;
-import static org.mockito.Mockito.*;
+import static org.mockito.Mockito.when;
 
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
@@ -32,7 +32,7 @@ public class HolidayMethodTest {
     @MockBean
     private GoogleCalendarClient googleCalendarClient;
 
-    @Value("${holiday.calendar}")
+    @Value("${app.google.calendar.holiday.calendar}")
     private String calendarId;
 
     @Test
@@ -68,16 +68,16 @@ public class HolidayMethodTest {
 
         List<EventDto> eventDtos = googleCalendarService.getHolidays(leftDate, rightDate);
 
-        Assertions.assertTrue(eventDtos.get(0).getStatus() == EventStatus.SUCCESS);
-        Assertions.assertTrue(Objects.equals(eventDtos.get(0).getSummary(), "3000"));
-        Assertions.assertTrue(eventDtos.get(0).getStart().equals(LocalDateTime.parse("2024-12-31 22:00", DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm"))) );
-        Assertions.assertTrue(eventDtos.get(0).getEnd().equals(LocalDateTime.parse("2025-01-21 12:00", DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm"))));
-        Assertions.assertTrue(eventDtos.get(0).getEventExtensionDto() == eventExtensionDto);
+        Assertions.assertSame(eventDtos.get(0).getStatus(), EventStatus.SUCCESS);
+        Assertions.assertEquals("3000", eventDtos.get(0).getSummary());
+        Assertions.assertEquals(eventDtos.get(0).getStart(), LocalDateTime.parse("2024-12-31 22:00", DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm")));
+        Assertions.assertEquals(eventDtos.get(0).getEnd(), LocalDateTime.parse("2025-01-21 12:00", DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm")));
+        Assertions.assertSame(eventDtos.get(0).getEventExtensionDto(), eventExtensionDto);
 
-        Assertions.assertTrue(eventDtos.get(1).getStatus() == EventStatus.PLANNED);
-        Assertions.assertTrue(Objects.equals(eventDtos.get(1).getSummary(), "2000"));
-        Assertions.assertTrue(eventDtos.get(1).getStart().equals(LocalDateTime.parse("2024-11-31 22:00", DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm"))));
-        Assertions.assertTrue(eventDtos.get(1).getEnd().equals(LocalDateTime.parse("2025-02-21 12:00", DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm"))));
-        Assertions.assertTrue(eventDtos.get(1).getEventExtensionDto() == eventExtensionDto);
+        Assertions.assertSame(eventDtos.get(1).getStatus(), EventStatus.PLANNED);
+        Assertions.assertEquals("2000", eventDtos.get(1).getSummary());
+        Assertions.assertEquals(eventDtos.get(1).getStart(), LocalDateTime.parse("2024-11-31 22:00", DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm")));
+        Assertions.assertEquals(eventDtos.get(1).getEnd(), LocalDateTime.parse("2025-02-21 12:00", DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm")));
+        Assertions.assertSame(eventDtos.get(1).getEventExtensionDto(), eventExtensionDto);
     }
 }

@@ -17,11 +17,15 @@ import java.util.List;
 @Slf4j
 @Component
 @ConditionalOnProperty("app.google.calendar.integration.enabled")
-@RequiredArgsConstructor
 public class GoogleCalendarService implements CalendarService {
     private final GoogleCalendarClient googleCalendarClient;
-    @Value("${holiday.calendar}")
-    private String calendarId;
+    private final String calendarId;
+
+    public GoogleCalendarService(GoogleCalendarClient googleCalendarClient,
+                                 @Value("${app.google.calendar.holiday.calendar}") String calendarId) {
+        this.googleCalendarClient = googleCalendarClient;
+        this.calendarId = calendarId;
+    }
 
     @Override
     public List<EventDto> getEventsBetweenDates(CalendarServiceDto calendarServiceDto) {
