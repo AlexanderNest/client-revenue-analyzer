@@ -22,7 +22,7 @@ import java.util.List;
  */
 
 @Component
-@ConditionalOnProperty("bot.enabled")
+//@ConditionalOnProperty("bot.enabled")
 @RequiredArgsConstructor
 public class StartBotHandler extends InvocableCommandHandler {
     private final List<DisplayedCommandHandler> sendingMessageCommandHandlers;

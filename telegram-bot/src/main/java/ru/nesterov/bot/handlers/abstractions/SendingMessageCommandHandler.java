@@ -3,6 +3,7 @@ package ru.nesterov.bot.handlers.abstractions;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import jakarta.annotation.Nullable;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.context.annotation.Lazy;
 import org.telegram.telegrambots.meta.api.methods.AnswerCallbackQuery;
 import org.telegram.telegrambots.meta.api.methods.BotApiMethod;
@@ -21,6 +22,7 @@ import ru.nesterov.integration.ClientRevenueAnalyzerIntegrationClient;
  * CommandHandler, который отправляет сообщения. Также содержит полезные методы для быстрого создания сообщений.
  * В том числе и с клавиатурами, коллбеками и др.
  */
+@ConditionalOnProperty("bot.enabled")
 public abstract class SendingMessageCommandHandler implements CommandHandler {
     @Autowired
     protected ObjectMapper objectMapper;

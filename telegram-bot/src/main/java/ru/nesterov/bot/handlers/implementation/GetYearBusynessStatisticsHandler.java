@@ -21,7 +21,7 @@ import java.util.stream.Collectors;
 
 @Component
 @RequiredArgsConstructor
-@ConditionalOnProperty("bot.enabled")
+//@ConditionalOnProperty("bot.enabled")
 public class GetYearBusynessStatisticsHandler extends DisplayedCommandHandler {
     private final BotHandlersRequestsKeeper handlersKeeper;
 

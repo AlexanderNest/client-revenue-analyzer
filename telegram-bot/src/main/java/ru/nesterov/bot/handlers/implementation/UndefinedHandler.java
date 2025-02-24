@@ -8,7 +8,7 @@ import ru.nesterov.bot.TelegramUpdateUtils;
 import ru.nesterov.bot.handlers.abstractions.SendingMessageCommandHandler;
 
 @Component
-@ConditionalOnProperty("bot.enabled")
+//@ConditionalOnProperty("bot.enabled")
 public class UndefinedHandler extends SendingMessageCommandHandler {
     @Override
     public BotApiMethod<?> handle(Update update) {

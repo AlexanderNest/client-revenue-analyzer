@@ -19,7 +19,7 @@ import ru.nesterov.dto.GetUserRequest;
 @Component
 @Slf4j
 @RequiredArgsConstructor
-@ConditionalOnProperty("bot.enabled")
+//@ConditionalOnProperty("bot.enabled")
 public class UnregisteredUserHandler extends SendingMessageCommandHandler {
     private final CreateUserHandler createUserHandler;
 

@@ -27,7 +27,7 @@ import java.util.List;
 @Component
 @Slf4j
 @RequiredArgsConstructor
-@ConditionalOnProperty("bot.enabled")
+//@ConditionalOnProperty("bot.enabled")
 public class CreateUserHandler extends DisplayedCommandHandler {
     private final BotHandlersRequestsKeeper keeper;
 

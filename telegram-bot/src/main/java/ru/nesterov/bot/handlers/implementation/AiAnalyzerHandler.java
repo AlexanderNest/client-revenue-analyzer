@@ -11,7 +11,7 @@ import ru.nesterov.dto.AiAnalyzerResponse;
 
 @Component
 @RequiredArgsConstructor
-@ConditionalOnProperty("bot.enabled")
+//@ConditionalOnProperty("bot.enabled")
 public class AiAnalyzerHandler extends DisplayedCommandHandler {
     @Override
     public String getCommand() {

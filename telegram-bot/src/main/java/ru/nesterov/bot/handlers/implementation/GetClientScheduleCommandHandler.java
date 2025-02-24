@@ -30,7 +30,7 @@ import java.util.stream.Collectors;
  */
 
 @Component
-@ConditionalOnProperty("bot.enabled")
+//@ConditionalOnProperty("bot.enabled")
 @RequiredArgsConstructor
 public class GetClientScheduleCommandHandler extends DisplayedCommandHandler {
     private final BotHandlersRequestsKeeper handlersKeeper;

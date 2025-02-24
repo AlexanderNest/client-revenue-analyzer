@@ -23,7 +23,7 @@ import java.util.List;
  */
 
 @RequiredArgsConstructor
-@ConditionalOnProperty("bot.enabled")
+//@ConditionalOnProperty("bot.enabled")
 @Component
 public class CreateClientHandler extends DisplayedCommandHandler {
     private final BotHandlersRequestsKeeper keeper;

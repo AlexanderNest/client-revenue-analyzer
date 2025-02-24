@@ -20,7 +20,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 @Component
-@ConditionalOnProperty("bot.enabled")
+//@ConditionalOnProperty("bot.enabled")
 @RequiredArgsConstructor
 @Slf4j
 public class MakeEventsBackupHandler extends DisplayedCommandHandler {

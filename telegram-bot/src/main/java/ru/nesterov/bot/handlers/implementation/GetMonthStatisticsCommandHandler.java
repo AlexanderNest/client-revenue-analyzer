@@ -25,7 +25,7 @@ import java.util.Locale;
  */
 
 @Component
-@ConditionalOnProperty("bot.enabled")
+//@ConditionalOnProperty("bot.enabled")
 public class GetMonthStatisticsCommandHandler extends DisplayedCommandHandler {
     private static final String[] months = {
             "Январь", "Февраль",
