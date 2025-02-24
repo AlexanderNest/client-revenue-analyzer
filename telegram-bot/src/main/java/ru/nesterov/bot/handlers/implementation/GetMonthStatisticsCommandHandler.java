@@ -1,7 +1,6 @@
 package ru.nesterov.bot.handlers.implementation;
 
 import lombok.SneakyThrows;
-import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.stereotype.Component;
 import org.telegram.telegrambots.meta.api.methods.BotApiMethod;
 import org.telegram.telegrambots.meta.api.methods.send.SendMessage;
@@ -25,7 +24,6 @@ import java.util.Locale;
  */
 
 @Component
-//@ConditionalOnProperty("bot.enabled")
 public class GetMonthStatisticsCommandHandler extends DisplayedCommandHandler {
     private static final String[] months = {
             "Январь", "Февраль",

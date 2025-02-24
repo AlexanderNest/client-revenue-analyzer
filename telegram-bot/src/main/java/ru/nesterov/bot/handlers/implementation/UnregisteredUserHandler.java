@@ -3,7 +3,6 @@ package ru.nesterov.bot.handlers.implementation;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
-import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.stereotype.Component;
 import org.telegram.telegrambots.meta.api.methods.BotApiMethod;
 import org.telegram.telegrambots.meta.api.objects.Update;
@@ -19,7 +18,6 @@ import ru.nesterov.dto.GetUserRequest;
 @Component
 @Slf4j
 @RequiredArgsConstructor
-//@ConditionalOnProperty("bot.enabled")
 public class UnregisteredUserHandler extends SendingMessageCommandHandler {
     private final CreateUserHandler createUserHandler;
 

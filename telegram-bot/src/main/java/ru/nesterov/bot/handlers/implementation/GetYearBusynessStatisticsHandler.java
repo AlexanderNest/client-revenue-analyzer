@@ -2,7 +2,6 @@ package ru.nesterov.bot.handlers.implementation;
 
 import lombok.RequiredArgsConstructor;
 import lombok.SneakyThrows;
-import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.stereotype.Component;
 import org.telegram.telegrambots.meta.api.methods.BotApiMethod;
 import org.telegram.telegrambots.meta.api.objects.Update;
@@ -21,7 +20,6 @@ import java.util.stream.Collectors;
 
 @Component
 @RequiredArgsConstructor
-//@ConditionalOnProperty("bot.enabled")
 public class GetYearBusynessStatisticsHandler extends DisplayedCommandHandler {
     private final BotHandlersRequestsKeeper handlersKeeper;
 

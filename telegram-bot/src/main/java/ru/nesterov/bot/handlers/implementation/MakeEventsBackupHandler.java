@@ -2,7 +2,6 @@ package ru.nesterov.bot.handlers.implementation;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.stereotype.Component;
 import org.telegram.telegrambots.meta.api.methods.BotApiMethod;
 import org.telegram.telegrambots.meta.api.objects.Update;
@@ -20,7 +19,6 @@ import java.util.ArrayList;
 import java.util.List;
 
 @Component
-//@ConditionalOnProperty("bot.enabled")
 @RequiredArgsConstructor
 @Slf4j
 public class MakeEventsBackupHandler extends DisplayedCommandHandler {
