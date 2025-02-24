@@ -24,7 +24,6 @@ import java.util.Map;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.ArgumentMatchers.anyBoolean;
 import static org.mockito.Mockito.when;
 
 @SpringBootTest
@@ -58,6 +57,7 @@ class EventsAnalyzerServiceImplTest {
         user.setUsername("testUsername");
         user.setCancelledCalendar("cancelledCalendar");
         user.setMainCalendar("mainCalendar");
+        user.setCancelledCalendarEnabled(true);
         when(userRepository.findByUsername("testUsername")).thenReturn(user);
 
         LocalDateTime start = LocalDateTime.of(2024, 8, 9, 22, 30);
@@ -108,7 +108,7 @@ class EventsAnalyzerServiceImplTest {
                 .status(EventStatus.SUCCESS)
                 .build();
 
-        when(googleCalendarService.getEventsBetweenDates(any(), any(), anyBoolean(), any(), any())).thenReturn(List.of(eventDto1, eventDto2, eventDto3, eventDto4, eventDto5, eventDto6));
+        when(googleCalendarService.getEventsBetweenDates(any())).thenReturn(List.of(eventDto1, eventDto2, eventDto3, eventDto4, eventDto5, eventDto6));
     }
 
     @Test
