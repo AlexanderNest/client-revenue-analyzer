@@ -91,6 +91,10 @@ public class EventsAnalyzerServiceImpl implements EventsAnalyzerService {
         double lostIncome = 0;
         double potentialIncome = 0;
         double expectedIncome = 0;
+        double lostIncomeDueToHoliday = 0;
+
+        MonthDatesPair monthDatesPair = MonthHelper.getFirstAndLastDayOfMonth(monthName);
+        List<EventDto> holidayDtos = calendarService.getHolidays(monthDatesPair.getFirstDate(), monthDatesPair.getLastDate());
 
         for (EventDto eventDto : eventDtos) {
             EventStatus eventStatus = eventDto.getStatus();
@@ -108,6 +112,9 @@ public class EventsAnalyzerServiceImpl implements EventsAnalyzerService {
                 expectedIncome += eventPrice;
             } else if (eventStatus == EventStatus.CANCELLED) {
                 lostIncome += eventPrice;
+                if (holidayDtos.contains(eventDto)) {
+                    lostIncomeDueToHoliday += eventPrice;
+                }
             } else if (eventStatus == EventStatus.REQUIRES_SHIFT || eventStatus == EventStatus.PLANNED) {
                 expectedIncome += eventPrice;
             } else {
@@ -120,6 +127,7 @@ public class EventsAnalyzerServiceImpl implements EventsAnalyzerService {
         incomeAnalysisResult.setPotentialIncome(potentialIncome);
         incomeAnalysisResult.setActualIncome(actualIncome);
         incomeAnalysisResult.setExpectedIncome(expectedIncome);
+        incomeAnalysisResult.setLostIncomeDueToHoliday(lostIncomeDueToHoliday);
 
         return incomeAnalysisResult;
     }
