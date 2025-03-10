@@ -127,6 +127,7 @@ class EventsAnalyzerServiceImplTest {
         assertEquals(4500, incomeAnalysisResult.getActualIncome());
         assertEquals(7500, incomeAnalysisResult.getPotentialIncome());
         assertEquals(6500, incomeAnalysisResult.getExpectedIncome());
+        assertEquals(0, incomeAnalysisResult.getLostIncomeDueToHoliday());
     }
 
     @Test

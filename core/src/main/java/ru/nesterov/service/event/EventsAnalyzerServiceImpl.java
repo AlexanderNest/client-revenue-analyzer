@@ -134,7 +134,7 @@ public class EventsAnalyzerServiceImpl implements EventsAnalyzerService {
         return incomeAnalysisResult;
     }
 
-    private boolean isHoliday (List<EventDto> holidayDtos, EventDto eventDto) {
+    private boolean isHoliday(List<EventDto> holidayDtos, EventDto eventDto) {
 
         return holidayDtos.stream()
                 .anyMatch(holidayDto ->
