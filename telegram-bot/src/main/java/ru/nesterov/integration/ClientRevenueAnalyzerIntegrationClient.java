@@ -1,6 +1,9 @@
 package ru.nesterov.integration;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.sun.net.httpserver.HttpServer;
 import lombok.RequiredArgsConstructor;
+import lombok.SneakyThrows;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.cache.annotation.Cacheable;
@@ -13,6 +16,7 @@ import org.springframework.http.HttpStatusCode;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Component;
 import org.springframework.web.client.HttpClientErrorException;
+import org.springframework.web.client.HttpServerErrorException;
 import org.springframework.web.client.RestTemplate;
 import ru.nesterov.dto.AiAnalyzerResponse;
 import ru.nesterov.dto.CreateUserRequest;
@@ -32,6 +36,7 @@ import ru.nesterov.properties.RevenueAnalyzerProperties;
 import ru.nesterov.dto.CreateClientRequest;
 import ru.nesterov.dto.CreateClientResponse;
 
+import java.io.IOException;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.List;
@@ -44,6 +49,7 @@ public class ClientRevenueAnalyzerIntegrationClient {
     private final RestTemplate restTemplate;
     private final RevenueAnalyzerProperties revenueAnalyzerProperties;
     private final BotProperties botProperties;
+    private final ObjectMapper objectMapper;
 
     public GetIncomeAnalysisForMonthResponse getIncomeAnalysisForMonth(long userId, String monthName) {
         GetForMonthRequest getForMonthRequest = new GetForMonthRequest();
@@ -151,6 +157,7 @@ public class ClientRevenueAnalyzerIntegrationClient {
         return responseEntity.getBody();
     }
 
+    @SneakyThrows
     private <T> ResponseEntity<T> exchange(String username, Object request, String endpoint, Class<T> responseType, HttpMethod httpMethod) {
         HttpEntity<Object> entity = new HttpEntity<>(request, createHeaders(username));
 
@@ -165,6 +172,22 @@ public class ClientRevenueAnalyzerIntegrationClient {
             return new ResponseEntity<>(HttpStatus.NOT_FOUND);
         } catch (HttpClientErrorException.Conflict ignore) {
             return new ResponseEntity<>(HttpStatus.CONFLICT);
+        } catch (HttpServerErrorException.InternalServerError ex) {
+            String errorBody = ex.getResponseBodyAsString();
+
+            ErrorMessageResponse errorMessageResponse = null;
+            try {
+                errorMessageResponse = objectMapper.readValue(errorBody, ErrorMessageResponse.class);
+            } catch (IOException e) {
+                log.error("Ошибка при разборе тела ошибки: {}", e.getMessage());
+                throw new RuntimeException("Не удалось распознать ошибку сервера", e);
+            }
+
+            if (errorMessageResponse != null && errorMessageResponse.getMessage() != null) {
+                throw new RuntimeException(errorMessageResponse.getMessage());
+            } else {
+                throw new RuntimeException("Внутренняя ошибка сервера");
+            }
         }
     }
 

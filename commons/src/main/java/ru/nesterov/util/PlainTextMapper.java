@@ -11,7 +11,7 @@ import java.util.Locale;
 
 public class PlainTextMapper {
     private static final List<String> trueAliases = List.of("yes", "да");
-    private static final List<String> falseAliases = List.of("no");
+    private static final List<String> falseAliases = List.of("no", "нет");
     private static final DateTimeFormatter formatter = DateTimeFormatter.ofPattern("dd.MM.yyyy HH:mm");
 
     public static <T> T fillFromString(String data, Class<T> classForBuild) {
@@ -22,11 +22,20 @@ public class PlainTextMapper {
             throw new RuntimeException(e);
         }
 
-        String[] lines = data.split("\n");
+        String[] lines = data
+                .replaceAll("</span>", "\n")
+                .replaceAll("<[^>]*>", "")
+                .split("\n");
+
         Field[] fields = result.getClass().getDeclaredFields();
+
+        if (lines.length == 0) {
+            return null;
+        }
 
         for (String line : lines) {
             String[] parts = line.split(":", 2);
+
 
             if (parts.length != 2) {
                 continue;

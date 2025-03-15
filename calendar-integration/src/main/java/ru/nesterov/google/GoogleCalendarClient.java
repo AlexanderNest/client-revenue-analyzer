@@ -6,6 +6,7 @@ import com.google.api.client.json.gson.GsonFactory;
 import com.google.api.client.util.DateTime;
 import com.google.api.services.calendar.Calendar;
 import com.google.api.services.calendar.CalendarScopes;
+import com.google.api.services.calendar.model.Event;
 import com.google.api.services.calendar.model.EventDateTime;
 import com.google.api.services.calendar.model.Events;
 import com.google.auth.http.HttpCredentialsAdapter;
@@ -177,28 +178,34 @@ public class GoogleCalendarClient implements CalendarClient {
             return null;
         }
 
-        EventExtensionDto eventExtensionDto = buildFromPlainText(event.getDescription());
+        EventExtensionDto eventExtensionDto = buildFromJson(event);
         if (eventExtensionDto != null) {
             return eventExtensionDto;
         }
 
-        return buildFromJson(event.getDescription());
+        eventExtensionDto = buildFromPlainText(event);
+        if (eventExtensionDto == null) {
+            throw new CannotBuildEventException(event.getSummary(), event.getStart());
+        }
+
+        return eventExtensionDto;
     }
 
-    private EventExtensionDto buildFromJson(String description) {
+    @Nullable
+    private EventExtensionDto buildFromJson(Event event) {
         try {
-            return objectMapper.readValue(description, EventExtensionDto.class);
+            return objectMapper.readValue(event.getDescription(), EventExtensionDto.class);
         } catch (Exception e) {
-            log.trace("Не удалось собрать EventExtensionDto в виде JSON, неверный формат", e);
+            log.error("Не удалось собрать EventExtensionDto в виде JSON, неверный формат", e);
             return null;
         }
     }
 
-    private EventExtensionDto buildFromPlainText(String description) {
+    private EventExtensionDto buildFromPlainText(Event event) {
         try {
-            return PlainTextMapper.fillFromString(description, EventExtensionDto.class);
+            return PlainTextMapper.fillFromString(event.getDescription(), EventExtensionDto.class);
         } catch (Exception e) {
-            log.trace("Не удалось собрать EventExtensionDto в виде PLAIN TEXT, неверный формат", e);
+            log.error("Не удалось собрать EventExtensionDto в виде PLAIN TEXT, неверный формат", e);
             return null;
         }
     }
