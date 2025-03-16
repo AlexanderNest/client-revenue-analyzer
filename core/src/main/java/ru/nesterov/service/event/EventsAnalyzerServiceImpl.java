@@ -135,10 +135,8 @@ public class EventsAnalyzerServiceImpl implements EventsAnalyzerService {
     }
 
     private boolean isHoliday(List<EventDto> holidayDtos, EventDto eventDto) {
-
         return holidayDtos.stream()
-                .anyMatch(holidayDto ->
-                        eventDto.getStart().getDayOfMonth() == holidayDto.getStart().getDayOfMonth());
+                .anyMatch(holidayDto -> eventDto.getStart().getDayOfMonth() == holidayDto.getStart().getDayOfMonth());
     }
 
     @Override
@@ -172,8 +170,6 @@ public class EventsAnalyzerServiceImpl implements EventsAnalyzerService {
     }
 
     public Map<EventStatus, Integer> getEventStatusesBetweenDates(UserDto userDto, LocalDateTime leftDate, LocalDateTime rightDate) {
-        User user = userRepository.findByUsername(userDto.getUsername());
-
         CalendarServiceDto calendarServiceDto = CalendarServiceDto.builder()
                 .mainCalendar(userDto.getMainCalendar())
                 .cancelledCalendar(userDto.getCancelledCalendar())
