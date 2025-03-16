@@ -40,4 +40,20 @@ class PlainTextMapperTest {
         DateTimeFormatter formatter = DateTimeFormatter.ofPattern("dd.MM.yyyy HH:mm");
         assertEquals(LocalDateTime.parse("12.11.2024 00:00", formatter), eventExtensionDto.getPreviousDate());
     }
+
+    @Test
+    void fillFromAliasesStringV3() {
+        String data = "<pre><span>предыдущая дата : 12.11.2024</span></pre><pre>запланировано : нет</pre>";
+
+        EventExtensionDto eventExtensionDto = PlainTextMapper.fillFromString(data, EventExtensionDto.class);
+        assertNotNull(eventExtensionDto);
+        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("dd.MM.yyyy HH:mm");
+        assertEquals(LocalDateTime.parse("12.11.2024 00:00", formatter), eventExtensionDto.getPreviousDate());
+        assertEquals(eventExtensionDto.getIsPlanned(), false);
+
+
+//        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("dd.MM.yyyy HH:mm");
+//        assertEquals(LocalDateTime.parse("12.11.2024 00:00", formatter), eventExtensionDto.getPreviousDate());
+    }
+
 }

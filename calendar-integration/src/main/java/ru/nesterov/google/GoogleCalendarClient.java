@@ -196,7 +196,7 @@ public class GoogleCalendarClient implements CalendarClient {
         try {
             return objectMapper.readValue(event.getDescription(), EventExtensionDto.class);
         } catch (Exception e) {
-            log.error("Не удалось собрать EventExtensionDto в виде JSON, неверный формат", e);
+            log.trace("Не удалось собрать EventExtensionDto в виде JSON, неверный формат", e);
             return null;
         }
     }
@@ -205,7 +205,7 @@ public class GoogleCalendarClient implements CalendarClient {
         try {
             return PlainTextMapper.fillFromString(event.getDescription(), EventExtensionDto.class);
         } catch (Exception e) {
-            log.error("Не удалось собрать EventExtensionDto в виде PLAIN TEXT, неверный формат", e);
+            log.trace("Не удалось собрать EventExtensionDto в виде PLAIN TEXT, неверный формат", e);
             return null;
         }
     }

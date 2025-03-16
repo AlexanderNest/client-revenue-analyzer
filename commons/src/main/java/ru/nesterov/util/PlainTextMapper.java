@@ -1,9 +1,11 @@
 package ru.nesterov.util;
 
+
 import ru.nesterov.annotation.FieldAlias;
 
 import java.lang.reflect.Field;
 import java.lang.reflect.InvocationTargetException;
+import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.List;
@@ -77,35 +79,31 @@ public class PlainTextMapper {
     }
 
     private static <T> void setFieldValue(T object, Field field, String value) {
+        Object typedValue = null;
+        Class<?> type = field.getType();
+
+        if (type == LocalDateTime.class) {
+            String enrichedDate = value + " 00:00";  // на данный момент конкретное время не интересно, важна фактическая дата переноса
+            typedValue = LocalDateTime.parse(enrichedDate, formatter);
+        } else if (type == String.class) {
+            typedValue = value;
+        } else if (type == int.class || type == Integer.class) {
+            typedValue = Integer.parseInt(value);
+        } else if (type == boolean.class || type == Boolean.class) {
+            typedValue = convertToBoolean(value);
+        } else if (type == long.class || type == Long.class) {
+            typedValue = Long.parseLong(value);
+        } else if (type == double.class || type == Double.class) {
+            typedValue = Double.parseDouble(value);
+        } else if (type == float.class || type == Float.class) {
+            typedValue = Float.parseFloat(value);
+        }
+
         try {
-            try {
-                String enrichedDate = value + " 00:00";  // на данный момент конкретное время не интересно, важная фактическая дата переноса
-                LocalDateTime dateTime = LocalDateTime.parse(enrichedDate, formatter);
-                field.set(object, dateTime);
-            } catch (Exception ignored) {}
-
-            Class<?> type = field.getType();
-
-            if (type == String.class) {
-                field.set(object, value);
-            }
-            else if (type == int.class || type == Integer.class) {
-                field.set(object, Integer.parseInt(value));
-            }
-            else if (type == boolean.class || type == Boolean.class) {
-                field.set(object, convertToBoolean(value));
-            }
-            else if (type == long.class || type == Long.class) {
-                field.set(object, Long.parseLong(value));
-            }
-            else if (type == double.class || type == Double.class) {
-                field.set(object, Double.parseDouble(value));
-            }
-            else if (type == float.class || type == Float.class) {
-                field.set(object, Float.parseFloat(value));
-            }
-        } catch (IllegalAccessException | NumberFormatException e) {
+            field.set(object, typedValue);
+        } catch (IllegalAccessException  e) {
             System.err.println("Ошибка при установке значения для поля " + field.getName() + ": " + e.getMessage());
+            throw new RuntimeException(e);
         }
     }
 
