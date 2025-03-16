@@ -113,10 +113,10 @@ public class EventsAnalyzerServiceImpl implements EventsAnalyzerService {
                 expectedIncome += eventPrice;
             } else if (eventStatus == EventStatus.CANCELLED) {
                 lostIncome += eventPrice;
-                    if(isHoliday(holidayDtos, eventDto)) {
-                        lostIncomeDueToHoliday += eventPrice;
-                    }
 
+                if(isHoliday(holidayDtos, eventDto)) {
+                    lostIncomeDueToHoliday += eventPrice;
+                }
             } else if (eventStatus == EventStatus.REQUIRES_SHIFT || eventStatus == EventStatus.PLANNED) {
                 expectedIncome += eventPrice;
             } else {
@@ -250,5 +250,4 @@ public class EventsAnalyzerServiceImpl implements EventsAnalyzerService {
 
         return result;
     }
-
 }

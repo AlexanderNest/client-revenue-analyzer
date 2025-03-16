@@ -108,6 +108,13 @@ class EventsAnalyzerServiceImplTest {
                 .status(EventStatus.SUCCESS)
                 .build();
 
+        EventDto holidayEvent = EventDto.builder()
+                .summary("testName")
+                .start(start)
+                .end(end)
+                .build();
+
+        when(googleCalendarService.getHolidays(any(), any())).thenReturn(List.of(holidayEvent));
         when(googleCalendarService.getEventsBetweenDates(any())).thenReturn(List.of(eventDto1, eventDto2, eventDto3, eventDto4, eventDto5, eventDto6));
     }
 
@@ -127,7 +134,7 @@ class EventsAnalyzerServiceImplTest {
         assertEquals(4500, incomeAnalysisResult.getActualIncome());
         assertEquals(7500, incomeAnalysisResult.getPotentialIncome());
         assertEquals(6500, incomeAnalysisResult.getExpectedIncome());
-        assertEquals(0, incomeAnalysisResult.getLostIncomeDueToHoliday());
+        assertEquals(1000, incomeAnalysisResult.getLostIncomeDueToHoliday());
     }
 
     @Test

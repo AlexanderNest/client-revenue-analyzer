@@ -44,18 +44,20 @@ public class GetMonthStatisticsCommandHandler extends DisplayedCommandHandler {
 
 
         return String.format(
-                "📊 *Анализ доходов за месяц*\n\n" +
-                        "%-22s %10s ₽\n" +
-                        "%-22s %10s ₽\n" +
-                        "-----------------------------\n" +
-                        "%-22s %10s ₽\n" +
-                        "%-22s %10s ₽\n" +
-                        "%-22s %10s ₽",
+                new StringBuilder().append("📊 *Анализ доходов за месяц*\n\n")
+                        .append("%-22s %10s ₽\n")
+                        .append("%-22s %10s ₽\n")
+                        .append("-----------------------------\n")
+                        .append("%-22s %10s ₽\n")
+                        .append("-----------------------------\n")
+                        .append("%-22s %10s ₽\n")
+                        .append("%-22s %10s ₽")
+                        .toString(),
                 "Фактический доход:", currencyFormat.format(response.getActualIncome()),
                 "Ожидаемый доход:", currencyFormat.format(response.getExpectedIncome()),
                 "Потенциальный доход:", currencyFormat.format(response.getPotentialIncome()),
                 "Потерянный доход:", currencyFormat.format(response.getLostIncome()),
-                "Из них из-за праздников потерянный доход:", currencyFormat.format(response.getLostIncomeDueToHoliday())
+                "Из них из-за праздников потеряно:", currencyFormat.format(response.getLostIncomeDueToHoliday())
         );
     }
 

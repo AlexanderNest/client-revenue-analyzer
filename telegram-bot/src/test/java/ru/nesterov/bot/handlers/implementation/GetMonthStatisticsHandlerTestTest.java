@@ -76,8 +76,9 @@ class GetMonthStatisticsHandlerTestTest extends RegisteredUserHandlerTest {
                 "Ожидаемый доход:           20 000 ₽\n" +
                 "-----------------------------\n" +
                 "Потенциальный доход:       23 000 ₽\n" +
+                "-----------------------------\n" +
                 "Потерянный доход:          16 200 ₽\n" +
-                "Из них из-за праздников потерянный доход:          0 ₽";
+                "Из них из-за праздников потеряно:          0 ₽";
 
         assertEquals(expected, editMessage.getText());
     }
