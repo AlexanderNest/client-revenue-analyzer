@@ -37,15 +37,17 @@ jobs:
             category/java/multithreading.xml,
             category/java/security.xml,
             category/java/performance.xml,
+            rulesets/java/quickstart.xml,
             rulesets/java/basic.xml,
             rulesets/java/braces.xml,
-            rulesets/java/design.xml,
+            rulesets/java/errorprone.xml,
             rulesets/java/imports.xml,
             rulesets/java/multithreading.xml,
+            rulesets/java/naming.xml,
             rulesets/java/optimizations.xml,
+            rulesets/java/strings.xml,
             rulesets/java/unusedcode.xml,
-            rulesets/java/coupling.xml,
-            rulesets/java/naming.xml
+            rulesets/java/coupling.xml
           sourcePath: '.'
           analyzeModifiedFilesOnly: true
       - name: Upload SARIF file
