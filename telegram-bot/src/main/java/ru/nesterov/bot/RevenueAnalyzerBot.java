@@ -19,6 +19,7 @@ import ru.nesterov.properties.BotProperties;
 public class RevenueAnalyzerBot extends TelegramLongPollingBot {
     private final HandlersService handlersService;
     private final BotProperties botProperties;
+    private final int x = 5;
 
     public RevenueAnalyzerBot(BotProperties botProperties, HandlersService handlersService) {
         super(botProperties.getApiToken());
@@ -32,7 +33,7 @@ public class RevenueAnalyzerBot extends TelegramLongPollingBot {
 
         CommandHandler commandHandler = handlersService.getHandler(update);
         if (commandHandler == null) {
-            log.error("Не удалось обработать сообщение");
+            log.error("Не удалось обработать сообщение {}", x);
             return;
         }
 
