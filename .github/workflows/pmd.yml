@@ -29,9 +29,20 @@ jobs:
         id: pmd
         uses: pmd/pmd-github-action@v2
         with:
-          rulesets: 'rulesets/java/quickstart.xml,rulesets/java/basic.xml,rulesets/java/braces.xml,rulesets/java/errorprone.xml,rulesets/java/imports.xml,rulesets/java/multithreading.xml,rulesets/java/naming.xml,rulesets/java/optimizations.xml,rulesets/java/strings.xml,rulesets/java/unusedcode.xml,rulesets/java/coupling.xml'
+          rulesets:
+            - rulesets/java/quickstart.xml
+            - rulesets/java/basic.xml
+            - rulesets/java/braces.xml
+            - rulesets/java/errorprone.xml
+            - rulesets/java/imports.xml
+            - rulesets/java/multithreading.xml
+            - rulesets/java/naming.xml
+            - rulesets/java/optimizations.xml
+            - rulesets/java/strings.xml
+            - rulesets/java/unusedcode.xml
+            - rulesets/java/coupling.xml
           sourcePath: '.'
-          analyzeModifiedFilesOnly: false
+          analyzeModifiedFilesOnly: true
       - name: Upload SARIF file
         uses: github/codeql-action/upload-sarif@v3
         with:
