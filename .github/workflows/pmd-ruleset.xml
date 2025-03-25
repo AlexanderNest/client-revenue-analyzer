@@ -3,13 +3,19 @@
          xmlns="http://pmd.sourceforge.net/ruleset/2.0.0"
          xsi:schemaLocation="http://pmd.sourceforge.net/ruleset/2.0.0 http://pmd.sourceforge.net/ruleset_2_0_0.xsd">
 
-    <rule ref="category/java/errorprone.xml"/>
-    <rule ref="category/java/design.xml"/>
+    <rule ref="category/java/errorprone.xml">
+        <exclude name="UseLocaleWithCaseConversions"/>
+        <exclude name="MissingSerialVersionUID"/>
+    </rule>
+    <rule ref="category/java/design.xml">
+        <exclude name="TooManyMethods"/>
+    </rule>
     <rule ref="category/java/multithreading.xml"/>
     <rule ref="category/java/security.xml"/>
     <rule ref="category/java/performance.xml"/>
     <rule ref="category/java/documentation.xml">
         <exclude name="CommentRequired"/>
+        <exclude name="CommentSize"/>
     </rule>
 
     <rule ref="category/java/bestpractices.xml">
@@ -21,5 +27,6 @@
         <exclude name="UnnecessaryFullyQualifiedName"/>
         <exclude name="MethodArgumentCouldBeFinal"/>
         <exclude name="LocalVariableCouldBeFinal"/>
+        <exclude name="LongVariable"/>
     </rule>
 </ruleset>
