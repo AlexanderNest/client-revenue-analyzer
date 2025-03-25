@@ -7,6 +7,7 @@ import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.stereotype.Component;
 import org.telegram.telegrambots.meta.api.methods.BotApiMethod;
 import org.telegram.telegrambots.meta.api.objects.Update;
+import org.telegram.telegrambots.meta.api.objects.replykeyboard.ReplyKeyboardMarkup;
 import ru.nesterov.bot.TelegramUpdateUtils;
 import ru.nesterov.bot.handlers.abstractions.Priority;
 import ru.nesterov.bot.handlers.abstractions.SendingMessageCommandHandler;
@@ -22,11 +23,14 @@ import ru.nesterov.dto.GetUserRequest;
 @ConditionalOnProperty("bot.enabled")
 public class UnregisteredUserHandler extends SendingMessageCommandHandler {
     private final CreateUserHandler createUserHandler;
+    private final StartBotHandler startBotHandler;
 
     @Override
     public BotApiMethod<?> handle(Update update) {
-        String message = "Воспользуйтесь командой '%s'".formatted(createUserHandler.getCommand());
-        return getPlainSendMessage(TelegramUpdateUtils.getUserId(update), message);
+        ReplyKeyboardMarkup controlButtons = startBotHandler.buildButtons(update);
+        return getReplyKeyboard(TelegramUpdateUtils.getChatId(update), "Выберите опцию:", controlButtons);
+//        String message = "Воспользуйтесь командой '%s'".formatted(createUserHandler.getCommand());
+//        return getPlainSendMessage(TelegramUpdateUtils.getUserId(update), message);
     }
 
     @Override

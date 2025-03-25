@@ -11,6 +11,7 @@ import org.springframework.http.HttpMethod;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.HttpStatusCode;
 import org.springframework.http.ResponseEntity;
+import org.springframework.lang.Nullable;
 import org.springframework.stereotype.Component;
 import org.springframework.web.client.HttpClientErrorException;
 import org.springframework.web.client.RestTemplate;
@@ -69,6 +70,7 @@ public class ClientRevenueAnalyzerIntegrationClient {
     }
 
 
+    @Nullable
     @Cacheable(value = "getUserByUsername", key = "#request.username", unless = "#result == null")
     public GetUserResponse getUserByUsername(GetUserRequest request) {
         ResponseEntity<GetUserResponse> responseEntity = post(request.getUsername(), request, "/revenue-analyzer/user/getUserByUsername", GetUserResponse.class);
