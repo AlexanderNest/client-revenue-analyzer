@@ -35,14 +35,17 @@ jobs:
             category/java/codestyle.xml,
             category/java/design.xml,
             category/java/multithreading.xml,
-            category/java/optimizations.xml,
-            category/java/unusedcode.xml,
             category/java/security.xml,
             category/java/performance.xml,
-            category/java/java8.xml,
-            category/java/coupling.xml,
-            category/java/naming.xml,
-            category/java/imports.xml
+            rulesets/java/basic.xml,
+            rulesets/java/braces.xml,
+            rulesets/java/design.xml,
+            rulesets/java/imports.xml,
+            rulesets/java/multithreading.xml,
+            rulesets/java/optimizations.xml,
+            rulesets/java/unusedcode.xml,
+            rulesets/java/coupling.xml,
+            rulesets/java/naming.xml
           sourcePath: '.'
           analyzeModifiedFilesOnly: true
       - name: Upload SARIF file
