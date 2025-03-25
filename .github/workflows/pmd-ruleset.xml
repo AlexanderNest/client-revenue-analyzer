@@ -3,6 +3,8 @@
          xmlns="http://pmd.sourceforge.net/ruleset/2.0.0"
          xsi:schemaLocation="http://pmd.sourceforge.net/ruleset/2.0.0 http://pmd.sourceforge.net/ruleset_2_0_0.xsd">
 
+<!--    Правила были взяты из https://docs.pmd-code.org/latest/pmd_rules_java.html-->
+
     <rule ref="category/java/codestyle.xml/BooleanGetMethodName" />
     <rule ref="category/java/codestyle.xml/ConfusingTernary" />
     <rule ref="category/java/codestyle.xml/ControlStatementBraces" />
@@ -47,4 +49,5 @@
     <rule ref="category/java/errorprone.xml/AvoidCatchingNPE" />
     <rule ref="category/java/errorprone.xml/UseEqualsToCompareStrings" />
     <rule ref="category/java/errorprone.xml/UnconditionalIfStatement" />
+    <rule ref="category/java/codestyle.xml/UnnecessaryImport" />
 </ruleset>
