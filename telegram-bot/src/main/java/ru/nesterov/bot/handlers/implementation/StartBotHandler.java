@@ -52,16 +52,15 @@ public class StartBotHandler extends InvocableCommandHandler {
                         currentRow = new KeyboardRow();
                     }
                 }
+            } else {
+                if (sendingMessageCommandHandlers.get(i).isDisplayedForUnregistered()) {
+                    currentRow.add(new KeyboardButton(sendingMessageCommandHandlers.get(i).getCommand()));
+                    if ((i + 1) % botProperties.getMenuButtonsPerLine() == 0) {
+                        keyboardRows.add(currentRow);
+                        currentRow = new KeyboardRow();
+                    }
+                }
             }
-//            else {
-//                if (sendingMessageCommandHandlers.get(i).isDisplayedForUnregistered()) {
-//                    currentRow.add(new KeyboardButton(sendingMessageCommandHandlers.get(i).getCommand()));
-//                    if ((i + 1) % botProperties.getMenuButtonsPerLine() == 0) {
-//                        keyboardRows.add(currentRow);
-//                        currentRow = new KeyboardRow();
-//                    }
-//                }
-//            }
         }
 
         if (!currentRow.isEmpty()) {
