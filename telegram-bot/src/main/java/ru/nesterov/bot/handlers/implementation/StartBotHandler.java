@@ -18,6 +18,7 @@ import ru.nesterov.properties.BotProperties;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.stream.Collectors;
 
 /**
  * Отображает кнопки для управления ботом
@@ -33,43 +34,53 @@ public class StartBotHandler extends InvocableCommandHandler {
 
 
     public ReplyKeyboardMarkup buildButtons(Update update) {
-        ReplyKeyboardMarkup buttons = new ReplyKeyboardMarkup();
+        ReplyKeyboardMarkup keyboardMarkup = new ReplyKeyboardMarkup();
+        keyboardMarkup.setResizeKeyboard(true);
 
-        buttons.setResizeKeyboard(true);
-        GetUserRequest getUserRequest = new GetUserRequest();
-        getUserRequest.setUsername(String.valueOf(TelegramUpdateUtils.getUserId(update)));
-        GetUserResponse getUserResponse = client.getUserByUsername(getUserRequest);
+        boolean isRegistered = isUserRegistered(update);
+        int buttonsPerLine = botProperties.getMenuButtonsPerLine();
 
-        List<KeyboardRow> keyboardRows = new ArrayList<>();
+        List<KeyboardRow> keyboardRows = buildKeyboardRows(isRegistered, buttonsPerLine);
 
+        keyboardMarkup.setKeyboard(keyboardRows);
+        return keyboardMarkup;
+    }
+
+    private boolean isUserRegistered(Update update) {
+        GetUserRequest request = new GetUserRequest();
+        request.setUsername(String.valueOf(TelegramUpdateUtils.getUserId(update)));
+        GetUserResponse getUserResponse = client.getUserByUsername(request);
+        return getUserResponse != null;
+    }
+
+    private List<KeyboardRow> buildKeyboardRows(boolean isRegistered, int buttonsPerLine) {
+        List<KeyboardRow> rows = new ArrayList<>();
         KeyboardRow currentRow = new KeyboardRow();
-        for (int i = 0; i < sendingMessageCommandHandlers.size(); i++) {
-            if (getUserResponse != null) {
-                if (sendingMessageCommandHandlers.get(i).isDisplayedForRegistered()) {
-                    currentRow.add(new KeyboardButton(sendingMessageCommandHandlers.get(i).getCommand()));
-                    if ((i + 1) % botProperties.getMenuButtonsPerLine() == 0) {
-                        keyboardRows.add(currentRow);
-                        currentRow = new KeyboardRow();
-                    }
-                }
-            } else {
-                if (sendingMessageCommandHandlers.get(i).isDisplayedForUnregistered()) {
-                    currentRow.add(new KeyboardButton(sendingMessageCommandHandlers.get(i).getCommand()));
-                    if ((i + 1) % botProperties.getMenuButtonsPerLine() == 0) {
-                        keyboardRows.add(currentRow);
-                        currentRow = new KeyboardRow();
-                    }
-                }
+        int buttonCount = 0;
+
+        for (DisplayedCommandHandler handler : getRelevantHandlers(isRegistered)) {
+            currentRow.add(new KeyboardButton(handler.getCommand()));
+            buttonCount++;
+
+            if (buttonCount % buttonsPerLine == 0) {
+                rows.add(currentRow);
+                currentRow = new KeyboardRow();
             }
         }
 
         if (!currentRow.isEmpty()) {
-            keyboardRows.add(currentRow);
+            rows.add(currentRow);
         }
 
-        buttons.setKeyboard(keyboardRows);
-        return buttons;
+        return rows;
+    }
 
+    private List<DisplayedCommandHandler> getRelevantHandlers(boolean isRegistered) {
+        return sendingMessageCommandHandlers.stream()
+                .filter(handler -> isRegistered ?
+                        handler.isDisplayedForRegistered() :
+                        handler.isDisplayedForUnregistered())
+                .collect(Collectors.toList());
     }
 
     @Override
