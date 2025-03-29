@@ -29,8 +29,6 @@ public class UnregisteredUserHandler extends SendingMessageCommandHandler {
     public BotApiMethod<?> handle(Update update) {
         ReplyKeyboardMarkup controlButtons = startBotHandler.buildButtons(update);
         return getReplyKeyboard(TelegramUpdateUtils.getChatId(update), "Воспользуйтесь командой '%s'".formatted(createUserHandler.getCommand()), controlButtons);
-//        String message = "Воспользуйтесь командой '%s'".formatted(createUserHandler.getCommand());
-//        return getPlainSendMessage(TelegramUpdateUtils.getUserId(update), message);
     }
 
     @Override
