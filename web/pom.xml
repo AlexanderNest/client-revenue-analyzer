@@ -11,54 +11,39 @@
 
     <artifactId>web</artifactId>
 
-    <properties>
-        <maven.compiler.source>21</maven.compiler.source>
-        <maven.compiler.target>21</maven.compiler.target>
-        <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
-    </properties>
-
     <dependencies>
         <dependency>
             <groupId>org.springframework.boot</groupId>
             <artifactId>spring-boot-starter-web</artifactId>
         </dependency>
-
         <dependency>
             <groupId>ru.nesterov</groupId>
             <artifactId>core</artifactId>
-            <version>0.0.1-SNAPSHOT</version>
         </dependency>
-
         <dependency>
             <groupId>ru.nesterov</groupId>
             <artifactId>gigachat-integration</artifactId>
-            <version>0.0.1-SNAPSHOT</version>
         </dependency>
-
         <dependency>
             <groupId>ru.nesterov</groupId>
             <artifactId>telegram-bot</artifactId>
-            <version>0.0.1-SNAPSHOT</version>
+            <version>${project.version}</version>
         </dependency>
 
         <dependency>
             <groupId>org.springdoc</groupId>
             <artifactId>springdoc-openapi-starter-webmvc-ui</artifactId>
-            <version>2.2.0</version>
         </dependency>
 
         <dependency>
             <groupId>org.reflections</groupId>
             <artifactId>reflections</artifactId>
-            <version>0.10.2</version>
             <scope>test</scope>
         </dependency>
-
         <dependency>
             <groupId>org.springframework.boot</groupId>
             <artifactId>spring-boot-starter-security</artifactId>
         </dependency>
-        
     </dependencies>
 
     <build>
