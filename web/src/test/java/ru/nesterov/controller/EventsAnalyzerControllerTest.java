@@ -1,23 +1,25 @@
 package ru.nesterov.controller;
 
-import com.google.api.services.calendar.model.Event;
-import lombok.SneakyThrows;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.http.MediaType;
+import ru.nesterov.dto.CalendarType;
+import ru.nesterov.dto.EventDto;
 import ru.nesterov.dto.EventExtensionDto;
+import ru.nesterov.dto.EventStatus;
 import ru.nesterov.dto.GetForMonthRequest;
 import ru.nesterov.entity.Client;
 import ru.nesterov.entity.User;
 
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
-import java.util.ArrayList;
 import java.util.List;
 
 import static org.hamcrest.Matchers.hasSize;
-import static org.mockito.ArgumentMatchers.*;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.anyBoolean;
+import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.when;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
@@ -26,105 +28,80 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 
 public class EventsAnalyzerControllerTest extends AbstractControllerTest {
     private final static String USERNAME = "testUser1";
-
     @BeforeEach
     void init() {
         User user = createUser(USERNAME);
         Client client1 = createClient("testName1", user);
         Client client2 = createClient("testName2", user);
-//
-//        EventExtensionDto eventExtensionDto5 = new EventExtensionDto();
-//        eventExtensionDto5.setIsPlanned(true);
-//        EventExtensionDto eventExtensionDto6 = new EventExtensionDto();
-//        eventExtensionDto6.setIsPlanned(false);
-//        EventExtensionDto eventExtensionDto8 = new EventExtensionDto();
-//        eventExtensionDto6.setIsPlanned(false);
-//
-//        EventDto eventDto1 = EventDto.builder()
-//                .summary("testName1")
-//                .status(EventStatus.PLANNED)
-//                .start(LocalDateTime.of(2024, 8, 9, 11, 30))
-//                .end(LocalDateTime.of(2024, 8, 9, 12, 30))
-//                .build();
-//
-//        EventDto eventDto2 = EventDto.builder()
-//                .summary("testName1")
-//                .status(EventStatus.PLANNED)
-//                .start(LocalDateTime.of(2024, 8, 10, 11, 30))
-//                .end(LocalDateTime.of(2024, 8, 10, 12, 30))
-//                .build();
-//
-//        EventDto eventDto3 = EventDto.builder()
-//                .summary("testName1")
-//                .status(EventStatus.SUCCESS)
-//                .start(LocalDateTime.of(2024, 8, 11, 11, 30))
-//                .end(LocalDateTime.of(2024, 8, 11, 12, 30))
-//                .build();
-//
-//        EventDto eventDto4 = EventDto.builder()
-//                .summary("testName1")
-//                .status(EventStatus.REQUIRES_SHIFT)
-//                .start(LocalDateTime.of(2024, 8, 12, 11, 30))
-//                .end(LocalDateTime.of(2024, 8, 12, 12, 30))
-//                .build();
-//
-//        EventDto eventDto5 = EventDto.builder()
-//                .summary("testName1")
-//                .status(EventStatus.CANCELLED)
-//                .start(LocalDateTime.of(2024, 8, 13, 11, 30))
-//                .end(LocalDateTime.of(2024, 8, 13, 12, 30))
-//                .eventExtensionDto(eventExtensionDto5)
-//                .build();
-//
-//        EventDto eventDto6 = EventDto.builder()
-//                .summary("testName1")
-//                .status(EventStatus.CANCELLED)
-//                .start(LocalDateTime.of(2024, 8, 14, 11, 30))
-//                .end(LocalDateTime.of(2024, 8, 14, 12, 30))
-//                .eventExtensionDto(eventExtensionDto6)
-//                .build();
-//
-//        EventDto eventDto7 = EventDto.builder()
-//                .summary("testName2")
-//                .status(EventStatus.CANCELLED)
-//                .start(LocalDateTime.of(2024, 8, 14, 11, 30))
-//                .end(LocalDateTime.of(2024, 8, 14, 12, 30))
-//                .eventExtensionDto(eventExtensionDto6)
-//                .build();
-//
-//        EventDto eventDto8 = EventDto.builder()
-//                .summary("testName2")
-//                .status(EventStatus.SUCCESS)
-//                .start(LocalDateTime.of(2024, 8, 14, 11, 30))
-//                .end(LocalDateTime.of(2024, 8, 14, 12, 30))
-//                .eventExtensionDto(eventExtensionDto6)
-//                .build();
-
-        when(googleCalendarClient.getEventsBetweenDates(eq("someCalendar1"), anyBoolean(), any(), any(), any())).thenReturn(createEvents());
-    }
-
-    @SneakyThrows
-    private List<Event> createEvents() {
-        List<Event> events = new ArrayList<>();
 
         EventExtensionDto eventExtensionDto5 = new EventExtensionDto();
         eventExtensionDto5.setIsPlanned(true);
         EventExtensionDto eventExtensionDto6 = new EventExtensionDto();
         eventExtensionDto6.setIsPlanned(false);
         EventExtensionDto eventExtensionDto8 = new EventExtensionDto();
-        eventExtensionDto8.setIsPlanned(false);
+        eventExtensionDto6.setIsPlanned(false);
 
-        events.add(buildEvent("", "testName1", null, 2024, 8, 9, 11, 30, 2024, 8, 9, 12, 30));
-        events.add(buildEvent("", "testName1", null, 2024, 8, 10, 11, 30, 2024, 8, 10, 12, 30));
-        events.add(buildEvent("10", "testName1", null, 2024, 8, 11, 11, 30, 2024, 8, 11, 12, 30));
-        events.add(buildEvent("5", "testName1", null, 2024, 8, 12, 11, 30, 2024, 8, 12, 12, 30));
+        EventDto eventDto1 = EventDto.builder()
+                .summary("testName1")
+                .status(EventStatus.PLANNED)
+                .start(LocalDateTime.of(2024, 8, 9, 11, 30))
+                .end(LocalDateTime.of(2024, 8, 9, 12, 30))
+                .build();
 
-        events.add(buildEvent("11", "testName1", objectMapper.writeValueAsString(eventExtensionDto5), 2024, 8, 13, 11, 30, 2024, 8, 13, 12, 30));
-        events.add(buildEvent("11", "testName1", objectMapper.writeValueAsString(eventExtensionDto6), 2024, 8, 14, 11, 30, 2024, 8, 14, 12, 30));
-        events.add(buildEvent("11", "testName2", objectMapper.writeValueAsString(eventExtensionDto6), 2024, 8, 14, 11, 30, 2024, 8, 14, 12, 30));
-        events.add(buildEvent("10", "testName2", objectMapper.writeValueAsString(eventExtensionDto6), 2024, 8, 14, 11, 30, 2024, 8, 14, 12, 30));
+        EventDto eventDto2 = EventDto.builder()
+                .summary("testName1")
+                .status(EventStatus.PLANNED)
+                .start(LocalDateTime.of(2024, 8, 10, 11, 30))
+                .end(LocalDateTime.of(2024, 8, 10, 12, 30))
+                .build();
 
-        return events;
+        EventDto eventDto3 = EventDto.builder()
+                .summary("testName1")
+                .status(EventStatus.SUCCESS)
+                .start(LocalDateTime.of(2024, 8, 11, 11, 30))
+                .end(LocalDateTime.of(2024, 8, 11, 12, 30))
+                .build();
+
+        EventDto eventDto4 = EventDto.builder()
+                .summary("testName1")
+                .status(EventStatus.REQUIRES_SHIFT)
+                .start(LocalDateTime.of(2024, 8, 12, 11, 30))
+                .end(LocalDateTime.of(2024, 8, 12, 12, 30))
+                .build();
+
+        EventDto eventDto5 = EventDto.builder()
+                .summary("testName1")
+                .status(EventStatus.CANCELLED)
+                .start(LocalDateTime.of(2024, 8, 13, 11, 30))
+                .end(LocalDateTime.of(2024, 8, 13, 12, 30))
+                .eventExtensionDto(eventExtensionDto5)
+                .build();
+
+        EventDto eventDto6 = EventDto.builder()
+                .summary("testName1")
+                .status(EventStatus.CANCELLED)
+                .start(LocalDateTime.of(2024, 8, 14, 11, 30))
+                .end(LocalDateTime.of(2024, 8, 14, 12, 30))
+                .eventExtensionDto(eventExtensionDto6)
+                .build();
+
+        EventDto eventDto7 = EventDto.builder()
+                .summary("testName2")
+                .status(EventStatus.CANCELLED)
+                .start(LocalDateTime.of(2024, 8, 14, 11, 30))
+                .end(LocalDateTime.of(2024, 8, 14, 12, 30))
+                .eventExtensionDto(eventExtensionDto6)
+                .build();
+
+        EventDto eventDto8 = EventDto.builder()
+                .summary("testName2")
+                .status(EventStatus.SUCCESS)
+                .start(LocalDateTime.of(2024, 8, 14, 11, 30))
+                .end(LocalDateTime.of(2024, 8, 14, 12, 30))
+                .eventExtensionDto(eventExtensionDto6)
+                .build();
+
+        when(googleCalendarClient.getEventsBetweenDates(eq("someCalendar1"), eq(CalendarType.MAIN), any(), any())).thenReturn(List.of(eventDto1, eventDto2, eventDto3, eventDto4, eventDto5, eventDto6, eventDto7, eventDto8));
     }
 
     @AfterEach

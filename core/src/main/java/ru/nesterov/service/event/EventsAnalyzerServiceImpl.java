@@ -3,6 +3,7 @@ package ru.nesterov.service.event;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
+import ru.nesterov.dto.CalendarServiceDto;
 import ru.nesterov.dto.EventDto;
 import ru.nesterov.dto.EventStatus;
 import ru.nesterov.entity.Client;
@@ -91,6 +92,11 @@ public class EventsAnalyzerServiceImpl implements EventsAnalyzerService {
         double lostIncome = 0;
         double potentialIncome = 0;
         double expectedIncome = 0;
+        double lostIncomeDueToHoliday = 0;
+
+        MonthDatesPair monthDatesPair = MonthHelper.getFirstAndLastDayOfMonth(monthName);
+        List<EventDto> holidayDtos = calendarService.getHolidays(monthDatesPair.getFirstDate(), monthDatesPair.getLastDate());
+
 
         for (EventDto eventDto : eventDtos) {
             EventStatus eventStatus = eventDto.getStatus();
@@ -108,6 +114,10 @@ public class EventsAnalyzerServiceImpl implements EventsAnalyzerService {
                 expectedIncome += eventPrice;
             } else if (eventStatus == EventStatus.CANCELLED) {
                 lostIncome += eventPrice;
+
+                if(isHoliday(holidayDtos, eventDto)) {
+                    lostIncomeDueToHoliday += eventPrice;
+                }
             } else if (eventStatus == EventStatus.REQUIRES_SHIFT || eventStatus == EventStatus.PLANNED) {
                 expectedIncome += eventPrice;
             } else {
@@ -120,13 +130,27 @@ public class EventsAnalyzerServiceImpl implements EventsAnalyzerService {
         incomeAnalysisResult.setPotentialIncome(potentialIncome);
         incomeAnalysisResult.setActualIncome(actualIncome);
         incomeAnalysisResult.setExpectedIncome(expectedIncome);
+        incomeAnalysisResult.setLostIncomeDueToHoliday(lostIncomeDueToHoliday);
 
         return incomeAnalysisResult;
     }
 
+    private boolean isHoliday(List<EventDto> holidayDtos, EventDto eventDto) {
+        return holidayDtos.stream()
+                .anyMatch(holidayDto -> eventDto.getStart().getDayOfMonth() == holidayDto.getStart().getDayOfMonth());
+    }
+
     @Override
     public List<EventDto> getUnpaidEventsBetweenDates(UserDto userDto, LocalDateTime leftDate, LocalDateTime rightDate) {
-        return calendarService.getEventsBetweenDates(userDto.getMainCalendar(), userDto.getCancelledCalendar(), userDto.isCancelledCalendarEnabled(), leftDate, rightDate).stream()
+        CalendarServiceDto calendarServiceDto = CalendarServiceDto.builder()
+                .mainCalendar(userDto.getMainCalendar())
+                .cancelledCalendar(userDto.getCancelledCalendar())
+                .rightDate(rightDate)
+                .leftDate(leftDate)
+                .isCancelledCalendarEnabled(userDto.isCancelledCalendarEnabled())
+                .build();
+
+        return calendarService.getEventsBetweenDates(calendarServiceDto).stream()
                 .filter(event -> {
                     EventStatus eventStatus = event.getStatus();
                     return eventStatus == EventStatus.PLANNED || eventStatus == EventStatus.REQUIRES_SHIFT;
@@ -147,9 +171,15 @@ public class EventsAnalyzerServiceImpl implements EventsAnalyzerService {
     }
 
     public Map<EventStatus, Integer> getEventStatusesBetweenDates(UserDto userDto, LocalDateTime leftDate, LocalDateTime rightDate) {
-        User user = userRepository.findByUsername(userDto.getUsername());
+        CalendarServiceDto calendarServiceDto = CalendarServiceDto.builder()
+                .mainCalendar(userDto.getMainCalendar())
+                .cancelledCalendar(userDto.getCancelledCalendar())
+                .rightDate(rightDate)
+                .leftDate(leftDate)
+                .isCancelledCalendarEnabled(userDto.isCancelledCalendarEnabled())
+                .build();
 
-        List<EventDto> eventDtos = calendarService.getEventsBetweenDates(user.getMainCalendar(), user.getCancelledCalendar(), userDto.isCancelledCalendarEnabled(), leftDate, rightDate);
+        List<EventDto> eventDtos = calendarService.getEventsBetweenDates(calendarServiceDto);
 
         Map<EventStatus, Integer> statuses = new HashMap<>();
         for (EventDto eventDto : eventDtos) {
@@ -163,13 +193,27 @@ public class EventsAnalyzerServiceImpl implements EventsAnalyzerService {
 
     private List<EventDto> getEventsByMonth(UserDto userDto, String monthName) {
         MonthDatesPair monthDatesPair = MonthHelper.getFirstAndLastDayOfMonth(monthName);
-        return calendarService.getEventsBetweenDates(userDto.getMainCalendar(), userDto.getCancelledCalendar(), userDto.isCancelledCalendarEnabled(), monthDatesPair.getFirstDate(), monthDatesPair.getLastDate());
+        CalendarServiceDto calendarServiceDto = CalendarServiceDto.builder()
+                .mainCalendar(userDto.getMainCalendar())
+                .cancelledCalendar(userDto.getCancelledCalendar())
+                .leftDate(monthDatesPair.getFirstDate())
+                .rightDate(monthDatesPair.getLastDate())
+                .isCancelledCalendarEnabled(userDto.isCancelledCalendarEnabled())
+                .build();
+        return calendarService.getEventsBetweenDates(calendarServiceDto);
     }
 
     private List<EventDto> getEventsByYear(UserDto userDto, int year) {
         LocalDateTime startOfYear = LocalDateTime.of(year, 1, 1, 0, 0);
         LocalDateTime endOfYear = LocalDateTime.of(year, 12, 31, 23, 59);
-        return calendarService.getEventsBetweenDates(userDto.getMainCalendar(), userDto.getCancelledCalendar(), userDto.isCancelledCalendarEnabled(), startOfYear, endOfYear);
+        CalendarServiceDto calendarServiceDto = CalendarServiceDto.builder()
+                .mainCalendar(userDto.getMainCalendar())
+                .cancelledCalendar(userDto.getCancelledCalendar())
+                .rightDate(startOfYear)
+                .leftDate(endOfYear)
+                .isCancelledCalendarEnabled(userDto.isCancelledCalendarEnabled())
+                .build();
+        return calendarService.getEventsBetweenDates(calendarServiceDto);
     }
 
     @Override

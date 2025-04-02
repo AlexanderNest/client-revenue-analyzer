@@ -1,20 +1,18 @@
 package ru.nesterov.google;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.google.api.client.util.DateTime;
-import com.google.api.services.calendar.model.Event;
-import com.google.api.services.calendar.model.EventDateTime;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.test.context.ContextConfiguration;
+import ru.nesterov.dto.CalendarServiceDto;
+import ru.nesterov.dto.CalendarType;
 import ru.nesterov.dto.EventDto;
 import ru.nesterov.dto.EventStatus;
 
 import java.time.LocalDateTime;
-import java.time.ZoneId;
 import java.util.List;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
@@ -26,8 +24,7 @@ import static org.mockito.Mockito.when;
 @SpringBootTest
 @ContextConfiguration(classes = {
         GoogleCalendarService.class,
-        ObjectMapper.class,
-        EventStatusServiceImpl.class
+        ObjectMapper.class
 })
 class GoogleCalendarServiceTest {
     @Autowired
@@ -40,26 +37,41 @@ class GoogleCalendarServiceTest {
 
     @BeforeEach
     public void init() {
-        Event event = buildEvent("10", "event from main calendar 1", 2024, 1, 1, 0, 0, 2024, 1, 1, 1, 0);
-        Event event2 = buildEvent("10", "event from main calendar 2", 2024, 1, 1, 0, 0, 2024, 1, 1, 1, 0);
-
         when(googleCalendarClient
-                .getEventsBetweenDates(eq(MAIN_CALENDAR_ID), eq(false), any(), any(), any()))
-                .thenReturn(List.of(event, event2));
-
-        Event event3 = buildEvent("11", "event from cancelled calendar 1", 2023, 12, 1, 0, 0, 2023, 12, 1, 1, 0);
-        Event event4 = buildEvent("11", "event from cancelled calendar 2", 2023, 12, 1, 0, 0, 2023, 12, 1,1, 0);
-
-        when(googleCalendarClient
-                .getEventsBetweenDates(eq(CANCELLED_CALENDAR_ID), eq(true), any(), any(), any()))
-                .thenReturn(List.of(event3, event4)
+                .getEventsBetweenDates(eq(MAIN_CALENDAR_ID), eq(CalendarType.MAIN), any(), any()))
+                .thenReturn(List.of(
+                        EventDto.builder()
+                                .status(EventStatus.SUCCESS)
+                                .summary("event from main calendar 1")
+                                .start(LocalDateTime.of(2024, 01, 01, 00, 00))
+                                .end(LocalDateTime.of(2024, 01, 01, 01, 00))
+                                .build(),
+                        EventDto.builder()
+                                .status(EventStatus.SUCCESS)
+                                .summary("event from main calendar 2")
+                                .start(LocalDateTime.of(2024, 01, 01, 00, 00))
+                                .end(LocalDateTime.of(2024, 01, 01, 01, 00))
+                                .build()
+                        )
                 );
 
-    }
-
-    @Test
-    public void transferCancelledEventsToCancelledCalendar() {
-        //fail("NOT IMPLEMENTED");
+        when(googleCalendarClient
+                .getEventsBetweenDates(eq(CANCELLED_CALENDAR_ID), eq(CalendarType.CANCELLED), any(), any()))
+                .thenReturn(List.of(
+                                EventDto.builder()
+                                        .status(EventStatus.CANCELLED)
+                                        .summary("event from cancelled calendar 1")
+                                        .start(LocalDateTime.of(2023, 12, 01, 00, 00))
+                                        .end(LocalDateTime.of(2023, 12, 01, 01, 00))
+                                        .build(),
+                                EventDto.builder()
+                                        .status(EventStatus.CANCELLED)
+                                        .summary("event from cancelled calendar 2")
+                                        .start(LocalDateTime.of(2023, 12, 01, 00, 00))
+                                        .end(LocalDateTime.of(2023, 12, 01, 01, 00))
+                                        .build()
+                        )
+                );
     }
 
     @Test
@@ -67,7 +79,15 @@ class GoogleCalendarServiceTest {
         LocalDateTime leftDate = LocalDateTime.of(2023, 01, 01, 00, 00);
         LocalDateTime rightDate = LocalDateTime.of(2024, 01, 01, 00, 00);
 
-        List<EventDto> eventDtos = googleCalendarService.getEventsBetweenDates(MAIN_CALENDAR_ID, CANCELLED_CALENDAR_ID, true, leftDate, rightDate);
+        CalendarServiceDto calendarServiceDto = CalendarServiceDto.builder()
+                .mainCalendar(MAIN_CALENDAR_ID)
+                .cancelledCalendar(CANCELLED_CALENDAR_ID)
+                .leftDate(leftDate)
+                .rightDate(rightDate)
+                .isCancelledCalendarEnabled(true)
+                .build();
+
+        List<EventDto> eventDtos = googleCalendarService.getEventsBetweenDates(calendarServiceDto);
         assertNotNull(eventDtos);
         assertEquals(4, eventDtos.size());
 
@@ -99,7 +119,15 @@ class GoogleCalendarServiceTest {
         LocalDateTime leftDate = LocalDateTime.of(2023, 01, 01, 00, 00);
         LocalDateTime rightDate = LocalDateTime.of(2024, 01, 01, 00, 00);
 
-        List<EventDto> eventDtos = googleCalendarService.getEventsBetweenDates(MAIN_CALENDAR_ID, CANCELLED_CALENDAR_ID, false, leftDate, rightDate);
+        CalendarServiceDto calendarServiceDto = CalendarServiceDto.builder()
+                .mainCalendar(MAIN_CALENDAR_ID)
+                .cancelledCalendar(null)
+                .leftDate(leftDate)
+                .rightDate(rightDate)
+                .isCancelledCalendarEnabled(false)
+                .build();
+
+        List<EventDto> eventDtos = googleCalendarService.getEventsBetweenDates(calendarServiceDto);
         assertNotNull(eventDtos);
         assertEquals(2, eventDtos.size());
 
@@ -114,30 +142,5 @@ class GoogleCalendarServiceTest {
 
         assertEquals(LocalDateTime.of(2024, 01, 01, 00, 00), eventDtos.get(1).getStart());
         assertEquals(LocalDateTime.of(2024, 01, 01, 01, 00), eventDtos.get(1).getEnd());
-    }
-
-    private Event buildEvent(String color, String summary, int startY, int startM, int startD, int startH, int startMin,
-                             int endY, int endM, int endD, int endH, int endMin) {
-        Event event = new Event();
-        event.setColorId(color);
-        event.setSummary(summary);
-        EventDateTime start = new EventDateTime()
-                .setDateTime(new DateTime(java.util.Date.from(
-                        LocalDateTime.of(startY, startM, startD, startH, startMin)
-                                .atZone(ZoneId.systemDefault())
-                                .toInstant())));
-
-        event.setStart(start);
-
-        EventDateTime end = new EventDateTime()
-                .setDateTime(new DateTime(java.util.Date.from(
-                        LocalDateTime.of(endY, endM, endD, endH, endMin)
-                                .atZone(ZoneId.systemDefault())
-                                .toInstant()))
-                );
-
-        event.setEnd(end);
-
-        return event;
     }
 }

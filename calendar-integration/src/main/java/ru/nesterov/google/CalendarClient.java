@@ -1,10 +1,11 @@
 package ru.nesterov.google;
 
-import com.google.api.services.calendar.model.Event;
+import ru.nesterov.dto.CalendarType;
+import ru.nesterov.dto.EventDto;
 
 import java.time.LocalDateTime;
 import java.util.List;
 
 public interface CalendarClient {
-    List<Event> getEventsBetweenDates(String calendarId, boolean isCancelledCalendar, LocalDateTime from, LocalDateTime to, List<String> colorsId);
+    List<EventDto> getEventsBetweenDates(String calendarId, CalendarType calendarType, LocalDateTime from, LocalDateTime to);
 }
