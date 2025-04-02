@@ -1,11 +1,17 @@
 package ru.nesterov.google;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.google.api.client.googleapis.batch.BatchRequest;
+import com.google.api.client.googleapis.batch.json.JsonBatchCallback;
 import com.google.api.client.googleapis.javanet.GoogleNetHttpTransport;
+import com.google.api.client.googleapis.json.GoogleJsonError;
+import com.google.api.client.googleapis.json.GoogleJsonResponseException;
+import com.google.api.client.http.HttpHeaders;
 import com.google.api.client.json.gson.GsonFactory;
 import com.google.api.client.util.DateTime;
 import com.google.api.services.calendar.Calendar;
 import com.google.api.services.calendar.CalendarScopes;
+import com.google.api.services.calendar.model.Event;
 import com.google.api.services.calendar.model.EventDateTime;
 import com.google.api.services.calendar.model.Events;
 import com.google.auth.http.HttpCredentialsAdapter;
@@ -84,7 +90,7 @@ public class GoogleCalendarClient implements CalendarClient {
     @SneakyThrows
     private Calendar createCalendarService() {
         GoogleCredentials credentials = GoogleCredentials.fromStream(new FileInputStream(properties.getServiceAccountFilePath()))
-                    .createScoped(List.of(CalendarScopes.CALENDAR_READONLY));
+                    .createScoped(List.of(CalendarScopes.CALENDAR));
 
         return new Calendar.Builder(GoogleNetHttpTransport.newTrustedTransport(), GsonFactory.getDefaultInstance(), new HttpCredentialsAdapter(credentials))
                 .setApplicationName(properties.getApplicationName())
@@ -149,6 +155,7 @@ public class GoogleCalendarClient implements CalendarClient {
                         .queue(batch, new JsonBatchCallback<Event>() {
                             @Override
                             public void onFailure(GoogleJsonError googleJsonError, HttpHeaders httpHeaders) throws IOException {
+                                log.error("[{}]", googleJsonError);
                                 log.debug("Событие [{}] не будет перенесено", event);
                             }
 
@@ -162,6 +169,21 @@ public class GoogleCalendarClient implements CalendarClient {
                             }
                         });
 
+                calendar.events()
+                        .delete(targetCalendarId, newEvent.getId())
+                        .queue(batch, new JsonBatchCallback<Void>() {
+                            @Override
+                            public void onFailure(GoogleJsonError googleJsonError, HttpHeaders httpHeaders) throws IOException {
+                                log.error("[{}]", googleJsonError);
+                                log.debug("Событие [{}] удалено из календаря [{}]", event.getSummary(), targetCalendarId);
+                            }
+
+                            @Override
+                            public void onSuccess(Void unused, HttpHeaders httpHeaders) throws IOException {
+
+                            }
+                        });
+
             } catch (GoogleJsonResponseException e) {
                 if (e.getStatusCode() == 409) {
                     log.debug("Событие [{}] уже имеется в календаре [{}]", event, targetCalendarId);
@@ -170,6 +192,7 @@ public class GoogleCalendarClient implements CalendarClient {
         }
 
         batch.execute();
+
     }
 
     private com.google.api.services.calendar.model.Event buildGoogleEvent(EventDto eventDto) {
