@@ -1,0 +1,32 @@
+<configuration>
+
+    <springProperty name="elkEnabled" source="elk.enabled" defaultValue="false" />
+
+    <appender name="console" class="ch.qos.logback.core.ConsoleAppender">
+        <encoder>
+            <pattern>%d{HH:mm:ss.SSS} [%thread] %-5level %logger{36} - %msg%n</pattern>
+        </encoder>
+    </appender>
+
+    <appender name="stash" class="net.logstash.logback.appender.LogstashTcpSocketAppender">
+        <destination>localhost:5044</destination>
+        <encoder class="net.logstash.logback.encoder.LoggingEventCompositeJsonEncoder">
+            <providers>
+                <timestamp/>
+                <threadName/>
+                <level/>
+                <loggerName/>
+                <message/>
+                <stackTrace/>
+            </providers>
+        </encoder>
+    </appender>
+
+    <root level="INFO">
+        <if condition='property("elkEnabled").equalsIgnoreCase("true")'>
+            <then> <appender-ref ref="stash"/> </then>
+            <else> <appender-ref ref="console"/> </else>
+        </if>
+    </root>
+
+</configuration>
