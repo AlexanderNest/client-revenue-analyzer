@@ -67,3 +67,8 @@
 ### Swagger
 
 В приложении активен Swagger и доступен по пути: [http://localhost:8080/revenue-analyzer/swagger-ui/index.html](http://localhost:8080/revenue-analyzer/swagger-ui/index.html)
+
+### ELK-стек
+Для выведения логов с помощью elk-стека проставьте elk.enabled=true \
+Предварительно создайте контейнеры в Docker с помощью docker/docker-compose.yml
+(для загрузки образов может потребоваться vpn)
