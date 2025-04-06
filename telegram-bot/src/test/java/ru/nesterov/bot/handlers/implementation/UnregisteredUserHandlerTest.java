@@ -2,7 +2,9 @@ package ru.nesterov.bot.handlers.implementation;
 
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.context.properties.EnableConfigurationProperties;
 import org.springframework.test.context.ContextConfiguration;
+import org.springframework.test.context.TestPropertySource;
 import org.telegram.telegrambots.meta.api.methods.BotApiMethod;
 import org.telegram.telegrambots.meta.api.methods.send.SendMessage;
 import org.telegram.telegrambots.meta.api.objects.Chat;
@@ -11,6 +13,7 @@ import org.telegram.telegrambots.meta.api.objects.Update;
 import org.telegram.telegrambots.meta.api.objects.User;
 import ru.nesterov.bot.handlers.AbstractHandlerTest;
 import ru.nesterov.dto.GetUserRequest;
+import ru.nesterov.properties.BotProperties;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertInstanceOf;
@@ -18,12 +21,19 @@ import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.when;
 
 @ContextConfiguration(classes = {
-        UnregisteredUserHandler.class,
+        UpdateUserControlButtonsHandler.class,
         CreateUserHandler.class,
+        GetClientScheduleCommandHandler.class,
+        GetMonthStatisticsCommandHandler.class,
+        BotProperties.class
+})
+@EnableConfigurationProperties(BotProperties.class)
+@TestPropertySource(properties = {
+        "bot.menu-buttons-per-line=1"
 })
 public class UnregisteredUserHandlerTest extends AbstractHandlerTest {
     @Autowired
-    private UnregisteredUserHandler unregisteredUserHandler;
+    private UpdateUserControlButtonsHandler updateUserControlButtonsHandler;
     @Autowired
     private CreateUserHandler createUserHandler;
 
@@ -45,11 +55,11 @@ public class UnregisteredUserHandlerTest extends AbstractHandlerTest {
 
         when(client.getUserByUsername(any(GetUserRequest.class))).thenReturn(null);
 
-        BotApiMethod<?> botApiMethod = unregisteredUserHandler.handle(update);
+        BotApiMethod<?> botApiMethod = updateUserControlButtonsHandler.handle(update);
 
         assertInstanceOf(SendMessage.class, botApiMethod);
 
         SendMessage sendMessage = (SendMessage) botApiMethod;
-        assertEquals("Воспользуйтесь командой '" + createUserHandler.getCommand() + "'", sendMessage.getText());
+        assertEquals("Выберите опцию:", sendMessage.getText());
     }
 }

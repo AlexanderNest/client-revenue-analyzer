@@ -11,6 +11,7 @@ import org.telegram.telegrambots.meta.api.objects.Chat;
 import org.telegram.telegrambots.meta.api.objects.Message;
 import org.telegram.telegrambots.meta.api.objects.Update;
 import org.telegram.telegrambots.meta.api.objects.replykeyboard.ReplyKeyboardMarkup;
+import ru.nesterov.bot.TelegramUpdateUtils;
 import ru.nesterov.bot.handlers.RegisteredUserHandlerTest;
 import ru.nesterov.properties.BotProperties;
 
@@ -23,16 +24,16 @@ import static org.junit.jupiter.api.Assertions.assertNotNull;
 @ContextConfiguration(classes = {
         GetClientScheduleCommandHandler.class,
         GetMonthStatisticsCommandHandler.class,
-        StartBotHandler.class,
+        UpdateUserControlButtonsHandler.class,
         BotProperties.class
 })
 @EnableConfigurationProperties(BotProperties.class)
 @TestPropertySource(properties = {
         "bot.menu-buttons-per-line=1"
 })
-public class StartBotHandlerTestTest extends RegisteredUserHandlerTest {
+public class UpdateUserControlButtonsHandlerTestTest extends RegisteredUserHandlerTest {
     @Autowired
-    private StartBotHandler startBotHandler;
+    private UpdateUserControlButtonsHandler updateUserControlButtonsHandler;
     @Autowired
     private BotProperties botProperties;
 
@@ -46,7 +47,7 @@ public class StartBotHandlerTestTest extends RegisteredUserHandlerTest {
         message.setText("/start");
         update.setMessage(message);
 
-        BotApiMethod<?> result = startBotHandler.handle(update);
+        BotApiMethod<?> result = updateUserControlButtonsHandler.handle(update);
 
         assertNotNull(result);
         assertEquals(SendMessage.class, result.getClass());

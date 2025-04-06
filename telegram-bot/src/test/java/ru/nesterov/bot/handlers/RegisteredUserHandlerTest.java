@@ -4,7 +4,7 @@ package ru.nesterov.bot.handlers;
 import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.test.context.ContextConfiguration;
 import ru.nesterov.bot.handlers.implementation.CreateUserHandler;
-import ru.nesterov.bot.handlers.implementation.UnregisteredUserHandler;
+import ru.nesterov.bot.handlers.implementation.UpdateUserControlButtonsHandler;
 import ru.nesterov.bot.handlers.service.ButtonCallbackService;
 
 /**
@@ -15,5 +15,5 @@ import ru.nesterov.bot.handlers.service.ButtonCallbackService;
 })
 public abstract class RegisteredUserHandlerTest extends AbstractHandlerTest {
     @MockBean
-    protected UnregisteredUserHandler unregisteredUserHandler;
+    protected UpdateUserControlButtonsHandler unregisteredUserHandler;
 }
