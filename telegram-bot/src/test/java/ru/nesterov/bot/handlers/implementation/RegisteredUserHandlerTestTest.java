@@ -11,7 +11,7 @@ import org.telegram.telegrambots.meta.api.objects.Chat;
 import org.telegram.telegrambots.meta.api.objects.Message;
 import org.telegram.telegrambots.meta.api.objects.Update;
 import org.telegram.telegrambots.meta.api.objects.User;
-import ru.nesterov.bot.handlers.AbstractHandlerTest;
+import ru.nesterov.bot.handlers.RegisteredUserHandlerTest;
 import ru.nesterov.dto.GetUserRequest;
 import ru.nesterov.properties.BotProperties;
 
@@ -31,7 +31,7 @@ import static org.mockito.Mockito.when;
 @TestPropertySource(properties = {
         "bot.menu-buttons-per-line=1"
 })
-public class RegisteredUserHandlerTest extends AbstractHandlerTest {
+public class RegisteredUserHandlerTestTest extends RegisteredUserHandlerTest {
     @Autowired
     private UpdateUserControlButtonsHandler updateUserControlButtonsHandler;
     @Autowired
