@@ -8,12 +8,14 @@ import org.springframework.web.bind.annotation.RequestHeader;
 import org.springframework.web.bind.annotation.RestController;
 import ru.nesterov.controller.request.GetForMonthRequest;
 import ru.nesterov.controller.response.EventResponse;
+import ru.nesterov.controller.response.GetUnpaidEventsResponse;
 import ru.nesterov.dto.EventStatus;
 import ru.nesterov.service.user.UserService;
 import ru.nesterov.service.dto.ClientMeetingsStatistic;
 import ru.nesterov.service.dto.IncomeAnalysisResult;
 import ru.nesterov.service.event.EventsAnalyzerService;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
@@ -37,9 +39,12 @@ public class EventsAnalyzerControllerImpl implements EventsAnalyzerController {
         return new ResponseEntity<>(result, HttpStatus.OK);
     }
 
-    public List<EventResponse> getUnpaidEvents(@RequestHeader(name = "X-username") String username) {
-        return eventsAnalyzerService.getUnpaidEvents(userService.getUserByUsername(username)).stream()
+    public GetUnpaidEventsResponse getUnpaidEvents(@RequestHeader(name = "X-username") String username) {
+        List<EventResponse> response = eventsAnalyzerService.getUnpaidEvents(userService.getUserByUsername(username)).stream()
                 .map(event -> new EventResponse(event.getSummary(), event.getStart()))
                 .toList();
+        GetUnpaidEventsResponse getUnpaidEventsResponse = new GetUnpaidEventsResponse();
+        getUnpaidEventsResponse.setEvents(response);
+        return getUnpaidEventsResponse;
     }
 }

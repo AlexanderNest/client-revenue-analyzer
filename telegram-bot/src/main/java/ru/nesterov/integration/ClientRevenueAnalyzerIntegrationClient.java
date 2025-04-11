@@ -23,6 +23,7 @@ import ru.nesterov.dto.GetForClientScheduleRequest;
 import ru.nesterov.dto.GetForMonthRequest;
 import ru.nesterov.dto.GetForYearRequest;
 import ru.nesterov.dto.GetIncomeAnalysisForMonthResponse;
+import ru.nesterov.dto.GetUnpaidEventsResponse;
 import ru.nesterov.dto.GetUserRequest;
 import ru.nesterov.dto.GetUserResponse;
 import ru.nesterov.dto.GetYearBusynessStatisticsResponse;
@@ -44,6 +45,12 @@ public class ClientRevenueAnalyzerIntegrationClient {
     private final RestTemplate restTemplate;
     private final RevenueAnalyzerProperties revenueAnalyzerProperties;
     private final BotProperties botProperties;
+
+    // нужна доработка тут (добавить метод для отправки запроса на бэк)
+
+    public GetUnpaidEventsResponse getUnpaidEvents(long userId) {
+        return get(String.valueOf(userId), "/revenue-analyzer/events/analyzer/getUnpaidEvents", GetUnpaidEventsResponse.class).getBody();
+    }
 
     public GetIncomeAnalysisForMonthResponse getIncomeAnalysisForMonth(long userId, String monthName) {
         GetForMonthRequest getForMonthRequest = new GetForMonthRequest();

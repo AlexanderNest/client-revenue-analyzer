@@ -13,6 +13,7 @@ import org.springframework.web.bind.annotation.RequestHeader;
 import org.springframework.web.bind.annotation.RequestMapping;
 import ru.nesterov.controller.request.GetForMonthRequest;
 import ru.nesterov.controller.response.EventResponse;
+import ru.nesterov.controller.response.GetUnpaidEventsResponse;
 import ru.nesterov.dto.EventStatus;
 import ru.nesterov.service.dto.ClientMeetingsStatistic;
 import ru.nesterov.service.dto.IncomeAnalysisResult;
@@ -83,5 +84,5 @@ public interface EventsAnalyzerController {
             }
     )
     @GetMapping("/getUnpaidEvents")
-    List<EventResponse> getUnpaidEvents(@RequestHeader(name = "X-username") String username);
+    GetUnpaidEventsResponse getUnpaidEvents(@RequestHeader(name = "X-username") String username);
 }
