@@ -46,8 +46,6 @@ public class ClientRevenueAnalyzerIntegrationClient {
     private final RevenueAnalyzerProperties revenueAnalyzerProperties;
     private final BotProperties botProperties;
 
-    // нужна доработка тут (добавить метод для отправки запроса на бэк)
-
     public GetUnpaidEventsResponse getUnpaidEvents(long userId) {
         return get(String.valueOf(userId), "/revenue-analyzer/events/analyzer/getUnpaidEvents", GetUnpaidEventsResponse.class).getBody();
     }
