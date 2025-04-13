@@ -13,4 +13,12 @@ public abstract class DisplayedCommandHandler extends InvocableCommandHandler im
     public int getOrder() {
         return 5;
     }
+
+    public boolean isDisplayedForRegistered() {
+        return true;
+    }
+
+    public boolean isDisplayedForUnregistered() {
+        return false;
+    }
 }

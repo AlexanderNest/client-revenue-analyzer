@@ -10,6 +10,7 @@ import ru.nesterov.bot.handlers.service.ButtonCallbackService;
 import ru.nesterov.bot.handlers.service.HandlersService;
 import ru.nesterov.calendar.InlineCalendarBuilder;
 import ru.nesterov.integration.ClientRevenueAnalyzerIntegrationClient;
+import ru.nesterov.properties.BotProperties;
 
 /**
  * Базовый тест для Handler. Содержит основные бины, которые используют обработчики.
@@ -19,7 +20,8 @@ import ru.nesterov.integration.ClientRevenueAnalyzerIntegrationClient;
         BotHandlersRequestsKeeper.class,
         InlineCalendarBuilder.class,
         HandlersService.class,
-        ButtonCallbackService.class
+        ButtonCallbackService.class,
+        BotProperties.class
 })
 @SpringBootTest
 public abstract class AbstractHandlerTest {
@@ -31,6 +33,8 @@ public abstract class AbstractHandlerTest {
     protected HandlersService handlerService;
     @Autowired
     protected ButtonCallbackService buttonCallbackService;
+    @Autowired
+    protected BotProperties botProperties;
 
     @MockBean
     protected ClientRevenueAnalyzerIntegrationClient client;

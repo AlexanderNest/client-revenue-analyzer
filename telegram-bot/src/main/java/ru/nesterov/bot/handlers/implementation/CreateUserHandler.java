@@ -145,4 +145,14 @@ public class CreateUserHandler extends DisplayedCommandHandler {
     public int getOrder() {
         return 10;
     }
+
+    @Override
+    public boolean isDisplayedForUnregistered() {
+        return true;
+    }
+
+    @Override
+    public boolean isDisplayedForRegistered() {
+        return false;
+    }
 }
