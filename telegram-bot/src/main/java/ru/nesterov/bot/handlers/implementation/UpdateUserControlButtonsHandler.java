@@ -36,11 +36,21 @@ public class UpdateUserControlButtonsHandler extends InvocableCommandHandler {
     private final CreateUserHandler createUserHandler;
 
     @Override
+    public String getCommand() {
+        return "/start";
+    }
+
+    @Override
+    public Priority getPriority() {
+        return Priority.HIGHEST;
+    }
+
+    @Override
     public BotApiMethod<?> handle(Update update) {
         ReplyKeyboardMarkup keyboardMarkup = new ReplyKeyboardMarkup();
         keyboardMarkup.setResizeKeyboard(true);
 
-        boolean isRegistered = isUserRegistered(update);
+        boolean isRegistered = isRegisteredUser(TelegramUpdateUtils.getUserId(update));
         int buttonsPerLine = botProperties.getMenuButtonsPerLine();
 
         List<KeyboardRow> keyboardRows = buildKeyboardRows(isRegistered, buttonsPerLine);
@@ -52,11 +62,6 @@ public class UpdateUserControlButtonsHandler extends InvocableCommandHandler {
     @Override
     public boolean isFinished(Long userId) {
         return true;
-    }
-
-    @Override
-    public String getCommand() {
-        return "/start";
     }
 
     @Override
@@ -72,18 +77,7 @@ public class UpdateUserControlButtonsHandler extends InvocableCommandHandler {
         }
 
         return !(StringUtils.isNotBlank(text) && createUserHandler.getCommand().equals(text))
-                && isUnregisteredUser(userId);
-    }
-
-    private boolean isUnregisteredUser(long userId) {
-        GetUserRequest getUserRequest = new GetUserRequest();
-        getUserRequest.setUsername(String.valueOf(userId));
-        return client.getUserByUsername(getUserRequest) == null;
-    }
-
-    @Override
-    public Priority getPriority() {
-        return Priority.HIGHEST;
+                && !isRegisteredUser(userId);
     }
 
     private List<KeyboardRow> buildKeyboardRows(boolean isRegistered, int buttonsPerLine) {
@@ -109,11 +103,10 @@ public class UpdateUserControlButtonsHandler extends InvocableCommandHandler {
         return keyboardRows;
     }
 
-    private boolean isUserRegistered(Update update) {
+    private boolean isRegisteredUser(long userId) {
         GetUserRequest request = new GetUserRequest();
-        request.setUsername(String.valueOf(TelegramUpdateUtils.getUserId(update)));
-        GetUserResponse getUserResponse = client.getUserByUsername(request);
-        return getUserResponse != null;
+        request.setUsername(String.valueOf(userId));
+        return client.getUserByUsername(request) != null;
     }
 
     private List<DisplayedCommandHandler> getRelevantHandlers(boolean isRegistered) {
