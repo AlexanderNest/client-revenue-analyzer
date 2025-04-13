@@ -1,5 +1,6 @@
 HELP.md
 target/
+.env
 !.mvn/wrapper/maven-wrapper.jar
 !**/src/main/**/target/
 !**/src/test/**/target/
@@ -34,7 +35,6 @@ build/
 /data/backup/google_calendar_clients_analyzer.mv.db
 /data/backup/google_calendar_clients_analyzer.trace.db
 /personalData/
-/data/
 /data/
 /core/data/
 .codiumai
