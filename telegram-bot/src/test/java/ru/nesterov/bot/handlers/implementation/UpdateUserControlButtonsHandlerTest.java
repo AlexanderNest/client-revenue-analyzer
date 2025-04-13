@@ -1,7 +1,6 @@
 package ru.nesterov.bot.handlers.implementation;
 
 import org.junit.jupiter.api.Test;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.context.properties.EnableConfigurationProperties;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.TestPropertySource;
@@ -24,8 +23,8 @@ import java.util.List;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.when;
-
 
 @ContextConfiguration(classes = {
         GetClientScheduleCommandHandler.class,
@@ -36,10 +35,7 @@ import static org.mockito.Mockito.when;
 @TestPropertySource(properties = {
         "bot.menu-buttons-per-line=1"
 })
-public class UpdateUserControlButtonsHandlerTestTest extends RegisteredUserHandlerTest {
-    @Autowired
-    private BotProperties botProperties;
-
+public class UpdateUserControlButtonsHandlerTest extends RegisteredUserHandlerTest {
     @Test
     public void testForRegisteredUser() {
         Update update = new Update();
@@ -55,16 +51,15 @@ public class UpdateUserControlButtonsHandlerTestTest extends RegisteredUserHandl
 
         ReplyKeyboardMarkup replyKeyboardMarkupTest = new ReplyKeyboardMarkup();
         List<KeyboardRow> keyboardRows = new ArrayList<>();
-        KeyboardRow keyboardRow = new KeyboardRow();
+        KeyboardRow keyboardRow1 = new KeyboardRow();
+        keyboardRow1.add(new KeyboardButton("Узнать доход"));
+        keyboardRows.add(keyboardRow1);
 
-        keyboardRows.add(keyboardRow);
+        KeyboardRow keyboardRow2 = new KeyboardRow();
+        keyboardRow2.add(new KeyboardButton("Узнать расписание клиента"));
+        keyboardRows.add(keyboardRow2);
+
         replyKeyboardMarkupTest.setKeyboard(keyboardRows);
-        keyboardRow.add(new KeyboardButton("Узнать доход"));
-        keyboardRow.add(new KeyboardButton("Анализ клиентов ИИ"));
-        keyboardRow.add(new KeyboardButton("Добавить клиента"));
-        keyboardRow.add(new KeyboardButton("Анализ занятости за год"));
-        keyboardRow.add(new KeyboardButton("Создать бэкап событий"));
-        keyboardRow.add(new KeyboardButton("Узнать расписание клиента"));
 
 
         GetUserRequest getUserRequest = new GetUserRequest();
@@ -74,7 +69,7 @@ public class UpdateUserControlButtonsHandlerTestTest extends RegisteredUserHandl
             .username(user.getUserName())
             .build();
 
-        when(client.getUserByUsername(getUserRequest)).thenReturn(getUserResponse);
+        when(client.getUserByUsername(any())).thenReturn(getUserResponse);
 
         BotApiMethod<?> result = updateUserControlButtonsHandler.handle(update);
 
@@ -91,6 +86,7 @@ public class UpdateUserControlButtonsHandlerTestTest extends RegisteredUserHandl
         assertEquals(keyboardRows, replyKeyboardMarkup.getKeyboard());
 
 
+        // проверяем, что количество кнопок на строке выставилось в соответствии с настройкой
         replyKeyboardMarkup.getKeyboard().stream()
                 .map(ArrayList::size)
                 .forEach(size -> assertEquals(1, size));
@@ -117,14 +113,7 @@ public class UpdateUserControlButtonsHandlerTestTest extends RegisteredUserHandl
         keyboardRows.add(keyboardRow);
         replyKeyboardMarkupTest.setKeyboard(keyboardRows);
 
-        GetUserRequest getUserRequest = new GetUserRequest();
-        getUserRequest.setUsername(user.getUserName());
-
-        GetUserResponse getUserResponse = GetUserResponse.builder()
-                .username(user.getUserName())
-                .build();
-
-        when(client.getUserByUsername(getUserRequest)).thenReturn(getUserResponse);
+        when(client.getUserByUsername(any())).thenReturn(null);
 
         BotApiMethod<?> result = updateUserControlButtonsHandler.handle(update);
 
