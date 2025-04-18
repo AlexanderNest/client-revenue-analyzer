@@ -1,5 +1,7 @@
 package ru.nesterov.integration;
 
+import com.fasterxml.jackson.databind.JsonNode;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
@@ -13,8 +15,11 @@ import org.springframework.http.HttpStatusCode;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Component;
 import org.springframework.web.client.HttpClientErrorException;
+import org.springframework.web.client.HttpServerErrorException;
 import org.springframework.web.client.RestTemplate;
 import ru.nesterov.dto.AiAnalyzerResponse;
+import ru.nesterov.dto.CreateClientRequest;
+import ru.nesterov.dto.CreateClientResponse;
 import ru.nesterov.dto.CreateUserRequest;
 import ru.nesterov.dto.CreateUserResponse;
 import ru.nesterov.dto.GetActiveClientResponse;
@@ -27,10 +32,10 @@ import ru.nesterov.dto.GetUserRequest;
 import ru.nesterov.dto.GetUserResponse;
 import ru.nesterov.dto.GetYearBusynessStatisticsResponse;
 import ru.nesterov.dto.MakeEventsBackupResponse;
+import ru.nesterov.exception.InternalException;
+import ru.nesterov.exception.UserFriendlyException;
 import ru.nesterov.properties.BotProperties;
 import ru.nesterov.properties.RevenueAnalyzerProperties;
-import ru.nesterov.dto.CreateClientRequest;
-import ru.nesterov.dto.CreateClientResponse;
 
 import java.time.LocalDate;
 import java.time.LocalDateTime;
@@ -44,6 +49,7 @@ public class ClientRevenueAnalyzerIntegrationClient {
     private final RestTemplate restTemplate;
     private final RevenueAnalyzerProperties revenueAnalyzerProperties;
     private final BotProperties botProperties;
+    private final ObjectMapper objectMapper;
 
     public GetIncomeAnalysisForMonthResponse getIncomeAnalysisForMonth(long userId, String monthName) {
         GetForMonthRequest getForMonthRequest = new GetForMonthRequest();
@@ -67,7 +73,6 @@ public class ClientRevenueAnalyzerIntegrationClient {
 
         return post(String.valueOf(userId), request, "/revenue-analyzer/ai/generateRecommendation", AiAnalyzerResponse.class).getBody();
     }
-
 
     @Cacheable(value = "getUserByUsername", key = "#request.username", unless = "#result == null")
     public GetUserResponse getUserByUsername(GetUserRequest request) {
@@ -106,8 +111,7 @@ public class ClientRevenueAnalyzerIntegrationClient {
                 String.valueOf(userId),
                 request,
                 "/revenue-analyzer/client/getSchedule",
-                new ParameterizedTypeReference<List<GetClientScheduleResponse>>() {
-                }
+                new ParameterizedTypeReference<>() {}
         );
     }
 
@@ -115,8 +119,7 @@ public class ClientRevenueAnalyzerIntegrationClient {
         return postForList(String.valueOf(userId),
                 null,
                 "/revenue-analyzer/client/getActiveClients",
-                new ParameterizedTypeReference<List<GetActiveClientResponse>>() {
-                }
+                new ParameterizedTypeReference<>() {}
         );
     }
 
@@ -165,6 +168,18 @@ public class ClientRevenueAnalyzerIntegrationClient {
             return new ResponseEntity<>(HttpStatus.NOT_FOUND);
         } catch (HttpClientErrorException.Conflict ignore) {
             return new ResponseEntity<>(HttpStatus.CONFLICT);
+        } catch (HttpServerErrorException.InternalServerError ignore) {
+            throw new UserFriendlyException(getResponseMessage(ignore.getResponseBodyAsString()));
+        }
+    }
+
+    private String getResponseMessage(String responseBody) {
+        try {
+            JsonNode jsonNode = objectMapper.readTree(responseBody);
+            return jsonNode.get("message").asText();
+        } catch (Exception e) {
+            log.error("Cannot parse response = [{}]", responseBody);
+            throw new InternalException(e);
         }
     }
 
