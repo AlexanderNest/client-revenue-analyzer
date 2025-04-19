@@ -34,4 +34,8 @@ public class BotHandlersRequestsKeeper {
             handlerRequests.remove(userId);
         }
     }
+
+    public void removeContext() {
+        map.clear();
+    }
 }
