@@ -65,11 +65,6 @@ public class UpdateUserControlButtonsHandlerTest extends RegisteredUserHandlerTe
         GetUserRequest getUserRequest = new GetUserRequest();
         getUserRequest.setUsername(user.getUserName());
 
-        GetUserResponse getUserResponse = GetUserResponse.builder()
-            .username(user.getUserName())
-            .build();
-
-        when(client.getUserByUsername(any())).thenReturn(getUserResponse);
 
         BotApiMethod<?> result = updateUserControlButtonsHandler.handle(update);
 
