@@ -24,7 +24,16 @@
         <then>
             <appender name="console" class="ch.qos.logback.core.ConsoleAppender">
                 <encoder>
-                    <pattern>%d{HH:mm:ss.SSS} [%thread] %-5level %logger{36} - %msg%n</pattern>
+                    <pattern>
+                           %d{${LOG_DATEFORMAT_PATTERN:-yyyy-MM-dd HH:mm:ss.SSS}} <!--
+                        -->%highlight(${LOG_LEVEL_PATTERN:-%5p}) <!--
+                        -->%magenta(${PID:- }) <!--
+                        -->%white(---) <!--
+                        -->[%t] <!--
+                        -->%highlight(%-40.40logger{39}) <!--
+                        -->%white(:) <!--
+                        -->%m%n%ex
+                    </pattern>
                 </encoder>
             </appender>
         </then>
