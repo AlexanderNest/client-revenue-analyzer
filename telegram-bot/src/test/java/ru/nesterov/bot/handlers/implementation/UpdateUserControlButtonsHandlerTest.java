@@ -15,7 +15,6 @@ import org.telegram.telegrambots.meta.api.objects.replykeyboard.buttons.Keyboard
 import org.telegram.telegrambots.meta.api.objects.replykeyboard.buttons.KeyboardRow;
 import ru.nesterov.bot.handlers.RegisteredUserHandlerTest;
 import ru.nesterov.dto.GetUserRequest;
-import ru.nesterov.dto.GetUserResponse;
 import ru.nesterov.properties.BotProperties;
 
 import java.util.ArrayList;
