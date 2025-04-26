@@ -10,7 +10,6 @@ import ru.nesterov.bot.handlers.abstractions.CommandHandler;
 import ru.nesterov.bot.handlers.abstractions.InvocableCommandHandler;
 import ru.nesterov.bot.handlers.abstractions.Priority;
 import ru.nesterov.bot.handlers.service.BotHandlersRequestsKeeper;
-
 import java.util.Map;
 
 @RequiredArgsConstructor
