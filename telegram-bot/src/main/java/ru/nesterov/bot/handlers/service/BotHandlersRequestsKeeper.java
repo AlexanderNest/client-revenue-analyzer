@@ -35,7 +35,7 @@ public class BotHandlersRequestsKeeper {
         }
     }
 
-    public void removeContext() {
-        map.clear();
+    public Map<Class<?>, Map<Long, Object>> getMap() {
+        return map;
     }
 }
