@@ -64,6 +64,17 @@
 
 
 ## Вспомогательные функции
-### Swagger
 
+### Настройка секретов
+- Создать в корне проекта файл .env
+- Занести в него все необходимые секреты (пароли, токены и т.д.)
+- Заносить в формате KEY=VALUE. Например, MAIN_CALENDAR_ID=somemail@mail.com
+- Файл занесен в список файла .gitignore и должен храниться только на вашей локальной машине
+
+### Swagger
 В приложении активен Swagger и доступен по пути: [http://localhost:8080/revenue-analyzer/swagger-ui/index.html](http://localhost:8080/revenue-analyzer/swagger-ui/index.html)
+
+### ELK-стек
+Для выведения логов с помощью elk-стека проставьте elk.enabled=true \
+Предварительно создайте контейнеры в Docker с помощью docker/docker-compose.yml
+(для загрузки образов может потребоваться vpn)
