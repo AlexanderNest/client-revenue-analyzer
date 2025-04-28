@@ -2,31 +2,56 @@
 
     <springProperty name="elkEnabled" source="elk.enabled" defaultValue="false" />
 
-    <appender name="console" class="ch.qos.logback.core.ConsoleAppender">
-        <encoder>
-            <pattern>%d{HH:mm:ss.SSS} [%thread] %-5level %logger{36} - %msg%n</pattern>
-        </encoder>
-    </appender>
+    <if condition='"true".equals(property("elkEnabled"))'>
+        <then>
+            <appender name="stash" class="net.logstash.logback.appender.LogstashTcpSocketAppender">
+                <destination>localhost:5044</destination>
+                <encoder class="net.logstash.logback.encoder.LoggingEventCompositeJsonEncoder">
+                    <providers>
+                        <timestamp/>
+                        <threadName/>
+                        <level/>
+                        <loggerName/>
+                        <message/>
+                        <stackTrace/>
+                    </providers>
+                </encoder>
+            </appender>
+        </then>
+    </if>
 
-    <appender name="stash" class="net.logstash.logback.appender.LogstashTcpSocketAppender">
-        <destination>localhost:5044</destination>
-        <encoder class="net.logstash.logback.encoder.LoggingEventCompositeJsonEncoder">
-            <providers>
-                <timestamp/>
-                <threadName/>
-                <level/>
-                <loggerName/>
-                <message/>
-                <stackTrace/>
-            </providers>
-        </encoder>
-    </appender>
+    <if condition='"false".equals(property("elkEnabled"))'>
+        <then>
+            <appender name="console" class="ch.qos.logback.core.ConsoleAppender">
+                <encoder>
+                    <pattern>
+                           %d{${LOG_DATEFORMAT_PATTERN:-yyyy-MM-dd HH:mm:ss.SSS}} <!--
+                        -->%highlight(${LOG_LEVEL_PATTERN:-%5p}) <!--
+                        -->%magenta(${PID:- }) <!--
+                        -->%white(---) <!--
+                        -->[%t] <!--
+                        -->%highlight(%-40.40logger{39}) <!--
+                        -->%white(:) <!--
+                        -->%m%n%ex
+                    </pattern>
+                </encoder>
+            </appender>
+        </then>
+    </if>
 
-    <root level="INFO">
-        <if condition='property("elkEnabled").equalsIgnoreCase("true")'>
-            <then> <appender-ref ref="stash"/> </then>
-            <else> <appender-ref ref="console"/> </else>
-        </if>
-    </root>
+    <if condition='"true".equals(property("elkEnabled"))'>
+        <then>
+            <root level="INFO">
+                <appender-ref ref="stash"/>
+            </root>
+        </then>
+    </if>
+    <if condition='"false".equals(property("elkEnabled"))'>
+        <then>
+            <root level="INFO">
+                <appender-ref ref="console"/>
+            </root>
+        </then>
+    </if>
 
 </configuration>
