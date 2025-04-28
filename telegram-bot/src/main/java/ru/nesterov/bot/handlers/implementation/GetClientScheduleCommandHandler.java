@@ -101,6 +101,10 @@ public class GetClientScheduleCommandHandler extends DisplayedCommandHandler {
         List<List<InlineKeyboardButton>> keyboard = new ArrayList<>();
         List<GetActiveClientResponse> clients = client.getActiveClients(userId);
 
+        if (clients.isEmpty()) {
+            return getReplyKeyboard(chatId, "Нет доступных клиентов.", null);
+        }
+
         for (GetActiveClientResponse response : clients) {
             InlineKeyboardButton button = new InlineKeyboardButton();
             button.setText(response.getName());

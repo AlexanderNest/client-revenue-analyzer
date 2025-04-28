@@ -260,6 +260,16 @@ public class GetClientScheduleHandlerTest extends RegisteredUserHandlerTest {
         }
     }
 
+    @Test
+    void handleCommandWhenNoClientsFound() {
+        Update update = createUpdateWithMessage();
+
+        BotApiMethod<?> botApiMethod = handler.handle(update);
+        assertInstanceOf(SendMessage.class, botApiMethod);
+        SendMessage sendMessage = (SendMessage) botApiMethod;
+
+        assertEquals("Нет доступных клиентов.", sendMessage.getText());
+    }
     private List<GetActiveClientResponse> createActiveClients() {
         GetActiveClientResponse client1 = new GetActiveClientResponse();
         client1.setId(1);
