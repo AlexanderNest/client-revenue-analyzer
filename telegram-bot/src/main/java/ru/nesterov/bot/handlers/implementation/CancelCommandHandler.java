@@ -10,6 +10,8 @@ import ru.nesterov.bot.handlers.abstractions.CommandHandler;
 import ru.nesterov.bot.handlers.abstractions.InvocableCommandHandler;
 import ru.nesterov.bot.handlers.abstractions.Priority;
 import ru.nesterov.bot.handlers.service.BotHandlersRequestsKeeper;
+import ru.nesterov.bot.handlers.service.HandlersService;
+
 import java.util.Map;
 
 @RequiredArgsConstructor
@@ -40,12 +42,12 @@ public class CancelCommandHandler extends InvocableCommandHandler {
 
     @Override
     public boolean isFinished(Long userId) {
-        return false;
+        return true;
     }
 
     @Override
     public Priority getPriority() {
-        return super.getPriority();
+        return Priority.HIGHEST;
     }
 
     @Override
