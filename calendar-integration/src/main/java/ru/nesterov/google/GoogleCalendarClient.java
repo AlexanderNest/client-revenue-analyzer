@@ -24,7 +24,10 @@ import ru.nesterov.dto.CalendarType;
 import ru.nesterov.dto.EventDto;
 import ru.nesterov.dto.EventExtensionDto;
 import ru.nesterov.dto.EventStatus;
+import ru.nesterov.exception.AppException;
 import ru.nesterov.google.exception.CannotBuildEventException;
+import ru.nesterov.google.exception.EventsBetweenDatesException;
+import ru.nesterov.google.exception.UnprocessedBatchException;
 import ru.nesterov.util.PlainTextMapper;
 
 import javax.annotation.Nullable;
@@ -36,6 +39,8 @@ import java.time.ZoneId;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
+
+import static ru.nesterov.google.mapper.EventMapper.mapEventToEvent;
 
 /*
 Основные методы Google Calendar API для работы с событиями:
@@ -75,10 +80,12 @@ import java.util.List;
 @Component
 @ConditionalOnProperty("app.google.calendar.integration.enabled")
 public class GoogleCalendarClient implements CalendarClient {
+
     private final Calendar calendar;
     private final GoogleCalendarProperties properties;
     private final ObjectMapper objectMapper;
     private final EventStatusService eventStatusService;
+    private volatile boolean insertFailureFlag = false;
 
     public GoogleCalendarClient(GoogleCalendarProperties properties, ObjectMapper objectMapper, EventStatusService eventStatusService) {
         this.properties = properties;
@@ -105,7 +112,7 @@ public class GoogleCalendarClient implements CalendarClient {
      * @param rightDate
      */
     @SneakyThrows
-    public void moveEventsToOtherCalendar(String sourceCalendarId, String targetCalendarId, LocalDateTime leftDate, LocalDateTime rightDate) {
+    public void moveEventsToOtherCalendar2(String sourceCalendarId, String targetCalendarId, LocalDateTime leftDate, LocalDateTime rightDate) {
         List<Events> eventsList = getEventsBetweenDates(
                 sourceCalendarId,
                 Date.from(leftDate.atZone(ZoneId.systemDefault()).toInstant()),
@@ -127,72 +134,97 @@ public class GoogleCalendarClient implements CalendarClient {
         log.info("Все события успешно перенесены из календаря [{}] в календарь [{}]", sourceCalendarId, targetCalendarId);
     }
 
-    @SneakyThrows
-    public void insertEventsToOtherCalendar(String sourceCalendarId, String targetCalendarId, LocalDateTime leftDate, LocalDateTime rightDate) {
-        List<Events> eventsList = getEventsBetweenDates(
-                sourceCalendarId,
-                Date.from(leftDate.atZone(ZoneId.systemDefault()).toInstant()),
-                Date.from(rightDate.atZone(ZoneId.systemDefault()).toInstant())
-        );
+    public void moveEventsToOtherCalendar(String sourceCalendarId, String targetCalendarId,
+                                          LocalDateTime leftDate, LocalDateTime rightDate) {
 
-        BatchRequest batch = calendar.batch();
+        List<Events> eventsList;
+        try {
+            eventsList = getEventsBetweenDates(
+                    sourceCalendarId,
+                    Date.from(leftDate.atZone(ZoneId.systemDefault()).toInstant()),
+                    Date.from(rightDate.atZone(ZoneId.systemDefault()).toInstant()));
+        } catch (IOException ioe) {
+            log.error(ioe.getMessage());
+            throw new EventsBetweenDatesException(ioe.getMessage());
+        }
 
         List<Event> events = eventsList.stream()
                 .flatMap(e -> e.getItems().stream())
+                .filter(e -> e.getColorId() != null && e.getColorId().equals("11"))
                 .toList();
 
-        for (Event event : events) {
-            try {
-                Event newEvent = new Event()
-                        .setSummary(event.getSummary())
-                        .setDescription(event.getDescription())
-                        .setStart(event.getStart())
-                        .setEnd(event.getEnd())
-                        .setAttendees(event.getAttendees());
+        if (events.isEmpty()) { return; }
 
-                calendar.events()
-                        .insert(targetCalendarId, newEvent)
-                        .queue(batch, new JsonBatchCallback<Event>() {
-                            @Override
-                            public void onFailure(GoogleJsonError googleJsonError, HttpHeaders httpHeaders) throws IOException {
-                                log.error("[{}]", googleJsonError);
-                                log.debug("Событие [{}] не будет перенесено", event);
-                            }
+        BatchRequest insertBatch = calendar.batch();
+        BatchRequest deleteBatch = calendar.batch();
 
-                            @Override
-                            public void onSuccess(Event event, HttpHeaders httpHeaders) throws IOException {
-                                if (event.getSummary().equals("error")) {
-                                    throw new RuntimeException();
-                                }
-
-                                log.debug("Событие [{}] перенесено в календарь [{}]", event.getSummary(), targetCalendarId);
-                            }
-                        });
-
-                calendar.events()
-                        .delete(targetCalendarId, newEvent.getId())
-                        .queue(batch, new JsonBatchCallback<Void>() {
-                            @Override
-                            public void onFailure(GoogleJsonError googleJsonError, HttpHeaders httpHeaders) throws IOException {
-                                log.error("[{}]", googleJsonError);
-                                log.debug("Событие [{}] удалено из календаря [{}]", event.getSummary(), targetCalendarId);
-                            }
-
-                            @Override
-                            public void onSuccess(Void unused, HttpHeaders httpHeaders) throws IOException {
-
-                            }
-                        });
-
-            } catch (GoogleJsonResponseException e) {
-                if (e.getStatusCode() == 409) {
-                    log.debug("Событие [{}] уже имеется в календаре [{}]", event, targetCalendarId);
-                }
+        try {
+            for (Event event : events) {
+                Event copyEvent = mapEventToEvent(event);
+                insertEventIntoCalendar(targetCalendarId, copyEvent, insertBatch);
+                deleteEventFromCalendar(sourceCalendarId, event, deleteBatch);
             }
+        } catch (IOException ioe) {
+            log.error(ioe.getMessage());
+            throw new UnprocessedBatchException(ioe.getMessage());
         }
 
-        batch.execute();
+        synchronized (this) {
+            try {
+                insertBatch.execute();
+                if (!insertFailureFlag) {
+                    deleteBatch.execute();
+                }
 
+            } catch (GoogleJsonResponseException ge) {
+                GoogleJsonError details = ge.getDetails();
+                log.error(
+                        "Ошибка Google API. Код: {}, Сообщение: {}, Детали: {}",
+                        details.getCode(), details.getMessage(), details.getErrors()
+                );
+                throw new UnprocessedBatchException(details.getMessage());
+
+            } catch (IOException ioe) {
+                throw new UnprocessedBatchException(ioe.getMessage());
+
+            } finally {
+                insertFailureFlag = false;
+            }
+        }
+    }
+
+    private void insertEventIntoCalendar(String targetCalendarId, Event event, BatchRequest batch) throws IOException {
+
+        calendar.events()
+                .insert(targetCalendarId, event)
+                .queue(batch, new JsonBatchCallback<>() {
+                    @Override
+                    public void onFailure(GoogleJsonError googleJsonError, HttpHeaders httpHeaders) {
+                        log.error("Событие [{}] не скопировано в календарь: [{}]", event, googleJsonError);
+                        insertFailureFlag = true;
+                    }
+
+                    @Override
+                    public void onSuccess(Event event, HttpHeaders httpHeaders) {}
+                });
+    }
+
+    private void deleteEventFromCalendar(String targetCalendarId, Event event, BatchRequest batch) throws IOException {
+
+        calendar.events()
+                .delete(targetCalendarId, event.getId())
+                .queue(batch, new JsonBatchCallback<>() {
+                    @Override
+                    public void onFailure(GoogleJsonError googleJsonError, HttpHeaders httpHeaders) {
+                        log.error("Событие [{}] не удалено из календаря: [{}]. Ошибка: [{}]",
+                                event, targetCalendarId, googleJsonError);
+                    }
+
+                    @Override
+                    public void onSuccess(Void unused, HttpHeaders httpHeaders) {
+                        log.debug("Событие [{}] перенесено в календарь [{}]", event, targetCalendarId);
+                    }
+                });
     }
 
     private com.google.api.services.calendar.model.Event buildGoogleEvent(EventDto eventDto) {
