@@ -79,7 +79,7 @@ import static ru.nesterov.google.mapper.EventMapper.mapEventToEvent;
 @Slf4j
 @Component
 @ConditionalOnProperty("app.google.calendar.integration.enabled")
-public class GoogleCalendarClient implements CalendarClient {
+public abstract class GoogleCalendarClient implements CalendarClient {
 
     private final Calendar calendar;
     private final GoogleCalendarProperties properties;
@@ -95,7 +95,7 @@ public class GoogleCalendarClient implements CalendarClient {
     }
 
     @SneakyThrows
-    private Calendar createCalendarService() {
+    public Calendar createCalendarService() {
         GoogleCredentials credentials = GoogleCredentials.fromStream(new FileInputStream(properties.getServiceAccountFilePath()))
                     .createScoped(List.of(CalendarScopes.CALENDAR));
 
@@ -261,31 +261,28 @@ public class GoogleCalendarClient implements CalendarClient {
 
     private List<Events> getEventsBetweenDates(String calendarId, Date startTime, Date endTime) throws IOException {
         int pageNumber = 1;
-
         List<Events> allEvents = new ArrayList<>();
+        String nextPageToken = null;
 
-        Events events = getEventsBetweenDates(calendarId, startTime, endTime, null);
-        allEvents.add(events);
-        log.debug("Для calendarId = [{}] [{} - {}] извлечена страница №[{}]", calendarId, startTime, endTime, pageNumber);
-
-        while (events.getNextPageToken() != null) {
-            events = getEventsBetweenDates(calendarId, startTime, endTime, events.getNextPageToken());
-            allEvents.add(events);
-            pageNumber++;
+        do {
+            Events events = getEventsBetweenDates(calendarId, startTime, endTime, nextPageToken);
             log.debug("Для calendarId = [{}] [{} - {}] извлечена страница №[{}]", calendarId, startTime, endTime, pageNumber);
-        }
+            allEvents.add(events);
+            nextPageToken = events.getNextPageToken();
+            pageNumber++;
+        } while (nextPageToken != null);
 
         return allEvents;
     }
 
-    private Events getEventsBetweenDates(String calendarId, Date startTime, Date endTime, String nextPageToken) throws IOException {
+    private Events getEventsBetweenDates(String calendarId, Date startTime, Date endTime, String pageToken) throws IOException {
         log.debug("Send request to google");
         Events events = calendar.events().list(calendarId)
                 .setTimeMin(new DateTime(startTime))
                 .setTimeMax(new DateTime(endTime))
                 .setOrderBy("startTime")
                 .setSingleEvents(true)
-                .setPageToken(nextPageToken)
+                .setPageToken(pageToken)
                 .execute();
         log.debug("Response from google received");
         return events;
