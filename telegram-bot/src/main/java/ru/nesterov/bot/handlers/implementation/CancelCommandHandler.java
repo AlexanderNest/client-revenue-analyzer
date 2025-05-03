@@ -13,31 +13,27 @@ import ru.nesterov.bot.handlers.service.BotHandlersRequestsKeeper;
 import ru.nesterov.bot.handlers.service.HandlersService;
 
 import java.util.Map;
+import java.util.concurrent.ConcurrentHashMap;
 
 @RequiredArgsConstructor
 @ConditionalOnProperty("bot.enabled")
 @Component
 public class CancelCommandHandler extends InvocableCommandHandler {
-    private final BotHandlersRequestsKeeper keeper;
+    private final BotHandlersRequestsKeeper botHandlersRequestsKeeper;
+//    private final HandlersService handlersService;
+    private final Map<Long, CommandHandler> startedUserHandlers = new ConcurrentHashMap<>();
 
     @Override
     public BotApiMethod<?> handle(Update update) {
         long userId = TelegramUpdateUtils.getUserId(update);
 
-//        Class<?> buf;
-//        Map<Class<?>, Map<Long, Object>> requestMap = keeper.getMap();
-//        for(Map.Entry<Class<?>, Map<Long, Object>> externalMap : requestMap.entrySet()) {
-//            Map<Long, Object> internalMap = externalMap.getValue();
-//            for (Map.Entry<Long, Object> entry : internalMap.entrySet()) {
-//                if (userId == entry.getKey()) {
-//                    buf = externalMap.getKey();
-//                }
-//            }
-//            requestMap.remove(buf);
-//        }
-
-        keeper.removeRequest(CommandHandler.class, userId);
-        return null;
+        CommandHandler commandHandler = startedUserHandlers.remove(userId);
+        if (commandHandler != null) {
+            botHandlersRequestsKeeper.removeRequest(commandHandler.getClass(), userId);
+        }
+//        handlersService.resetHandlers(userId);  
+//        botHandlersRequestsKeeper.removeRequest(CommandHandler.class, userId);
+        return getPlainSendMessage(userId, "Хендлеры отменены");
     }
 
     @Override
