@@ -1,22 +1,15 @@
 package ru.nesterov.bot.handlers.implementation;
 
 import jakarta.annotation.Resource;
-import lombok.RequiredArgsConstructor;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.context.annotation.Lazy;
 import org.springframework.stereotype.Component;
 import org.telegram.telegrambots.meta.api.methods.BotApiMethod;
 import org.telegram.telegrambots.meta.api.objects.Update;
 import ru.nesterov.bot.TelegramUpdateUtils;
-import ru.nesterov.bot.handlers.abstractions.CommandHandler;
 import ru.nesterov.bot.handlers.abstractions.InvocableCommandHandler;
 import ru.nesterov.bot.handlers.abstractions.Priority;
-import ru.nesterov.bot.handlers.service.BotHandlersRequestsKeeper;
 import ru.nesterov.bot.handlers.service.HandlersService;
-
-import java.util.Map;
-import java.util.concurrent.ConcurrentHashMap;
 
 @ConditionalOnProperty("bot.enabled")
 @Component

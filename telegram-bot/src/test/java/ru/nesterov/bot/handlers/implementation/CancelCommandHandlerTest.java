@@ -5,13 +5,14 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.test.context.ContextConfiguration;
 import ru.nesterov.bot.handlers.AbstractHandlerTest;
 import ru.nesterov.bot.handlers.service.BotHandlersRequestsKeeper;
+import ru.nesterov.bot.handlers.service.HandlersService;
 
 @ContextConfiguration(classes = {
-        CancelCommandHandler.class,
+        HandlersService.class
 })
 public class CancelCommandHandlerTest  extends AbstractHandlerTest {
     @Autowired
-    private BotHandlersRequestsKeeper botHandlersRequestsKeeper;
+    private HandlersService handlersService;
     @Test
     void cancelHandlers() {
 
