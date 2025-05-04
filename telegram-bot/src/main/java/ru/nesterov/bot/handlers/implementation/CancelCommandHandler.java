@@ -23,7 +23,7 @@ public class CancelCommandHandler extends InvocableCommandHandler {
         long userId = TelegramUpdateUtils.getUserId(update);
 
         handlersService.resetHandlers(userId);
-        return getPlainSendMessage(userId, "Хендлеры отменены");
+        return getPlainSendMessage(userId, "Контекст сброшен");
     }
 
     @Override
