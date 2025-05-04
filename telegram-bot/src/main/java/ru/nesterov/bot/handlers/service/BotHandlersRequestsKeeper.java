@@ -34,8 +34,4 @@ public class BotHandlersRequestsKeeper {
             handlerRequests.remove(userId);
         }
     }
-
-    public Map<Class<?>, Map<Long, Object>> getMap() {
-        return map;
-    }
 }
