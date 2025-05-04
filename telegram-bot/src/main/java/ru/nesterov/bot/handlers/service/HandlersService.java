@@ -3,6 +3,7 @@ package ru.nesterov.bot.handlers.service;
 import jakarta.annotation.Nullable;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
+import org.springframework.context.annotation.Lazy;
 import org.springframework.stereotype.Component;
 import org.telegram.telegrambots.meta.api.objects.Update;
 import ru.nesterov.bot.TelegramUpdateUtils;
@@ -25,8 +26,8 @@ public class HandlersService {
     private final CancelCommandHandler cancelCommandHandler;
     private final Map<Long, CommandHandler> startedUserHandlers = new ConcurrentHashMap<>();
 
-    public HandlersService(List<CommandHandler> commandHandlers,
-                           BotHandlersRequestsKeeper botHandlersRequestsKeeper, CancelCommandHandler cancelCommandHandler) {
+    public HandlersService(List<CommandHandler> commandHandlers, BotHandlersRequestsKeeper botHandlersRequestsKeeper,
+                           CancelCommandHandler cancelCommandHandler) {
 
         highestPriorityCommandHandlers = commandHandlers.stream()
                 .filter(ch -> ch.getPriority() == Priority.HIGHEST)
