@@ -1,24 +1,25 @@
 package ru.nesterov.controller;
 
-import lombok.RequiredArgsConstructor;
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.responses.ApiResponse;
+import io.swagger.v3.oas.annotations.responses.ApiResponses;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestHeader;
 import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
-import ru.nesterov.google.GoogleCalendarService;
-import ru.nesterov.service.dto.UserDto;
-import ru.nesterov.service.user.UserService;
 
-@RestController
-@RequiredArgsConstructor
+@Tag(name = "Event Manager", description = "API для управления событиями.")
 @RequestMapping("/events")
-public class EventsController {
-    private final GoogleCalendarService googleCalendarService;
-    private final UserService userService;
+public interface EventsController {
 
+    @Operation(
+            summary = "Перенос событий.",
+            description = "Переносит отмененные события из основного календаря в календарь с отменными событиями."
+    )
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200", description = "Успешный перенос событий"),
+            @ApiResponse(responseCode = "500", description = "Внутренняя ошибка сервера")
+    })
     @PostMapping("/canceled/transfer")
-    public void transferEvents(@RequestHeader(name = "X-username") String username) {
-        UserDto userDto = userService.getUserByUsername(username);
-        googleCalendarService.transferCancelledEventsToCancelledCalendar(userDto.getMainCalendar(), userDto.getCancelledCalendar());
-    }
+    void transferEvents(@RequestHeader(name = "X-username") String username);
 }
