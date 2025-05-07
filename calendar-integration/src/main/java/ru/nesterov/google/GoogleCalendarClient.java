@@ -24,7 +24,6 @@ import ru.nesterov.dto.CalendarType;
 import ru.nesterov.dto.EventDto;
 import ru.nesterov.dto.EventExtensionDto;
 import ru.nesterov.dto.EventStatus;
-import ru.nesterov.exception.AppException;
 import ru.nesterov.google.exception.CannotBuildEventException;
 import ru.nesterov.google.exception.EventsBetweenDatesException;
 import ru.nesterov.google.exception.UnprocessedBatchException;
@@ -39,8 +38,6 @@ import java.time.ZoneId;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
-
-import static ru.nesterov.google.mapper.EventMapper.mapEventToEvent;
 
 /*
 Основные методы Google Calendar API для работы с событиями:
@@ -153,14 +150,22 @@ public abstract class GoogleCalendarClient implements CalendarClient {
                 .filter(e -> e.getColorId() != null && e.getColorId().equals("11"))
                 .toList();
 
-        if (events.isEmpty()) { return; }
+        if (events.isEmpty()) {
+            return;
+        }
 
         BatchRequest insertBatch = calendar.batch();
         BatchRequest deleteBatch = calendar.batch();
 
         try {
             for (Event event : events) {
-                Event copyEvent = mapEventToEvent(event);
+                Event copyEvent = new Event()
+                        .setSummary(event.getSummary())
+                        .setDescription(event.getDescription())
+                        .setColorId(event.getColorId())
+                        .setStart(event.getStart())
+                        .setEnd(event.getEnd())
+                        .setAttendees(event.getAttendees());
                 insertEventIntoCalendar(targetCalendarId, copyEvent, insertBatch);
                 deleteEventFromCalendar(sourceCalendarId, event, deleteBatch);
             }
@@ -205,7 +210,9 @@ public abstract class GoogleCalendarClient implements CalendarClient {
                     }
 
                     @Override
-                    public void onSuccess(Event event, HttpHeaders httpHeaders) {}
+                    public void onSuccess(Event event, HttpHeaders httpHeaders) {
+                        System.out.println("Copied");
+                    }
                 });
     }
 
@@ -227,26 +234,7 @@ public abstract class GoogleCalendarClient implements CalendarClient {
                 });
     }
 
-    private com.google.api.services.calendar.model.Event buildGoogleEvent(EventDto eventDto) {
-        com.google.api.services.calendar.model.Event event = new com.google.api.services.calendar.model.Event()
-                .setSummary(eventDto.getSummary())
-                .setStart(new com.google.api.services.calendar.model.EventDateTime()
-                        .setDateTime(new DateTime(eventDto.getStart().atZone(ZoneId.systemDefault()).toInstant().toEpochMilli())))
-                .setEnd(new com.google.api.services.calendar.model.EventDateTime()
-                        .setDateTime(new DateTime(eventDto.getEnd().atZone(ZoneId.systemDefault()).toInstant().toEpochMilli())));
-
-        if (eventDto.getEventExtensionDto() != null) {
-            try {
-                String description = objectMapper.writeValueAsString(eventDto.getEventExtensionDto());
-                event.setDescription(description);
-            } catch (Exception e) {
-                log.warn("Не удалось сериализовать EventExtensionDto для события [{}]", eventDto.getSummary(), e);
-            }
-        }
-
-        return event;
-    }
-
+    @Override
     @SneakyThrows
     public List<EventDto> getEventsBetweenDates(String calendarId, CalendarType calendarType, LocalDateTime leftDate, LocalDateTime rightDate) {
         Date startTime = Date.from(leftDate.atZone(ZoneId.systemDefault()).toInstant());
@@ -265,7 +253,7 @@ public abstract class GoogleCalendarClient implements CalendarClient {
         String nextPageToken = null;
 
         do {
-            Events events = getEventsBetweenDates(calendarId, startTime, endTime, nextPageToken);
+            Events events = getPageOfEventsBetweenDates(calendarId, startTime, endTime, nextPageToken);
             log.debug("Для calendarId = [{}] [{} - {}] извлечена страница №[{}]", calendarId, startTime, endTime, pageNumber);
             allEvents.add(events);
             nextPageToken = events.getNextPageToken();
@@ -275,7 +263,7 @@ public abstract class GoogleCalendarClient implements CalendarClient {
         return allEvents;
     }
 
-    private Events getEventsBetweenDates(String calendarId, Date startTime, Date endTime, String pageToken) throws IOException {
+    private Events getPageOfEventsBetweenDates(String calendarId, Date startTime, Date endTime, String pageToken) throws IOException {
         log.debug("Send request to google");
         Events events = calendar.events().list(calendarId)
                 .setTimeMin(new DateTime(startTime))
