@@ -18,6 +18,7 @@ import com.google.auth.http.HttpCredentialsAdapter;
 import com.google.auth.oauth2.GoogleCredentials;
 import lombok.SneakyThrows;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.stereotype.Component;
 import ru.nesterov.dto.CalendarType;
@@ -82,6 +83,9 @@ public class GoogleCalendarClient implements CalendarClient {
     private final GoogleCalendarProperties properties;
     private final ObjectMapper objectMapper;
     private final EventStatusService eventStatusService;
+
+    @Value("${app.calendar.color.cancelled}")
+    private String canceledColorId;
     private volatile boolean insertFailureFlag = false;
 
     public GoogleCalendarClient(GoogleCalendarProperties properties, ObjectMapper objectMapper, EventStatusService eventStatusService) {
@@ -147,7 +151,7 @@ public class GoogleCalendarClient implements CalendarClient {
 
         List<Event> events = eventsList.stream()
                 .flatMap(e -> e.getItems().stream())
-                .filter(e -> e.getColorId() != null && e.getColorId().equals("11"))
+                .filter(e -> e.getColorId() != null && e.getColorId().equals(canceledColorId))
                 .toList();
 
         if (events.isEmpty()) {
@@ -166,8 +170,8 @@ public class GoogleCalendarClient implements CalendarClient {
                         .setStart(event.getStart())
                         .setEnd(event.getEnd())
                         .setAttendees(event.getAttendees());
-                insertEventIntoCalendar(targetCalendarId, copyEvent, insertBatch);
-                deleteEventFromCalendar(sourceCalendarId, event, deleteBatch);
+                pushEventToInsertBatch(targetCalendarId, copyEvent, insertBatch);
+                pushEventToDeleteBatch(sourceCalendarId, event, deleteBatch);
             }
         } catch (IOException ioe) {
             log.error(ioe.getMessage());
@@ -198,7 +202,7 @@ public class GoogleCalendarClient implements CalendarClient {
         }
     }
 
-    private void insertEventIntoCalendar(String targetCalendarId, Event event, BatchRequest batch) throws IOException {
+    private void pushEventToInsertBatch(String targetCalendarId, Event event, BatchRequest batch) throws IOException {
 
         calendar.events()
                 .insert(targetCalendarId, event)
@@ -210,13 +214,11 @@ public class GoogleCalendarClient implements CalendarClient {
                     }
 
                     @Override
-                    public void onSuccess(Event event, HttpHeaders httpHeaders) {
-                        System.out.println("Copied");
-                    }
+                    public void onSuccess(Event event, HttpHeaders httpHeaders) {}
                 });
     }
 
-    private void deleteEventFromCalendar(String targetCalendarId, Event event, BatchRequest batch) throws IOException {
+    private void pushEventToDeleteBatch(String targetCalendarId, Event event, BatchRequest batch) throws IOException {
 
         calendar.events()
                 .delete(targetCalendarId, event.getId())
