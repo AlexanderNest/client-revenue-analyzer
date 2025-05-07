@@ -76,7 +76,7 @@ import java.util.List;
 @Slf4j
 @Component
 @ConditionalOnProperty("app.google.calendar.integration.enabled")
-public abstract class GoogleCalendarClient implements CalendarClient {
+public class GoogleCalendarClient implements CalendarClient {
 
     private final Calendar calendar;
     private final GoogleCalendarProperties properties;
@@ -92,7 +92,7 @@ public abstract class GoogleCalendarClient implements CalendarClient {
     }
 
     @SneakyThrows
-    public Calendar createCalendarService() {
+    private Calendar createCalendarService() {
         GoogleCredentials credentials = GoogleCredentials.fromStream(new FileInputStream(properties.getServiceAccountFilePath()))
                     .createScoped(List.of(CalendarScopes.CALENDAR));
 
