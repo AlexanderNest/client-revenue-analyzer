@@ -151,4 +151,5 @@ class EventsAnalyzerServiceImplTest {
         assertEquals(1, statuses.get(EventStatus.PLANNED));
         assertEquals(1, statuses.get(EventStatus.REQUIRES_SHIFT));
     }
+
 }

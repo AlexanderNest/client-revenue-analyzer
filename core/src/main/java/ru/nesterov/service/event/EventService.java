@@ -31,6 +31,9 @@ public class EventService {
     }
     
     public double getEventDuration(EventDto eventDto) {
+        if (eventDto.getStart().isAfter(eventDto.getEnd())) {
+            throw new IllegalArgumentException();
+        }
         Duration duration = Duration.between(eventDto.getStart(), eventDto.getEnd());
         return duration.toMinutes() / 60.0;
     }
