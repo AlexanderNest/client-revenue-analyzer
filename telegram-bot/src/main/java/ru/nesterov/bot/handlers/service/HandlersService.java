@@ -8,6 +8,7 @@ import org.telegram.telegrambots.meta.api.objects.Update;
 import ru.nesterov.bot.TelegramUpdateUtils;
 import ru.nesterov.bot.handlers.abstractions.CommandHandler;
 import ru.nesterov.bot.handlers.abstractions.Priority;
+import ru.nesterov.bot.handlers.implementation.CancelCommandHandler;
 
 import java.util.List;
 import java.util.Map;
@@ -21,11 +22,12 @@ public class HandlersService {
     private final List<CommandHandler> normalPriorityCommandHandlers;
     private final List<CommandHandler> lowestPriorityCommandHandlers;
     private final BotHandlersRequestsKeeper botHandlersRequestsKeeper;
+    private final CancelCommandHandler cancelCommandHandler;
 
     private final Map<Long, CommandHandler> startedUserHandlers = new ConcurrentHashMap<>();
 
-    public HandlersService(List<CommandHandler> commandHandlers,
-                           BotHandlersRequestsKeeper botHandlersRequestsKeeper) {
+    public HandlersService(List<CommandHandler> commandHandlers, BotHandlersRequestsKeeper botHandlersRequestsKeeper,
+                           CancelCommandHandler cancelCommandHandler) {
 
         highestPriorityCommandHandlers = commandHandlers.stream()
                 .filter(ch -> ch.getPriority() == Priority.HIGHEST)
@@ -40,11 +42,16 @@ public class HandlersService {
                 .toList();
 
         this.botHandlersRequestsKeeper = botHandlersRequestsKeeper;
+        this.cancelCommandHandler = cancelCommandHandler;
     }
 
     @Nullable
     public CommandHandler getHandler(Update update) {
         CommandHandler commandHandler;
+
+        if (cancelCommandHandler.isApplicable(update)) {
+            return cancelCommandHandler;
+        }
 
         commandHandler = getStartedHandler(update);
         if (commandHandler != null) {

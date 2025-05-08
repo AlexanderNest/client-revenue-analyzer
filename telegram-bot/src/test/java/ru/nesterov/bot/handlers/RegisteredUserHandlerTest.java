@@ -23,6 +23,7 @@ import static org.mockito.Mockito.when;
 public abstract class RegisteredUserHandlerTest extends AbstractHandlerTest {
     @Autowired
     protected UpdateUserControlButtonsHandler updateUserControlButtonsHandler;
+
     @PostConstruct
     private void mockBean(){
         GetUserResponse getUserResponse =
