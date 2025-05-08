@@ -1,6 +1,6 @@
-package ru.nesterov.service;
+package ru.nesterov.common.service;
 
-import ru.nesterov.dto.EventDto;
+import ru.nesterov.common.dto.EventDto;
 
 public class EvenExtensionService {
     public static boolean isPlannedStatus(EventDto eventDto) {

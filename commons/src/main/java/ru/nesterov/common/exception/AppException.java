@@ -1,4 +1,4 @@
-package ru.nesterov.exception;
+package ru.nesterov.common.exception;
 
 public abstract class AppException extends RuntimeException {
     public AppException(String message, Throwable cause) {
