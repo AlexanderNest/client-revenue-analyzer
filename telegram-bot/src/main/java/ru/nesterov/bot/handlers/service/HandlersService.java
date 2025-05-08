@@ -23,6 +23,7 @@ public class HandlersService {
     private final List<CommandHandler> lowestPriorityCommandHandlers;
     private final BotHandlersRequestsKeeper botHandlersRequestsKeeper;
     private final CancelCommandHandler cancelCommandHandler;
+
     private final Map<Long, CommandHandler> startedUserHandlers = new ConcurrentHashMap<>();
 
     public HandlersService(List<CommandHandler> commandHandlers, BotHandlersRequestsKeeper botHandlersRequestsKeeper,

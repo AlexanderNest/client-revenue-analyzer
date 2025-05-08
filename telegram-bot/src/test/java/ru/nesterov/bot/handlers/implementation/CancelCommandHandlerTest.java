@@ -1,6 +1,5 @@
 package ru.nesterov.bot.handlers.implementation;
 
-import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.test.context.ContextConfiguration;
@@ -23,24 +22,10 @@ import static org.junit.jupiter.api.Assertions.assertInstanceOf;
 })
 public class CancelCommandHandlerTest  extends AbstractHandlerTest {
     @Autowired
-    private HandlersService handlersService;
-    @Autowired
     private CreateClientHandler createClientHandler;
 
-//    private String COMMAND;
-//    @BeforeEach
-//    public void setUp() {
-//        COMMAND = createClientHandler.getCommand();
-//    }
     @Test
     void cancelHandlers() {
-        /*
-        1. кинуть createClient
-        2. кинуть еще раз createClient. Это будет считано как ввод имени, проверить что вернули слебующий этап того хендлера
-        3. сбросить через /cancel
-        4. кинуть createClient, проверить, Что просят имя снова
-         */
-
         SendMessage nameInput = send("Добавить клиента", createClientHandler);
         assertEquals("Введите имя", nameInput.getText());
 
@@ -74,26 +59,4 @@ public class CancelCommandHandlerTest  extends AbstractHandlerTest {
 
         return (SendMessage) botApiMethod;
     }
-
-//    private SendMessage send() {
-//        Chat chat = new Chat();
-//        chat.setId(1L);
-//
-//        User user = new User();
-//        user.setId(1L);
-//
-//        Message message = new Message();
-//        message.setText(COMMAND);
-//        message.setFrom(user);
-//        message.setChat(chat);
-//
-//        Update update = new Update();
-//        update.setMessage(message);
-//
-//        CommandHandler handler = handlersService.getHandler(update);
-//        BotApiMethod<?> botApiMethod = handler.handle(update);
-//        assertInstanceOf(SendMessage.class, botApiMethod);
-//
-//        return (SendMessage) botApiMethod;
-//    }
 }
