@@ -102,7 +102,7 @@ public class GetClientScheduleCommandHandler extends DisplayedCommandHandler {
         List<GetActiveClientResponse> clients = client.getActiveClients(userId);
 
         if (clients.isEmpty()) {
-            return getReplyKeyboard(chatId, "Нет доступных клиентов.", null);
+            return getPlainSendMessage(chatId, "Нет доступных клиентов");
         }
 
         for (GetActiveClientResponse response : clients) {
