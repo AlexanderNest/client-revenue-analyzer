@@ -8,7 +8,11 @@ import org.springframework.test.context.ContextConfiguration;
 import org.telegram.telegrambots.meta.api.methods.BotApiMethod;
 import org.telegram.telegrambots.meta.api.methods.send.SendMessage;
 import org.telegram.telegrambots.meta.api.methods.updatingmessages.EditMessageText;
-import org.telegram.telegrambots.meta.api.objects.*;
+import org.telegram.telegrambots.meta.api.objects.CallbackQuery;
+import org.telegram.telegrambots.meta.api.objects.Chat;
+import org.telegram.telegrambots.meta.api.objects.Message;
+import org.telegram.telegrambots.meta.api.objects.Update;
+import org.telegram.telegrambots.meta.api.objects.User;
 import org.telegram.telegrambots.meta.api.objects.replykeyboard.InlineKeyboardMarkup;
 import org.telegram.telegrambots.meta.api.objects.replykeyboard.ReplyKeyboard;
 import org.telegram.telegrambots.meta.api.objects.replykeyboard.buttons.InlineKeyboardButton;
@@ -25,7 +29,11 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Locale;
 
-import static org.junit.jupiter.api.Assertions.*;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertInstanceOf;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.ArgumentMatchers.anyLong;
 import static org.mockito.Mockito.when;
 
@@ -260,6 +268,16 @@ public class GetClientScheduleHandlerTest extends RegisteredUserHandlerTest {
         }
     }
 
+    @Test
+    void handleCommandWhenNoClientsFound() {
+        Update update = createUpdateWithMessage();
+
+        BotApiMethod<?> botApiMethod = handler.handle(update);
+        assertInstanceOf(SendMessage.class, botApiMethod);
+        SendMessage sendMessage = (SendMessage) botApiMethod;
+
+        assertEquals("Нет доступных клиентов", sendMessage.getText());
+    }
     private List<GetActiveClientResponse> createActiveClients() {
         GetActiveClientResponse client1 = new GetActiveClientResponse();
         client1.setId(1);
