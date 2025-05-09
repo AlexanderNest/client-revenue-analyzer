@@ -1,7 +1,6 @@
 package ru.nesterov.bot.handlers.implementation;
 
 import jakarta.annotation.Resource;
-import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.context.annotation.Lazy;
 import org.springframework.stereotype.Component;
 import org.telegram.telegrambots.meta.api.methods.BotApiMethod;
@@ -11,7 +10,6 @@ import ru.nesterov.bot.handlers.abstractions.InvocableCommandHandler;
 import ru.nesterov.bot.handlers.abstractions.Priority;
 import ru.nesterov.bot.handlers.service.HandlersService;
 
-@ConditionalOnProperty("bot.enabled")
 @Component
 public class CancelCommandHandler extends InvocableCommandHandler {
     @Resource
