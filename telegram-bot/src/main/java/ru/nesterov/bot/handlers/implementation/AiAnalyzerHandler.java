@@ -1,7 +1,6 @@
 package ru.nesterov.bot.handlers.implementation;
 
 import lombok.RequiredArgsConstructor;
-import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.stereotype.Component;
 import org.telegram.telegrambots.meta.api.methods.BotApiMethod;
 import org.telegram.telegrambots.meta.api.objects.Update;
@@ -11,7 +10,6 @@ import ru.nesterov.dto.AiAnalyzerResponse;
 
 @Component
 @RequiredArgsConstructor
-@ConditionalOnProperty("bot.enabled")
 public class AiAnalyzerHandler extends DisplayedCommandHandler {
     @Override
     public String getCommand() {

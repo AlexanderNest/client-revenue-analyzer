@@ -1,7 +1,6 @@
 package ru.nesterov.bot.handlers.implementation;
 
 import lombok.RequiredArgsConstructor;
-import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.stereotype.Component;
 import org.telegram.telegrambots.meta.api.methods.BotApiMethod;
 import org.telegram.telegrambots.meta.api.objects.Update;
@@ -23,7 +22,6 @@ import java.util.List;
  */
 
 @RequiredArgsConstructor
-@ConditionalOnProperty("bot.enabled")
 @Component
 public class CreateClientHandler extends DisplayedCommandHandler {
     private final BotHandlersRequestsKeeper keeper;

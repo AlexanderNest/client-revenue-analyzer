@@ -1,7 +1,6 @@
 package ru.nesterov.bot.handlers.implementation;
 
 import lombok.SneakyThrows;
-import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.stereotype.Component;
 import org.telegram.telegrambots.meta.api.methods.BotApiMethod;
 import org.telegram.telegrambots.meta.api.methods.send.SendMessage;
@@ -25,7 +24,6 @@ import java.util.Locale;
  */
 
 @Component
-@ConditionalOnProperty("bot.enabled")
 public class GetMonthStatisticsCommandHandler extends DisplayedCommandHandler {
     private static final String[] months = {
             "Январь", "Февраль",
@@ -44,15 +42,14 @@ public class GetMonthStatisticsCommandHandler extends DisplayedCommandHandler {
 
 
         return String.format(
-                new StringBuilder().append("📊 *Анализ доходов за месяц*\n\n")
-                        .append("%-22s %10s ₽\n")
-                        .append("%-22s %10s ₽\n")
-                        .append("-----------------------------\n")
-                        .append("%-22s %10s ₽\n")
-                        .append("-----------------------------\n")
-                        .append("%-22s %10s ₽\n")
-                        .append("%-22s %10s ₽")
-                        .toString(),
+                "📊 *Анализ доходов за месяц*\n\n" +
+                        "%-22s %10s ₽\n" +
+                        "%-22s %10s ₽\n" +
+                        "-----------------------------\n" +
+                        "%-22s %10s ₽\n" +
+                        "-----------------------------\n" +
+                        "%-22s %10s ₽\n" +
+                        "%-22s %10s ₽",
                 "Фактический доход:", currencyFormat.format(response.getActualIncome()),
                 "Ожидаемый доход:", currencyFormat.format(response.getExpectedIncome()),
                 "Потенциальный доход:", currencyFormat.format(response.getPotentialIncome()),
