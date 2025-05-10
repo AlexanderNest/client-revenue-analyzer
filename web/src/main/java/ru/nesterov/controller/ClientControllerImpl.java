@@ -20,6 +20,7 @@ import ru.nesterov.service.dto.ClientDto;
 import java.time.Duration;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
+import java.util.Comparator;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -57,14 +58,13 @@ public class ClientControllerImpl implements ClientController {
         List<EventScheduleResponse> eventListSchedule;
 
         Map<ClientDto, Integer> mapClientAndPricePerMonth = new HashMap<>();
-
+        GetClientScheduleRequest request = new GetClientScheduleRequest();
+        request.setLeftDate(LocalDateTime.now());
+        request.setRightDate(LocalDateTime.now().plusMonths(1));
         int hours = 0;
         int pricePerMonth = 0;
         for(ClientDto clientDto: activeClients) {
-            GetClientScheduleRequest request = new GetClientScheduleRequest();
             request.setClientName(clientDto.getName());
-            request.setLeftDate(LocalDateTime.now());
-            request.setRightDate(LocalDateTime.now().plusMonths(1));
             eventListSchedule = getClientSchedule(username, request);
             for(EventScheduleResponse eventScheduleResponse: eventListSchedule) {
                 hours += (int) Duration.between(eventScheduleResponse.getEventStart(), eventScheduleResponse.getEventEnd()).toHours();
@@ -74,14 +74,14 @@ public class ClientControllerImpl implements ClientController {
         }
 
         return mapClientAndPricePerMonth.entrySet().stream()
-                .sorted(Map.Entry.comparingByValue())
+                .sorted(Map.Entry.<ClientDto, Integer>comparingByValue().reversed())
                 .map(Map.Entry::getKey)
                 .map(ClientMapper::mapToClientResponse)
                 .collect(Collectors.toList());
 
 
 //        return activeClients.stream()
-////                .sorted(Comparator.comparing(ClientDto::getPricePerHour))
+//                .sorted(Comparator.comparing(ClientDto::getPricePerHour))
 //                .map(ClientMapper::mapToClientResponse)
 //                .toList();
     }
