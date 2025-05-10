@@ -17,7 +17,14 @@ import ru.nesterov.service.client.ClientService;
 import ru.nesterov.service.date.helper.MonthDatesPair;
 import ru.nesterov.service.dto.ClientDto;
 
+import java.time.Duration;
+import java.time.LocalDateTime;
+import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
+import java.util.stream.Collectors;
+
 
 @RestController
 @RequiredArgsConstructor
@@ -47,9 +54,35 @@ public class ClientControllerImpl implements ClientController {
     @Override
     public List<ClientResponse> getActiveClients(@RequestHeader(name = "X-username") String username) {
         List<ClientDto> activeClients = clientService.getActiveClients(userService.getUserByUsername(username));
+        List<EventScheduleResponse> eventListSchedule;
 
-        return activeClients.stream()
+        Map<ClientDto, Integer> mapClientAndPricePerMonth = new HashMap<>();
+
+        int hours = 0;
+        int pricePerMonth = 0;
+        for(ClientDto clientDto: activeClients) {
+            GetClientScheduleRequest request = new GetClientScheduleRequest();
+            request.setClientName(clientDto.getName());
+            request.setLeftDate(LocalDateTime.now());
+            request.setRightDate(LocalDateTime.now().plusMonths(1));
+            eventListSchedule = getClientSchedule(username, request);
+            for(EventScheduleResponse eventScheduleResponse: eventListSchedule) {
+                hours += (int) Duration.between(eventScheduleResponse.getEventStart(), eventScheduleResponse.getEventEnd()).toHours();
+            }
+            pricePerMonth = hours * clientDto.getPricePerHour();
+            mapClientAndPricePerMonth.put(clientDto, pricePerMonth);
+        }
+
+        return mapClientAndPricePerMonth.entrySet().stream()
+                .sorted(Map.Entry.comparingByValue())
+                .map(Map.Entry::getKey)
                 .map(ClientMapper::mapToClientResponse)
-                .toList();
+                .collect(Collectors.toList());
+
+
+//        return activeClients.stream()
+////                .sorted(Comparator.comparing(ClientDto::getPricePerHour))
+//                .map(ClientMapper::mapToClientResponse)
+//                .toList();
     }
 }
