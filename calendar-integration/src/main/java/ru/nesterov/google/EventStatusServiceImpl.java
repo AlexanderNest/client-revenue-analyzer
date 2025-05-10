@@ -40,6 +40,8 @@ public class EventStatusServiceImpl implements EventStatusService {
                 throw new IllegalArgumentException("Default calendar color as null was used already");
             }
             codes.add(null);
+            codes.add("");
+            codes.add("null");
             return true;
         }
         
