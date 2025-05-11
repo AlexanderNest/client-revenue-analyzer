@@ -131,7 +131,6 @@ public class ClientRevenueAnalyzerIntegrationClient {
         return response.getBody();
     }
 
-
     private <T> ResponseEntity<T> get(String username, String endpoint, Class<T> responseType) {
         return exchange(username, null, endpoint, responseType, HttpMethod.GET);
     }
