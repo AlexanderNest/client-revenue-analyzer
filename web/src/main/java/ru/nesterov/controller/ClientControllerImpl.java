@@ -12,19 +12,13 @@ import ru.nesterov.controller.response.ClientResponse;
 import ru.nesterov.controller.response.EventScheduleResponse;
 import ru.nesterov.exception.ClientIsAlreadyCreatedException;
 import ru.nesterov.mapper.ClientMapper;
-import ru.nesterov.service.user.UserService;
 import ru.nesterov.service.client.ClientService;
 import ru.nesterov.service.date.helper.MonthDatesPair;
 import ru.nesterov.service.dto.ClientDto;
+import ru.nesterov.service.user.UserService;
 
-import java.time.Duration;
-import java.time.LocalDateTime;
-import java.util.ArrayList;
 import java.util.Comparator;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
-import java.util.stream.Collectors;
 
 
 @RestController
@@ -55,34 +49,11 @@ public class ClientControllerImpl implements ClientController {
     @Override
     public List<ClientResponse> getActiveClients(@RequestHeader(name = "X-username") String username) {
         List<ClientDto> activeClients = clientService.getActiveClients(userService.getUserByUsername(username));
-        List<EventScheduleResponse> eventListSchedule;
 
-        Map<ClientDto, Integer> mapClientAndPricePerMonth = new HashMap<>();
-        GetClientScheduleRequest request = new GetClientScheduleRequest();
-        request.setLeftDate(LocalDateTime.now());
-        request.setRightDate(LocalDateTime.now().plusMonths(1));
-        int hours = 0;
-        int pricePerMonth = 0;
-        for(ClientDto clientDto: activeClients) {
-            request.setClientName(clientDto.getName());
-            eventListSchedule = getClientSchedule(username, request);
-            for(EventScheduleResponse eventScheduleResponse: eventListSchedule) {
-                hours += (int) Duration.between(eventScheduleResponse.getEventStart(), eventScheduleResponse.getEventEnd()).toHours();
-            }
-            pricePerMonth = hours * clientDto.getPricePerHour();
-            mapClientAndPricePerMonth.put(clientDto, pricePerMonth);
-        }
-
-        return mapClientAndPricePerMonth.entrySet().stream()
-                .sorted(Map.Entry.<ClientDto, Integer>comparingByValue().reversed())
-                .map(Map.Entry::getKey)
+        return activeClients.stream()
+                .sorted(Comparator.comparing(ClientDto::getPricePerHour))
                 .map(ClientMapper::mapToClientResponse)
-                .collect(Collectors.toList());
-
-
-//        return activeClients.stream()
-//                .sorted(Comparator.comparing(ClientDto::getPricePerHour))
-//                .map(ClientMapper::mapToClientResponse)
-//                .toList();
+                .toList();
     }
+
 }
