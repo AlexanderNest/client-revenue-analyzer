@@ -9,6 +9,8 @@ import ru.nesterov.bot.handlers.abstractions.DisplayedCommandHandler;
 import ru.nesterov.dto.GetActiveClientResponse;
 
 import java.util.List;
+import java.util.stream.Collectors;
+
 @Component
 @RequiredArgsConstructor
 public class GetActiveClientsHandler extends DisplayedCommandHandler {
@@ -17,7 +19,14 @@ public class GetActiveClientsHandler extends DisplayedCommandHandler {
         long userId = TelegramUpdateUtils.getUserId(update);
         List<GetActiveClientResponse> activeClientResponseList =  client.getActiveClients(userId);
 
-        String activeClients = activeClientResponseList.toString();
+        String activeClients = activeClientResponseList.stream()
+                .map(activeClientResponse -> String.format(
+                        "\uD83D\uDC71 Имя: %s, \uD83D\uDCB2 Стоимость за час: %d, \uD83D\uDCD1 Описание: %s",
+                        activeClientResponse.getName(),
+                        activeClientResponse.getPricePerHour(),
+                        activeClientResponse.getDescription()
+                ))
+                .collect(Collectors.joining("\n"));
 
             return getPlainSendMessage(TelegramUpdateUtils.getChatId(update), activeClients);
     }
