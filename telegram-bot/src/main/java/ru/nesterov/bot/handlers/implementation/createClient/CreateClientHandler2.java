@@ -8,24 +8,27 @@ import org.telegram.telegrambots.meta.api.objects.replykeyboard.InlineKeyboardMa
 import org.telegram.telegrambots.meta.api.objects.replykeyboard.buttons.InlineKeyboardButton;
 import ru.nesterov.bot.TelegramUpdateUtils;
 import ru.nesterov.bot.handlers.abstractions.DisplayedCommandHandler;
+import ru.nesterov.bot.handlers.abstractions.StatefulCommandHandler;
 import ru.nesterov.bot.handlers.callback.ButtonCallback;
 import ru.nesterov.dto.CreateClientRequest;
 import ru.nesterov.dto.CreateClientResponse;
 import ru.nesterov.statemachine.StateMachine;
+import ru.nesterov.statemachine.StateMachineProvider;
 import ru.nesterov.statemachine.dto.Action;
 import ru.nesterov.statemachine.dto.NextStateFunction;
-
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.List;
 
 @Component
-public class CreateClientHandler2 extends DisplayedCommandHandler {
-    private final StateMachine<State, Action, BotApiMethod<?>, Update, CreateClientRequest> stateMachine = new StateMachine<>(State.STARTED, CreateClientRequest.builder().build());
+public class CreateClientHandler2 extends StatefulCommandHandler<State, CreateClientRequest> {
+    public CreateClientHandler2() {
+        super(State.STARTED, CreateClientRequest.class);
+    }
 
-    @PostConstruct
-    private void initTransitions() {
-        stateMachine
+    @Override
+    public void initTransitions() {
+       stateMachineProvider
                 .addTransition(State.STARTED, Action.COMMAND_INPUT, State.NAME_INPUT, this::handleCreateClientCommand)
                 .addTransition(State.NAME_INPUT, Action.ANY_STRING, State.PRICE_INPUT, this::handleNameInput)
                 .addTransition(State.PRICE_INPUT, Action.ANY_STRING, State.DESCRIPTION_INPUT, this::handlePricePerHourInput)
@@ -34,27 +37,32 @@ public class CreateClientHandler2 extends DisplayedCommandHandler {
                 .addTransition(State.CLIENT_NAME_GENERATION_INPUT, Action.CALLBACK_INPUT, State.FINISH, this::handleIdGenerationNeededInput);
     }
 
+    private StateMachine<State, Action, BotApiMethod<?>, Update, CreateClientRequest> getStateMachine(Update update) {
+        long userId = TelegramUpdateUtils.getUserId(update);
+        return stateMachineProvider.getOrCreateMachine(userId);
+    }
+
     private BotApiMethod<?> handleCreateClientCommand(Update update) {
         return getPlainSendMessage(TelegramUpdateUtils.getChatId(update), "Введите имя");
     }
 
     private BotApiMethod<?> handleNameInput(Update update) {
-        stateMachine.getMemory().setName(update.getMessage().getText());
+        getStateMachine(update).getMemory().setName(update.getMessage().getText());
         return getPlainSendMessage(TelegramUpdateUtils.getChatId(update), "Введите стоимость за час");
     }
 
     private BotApiMethod<?> handlePricePerHourInput(Update update) {
-        stateMachine.getMemory().setPricePerHour(Integer.parseInt(update.getMessage().getText()));
+        getStateMachine(update).getMemory().setPricePerHour(Integer.parseInt(update.getMessage().getText()));
         return getPlainSendMessage(TelegramUpdateUtils.getChatId(update), "Введите описание");
     }
 
     private BotApiMethod<?> handleDescriptionInput(Update update) {
-        stateMachine.getMemory().setDescription(update.getMessage().getText());
+        getStateMachine(update).getMemory().setDescription(update.getMessage().getText());
         return getPlainSendMessage(TelegramUpdateUtils.getChatId(update), "Введите номер телефона");
     }
 
     private BotApiMethod<?> handlePhoneNumberInput(Update update) {
-        stateMachine.getMemory().setPhone(update.getMessage().getText());
+        getStateMachine(update).getMemory().setPhone(update.getMessage().getText());
         InlineKeyboardMarkup keyboardMarkup = new InlineKeyboardMarkup();
         List<List<InlineKeyboardButton>> keyboard = new ArrayList<>();
         List<InlineKeyboardButton> rowInline = new ArrayList<>();
@@ -66,14 +74,13 @@ public class CreateClientHandler2 extends DisplayedCommandHandler {
     }
 
     private BotApiMethod<?> handleIdGenerationNeededInput(Update update) {
-        stateMachine.getMemory().setIdGenerationNeeded(Boolean.valueOf(getButtonCallbackValue(update)));
-
+        getStateMachine(update).getMemory().setIdGenerationNeeded(Boolean.valueOf(getButtonCallbackValue(update)));
         return createClient(update);
     }
 
     private BotApiMethod<?> createClient(Update update) {
         long chatId = TelegramUpdateUtils.getChatId(update);
-        CreateClientResponse response = client.createClient(String.valueOf(TelegramUpdateUtils.getUserId(update)), stateMachine.getMemory());
+        CreateClientResponse response = client.createClient(String.valueOf(TelegramUpdateUtils.getUserId(update)), getStateMachine(update).getMemory());
         if (response.getResponseCode() == 409) {
             return getPlainSendMessage(chatId, "Клиент с таким именем уже создан");
         }
@@ -105,16 +112,8 @@ public class CreateClientHandler2 extends DisplayedCommandHandler {
 
     @Override
     public BotApiMethod<?> handle(Update update) {
-        Action action;
-
-        if (update.getMessage() != null && update.getMessage().getText().equals(getCommand())) {
-            action = Action.COMMAND_INPUT;
-        } else if (update.getCallbackQuery() != null && update.getCallbackQuery().getData() != null) {
-            action = Action.CALLBACK_INPUT;
-        } else {
-            action = Action.ANY_STRING;
-        }
-
+        Action action = getAction(update);
+        StateMachine<State, Action, BotApiMethod<?>, Update, CreateClientRequest> stateMachine = getStateMachine(update);
         NextStateFunction<State, BotApiMethod<?>, Update> nextStateFunction = stateMachine.getNextStateFunction(action);
         BotApiMethod<?> botApiMethod = nextStateFunction.getFunctionForTransition().apply(update);
         stateMachine.applyNextState(action);
@@ -122,8 +121,5 @@ public class CreateClientHandler2 extends DisplayedCommandHandler {
         return botApiMethod;
     }
 
-    @Override
-    public boolean isFinished(Long userId) {
-        return stateMachine.getCurrentState() == State.FINISH;
-    }
+
 }

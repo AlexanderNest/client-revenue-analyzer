@@ -6,10 +6,11 @@ import ru.nesterov.statemachine.dto.TransitionDescription;
 
 import java.util.HashMap;
 import java.util.Map;
+import java.util.concurrent.ConcurrentHashMap;
 import java.util.function.Function;
 
 public class StateMachine<STATE, ACTION, R, T, MEMORY> {
-    private final Map<TransitionDescription<STATE, ACTION>, NextStateFunction<STATE, R, T>> transitions = new HashMap<>();
+    private final Map<TransitionDescription<STATE, ACTION>, NextStateFunction<STATE, R, T>> transitions = new ConcurrentHashMap<>();
     @Getter
     private STATE currentState;
     @Getter
