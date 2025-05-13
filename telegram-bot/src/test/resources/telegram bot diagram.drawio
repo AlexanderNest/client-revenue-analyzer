@@ -1,0 +1,122 @@
+<mxfile host="app.diagrams.net" agent="Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/136.0.0.0 Safari/537.36" version="26.2.14">
+  <diagram name="Страница — 1" id="SlYLjUyHvWonV9yfe-fT">
+    <mxGraphModel dx="1950" dy="1832" grid="1" gridSize="10" guides="1" tooltips="1" connect="1" arrows="1" fold="1" page="1" pageScale="1" pageWidth="827" pageHeight="1169" math="0" shadow="0">
+      <root>
+        <mxCell id="0" />
+        <mxCell id="1" parent="0" />
+        <mxCell id="cwNmnjEZSoG13OYBl1he-7" value="" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;" edge="1" parent="1" source="cwNmnjEZSoG13OYBl1he-1" target="cwNmnjEZSoG13OYBl1he-5">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="cwNmnjEZSoG13OYBl1he-1" value="&lt;b&gt;&lt;font style=&quot;font-size: 14px;&quot;&gt;CommandHandler -&lt;/font&gt;&lt;/b&gt;&lt;div&gt;&lt;b style=&quot;font-size: 14px;&quot;&gt;&amp;nbsp;&lt;/b&gt;&lt;font&gt;л&lt;/font&gt;&lt;font&gt;юбой обработчик&lt;/font&gt;&lt;br&gt;&lt;div&gt;&lt;span style=&quot;font-size: 14px;&quot;&gt;&lt;b&gt;&lt;br&gt;&lt;/b&gt;&lt;/span&gt;&lt;div&gt;BotApiMethod&amp;lt;?&amp;gt; &lt;b&gt;handle&lt;/b&gt;(Update update) - метод для обработки полученного обновления в чате&amp;nbsp;&lt;/div&gt;&lt;div&gt;&lt;br&gt;&lt;/div&gt;&lt;div&gt;boolean i&lt;b&gt;sApplicable&lt;/b&gt;(Update update) - определяет применимость обработчика для данного обновления&lt;/div&gt;&lt;div&gt;&lt;br&gt;&lt;/div&gt;&lt;div&gt;boolean &lt;b&gt;isFinished&lt;/b&gt;(Long userId) - определяет нужно ли сбрасывать обработчик для указанного пользователя.&lt;/div&gt;&lt;div&gt;&lt;br&gt;&lt;/div&gt;&lt;div&gt;default Priority &lt;b&gt;getPriority&lt;/b&gt;() - приоритет, с которым обработчики будут проверяться на соответствие&lt;/div&gt;&lt;/div&gt;&lt;/div&gt;" style="rounded=0;whiteSpace=wrap;html=1;" vertex="1" parent="1">
+          <mxGeometry x="94" y="-1070" width="256" height="290" as="geometry" />
+        </mxCell>
+        <mxCell id="cwNmnjEZSoG13OYBl1he-4" value="I" style="ellipse;whiteSpace=wrap;html=1;aspect=fixed;" vertex="1" parent="1">
+          <mxGeometry x="94" y="-1070" width="50" height="50" as="geometry" />
+        </mxCell>
+        <mxCell id="cwNmnjEZSoG13OYBl1he-10" value="" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;" edge="1" parent="1" source="cwNmnjEZSoG13OYBl1he-5" target="cwNmnjEZSoG13OYBl1he-8">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="cwNmnjEZSoG13OYBl1he-13" value="" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;" edge="1" parent="1" source="cwNmnjEZSoG13OYBl1he-5" target="cwNmnjEZSoG13OYBl1he-8">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="cwNmnjEZSoG13OYBl1he-14" value="" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;" edge="1" parent="1" source="cwNmnjEZSoG13OYBl1he-5" target="cwNmnjEZSoG13OYBl1he-8">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="cwNmnjEZSoG13OYBl1he-16" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;entryX=0.5;entryY=0;entryDx=0;entryDy=0;" edge="1" parent="1" source="cwNmnjEZSoG13OYBl1he-5" target="cwNmnjEZSoG13OYBl1he-11">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="cwNmnjEZSoG13OYBl1he-5" value="&lt;b&gt;&lt;font style=&quot;font-size: 14px;&quot;&gt;SendingMessageCommandHandler -&lt;/font&gt;&lt;/b&gt;&lt;div&gt;&lt;span style=&quot;background-color: transparent; color: light-dark(rgb(0, 0, 0), rgb(255, 255, 255));&quot;&gt;CommandHandler, который отправляет сообщения.&amp;nbsp;&lt;/span&gt;&lt;div&gt;&lt;font&gt;&lt;div&gt;&lt;span style=&quot;background-color: transparent; color: light-dark(rgb(0, 0, 0), rgb(255, 255, 255));&quot;&gt;&lt;span style=&quot;white-space: pre;&quot;&gt;&#x9;&lt;/span&gt;&amp;nbsp; Также содержит полезные методы для быстрого создания сообщений.&lt;/span&gt;&lt;/div&gt;&lt;div&gt;&amp;nbsp;* В том числе и с клавиатурами, коллбеками и др.&lt;br&gt;&lt;/div&gt;&lt;div&gt;&lt;br&gt;&lt;/div&gt;&lt;div&gt;BotApiMethod&amp;lt;?&amp;gt; &lt;b&gt;getPlainSendMessage&lt;/b&gt;(long chatId, String text) -&lt;/div&gt;&lt;div&gt;&lt;div&gt;Вернет метод для отправки простого сообщения в чат&lt;/div&gt;&lt;div&gt;&amp;nbsp; &amp;nbsp; &amp;nbsp; @param text - сообщение для отправки&lt;/div&gt;&lt;/div&gt;&lt;div&gt;&lt;br&gt;&lt;/div&gt;&lt;div&gt;public BotApiMethod&amp;lt;?&amp;gt; &lt;b&gt;getReplyKeyboard&lt;/b&gt;(long chatId, String text, ReplyKeyboard replyKeyboard)&lt;/div&gt;&lt;div&gt;&lt;br&gt;&lt;/div&gt;&lt;div&gt;public EditMessageText &lt;b&gt;editMessage&lt;/b&gt;(long chatId, int messageId, String text, @Nullable InlineKeyboardMarkup keyboardMarkup) -&lt;/div&gt;&lt;div&gt;&lt;div&gt;Метод для изменения уже отправленного сообщения в чат&lt;/div&gt;&lt;div&gt;&amp;nbsp; &amp;nbsp; &amp;nbsp;* @param keyboardMarkup - если в сообщении нужно добавить клавиатуру&lt;/div&gt;&lt;/div&gt;&lt;div&gt;&lt;br&gt;&lt;/div&gt;&lt;div&gt;public BotApiMethod&amp;lt;?&amp;gt; &lt;b&gt;getCallbackQuery&lt;/b&gt;(Update update, String message) -&lt;/div&gt;&lt;div&gt;Метод для отправки всплывающего сообщения. Оно появится на некоторое время поверх чата, потом исчезнет&lt;/div&gt;&lt;div&gt;&lt;br&gt;&lt;/div&gt;&lt;div&gt;private SendMessage &lt;b&gt;buildSendMessage&lt;/b&gt;(long chatId, String text, ReplyKeyboard replyKeyboard)&lt;/div&gt;&lt;div&gt;&lt;br&gt;&lt;/div&gt;&lt;div&gt;protected InlineKeyboardButton &lt;b&gt;buildButton&lt;/b&gt;(String visibleText, String callbackValue, String command) -&amp;nbsp;&lt;/div&gt;&lt;div&gt;&lt;div&gt;Собирает inline кнопку с указанным значением для коллбека&lt;/div&gt;&lt;div&gt;&lt;span style=&quot;background-color: transparent; color: light-dark(rgb(0, 0, 0), rgb(255, 255, 255));&quot;&gt;&amp;nbsp; &amp;nbsp; &amp;nbsp;@param visibleText текст, который будет отображаться на кнопке&lt;/span&gt;&lt;/div&gt;&lt;div&gt;&amp;nbsp; &amp;nbsp; &amp;nbsp;@param callbackValue значение коллбека для этой кнопки&lt;/div&gt;&lt;div&gt;&amp;nbsp; &amp;nbsp; &amp;nbsp;@return созданная кнопка&lt;/div&gt;&lt;/div&gt;&lt;div&gt;&lt;br&gt;&lt;/div&gt;&lt;div&gt;&lt;br&gt;&lt;/div&gt;&lt;/font&gt;&lt;/div&gt;&lt;/div&gt;" style="rounded=0;whiteSpace=wrap;html=1;" vertex="1" parent="1">
+          <mxGeometry x="19.75" y="-750" width="404.5" height="530" as="geometry" />
+        </mxCell>
+        <mxCell id="cwNmnjEZSoG13OYBl1he-6" value="AC" style="ellipse;whiteSpace=wrap;html=1;aspect=fixed;" vertex="1" parent="1">
+          <mxGeometry x="19.75" y="-750" width="55" height="55" as="geometry" />
+        </mxCell>
+        <mxCell id="cwNmnjEZSoG13OYBl1he-22" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;entryX=0.5;entryY=0;entryDx=0;entryDy=0;" edge="1" parent="1" source="cwNmnjEZSoG13OYBl1he-8" target="cwNmnjEZSoG13OYBl1he-18">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="cwNmnjEZSoG13OYBl1he-23" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;exitX=0.5;exitY=1;exitDx=0;exitDy=0;entryX=0.5;entryY=0;entryDx=0;entryDy=0;" edge="1" parent="1" source="cwNmnjEZSoG13OYBl1he-8" target="cwNmnjEZSoG13OYBl1he-17">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="cwNmnjEZSoG13OYBl1he-24" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;" edge="1" parent="1" source="cwNmnjEZSoG13OYBl1he-8" target="cwNmnjEZSoG13OYBl1he-19">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="cwNmnjEZSoG13OYBl1he-8" value="&lt;font style=&quot;&quot;&gt;&lt;b style=&quot;font-size: 14px;&quot;&gt;InvocableCommandHandler &lt;/b&gt;&lt;font&gt;-&amp;nbsp;&lt;/font&gt;&lt;/font&gt;&lt;div&gt;&lt;font&gt;Обработчик, который вызывается по отправленной команде&lt;/font&gt;&lt;/div&gt;&lt;div&gt;&lt;font&gt;&lt;br&gt;&lt;/font&gt;&lt;/div&gt;&lt;div&gt;&lt;font&gt;public abstract String&lt;b&gt; getCommand&lt;/b&gt;()&lt;/font&gt;&lt;/div&gt;&lt;div&gt;&lt;font&gt;&lt;br&gt;&lt;/font&gt;&lt;/div&gt;&lt;div&gt;&lt;font&gt;public boolean &lt;b&gt;isApplicable&lt;/b&gt;(Update update)&lt;/font&gt;&lt;/div&gt;" style="rounded=0;whiteSpace=wrap;html=1;" vertex="1" parent="1">
+          <mxGeometry x="-190" y="-180" width="440" height="110" as="geometry" />
+        </mxCell>
+        <mxCell id="cwNmnjEZSoG13OYBl1he-9" value="AC" style="ellipse;whiteSpace=wrap;html=1;aspect=fixed;" vertex="1" parent="1">
+          <mxGeometry x="-190" y="-180" width="50" height="50" as="geometry" />
+        </mxCell>
+        <mxCell id="cwNmnjEZSoG13OYBl1he-11" value="&lt;font style=&quot;&quot;&gt;&lt;b style=&quot;font-size: 14px;&quot;&gt;UndefinedHandler&lt;/b&gt;&lt;/font&gt;&lt;div&gt;&lt;span style=&quot;font-size: 14px;&quot;&gt;&lt;b&gt;&lt;br&gt;&lt;/b&gt;&lt;/span&gt;&lt;div&gt;&lt;font&gt;public BotApiMethod&amp;lt;?&amp;gt; &lt;b&gt;handle&lt;/b&gt;(Update update)&lt;/font&gt;&lt;/div&gt;&lt;/div&gt;&lt;div&gt;&lt;font&gt;&lt;br&gt;&lt;/font&gt;&lt;/div&gt;&lt;div&gt;&lt;font&gt;public boolean i&lt;b&gt;sApplicable&lt;/b&gt;(Update update)&lt;/font&gt;&lt;/div&gt;&lt;div&gt;&lt;font&gt;&lt;br&gt;&lt;/font&gt;&lt;/div&gt;&lt;div&gt;&lt;font&gt;public boolean &lt;b&gt;isFinished&lt;/b&gt;(Long userId)&lt;/font&gt;&lt;/div&gt;" style="rounded=0;whiteSpace=wrap;html=1;" vertex="1" parent="1">
+          <mxGeometry x="300" y="-185" width="250" height="155" as="geometry" />
+        </mxCell>
+        <mxCell id="cwNmnjEZSoG13OYBl1he-12" value="C" style="ellipse;whiteSpace=wrap;html=1;aspect=fixed;" vertex="1" parent="1">
+          <mxGeometry x="300" y="-185" width="45" height="45" as="geometry" />
+        </mxCell>
+        <mxCell id="cwNmnjEZSoG13OYBl1he-17" value="&lt;font style=&quot;&quot;&gt;&lt;b style=&quot;font-size: 14px;&quot;&gt;UpdateUserControlButtonsHandler&lt;/b&gt;&lt;font&gt; -&amp;nbsp;&lt;/font&gt;&lt;/font&gt;&lt;div&gt;&lt;font&gt;Отображает кнопки для управления ботом&lt;/font&gt;&lt;/div&gt;&lt;div&gt;&lt;font&gt;&lt;br&gt;&lt;/font&gt;&lt;/div&gt;&lt;div&gt;&lt;font&gt;public String &lt;b&gt;getCommand&lt;/b&gt;()&lt;/font&gt;&lt;/div&gt;&lt;div&gt;&lt;font&gt;&lt;br&gt;&lt;/font&gt;&lt;/div&gt;&lt;div&gt;&lt;font&gt;public Priority &lt;b&gt;getPriority&lt;/b&gt;()&lt;/font&gt;&lt;/div&gt;&lt;div&gt;&lt;font&gt;&lt;br&gt;&lt;/font&gt;&lt;/div&gt;&lt;div&gt;&lt;font&gt;public BotApiMethod&amp;lt;?&amp;gt; &lt;b&gt;handle&lt;/b&gt;(Update update)&lt;/font&gt;&lt;/div&gt;&lt;div&gt;&lt;font&gt;&lt;br&gt;&lt;/font&gt;&lt;/div&gt;&lt;div&gt;&lt;font&gt;public boolean &lt;b&gt;isFinished&lt;/b&gt;(Long userId)&lt;/font&gt;&lt;/div&gt;&lt;div&gt;&lt;font&gt;&lt;br&gt;&lt;/font&gt;&lt;/div&gt;&lt;div&gt;&lt;font&gt;public boolean &lt;b&gt;isApplicable&lt;/b&gt;(Update update)&lt;/font&gt;&lt;/div&gt;&lt;div&gt;&lt;font&gt;&lt;br&gt;&lt;/font&gt;&lt;/div&gt;&lt;div&gt;&lt;font&gt;private boolean &lt;b&gt;isUnregistered&lt;/b&gt;(Update update)&lt;/font&gt;&lt;/div&gt;&lt;div&gt;&lt;font&gt;&lt;br&gt;&lt;/font&gt;&lt;/div&gt;&lt;div&gt;&lt;font&gt;private List&amp;lt;KeyboardRow&amp;gt; &lt;b&gt;buildKeyboardRows&lt;/b&gt;(boolean isRegistered, int buttonsPerLine)&lt;/font&gt;&lt;/div&gt;&lt;div&gt;&lt;font&gt;&lt;br&gt;&lt;/font&gt;&lt;/div&gt;&lt;div&gt;&lt;font&gt;private boolean &lt;b&gt;isRegisteredUser&lt;/b&gt;(long userId)&lt;/font&gt;&lt;/div&gt;&lt;div&gt;&lt;font&gt;&lt;br&gt;&lt;/font&gt;&lt;/div&gt;&lt;div&gt;&lt;font&gt;private List&amp;lt;DisplayedCommandHandler&amp;gt; &lt;b&gt;getRelevantHandlers&lt;/b&gt;(boolean isRegistered)&lt;/font&gt;&lt;/div&gt;" style="rounded=0;whiteSpace=wrap;html=1;" vertex="1" parent="1">
+          <mxGeometry x="-320" y="-20" width="310" height="420" as="geometry" />
+        </mxCell>
+        <mxCell id="cwNmnjEZSoG13OYBl1he-18" value="&lt;b&gt;&lt;font style=&quot;font-size: 14px;&quot;&gt;CancelCommandHandler&lt;/font&gt;&lt;/b&gt;&lt;div&gt;&lt;b&gt;&lt;font style=&quot;font-size: 14px;&quot;&gt;&lt;br&gt;&lt;/font&gt;&lt;/b&gt;&lt;/div&gt;&lt;div&gt;&lt;font&gt;public BotApiMethod&amp;lt;?&amp;gt;&lt;b&gt; handle&lt;/b&gt;(Update update)&lt;/font&gt;&lt;/div&gt;&lt;div&gt;&lt;font&gt;&lt;br&gt;&lt;/font&gt;&lt;/div&gt;&lt;div&gt;&lt;font&gt;public boolean &lt;b&gt;isFinished&lt;/b&gt;(Long userId)&lt;/font&gt;&lt;/div&gt;&lt;div&gt;&lt;font&gt;&lt;br&gt;&lt;/font&gt;&lt;/div&gt;&lt;div&gt;&lt;font&gt;public Priority &lt;b&gt;getPriority&lt;/b&gt;()&lt;/font&gt;&lt;/div&gt;&lt;div&gt;&lt;font&gt;&lt;br&gt;&lt;/font&gt;&lt;/div&gt;&lt;div&gt;&lt;font&gt;public String &lt;b&gt;getCommand&lt;/b&gt;()&lt;/font&gt;&lt;/div&gt;" style="rounded=0;whiteSpace=wrap;html=1;" vertex="1" parent="1">
+          <mxGeometry x="74.75" y="-20" width="290.25" height="180" as="geometry" />
+        </mxCell>
+        <mxCell id="cwNmnjEZSoG13OYBl1he-37" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;entryX=0;entryY=0.5;entryDx=0;entryDy=0;" edge="1" parent="1" source="cwNmnjEZSoG13OYBl1he-19" target="cwNmnjEZSoG13OYBl1he-31">
+          <mxGeometry relative="1" as="geometry">
+            <Array as="points">
+              <mxPoint x="-750" y="90" />
+              <mxPoint x="-750" y="335" />
+            </Array>
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="cwNmnjEZSoG13OYBl1he-38" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;entryX=0;entryY=0.5;entryDx=0;entryDy=0;" edge="1" parent="1" source="cwNmnjEZSoG13OYBl1he-19" target="cwNmnjEZSoG13OYBl1he-30">
+          <mxGeometry relative="1" as="geometry">
+            <Array as="points">
+              <mxPoint x="-750" y="90" />
+              <mxPoint x="-750" y="265" />
+            </Array>
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="cwNmnjEZSoG13OYBl1he-19" value="&lt;font style=&quot;&quot;&gt;&lt;b style=&quot;font-size: 14px;&quot;&gt;DisplayedCommandHandler &lt;/b&gt;&lt;font&gt;-&amp;nbsp;&lt;/font&gt;&lt;/font&gt;&lt;div&gt;&lt;font&gt;Обработчик, который будет отображаться в списке команд для отправки на стороне пользователя&lt;/font&gt;&lt;/div&gt;&lt;div&gt;&lt;font&gt;&lt;br&gt;&lt;/font&gt;&lt;/div&gt;&lt;div&gt;&lt;font&gt;public int &lt;b&gt;getOrder&lt;/b&gt;() -&lt;/font&gt;&lt;/div&gt;&lt;div&gt;&lt;font&gt;Определяет порядок отображения обработчика на панели с кнопками&lt;/font&gt;&lt;/div&gt;&lt;div&gt;&lt;font&gt;&lt;br&gt;&lt;/font&gt;&lt;/div&gt;&lt;div&gt;&lt;font&gt;public boolean &lt;b&gt;isDisplayedForRegistered&lt;/b&gt;()&lt;/font&gt;&lt;/div&gt;&lt;div&gt;&lt;font&gt;&lt;br&gt;&lt;/font&gt;&lt;/div&gt;&lt;div&gt;&lt;font&gt;public boolean &lt;b&gt;isDisplayedForUnregistered&lt;/b&gt;()&lt;/font&gt;&lt;/div&gt;" style="rounded=0;whiteSpace=wrap;html=1;" vertex="1" parent="1">
+          <mxGeometry x="-730" y="-30" width="330" height="240" as="geometry" />
+        </mxCell>
+        <mxCell id="cwNmnjEZSoG13OYBl1he-25" value="C" style="ellipse;whiteSpace=wrap;html=1;aspect=fixed;" vertex="1" parent="1">
+          <mxGeometry x="74.75" y="-20" width="50" height="50" as="geometry" />
+        </mxCell>
+        <mxCell id="cwNmnjEZSoG13OYBl1he-26" value="C" style="ellipse;whiteSpace=wrap;html=1;aspect=fixed;" vertex="1" parent="1">
+          <mxGeometry x="-320" y="-20" width="50" height="50" as="geometry" />
+        </mxCell>
+        <mxCell id="cwNmnjEZSoG13OYBl1he-27" value="AC" style="ellipse;whiteSpace=wrap;html=1;aspect=fixed;" vertex="1" parent="1">
+          <mxGeometry x="-730" y="-30" width="50" height="50" as="geometry" />
+        </mxCell>
+        <mxCell id="cwNmnjEZSoG13OYBl1he-28" value="&lt;b&gt;&lt;font style=&quot;font-size: 14px;&quot;&gt;CreateClientHander&lt;/font&gt;&lt;/b&gt;" style="rounded=0;whiteSpace=wrap;html=1;" vertex="1" parent="1">
+          <mxGeometry x="-730" y="240" width="330" height="50" as="geometry" />
+        </mxCell>
+        <mxCell id="cwNmnjEZSoG13OYBl1he-29" value="&lt;b&gt;&lt;font style=&quot;font-size: 14px;&quot;&gt;CreateUserHandler&lt;/font&gt;&lt;/b&gt;" style="rounded=0;whiteSpace=wrap;html=1;" vertex="1" parent="1">
+          <mxGeometry x="-730" y="310" width="330" height="50" as="geometry" />
+        </mxCell>
+        <mxCell id="cwNmnjEZSoG13OYBl1he-30" value="C" style="ellipse;whiteSpace=wrap;html=1;aspect=fixed;" vertex="1" parent="1">
+          <mxGeometry x="-730" y="240" width="50" height="50" as="geometry" />
+        </mxCell>
+        <mxCell id="cwNmnjEZSoG13OYBl1he-31" value="C" style="ellipse;whiteSpace=wrap;html=1;aspect=fixed;" vertex="1" parent="1">
+          <mxGeometry x="-730" y="310" width="50" height="50" as="geometry" />
+        </mxCell>
+        <mxCell id="cwNmnjEZSoG13OYBl1he-43" value="" style="endArrow=none;html=1;rounded=0;" edge="1" parent="1">
+          <mxGeometry width="50" height="50" relative="1" as="geometry">
+            <mxPoint x="-750" y="335" as="sourcePoint" />
+            <mxPoint x="-750" y="440" as="targetPoint" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="cwNmnjEZSoG13OYBl1he-44" value="" style="endArrow=classic;html=1;rounded=0;" edge="1" parent="1">
+          <mxGeometry width="50" height="50" relative="1" as="geometry">
+            <mxPoint x="-750" y="390" as="sourcePoint" />
+            <mxPoint x="-730" y="390" as="targetPoint" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="cwNmnjEZSoG13OYBl1he-45" value="" style="endArrow=classic;html=1;rounded=0;" edge="1" parent="1">
+          <mxGeometry width="50" height="50" relative="1" as="geometry">
+            <mxPoint x="-750" y="440" as="sourcePoint" />
+            <mxPoint x="-730" y="440" as="targetPoint" />
+          </mxGeometry>
+        </mxCell>
+      </root>
+    </mxGraphModel>
+  </diagram>
+</mxfile>
