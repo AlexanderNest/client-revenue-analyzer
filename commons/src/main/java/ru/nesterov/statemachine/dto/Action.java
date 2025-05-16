@@ -4,5 +4,6 @@ public enum Action {
     COMMAND_INPUT,
     ANY_STRING,
     ANY_NUMBER,
-    CALLBACK_INPUT
+    CALLBACK_INPUT,
+    ANY_BOOLEAN
 }

@@ -1,6 +1,6 @@
-package ru.nesterov.bot.handlers.implementation.createClient;
+package ru.nesterov.bot.handlers.implementation.stateful.createClient;
 
-import jakarta.annotation.PostConstruct;
+import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.stereotype.Component;
 import org.telegram.telegrambots.meta.api.methods.BotApiMethod;
 import org.telegram.telegrambots.meta.api.objects.Update;
@@ -14,19 +14,31 @@ import ru.nesterov.dto.CreateClientResponse;
 import ru.nesterov.statemachine.StateMachine;
 import ru.nesterov.statemachine.dto.Action;
 import ru.nesterov.statemachine.dto.NextStateFunction;
+
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.List;
 
+/**
+ * Процесс регистрации нового пользователя
+ */
+
+@ConditionalOnProperty("bot.enabled")
 @Component
-public class CreateClientHandler2 extends StatefulCommandHandler<State, CreateClientRequest> {
-    public CreateClientHandler2() {
+public class CreateClientHandler extends StatefulCommandHandler<State, CreateClientRequest> {
+
+    @Override
+    public String getCommand() {
+        return "Добавить клиента";
+    }
+
+    public CreateClientHandler() {
         super(State.STARTED, CreateClientRequest.class);
     }
 
     @Override
     public void initTransitions() {
-       stateMachineProvider
+        stateMachineProvider
                 .addTransition(State.STARTED, Action.COMMAND_INPUT, State.NAME_INPUT, this::handleCreateClientCommand)
                 .addTransition(State.NAME_INPUT, Action.ANY_STRING, State.PRICE_INPUT, this::handleNameInput)
                 .addTransition(State.PRICE_INPUT, Action.ANY_STRING, State.DESCRIPTION_INPUT, this::handlePricePerHourInput)
@@ -108,11 +120,6 @@ public class CreateClientHandler2 extends StatefulCommandHandler<State, CreateCl
     }
 
     @Override
-    public String getCommand() {
-        return "/cc";
-    }
-
-    @Override
     public BotApiMethod<?> handle(Update update) {
         Action action = getAction(update);
         StateMachine<State, Action, BotApiMethod<?>, Update, CreateClientRequest> stateMachine = getStateMachine(update);
@@ -123,3 +130,4 @@ public class CreateClientHandler2 extends StatefulCommandHandler<State, CreateCl
         return botApiMethod;
     }
 }
+

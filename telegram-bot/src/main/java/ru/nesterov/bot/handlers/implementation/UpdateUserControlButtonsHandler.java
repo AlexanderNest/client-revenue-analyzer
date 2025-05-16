@@ -59,11 +59,6 @@ public class UpdateUserControlButtonsHandler extends InvocableCommandHandler {
     }
 
     @Override
-    public boolean isFinished(Long userId) {
-        return true;
-    }
-
-    @Override
     public boolean isApplicable(Update update) {
         return isUnregistered(update) || super.isApplicable(update);
     }

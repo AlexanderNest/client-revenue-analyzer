@@ -1,25 +1,23 @@
 package ru.nesterov.bot.handlers.abstractions;
 
 import lombok.SneakyThrows;
-import org.checkerframework.checker.units.qual.A;
 import org.telegram.telegrambots.meta.api.objects.CallbackQuery;
 import org.telegram.telegrambots.meta.api.objects.Message;
 import org.telegram.telegrambots.meta.api.objects.Update;
-import ru.nesterov.bot.TelegramUpdateUtils;
 import ru.nesterov.bot.handlers.callback.ButtonCallback;
-import ru.nesterov.bot.handlers.implementation.createClient.ActionDefiner;
+import ru.nesterov.bot.handlers.service.ActionService;
 import ru.nesterov.statemachine.dto.Action;
 
 /**
  * Обработчик, который вызывается по отправленной команде
  */
 public abstract class InvocableCommandHandler extends SendingMessageCommandHandler {
-    private final ActionDefiner actionDefiner = new ActionDefiner(getCommand());
+    private final ActionService actionService = new ActionService(getCommand());
 
     public abstract String getCommand();
 
     public Action getAction(Update update) {
-        return actionDefiner.defineTheAction(update);
+        return actionService.defineTheAction(update);
     }
 
     @Override
@@ -32,10 +30,10 @@ public abstract class InvocableCommandHandler extends SendingMessageCommandHandl
             return true;
         }
 
-        boolean isPlainText = message != null && message.getText() != null;
-        if (isPlainText && !isFinished(TelegramUpdateUtils.getUserId(update))) {
-            return true;
-        }
+//        boolean isPlainText = message != null && message.getText() != null;
+//        if (isPlainText && !isFinished(TelegramUpdateUtils.getUserId(update))) {
+//            return true;
+//        }
 
         CallbackQuery callbackQuery = update.getCallbackQuery();
 

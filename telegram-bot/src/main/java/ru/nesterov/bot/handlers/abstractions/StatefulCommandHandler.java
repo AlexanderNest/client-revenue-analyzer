@@ -2,7 +2,7 @@ package ru.nesterov.bot.handlers.abstractions;
 
 import org.telegram.telegrambots.meta.api.methods.BotApiMethod;
 import org.telegram.telegrambots.meta.api.objects.Update;
-import ru.nesterov.bot.handlers.implementation.createClient.State;
+import ru.nesterov.bot.handlers.implementation.stateful.createClient.State;
 import ru.nesterov.statemachine.StateMachineProvider;
 import ru.nesterov.statemachine.dto.Action;
 

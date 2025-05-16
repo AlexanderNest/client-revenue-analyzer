@@ -19,9 +19,4 @@ public class UndefinedHandler extends SendingMessageCommandHandler {
     public boolean isApplicable(Update update) {
         return false;
     }
-
-    @Override
-    public boolean isFinished(Long userId) {
-        return false;
-    }
 }
