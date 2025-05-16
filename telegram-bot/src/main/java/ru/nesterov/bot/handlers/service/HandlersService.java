@@ -11,8 +11,6 @@ import ru.nesterov.bot.handlers.abstractions.Priority;
 import ru.nesterov.bot.handlers.abstractions.StatefulCommandHandler;
 
 import java.util.List;
-import java.util.Map;
-import java.util.concurrent.ConcurrentHashMap;
 
 @Component
 @Slf4j
@@ -104,7 +102,6 @@ public class HandlersService {
                 return commandHandler;
             }
         }
-
         return null;
     }
 }

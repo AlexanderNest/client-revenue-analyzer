@@ -28,8 +28,9 @@ public abstract class StatefulCommandHandler <STATE, MEMORY> extends DisplayedCo
      *      true - если надо сбросить обработчики для пользователя.
      *      false - если надо, чтобы при следующем обновлении в чате вызвался тот же обработчик
      */
+    @Override
     public boolean isFinished(Long userId) {
-        return stateMachineProvider.getOrCreateMachine(userId).getCurrentState() == State.FINISH;
+        return stateMachineProvider.getMachine(userId).getCurrentState() == State.FINISH;
         // TODO скорее всего тут будут плодиться машины. заменить на метод get. Создавать тут машину не надо
     }
 }

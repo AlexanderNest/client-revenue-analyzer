@@ -1,5 +1,6 @@
 package ru.nesterov.statemachine;
 
+import lombok.Getter;
 import ru.nesterov.statemachine.dto.NextStateFunction;
 import ru.nesterov.statemachine.dto.TransitionDescription;
 
@@ -7,7 +8,7 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.function.Function;
-
+@Getter
 public class StateMachineProvider<STATE, ACTION, R, T, MEMORY> {
 
     private final Map<Long, StateMachine<STATE, ACTION, R, T, MEMORY>> userMachines = new ConcurrentHashMap<>();
@@ -20,18 +21,11 @@ public class StateMachineProvider<STATE, ACTION, R, T, MEMORY> {
         this.memory = memory;
     }
 
-    public StateMachine<STATE, ACTION, R, T, MEMORY> getOrCreateMachine(Long userId) {
-        return userMachines.computeIfAbsent(userId, ignored -> {
-            try{
-                MEMORY memoryInstance = memory.getDeclaredConstructor().newInstance();
-                return createMachine(initialState, memoryInstance, transitions);
-            } catch (ReflectiveOperationException exception) {
-                throw new RuntimeException("", exception);
-        }
-        });
+    public StateMachine<STATE, ACTION, R, T, MEMORY> getMachine(Long userId) {
+        return userMachines.get(userId);
     }
 
-    private StateMachine<STATE, ACTION, R, T, MEMORY> createMachine (STATE initialState, MEMORY memory, Map<TransitionDescription<STATE, ACTION>, NextStateFunction<STATE, R, T>> transitions) {
+    public StateMachine<STATE, ACTION, R, T, MEMORY> createMachine (Long userId, STATE initialState, MEMORY memory, Map<TransitionDescription<STATE, ACTION>, NextStateFunction<STATE, R, T>> transitions) {
         StateMachine<STATE, ACTION, R, T, MEMORY> stateMachine = new StateMachine<>(initialState, memory);
         transitions.forEach(
                 (transitionDescription, nextStateFunction) ->
@@ -42,6 +36,7 @@ public class StateMachineProvider<STATE, ACTION, R, T, MEMORY> {
                                 nextStateFunction.getFunctionForTransition()
                         )
         );
+        userMachines.put(userId, stateMachine);
         return stateMachine;
     }
 

@@ -7,13 +7,11 @@ import org.telegram.telegrambots.meta.api.objects.Update;
 import org.telegram.telegrambots.meta.api.objects.replykeyboard.InlineKeyboardMarkup;
 import org.telegram.telegrambots.meta.api.objects.replykeyboard.buttons.InlineKeyboardButton;
 import ru.nesterov.bot.TelegramUpdateUtils;
-import ru.nesterov.bot.handlers.abstractions.DisplayedCommandHandler;
 import ru.nesterov.bot.handlers.abstractions.StatefulCommandHandler;
 import ru.nesterov.bot.handlers.callback.ButtonCallback;
 import ru.nesterov.dto.CreateClientRequest;
 import ru.nesterov.dto.CreateClientResponse;
 import ru.nesterov.statemachine.StateMachine;
-import ru.nesterov.statemachine.StateMachineProvider;
 import ru.nesterov.statemachine.dto.Action;
 import ru.nesterov.statemachine.dto.NextStateFunction;
 import java.text.SimpleDateFormat;
@@ -39,7 +37,11 @@ public class CreateClientHandler2 extends StatefulCommandHandler<State, CreateCl
 
     private StateMachine<State, Action, BotApiMethod<?>, Update, CreateClientRequest> getStateMachine(Update update) {
         long userId = TelegramUpdateUtils.getUserId(update);
-        return stateMachineProvider.getOrCreateMachine(userId);
+        StateMachine<State, Action, BotApiMethod<?>, Update, CreateClientRequest> stateMachine = stateMachineProvider.getMachine(userId);
+        if (stateMachine == null){
+            stateMachine =  stateMachineProvider.createMachine(userId, State.STARTED, CreateClientRequest.builder().build(), stateMachineProvider.getTransitions());
+        }
+        return stateMachine;
     }
 
     private BotApiMethod<?> handleCreateClientCommand(Update update) {
@@ -120,6 +122,4 @@ public class CreateClientHandler2 extends StatefulCommandHandler<State, CreateCl
 
         return botApiMethod;
     }
-
-
 }
