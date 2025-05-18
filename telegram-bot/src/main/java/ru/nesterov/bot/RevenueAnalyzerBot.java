@@ -6,8 +6,10 @@ import org.telegram.telegrambots.bots.TelegramLongPollingBot;
 import org.telegram.telegrambots.meta.api.methods.BotApiMethod;
 import org.telegram.telegrambots.meta.api.methods.send.SendMessage;
 import org.telegram.telegrambots.meta.api.objects.Update;
+import org.telegram.telegrambots.meta.api.objects.replykeyboard.ReplyKeyboardMarkup;
 import org.telegram.telegrambots.meta.exceptions.TelegramApiException;
 import ru.nesterov.bot.handlers.abstractions.CommandHandler;
+import ru.nesterov.bot.handlers.implementation.UpdateUserControlButtonsHandler;
 import ru.nesterov.bot.handlers.service.HandlersService;
 import ru.nesterov.exception.UserFriendlyException;
 import ru.nesterov.properties.BotProperties;
@@ -18,10 +20,13 @@ public class RevenueAnalyzerBot extends TelegramLongPollingBot {
     private final HandlersService handlersService;
     private final BotProperties botProperties;
 
-    public RevenueAnalyzerBot(BotProperties botProperties, HandlersService handlersService) {
+    private final UpdateUserControlButtonsHandler updateUserControlButtonsHandler;
+
+    public RevenueAnalyzerBot(BotProperties botProperties, HandlersService handlersService, UpdateUserControlButtonsHandler updateUserControlButtonsHandler) {
         super(botProperties.getApiToken());
         this.handlersService = handlersService;
         this.botProperties = botProperties;
+        this.updateUserControlButtonsHandler = updateUserControlButtonsHandler;
     }
 
     @Override
@@ -36,19 +41,26 @@ public class RevenueAnalyzerBot extends TelegramLongPollingBot {
 
         log.debug("Выбранный CommandHandler = {}", commandHandler.getClass().getSimpleName());
 
-        BotApiMethod<?> sendMessage;
+        BotApiMethod<?> botApiMethod;
 
         try {
-            sendMessage = commandHandler.handle(update);
+            botApiMethod = commandHandler.handle(update);
         } catch (UserFriendlyException exception) {
-            sendMessage = buildTextMessage(update, exception.getMessage());
+            botApiMethod = buildTextMessage(update, exception.getMessage());
         } finally {
             if (commandHandler.isFinished(userId)) {
                 handlersService.resetHandlers(userId);
             }
         }
 
-        sendMessage(sendMessage);
+        if (botApiMethod instanceof SendMessage) {
+            SendMessage sendMessage = (SendMessage) botApiMethod;
+            if(sendMessage.getReplyMarkup() == null) {
+                sendMessage.setReplyMarkup(updateUserControlButtonsHandler.getReplyKeyboardMarkup(update));
+            }
+        }
+
+        sendMessage(botApiMethod);
     }
 
     @Override
