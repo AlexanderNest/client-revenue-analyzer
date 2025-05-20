@@ -12,6 +12,7 @@ import ru.nesterov.bot.TelegramUpdateUtils;
 import ru.nesterov.bot.handlers.abstractions.DisplayedCommandHandler;
 import ru.nesterov.bot.handlers.abstractions.InvocableCommandHandler;
 import ru.nesterov.bot.handlers.abstractions.Priority;
+import ru.nesterov.bot.handlers.implementation.stateful.createUser.CreateUserHandler;
 import ru.nesterov.dto.GetUserRequest;
 import ru.nesterov.integration.ClientRevenueAnalyzerIntegrationClient;
 import ru.nesterov.properties.BotProperties;
@@ -54,11 +55,6 @@ public class UpdateUserControlButtonsHandler extends InvocableCommandHandler {
 
         keyboardMarkup.setKeyboard(keyboardRows);
         return getReplyKeyboard(TelegramUpdateUtils.getChatId(update), "Выберите опцию:", keyboardMarkup);
-    }
-
-    @Override
-    public boolean isFinished(Long userId) {
-        return true;
     }
 
     @Override

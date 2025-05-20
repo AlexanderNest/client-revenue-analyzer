@@ -1,6 +1,6 @@
 package ru.nesterov.service.mapper;
 
-import ru.nesterov.dto.EventExtensionDto;
+import ru.nesterov.common.dto.EventExtensionDto;
 import ru.nesterov.entity.EventExtension;
 
 public class EventExtensionMapper {

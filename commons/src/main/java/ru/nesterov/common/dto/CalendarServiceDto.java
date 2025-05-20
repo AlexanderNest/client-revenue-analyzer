@@ -1,4 +1,4 @@
-package ru.nesterov.dto;
+package ru.nesterov.common.dto;
 
 import lombok.Builder;
 import lombok.EqualsAndHashCode;

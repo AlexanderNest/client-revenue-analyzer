@@ -4,10 +4,10 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.stereotype.Component;
-import ru.nesterov.dto.CalendarServiceDto;
-import ru.nesterov.dto.CalendarType;
-import ru.nesterov.dto.EventDto;
-import ru.nesterov.service.CalendarService;
+import ru.nesterov.common.dto.CalendarServiceDto;
+import ru.nesterov.common.dto.CalendarType;
+import ru.nesterov.common.dto.EventDto;
+import ru.nesterov.common.service.CalendarService;
 
 import java.time.LocalDateTime;
 import java.util.ArrayList;

@@ -2,9 +2,9 @@ package ru.nesterov.controller;
 
 import org.junit.jupiter.api.Test;
 import org.springframework.http.MediaType;
+import ru.nesterov.common.dto.EventDto;
+import ru.nesterov.common.dto.EventStatus;
 import ru.nesterov.controller.request.GetForYearRequest;
-import ru.nesterov.dto.EventDto;
-import ru.nesterov.dto.EventStatus;
 import ru.nesterov.entity.Client;
 import ru.nesterov.entity.User;
 
@@ -12,7 +12,6 @@ import java.time.LocalDateTime;
 import java.util.List;
 
 import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.ArgumentMatchers.anyBoolean;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.when;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;

@@ -1,4 +1,4 @@
-package ru.nesterov.annotation;
+package ru.nesterov.common.annotation;
 
 import java.lang.annotation.ElementType;
 import java.lang.annotation.Retention;

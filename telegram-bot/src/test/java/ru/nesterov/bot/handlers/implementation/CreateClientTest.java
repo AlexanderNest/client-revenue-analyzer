@@ -16,6 +16,7 @@ import org.telegram.telegrambots.meta.api.objects.replykeyboard.ReplyKeyboard;
 import org.telegram.telegrambots.meta.api.objects.replykeyboard.buttons.InlineKeyboardButton;
 import ru.nesterov.bot.handlers.RegisteredUserHandlerTest;
 import ru.nesterov.bot.handlers.callback.ButtonCallback;
+import ru.nesterov.bot.handlers.implementation.stateful.createClient.CreateClientHandler;
 import ru.nesterov.bot.handlers.service.ButtonCallbackService;
 import ru.nesterov.dto.CreateClientRequest;
 import ru.nesterov.dto.CreateClientResponse;
@@ -138,7 +139,7 @@ public class CreateClientTest extends RegisteredUserHandlerTest {
 
         update.setCallbackQuery(callbackQuery);
 
-        botApiMethod = createClientHandler.handle(update);
+        botApiMethod = createClientHandler.handle(update); //TODO тут почему-то в message возвращается Нет. Хотя должен прийти только в колбеке (по крайней мере так кажется). Надо проверить, как в реальности приходит это значение. Если оно правда там есть, то написать мне. Если его там нет, исправить тест
         sendMessage = (SendMessage) botApiMethod;
         assertEquals(String.join(System.lineSeparator(),
                 "Клиент успешно зарегистрирован!",

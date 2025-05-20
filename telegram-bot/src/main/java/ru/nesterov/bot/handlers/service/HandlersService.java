@@ -2,19 +2,20 @@ package ru.nesterov.bot.handlers.service;
 
 import jakarta.annotation.Nullable;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.stereotype.Component;
 import org.telegram.telegrambots.meta.api.objects.Update;
 import ru.nesterov.bot.TelegramUpdateUtils;
 import ru.nesterov.bot.handlers.abstractions.CommandHandler;
 import ru.nesterov.bot.handlers.abstractions.Priority;
+import ru.nesterov.bot.handlers.abstractions.StatefulCommandHandler;
 import ru.nesterov.bot.handlers.implementation.CancelCommandHandler;
 
 import java.util.List;
-import java.util.Map;
-import java.util.concurrent.ConcurrentHashMap;
 
 @Component
 @Slf4j
+@ConditionalOnProperty("bot.enabled")
 public class HandlersService {
     private final List<CommandHandler> highestPriorityCommandHandlers;
     private final List<CommandHandler> normalPriorityCommandHandlers;
@@ -22,10 +23,13 @@ public class HandlersService {
     private final BotHandlersRequestsKeeper botHandlersRequestsKeeper;
     private final CancelCommandHandler cancelCommandHandler;
 
-    private final Map<Long, CommandHandler> startedUserHandlers = new ConcurrentHashMap<>();
+    private final List<StatefulCommandHandler<?, ?>> statefulCommandHandlers;
 
-    public HandlersService(List<CommandHandler> commandHandlers, BotHandlersRequestsKeeper botHandlersRequestsKeeper,
+    public HandlersService(List<CommandHandler> commandHandlers,
+                           List<StatefulCommandHandler<?, ?>> statefulCommandHandlers,
+                           BotHandlersRequestsKeeper botHandlersRequestsKeeper,
                            CancelCommandHandler cancelCommandHandler) {
+        this.statefulCommandHandlers = statefulCommandHandlers;
 
         highestPriorityCommandHandlers = commandHandlers.stream()
                 .filter(ch -> ch.getPriority() == Priority.HIGHEST)
@@ -76,34 +80,36 @@ public class HandlersService {
     }
 
     public void resetHandlers(Long userId) {
-        CommandHandler commandHandler = startedUserHandlers.remove(userId);
-        if (commandHandler != null) {
-            botHandlersRequestsKeeper.removeRequest(commandHandler.getClass(), userId);
-        }
+        statefulCommandHandlers.stream()
+                .filter(handler -> handler.isFinished(userId))
+                .forEach(handler -> handler.resetState(userId));
     }
 
     private CommandHandler getStartedHandler(Update update) {
         long userId = TelegramUpdateUtils.getUserId(update);
 
-        CommandHandler userHandler = startedUserHandlers.get(userId);
-        if (userHandler != null && userHandler.isApplicable(update)) {
-            return userHandler;
-        }
+        CommandHandler commandHandler = statefulCommandHandlers.stream()
+                .filter(handler -> !handler.isFinished(userId))
+                .findFirst()
+                .orElse(null);
 
-        startedUserHandlers.remove(userId);
+        if (commandHandler != null) {
+            if (commandHandler.isApplicable(update)) {
+                return commandHandler;
+            }
+            else {
+                throw new RuntimeException("Неподходящий commandHandler " + update + commandHandler);
+            }
+        }
         return null;
     }
 
     private CommandHandler selectHandler(List<CommandHandler> commandHandlers, Update update) {
-        long userId = TelegramUpdateUtils.getUserId(update);
-
         for (CommandHandler commandHandler : commandHandlers) {
             if (commandHandler.isApplicable(update)) {
-                startedUserHandlers.put(userId, commandHandler);
                 return commandHandler;
             }
         }
-
         return null;
     }
 }

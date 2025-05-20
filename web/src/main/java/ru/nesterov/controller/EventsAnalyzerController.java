@@ -11,9 +11,9 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestHeader;
 import org.springframework.web.bind.annotation.RequestMapping;
+import ru.nesterov.common.dto.EventStatus;
 import ru.nesterov.controller.request.GetForMonthRequest;
 import ru.nesterov.controller.response.EventResponse;
-import ru.nesterov.dto.EventStatus;
 import ru.nesterov.service.dto.ClientMeetingsStatistic;
 import ru.nesterov.service.dto.IncomeAnalysisResult;
 

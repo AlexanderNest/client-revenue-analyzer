@@ -1,7 +1,7 @@
-package ru.nesterov.service;
+package ru.nesterov.common.service;
 
-import ru.nesterov.dto.CalendarServiceDto;
-import ru.nesterov.dto.EventDto;
+import ru.nesterov.common.dto.CalendarServiceDto;
+import ru.nesterov.common.dto.EventDto;
 
 import java.time.LocalDateTime;
 import java.util.List;

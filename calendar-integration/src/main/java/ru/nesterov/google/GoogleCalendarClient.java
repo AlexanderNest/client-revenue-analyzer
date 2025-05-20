@@ -14,12 +14,12 @@ import lombok.SneakyThrows;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.stereotype.Component;
-import ru.nesterov.dto.CalendarType;
-import ru.nesterov.dto.EventDto;
-import ru.nesterov.dto.EventExtensionDto;
-import ru.nesterov.dto.EventStatus;
+import ru.nesterov.common.dto.CalendarType;
+import ru.nesterov.common.dto.EventDto;
+import ru.nesterov.common.dto.EventExtensionDto;
+import ru.nesterov.common.dto.EventStatus;
+import ru.nesterov.common.util.PlainTextMapper;
 import ru.nesterov.google.exception.CannotBuildEventException;
-import ru.nesterov.util.PlainTextMapper;
 
 import javax.annotation.Nullable;
 import java.io.FileInputStream;

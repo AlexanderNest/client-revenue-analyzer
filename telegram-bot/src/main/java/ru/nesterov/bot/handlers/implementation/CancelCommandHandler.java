@@ -25,11 +25,6 @@ public class CancelCommandHandler extends InvocableCommandHandler {
     }
 
     @Override
-    public boolean isFinished(Long userId) {
-        return true;
-    }
-
-    @Override
     public Priority getPriority() {
         return Priority.HIGHEST;
     }

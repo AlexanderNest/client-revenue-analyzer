@@ -10,7 +10,7 @@ import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
 import jakarta.persistence.Table;
 import lombok.Data;
-import ru.nesterov.dto.EventStatus;
+import ru.nesterov.common.dto.EventStatus;
 import ru.nesterov.entity.converter.EventExtensionAttributeConverter;
 
 import java.time.LocalDateTime;

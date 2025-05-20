@@ -21,4 +21,8 @@ public abstract class DisplayedCommandHandler extends InvocableCommandHandler im
     public boolean isDisplayedForUnregistered() {
         return false;
     }
+
+    public boolean isFinished(Long userId) {
+        return true;
+    }
 }
