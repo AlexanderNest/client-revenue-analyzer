@@ -11,9 +11,7 @@ import ru.nesterov.bot.handlers.abstractions.StatefulCommandHandler;
 import ru.nesterov.bot.handlers.callback.ButtonCallback;
 import ru.nesterov.dto.CreateClientRequest;
 import ru.nesterov.dto.CreateClientResponse;
-import ru.nesterov.statemachine.StateMachine;
 import ru.nesterov.statemachine.dto.Action;
-import ru.nesterov.statemachine.dto.NextStateFunction;
 
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
@@ -44,16 +42,7 @@ public class CreateClientHandler extends StatefulCommandHandler<State, CreateCli
                 .addTransition(State.PRICE_INPUT, Action.ANY_STRING, State.DESCRIPTION_INPUT, this::handlePricePerHourInput)
                 .addTransition(State.DESCRIPTION_INPUT, Action.ANY_STRING, State.NUMBER_INPUT, this::handleDescriptionInput)
                 .addTransition(State.NUMBER_INPUT, Action.ANY_STRING, State.CLIENT_NAME_GENERATION_INPUT, this::handlePhoneNumberInput)
-                .addTransition(State.CLIENT_NAME_GENERATION_INPUT, Action.CALLBACK_INPUT, State.FINISH, this::handleIdGenerationNeededInput);
-    }
-
-    private StateMachine<State, Action, BotApiMethod<?>, Update, CreateClientRequest> getStateMachine(Update update) {
-        long userId = TelegramUpdateUtils.getUserId(update);
-        StateMachine<State, Action, BotApiMethod<?>, Update, CreateClientRequest> stateMachine = stateMachineProvider.getMachine(userId);
-        if (stateMachine == null){
-            stateMachine =  stateMachineProvider.createMachine(userId, State.STARTED, CreateClientRequest.builder().build(), stateMachineProvider.getTransitions());
-        }
-        return stateMachine;
+                .addTransition(State.CLIENT_NAME_GENERATION_INPUT, Action.ANY_CALLBACK_INPUT, State.FINISH, this::handleIdGenerationNeededInput);
     }
 
     private BotApiMethod<?> handleCreateClientCommand(Update update) {
@@ -117,17 +106,6 @@ public class CreateClientHandler extends StatefulCommandHandler<State, CreateCli
         ButtonCallback buttonCallback = buttonCallbackService.buildButtonCallback(telegramCallbackString);
 
         return buttonCallback.getValue();
-    }
-
-    @Override
-    public BotApiMethod<?> handle(Update update) {
-        Action action = getAction(update);
-        StateMachine<State, Action, BotApiMethod<?>, Update, CreateClientRequest> stateMachine = getStateMachine(update);
-        NextStateFunction<State, BotApiMethod<?>, Update> nextStateFunction = stateMachine.getNextStateFunction(action);
-        BotApiMethod<?> botApiMethod = nextStateFunction.getFunctionForTransition().apply(update);
-        stateMachine.applyNextState(action);
-
-        return botApiMethod;
     }
 }
 

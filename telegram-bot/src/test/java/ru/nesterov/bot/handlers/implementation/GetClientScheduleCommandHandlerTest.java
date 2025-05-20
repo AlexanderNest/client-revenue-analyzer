@@ -18,6 +18,7 @@ import org.telegram.telegrambots.meta.api.objects.replykeyboard.ReplyKeyboard;
 import org.telegram.telegrambots.meta.api.objects.replykeyboard.buttons.InlineKeyboardButton;
 import ru.nesterov.bot.handlers.RegisteredUserHandlerTest;
 import ru.nesterov.bot.handlers.callback.ButtonCallback;
+import ru.nesterov.bot.handlers.implementation.stateful.getSchedule.GetClientScheduleCommandHandler;
 import ru.nesterov.dto.GetActiveClientResponse;
 import ru.nesterov.dto.GetClientScheduleResponse;
 
@@ -40,7 +41,7 @@ import static org.mockito.Mockito.when;
 @ContextConfiguration(classes = {
         GetClientScheduleCommandHandler.class
 })
-public class GetClientScheduleHandlerTest extends RegisteredUserHandlerTest {
+public class GetClientScheduleCommandHandlerTest extends RegisteredUserHandlerTest {
     @Autowired
     private GetClientScheduleCommandHandler handler;
 

@@ -14,6 +14,7 @@ import org.telegram.telegrambots.meta.api.objects.replykeyboard.ReplyKeyboardMar
 import org.telegram.telegrambots.meta.api.objects.replykeyboard.buttons.KeyboardButton;
 import org.telegram.telegrambots.meta.api.objects.replykeyboard.buttons.KeyboardRow;
 import ru.nesterov.bot.handlers.RegisteredUserHandlerTest;
+import ru.nesterov.bot.handlers.implementation.stateful.getSchedule.GetClientScheduleCommandHandler;
 import ru.nesterov.dto.GetUserRequest;
 import ru.nesterov.properties.BotProperties;
 

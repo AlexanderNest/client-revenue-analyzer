@@ -4,7 +4,7 @@ package ru.nesterov.bot.handlers;
 import jakarta.annotation.PostConstruct;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.test.context.ContextConfiguration;
-import ru.nesterov.bot.handlers.implementation.CreateUserHandler;
+import ru.nesterov.bot.handlers.implementation.stateful.createUser.CreateUserHandler;
 import ru.nesterov.bot.handlers.implementation.UpdateUserControlButtonsHandler;
 import ru.nesterov.bot.handlers.service.ButtonCallbackService;
 import ru.nesterov.dto.GetUserResponse;

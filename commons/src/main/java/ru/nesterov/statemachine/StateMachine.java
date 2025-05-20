@@ -1,32 +1,42 @@
 package ru.nesterov.statemachine;
 
 import lombok.Getter;
+import lombok.Setter;
+import org.telegram.telegrambots.meta.api.objects.Update;
 import ru.nesterov.statemachine.dto.NextStateFunction;
 import ru.nesterov.statemachine.dto.TransitionDescription;
+import org.telegram.telegrambots.meta.api.methods.BotApiMethod;
 
-import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.function.Function;
 
-public class StateMachine<STATE, ACTION, R, T, MEMORY> {
-    private final Map<TransitionDescription<STATE, ACTION>, NextStateFunction<STATE, R, T>> transitions = new ConcurrentHashMap<>();
+public class StateMachine<STATE, ACTION, MEMORY> {
+    private final Map<TransitionDescription<STATE, ACTION>, NextStateFunction<STATE, BotApiMethod<?>, Update>> transitions = new ConcurrentHashMap<>();
     @Getter
     private STATE currentState;
     @Getter
-    private final MEMORY memory;
+    @Setter
+    private MEMORY memory;
 
     public StateMachine(STATE initialState, MEMORY memory) {
         this.currentState = initialState;
         this.memory = memory;
     }
 
-    public StateMachine<STATE, ACTION, R, T, MEMORY> addTransition(STATE state, ACTION actionForTransition, STATE nextState, Function<T, R> functionForTransition) {
+    public StateMachine<STATE, ACTION, MEMORY> addTransition(STATE state, ACTION actionForTransition, STATE nextState, Function<Update, BotApiMethod<?> > functionForTransition) {
         transitions.put(new TransitionDescription<>(state, actionForTransition), new NextStateFunction<>(nextState, functionForTransition));
         return this;
     }
 
-    public NextStateFunction<STATE, R, T> getNextStateFunction(ACTION action) {
+    public List<ACTION> getExpectedActions() {
+        return transitions.keySet().stream()
+                .map(TransitionDescription::getAction)
+                .toList();
+    }
+
+    public NextStateFunction<STATE, BotApiMethod<?>, Update> getNextStateFunction(ACTION action) {
         return transitions.get(new TransitionDescription<>(currentState, action));
     }
 

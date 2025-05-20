@@ -1,10 +1,14 @@
 package ru.nesterov.dto;
 
+import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
+import lombok.NoArgsConstructor;
 
 @Data
 @Builder
-public class GetYearBusynessStatisticsRequest {
+@NoArgsConstructor
+@AllArgsConstructor
+public class GetYearBusynessStatisticsRequest{
     private Integer year;
 }

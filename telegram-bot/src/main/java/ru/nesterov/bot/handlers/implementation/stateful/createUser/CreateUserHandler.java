@@ -1,5 +1,7 @@
 package ru.nesterov.bot.handlers.implementation.stateful.createUser;
 
+import lombok.extern.slf4j.Slf4j;
+import org.springframework.stereotype.Component;
 import org.telegram.telegrambots.meta.api.methods.BotApiMethod;
 import org.telegram.telegrambots.meta.api.objects.Update;
 import org.telegram.telegrambots.meta.api.objects.replykeyboard.InlineKeyboardMarkup;
@@ -10,15 +12,20 @@ import ru.nesterov.bot.handlers.callback.ButtonCallback;
 import ru.nesterov.dto.CreateUserRequest;
 import ru.nesterov.dto.CreateUserResponse;
 import ru.nesterov.dto.GetUserRequest;
-import ru.nesterov.statemachine.StateMachine;
 import ru.nesterov.statemachine.dto.Action;
 
 import java.util.ArrayList;
 import java.util.List;
 
-public class CreateUserHandler2 extends StatefulCommandHandler<State, CreateUserRequest> {
+/**
+ * Процесс создания нового клиента для зарегистрированного пользователя
+ */
 
-    public CreateUserHandler2() {
+@Component
+@Slf4j
+public class CreateUserHandler extends StatefulCommandHandler<State, CreateUserRequest> {
+
+    public CreateUserHandler() {
         super(State.STARTED, CreateUserRequest.class);
     }
 
@@ -27,17 +34,9 @@ public class CreateUserHandler2 extends StatefulCommandHandler<State, CreateUser
         stateMachineProvider
                 .addTransition(State.STARTED, Action.COMMAND_INPUT, State.MAIN_CALENDAR_INPUT, this::handleRegisterCommand)
                 .addTransition(State.MAIN_CALENDAR_INPUT, Action.ANY_STRING, State.CANCELLED_CALENDAR_ENABLED_QUESTION, this::handleMainCalendarInput)
-                .addTransition(State.CANCELLED_CALENDAR_ENABLED_QUESTION, Action.ANY_BOOLEAN, State.CANCELLED_CALENDAR_ID_INPUT, this::handleCancelledCalendarEnabledInput)
-                .addTransition(State.CANCELLED_CALENDAR_ID_INPUT, Action.ANY_STRING, State.FINISH, this:)
-    }
-
-    private StateMachine<State, Action, BotApiMethod<?>, Update, CreateUserRequest> getStateMachine(Update update) {
-        long userId = TelegramUpdateUtils.getUserId(update);
-        StateMachine<State, Action, BotApiMethod<?>, Update, CreateUserRequest> stateMachine = stateMachineProvider.getMachine(userId);
-        if (stateMachine == null){
-            stateMachine =  stateMachineProvider.createMachine(userId, State.STARTED, CreateUserRequest.builder().build(), stateMachineProvider.getTransitions());
-        }
-        return stateMachine;
+                .addTransition(State.CANCELLED_CALENDAR_ENABLED_QUESTION, Action.TRUE, State.CANCELLED_CALENDAR_ID_INPUT, this::handleCancelledCalendarEnabledInput)
+                .addTransition(State.CANCELLED_CALENDAR_ENABLED_QUESTION, Action.FALSE, State.FINISH, this::registerUser)
+                .addTransition(State.CANCELLED_CALENDAR_ID_INPUT, Action.ANY_STRING, State.FINISH, this::handleCancelledCalendarIdInput);
     }
 
     private BotApiMethod<?> handleRegisterCommand(Update update) {
@@ -68,19 +67,13 @@ public class CreateUserHandler2 extends StatefulCommandHandler<State, CreateUser
 
     private BotApiMethod<?> handleCancelledCalendarEnabledInput(Update update){
         getStateMachine(update).getMemory().setIsCancelledCalendarEnabled(Boolean.valueOf(getButtonCallbackValue(update)));
-        return registerUser(update, getStateMachine(update).getMemory());
+        return getPlainSendMessage(TelegramUpdateUtils.getChatId(update), "Введите ID календаря с отмененными мероприятиями:");
     }
 
-    private BotApiMethod<?> handleCancelledCalendarInput(CreateUserRequest createUserRequest, Update update) {
-        createUserRequest.setCancelledCalendarId(update.getMessage().getText());
-        return registerUser(update, createUserRequest);
+    private BotApiMethod<?> handleCancelledCalendarIdInput(Update update) {
+        getStateMachine(update).getMemory().setCancelledCalendarId(update.getMessage().getText());
+        return registerUser(update);
     }
-
-
-
-
-
-
 
     private boolean isUserExists(String userIdentifier) {
         GetUserRequest request = new GetUserRequest();
@@ -89,8 +82,8 @@ public class CreateUserHandler2 extends StatefulCommandHandler<State, CreateUser
         return client.getUserByUsername(request) == null;
     }
 
-    private BotApiMethod<?> registerUser(Update update, CreateUserRequest createUserRequest) {
-        CreateUserResponse response = client.createUser(createUserRequest);
+    private BotApiMethod<?> registerUser(Update update) {
+        CreateUserResponse response = client.createUser(getStateMachine(update).getMemory());
         return getPlainSendMessage(TelegramUpdateUtils.getChatId(update), formatCreateUserResponse(response));
     }
 
@@ -109,15 +102,23 @@ public class CreateUserHandler2 extends StatefulCommandHandler<State, CreateUser
         return buttonCallback.getValue();
     }
 
-
-
     @Override
     public String getCommand() {
-        return "";
+        return "Зарегистрироваться в боте";
     }
 
     @Override
-    public BotApiMethod<?> handle(Update update) {
-        return null;
+    public int getOrder() {
+        return 10;
+    }
+
+    @Override
+    public boolean isDisplayedForUnregistered() {
+        return true;
+    }
+
+    @Override
+    public boolean isDisplayedForRegistered() {
+        return false;
     }
 }

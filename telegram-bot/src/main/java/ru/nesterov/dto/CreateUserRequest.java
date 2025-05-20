@@ -1,21 +1,17 @@
 package ru.nesterov.dto;
 
+import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
+import lombok.NoArgsConstructor;
 
 @Data
 @Builder
+@NoArgsConstructor
+@AllArgsConstructor
 public class CreateUserRequest {
     private String mainCalendarId;
     private String cancelledCalendarId;
     private String userIdentifier;
     private Boolean isCancelledCalendarEnabled;
-
-    public boolean isFilled() {
-        boolean isCalendarEnabled = isCancelledCalendarEnabled != null && isCancelledCalendarEnabled && cancelledCalendarId != null;
-        boolean isCalendarDisabled = isCancelledCalendarEnabled != null && !isCancelledCalendarEnabled && cancelledCalendarId == null;
-        return mainCalendarId != null
-                && (isCalendarDisabled || isCalendarEnabled)
-                && userIdentifier != null;
-    }
 }

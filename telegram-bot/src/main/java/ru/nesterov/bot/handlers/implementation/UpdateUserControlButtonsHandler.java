@@ -12,6 +12,7 @@ import ru.nesterov.bot.TelegramUpdateUtils;
 import ru.nesterov.bot.handlers.abstractions.DisplayedCommandHandler;
 import ru.nesterov.bot.handlers.abstractions.InvocableCommandHandler;
 import ru.nesterov.bot.handlers.abstractions.Priority;
+import ru.nesterov.bot.handlers.implementation.stateful.createUser.CreateUserHandler;
 import ru.nesterov.dto.GetUserRequest;
 import ru.nesterov.integration.ClientRevenueAnalyzerIntegrationClient;
 import ru.nesterov.properties.BotProperties;

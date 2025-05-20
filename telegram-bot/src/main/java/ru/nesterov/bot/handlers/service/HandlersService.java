@@ -2,6 +2,7 @@ package ru.nesterov.bot.handlers.service;
 
 import jakarta.annotation.Nullable;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.stereotype.Component;
 import org.telegram.telegrambots.meta.api.objects.Update;
 import ru.nesterov.bot.TelegramUpdateUtils;
@@ -26,7 +27,8 @@ public class HandlersService {
 
     public HandlersService(List<CommandHandler> commandHandlers,
                            List<StatefulCommandHandler<?, ?>> statefulCommandHandlers,
-                           BotHandlersRequestsKeeper botHandlersRequestsKeeper) {
+                           BotHandlersRequestsKeeper botHandlersRequestsKeeper,
+                           CancelCommandHandler cancelCommandHandler) {
         this.statefulCommandHandlers = statefulCommandHandlers;
 
         highestPriorityCommandHandlers = commandHandlers.stream()

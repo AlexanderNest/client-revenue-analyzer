@@ -1,14 +1,14 @@
 package ru.nesterov.dto;
 
-import lombok.Builder;
-import lombok.Getter;
-import lombok.Setter;
+import lombok.*;
 
 import java.time.LocalDate;
 
 @Builder
 @Getter
 @Setter
+@NoArgsConstructor
+@AllArgsConstructor
 public class GetClientScheduleRequest {
     private Long userId;
     private String clientName;

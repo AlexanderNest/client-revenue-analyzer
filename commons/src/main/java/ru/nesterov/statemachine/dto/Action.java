@@ -1,9 +1,13 @@
 package ru.nesterov.statemachine.dto;
 
+import org.springframework.objenesis.SpringObjenesis;
+
 public enum Action {
     COMMAND_INPUT,
-    ANY_STRING,
+    TRUE,
+    FALSE,
+    ANY_BOOLEAN,
     ANY_NUMBER,
-    CALLBACK_INPUT,
-    ANY_BOOLEAN
+    ANY_STRING,
+    ANY_CALLBACK_INPUT
 }

@@ -12,13 +12,7 @@ import ru.nesterov.statemachine.dto.Action;
  * Обработчик, который вызывается по отправленной команде
  */
 public abstract class InvocableCommandHandler extends SendingMessageCommandHandler {
-    private final ActionService actionService = new ActionService(getCommand());
-
     public abstract String getCommand();
-
-    public Action getAction(Update update) {
-        return actionService.defineTheAction(update);
-    }
 
     @Override
     @SneakyThrows

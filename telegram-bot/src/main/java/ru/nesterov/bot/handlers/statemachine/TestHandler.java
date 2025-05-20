@@ -13,7 +13,7 @@ import ru.nesterov.statemachine.dto.NextStateFunction;
 @ConditionalOnProperty("bot.enabled")
 @Component
 public class TestHandler extends DisplayedCommandHandler {
-    private final StateMachine<State, Action, BotApiMethod<?>, Update, TestDto> stateMachine = new StateMachine<>(State.STARTED, new TestDto());
+    private final StateMachine<State, Action, TestDto> stateMachine = new StateMachine<>(State.STARTED, new TestDto());
 
     public TestHandler() {
         stateMachine.addTransition(State.STARTED, Action.COMMAND_INPUT, State.WAITING_1, update -> getPlainSendMessage(TelegramUpdateUtils.getChatId(update), "Ожидаю Ввод 1"));
