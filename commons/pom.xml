@@ -20,11 +20,5 @@
             <groupId>org.springframework.boot</groupId>
             <artifactId>spring-boot-starter-test</artifactId>
         </dependency>
-        <dependency>
-            <groupId>org.telegram</groupId>
-            <artifactId>telegrambots-meta</artifactId>
-            <version>6.9.7.1</version>
-            <scope>compile</scope>
-        </dependency>
     </dependencies>
 </project>

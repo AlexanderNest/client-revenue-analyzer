@@ -1,7 +1,5 @@
 package ru.nesterov.statemachine.dto;
 
-import org.springframework.objenesis.SpringObjenesis;
-
 public enum Action {
     COMMAND_INPUT,
     TRUE,

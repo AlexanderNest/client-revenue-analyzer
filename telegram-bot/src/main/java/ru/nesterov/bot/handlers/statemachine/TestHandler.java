@@ -50,7 +50,7 @@ public class TestHandler extends DisplayedCommandHandler {
             action = Action.ANY_STRING;
         }
 
-        NextStateFunction<State, BotApiMethod<?>, Update> nextStateFunction = stateMachine.getNextStateFunction(action);
+        NextStateFunction<State> nextStateFunction = stateMachine.getNextStateFunction(action);
         BotApiMethod<?> botApiMethod = nextStateFunction.getFunctionForTransition().apply(update);
         stateMachine.applyNextState(action);
 

@@ -5,8 +5,6 @@ import org.telegram.telegrambots.meta.api.objects.CallbackQuery;
 import org.telegram.telegrambots.meta.api.objects.Message;
 import org.telegram.telegrambots.meta.api.objects.Update;
 import ru.nesterov.bot.handlers.callback.ButtonCallback;
-import ru.nesterov.bot.handlers.service.ActionService;
-import ru.nesterov.statemachine.dto.Action;
 
 /**
  * Обработчик, который вызывается по отправленной команде

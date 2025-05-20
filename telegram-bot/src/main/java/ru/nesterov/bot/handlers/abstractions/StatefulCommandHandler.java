@@ -16,7 +16,7 @@ import java.util.List;
 public abstract class StatefulCommandHandler <STATE, MEMORY> extends DisplayedCommandHandler {
     private final ActionService actionService = new ActionService(getCommand());
 
-    protected final StateMachineProvider<STATE, Action, MEMORY> stateMachineProvider;
+    protected final StateMachineProvider<STATE, MEMORY> stateMachineProvider;
     private final Class<MEMORY> memoryType;
 
     public StatefulCommandHandler(STATE state, Class<MEMORY> memoryType) {
@@ -49,7 +49,7 @@ public abstract class StatefulCommandHandler <STATE, MEMORY> extends DisplayedCo
         List<Action> expectedActions = stateMachine.getExpectedActions();
         Action action = actionService.defineTheAction(update, expectedActions);
 
-        NextStateFunction<STATE, BotApiMethod<?>, Update> nextStateFunction = stateMachine.getNextStateFunction(action);
+        NextStateFunction<STATE> nextStateFunction = stateMachine.getNextStateFunction(action);
         BotApiMethod<?> botApiMethod = nextStateFunction.getFunctionForTransition().apply(update);
         stateMachine.applyNextState(action);
 
