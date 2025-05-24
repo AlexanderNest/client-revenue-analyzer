@@ -6,7 +6,6 @@ import org.telegram.telegrambots.bots.TelegramLongPollingBot;
 import org.telegram.telegrambots.meta.api.methods.BotApiMethod;
 import org.telegram.telegrambots.meta.api.methods.send.SendMessage;
 import org.telegram.telegrambots.meta.api.objects.Update;
-import org.telegram.telegrambots.meta.api.objects.replykeyboard.ReplyKeyboardMarkup;
 import org.telegram.telegrambots.meta.exceptions.TelegramApiException;
 import ru.nesterov.bot.handlers.abstractions.CommandHandler;
 import ru.nesterov.bot.handlers.implementation.UpdateUserControlButtonsHandler;
@@ -19,7 +18,6 @@ import ru.nesterov.properties.BotProperties;
 public class RevenueAnalyzerBot extends TelegramLongPollingBot {
     private final HandlersService handlersService;
     private final BotProperties botProperties;
-
     private final UpdateUserControlButtonsHandler updateUserControlButtonsHandler;
 
     public RevenueAnalyzerBot(BotProperties botProperties, HandlersService handlersService, UpdateUserControlButtonsHandler updateUserControlButtonsHandler) {

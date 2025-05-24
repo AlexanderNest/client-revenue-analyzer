@@ -6,6 +6,8 @@ import ru.nesterov.entity.User;
 import ru.nesterov.repository.UserRepository;
 import ru.nesterov.service.dto.UserDto;
 
+import java.util.List;
+
 @Service
 @RequiredArgsConstructor
 public class UserServiceImpl implements UserService{
@@ -41,5 +43,9 @@ public class UserServiceImpl implements UserService{
         user.setCancelledCalendar(userDto.getCancelledCalendar());
 
         return user;
+    }
+
+    public List<Long> getAllUsersId() {
+        return userRepository.findAllUserIds();
     }
 }
