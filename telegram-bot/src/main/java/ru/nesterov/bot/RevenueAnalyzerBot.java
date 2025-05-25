@@ -10,8 +10,14 @@ import org.telegram.telegrambots.meta.exceptions.TelegramApiException;
 import ru.nesterov.bot.handlers.abstractions.CommandHandler;
 import ru.nesterov.bot.handlers.implementation.UpdateUserControlButtonsHandler;
 import ru.nesterov.bot.handlers.service.HandlersService;
+import ru.nesterov.bot.handlers.wrapper.UpdateUserControlButtonsHandlerWrapper;
 import ru.nesterov.exception.UserFriendlyException;
 import ru.nesterov.properties.BotProperties;
+
+import java.util.Map;
+import java.util.concurrent.Executors;
+import java.util.concurrent.ScheduledExecutorService;
+import java.util.concurrent.TimeUnit;
 
 @Service
 @Slf4j
@@ -19,12 +25,15 @@ public class RevenueAnalyzerBot extends TelegramLongPollingBot {
     private final HandlersService handlersService;
     private final BotProperties botProperties;
     private final UpdateUserControlButtonsHandler updateUserControlButtonsHandler;
+    private final UpdateUserControlButtonsHandlerWrapper updateUserControlButtonsHandlerWrapper;
 
-    public RevenueAnalyzerBot(BotProperties botProperties, HandlersService handlersService, UpdateUserControlButtonsHandler updateUserControlButtonsHandler) {
+
+    public RevenueAnalyzerBot(BotProperties botProperties, HandlersService handlersService, UpdateUserControlButtonsHandler updateUserControlButtonsHandler, UpdateUserControlButtonsHandlerWrapper updateUserControlButtonsHandlerWrapper) {
         super(botProperties.getApiToken());
         this.handlersService = handlersService;
         this.botProperties = botProperties;
         this.updateUserControlButtonsHandler = updateUserControlButtonsHandler;
+        this.updateUserControlButtonsHandlerWrapper = updateUserControlButtonsHandlerWrapper;
     }
 
     @Override
@@ -54,11 +63,11 @@ public class RevenueAnalyzerBot extends TelegramLongPollingBot {
         if (botApiMethod instanceof SendMessage) {
             SendMessage sendMessage = (SendMessage) botApiMethod;
             if(sendMessage.getReplyMarkup() == null) {
-                sendMessage.setReplyMarkup(updateUserControlButtonsHandler.getReplyKeyboardMarkup(update));
+                sendMessage.setReplyMarkup(updateUserControlButtonsHandlerWrapper.getUpdateTime(update));
             }
         }
 
-        sendMessage(botApiMethod);
+    sendMessage(botApiMethod);
     }
 
     @Override
@@ -80,5 +89,9 @@ public class RevenueAnalyzerBot extends TelegramLongPollingBot {
         } catch (TelegramApiException e) {
             log.error("Ошибка отправки сообщения", e);
         }
+    }
+
+    private void getUpdateTime() {
+
     }
 }
