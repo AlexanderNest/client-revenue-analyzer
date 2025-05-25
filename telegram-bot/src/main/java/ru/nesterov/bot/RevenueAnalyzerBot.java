@@ -14,11 +14,6 @@ import ru.nesterov.bot.handlers.wrapper.UpdateUserControlButtonsHandlerWrapper;
 import ru.nesterov.exception.UserFriendlyException;
 import ru.nesterov.properties.BotProperties;
 
-import java.util.Map;
-import java.util.concurrent.Executors;
-import java.util.concurrent.ScheduledExecutorService;
-import java.util.concurrent.TimeUnit;
-
 @Service
 @Slf4j
 public class RevenueAnalyzerBot extends TelegramLongPollingBot {
@@ -91,7 +86,4 @@ public class RevenueAnalyzerBot extends TelegramLongPollingBot {
         }
     }
 
-    private void getUpdateTime() {
-
-    }
 }
