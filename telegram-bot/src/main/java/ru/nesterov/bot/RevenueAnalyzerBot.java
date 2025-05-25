@@ -61,7 +61,6 @@ public class RevenueAnalyzerBot extends TelegramLongPollingBot {
                 sendMessage.setReplyMarkup(updateUserControlButtonsHandlerWrapper.getUpdateTime(update));
             }
         }
-
     sendMessage(botApiMethod);
     }
 
@@ -85,5 +84,4 @@ public class RevenueAnalyzerBot extends TelegramLongPollingBot {
             log.error("Ошибка отправки сообщения", e);
         }
     }
-
 }

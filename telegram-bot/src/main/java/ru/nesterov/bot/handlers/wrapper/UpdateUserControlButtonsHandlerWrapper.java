@@ -36,7 +36,6 @@ public class UpdateUserControlButtonsHandlerWrapper {
         } else {
             timeMap.put(chatId, LocalDateTime.now());
         }
-
         return null;
     }
 }
