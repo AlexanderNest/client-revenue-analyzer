@@ -19,15 +19,12 @@ import ru.nesterov.properties.BotProperties;
 public class RevenueAnalyzerBot extends TelegramLongPollingBot {
     private final HandlersService handlersService;
     private final BotProperties botProperties;
-    private final UpdateUserControlButtonsHandler updateUserControlButtonsHandler;
     private final UpdateUserControlButtonsHandlerWrapper updateUserControlButtonsHandlerWrapper;
-
 
     public RevenueAnalyzerBot(BotProperties botProperties, HandlersService handlersService, UpdateUserControlButtonsHandler updateUserControlButtonsHandler, UpdateUserControlButtonsHandlerWrapper updateUserControlButtonsHandlerWrapper) {
         super(botProperties.getApiToken());
         this.handlersService = handlersService;
         this.botProperties = botProperties;
-        this.updateUserControlButtonsHandler = updateUserControlButtonsHandler;
         this.updateUserControlButtonsHandlerWrapper = updateUserControlButtonsHandlerWrapper;
     }
 
