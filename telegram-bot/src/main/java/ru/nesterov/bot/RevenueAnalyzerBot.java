@@ -21,7 +21,7 @@ public class RevenueAnalyzerBot extends TelegramLongPollingBot {
     private final BotProperties botProperties;
     private final UpdateUserControlButtonsHandlerWrapper updateUserControlButtonsHandlerWrapper;
 
-    public RevenueAnalyzerBot(BotProperties botProperties, HandlersService handlersService, UpdateUserControlButtonsHandler updateUserControlButtonsHandler, UpdateUserControlButtonsHandlerWrapper updateUserControlButtonsHandlerWrapper) {
+    public RevenueAnalyzerBot(BotProperties botProperties, HandlersService handlersService, UpdateUserControlButtonsHandlerWrapper updateUserControlButtonsHandlerWrapper) {
         super(botProperties.getApiToken());
         this.handlersService = handlersService;
         this.botProperties = botProperties;
