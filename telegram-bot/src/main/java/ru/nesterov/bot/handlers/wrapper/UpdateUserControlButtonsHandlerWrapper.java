@@ -23,7 +23,7 @@ public class UpdateUserControlButtonsHandlerWrapper {
     @Value("${bot.update.time}")
     private Long timeIntervalInSeconds;
 
-    public ReplyKeyboardMarkup getUpdateTime(Update update) {
+    public ReplyKeyboardMarkup getUpdateReplyKeyboardMarkup(Update update) {
         Long chatId = TelegramUpdateUtils.getChatId(update);
 
         if(timeMap.get(chatId) != null) {

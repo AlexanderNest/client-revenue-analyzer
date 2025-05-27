@@ -55,7 +55,7 @@ public class RevenueAnalyzerBot extends TelegramLongPollingBot {
         if (botApiMethod instanceof SendMessage) {
             SendMessage sendMessage = (SendMessage) botApiMethod;
             if(sendMessage.getReplyMarkup() == null) {
-                sendMessage.setReplyMarkup(updateUserControlButtonsHandlerWrapper.getUpdateTime(update));
+                sendMessage.setReplyMarkup(updateUserControlButtonsHandlerWrapper.getUpdateReplyKeyboardMarkup(update));
             }
         }
     sendMessage(botApiMethod);
