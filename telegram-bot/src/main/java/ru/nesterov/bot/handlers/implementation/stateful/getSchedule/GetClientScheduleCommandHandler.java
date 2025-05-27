@@ -56,11 +56,10 @@ public class GetClientScheduleCommandHandler extends StatefulCommandHandler<Stat
     private BotApiMethod<?> handleClientName(Update update) {
         if (getStateMachine(update).getMemory().getClientName() == null) {
             getStateMachine(update).getMemory().setClientName(update.getMessage().getText());
-            return sendCalendarKeyBoard(update,
-                    ENTER_FIRST_DATE,
-                    getStateMachine(update).getMemory().getDisplayedMonth());
         }
-        return null;
+        return sendCalendarKeyBoard(update,
+                ENTER_FIRST_DATE,
+                getStateMachine(update).getMemory().getDisplayedMonth());
     }
 
     @SneakyThrows

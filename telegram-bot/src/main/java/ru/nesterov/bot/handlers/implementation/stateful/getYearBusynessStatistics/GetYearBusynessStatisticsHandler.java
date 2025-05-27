@@ -32,14 +32,21 @@ public class GetYearBusynessStatisticsHandler extends StatefulCommandHandler<Sta
     }
 
     private BotApiMethod<?> askForAYear(Update update) {
-        GetYearBusynessStatisticsRequest getYearBusynessStatisticsRequest = GetYearBusynessStatisticsRequest.builder().build();
-        getStateMachine(update).setMemory(getYearBusynessStatisticsRequest);
-        return getPlainSendMessage(TelegramUpdateUtils.getChatId(update), "Введите год для расчета занятости");
+        GetYearBusynessStatisticsRequest getYearBusynessStatisticsRequest = getStateMachine(update).getMemory();
+        if (getYearBusynessStatisticsRequest == null) {
+            GetYearBusynessStatisticsRequest newGetYearBusynessStatisticsRequest = GetYearBusynessStatisticsRequest.builder().build();
+            getStateMachine(update).setMemory(newGetYearBusynessStatisticsRequest);
+        }
+        if (getStateMachine(update).getMemory().getYear() == null){
+            return getPlainSendMessage(TelegramUpdateUtils.getChatId(update), "Введите год для расчета занятости");
+        }
+        return sendYearStatistics(update);
+
     }
 
     private BotApiMethod<?> handleYearInput(Update update) {
-        int year;
 
+        int year;
         try {
             year = Integer.parseInt(update.getMessage().getText());
         } catch (NumberFormatException e) {
@@ -53,7 +60,6 @@ public class GetYearBusynessStatisticsHandler extends StatefulCommandHandler<Sta
     private BotApiMethod<?> sendYearStatistics(Update update) {
         GetYearBusynessStatisticsResponse response = client.getYearBusynessStatistics(TelegramUpdateUtils.getUserId(update),
                 getStateMachine(update).getMemory().getYear());
-
         return getPlainSendMessage(update.getMessage().getChatId(), formatYearStatistics(response));
     }
 
