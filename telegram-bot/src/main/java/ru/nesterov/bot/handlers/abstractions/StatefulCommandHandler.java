@@ -1,5 +1,6 @@
 package ru.nesterov.bot.handlers.abstractions;
 
+import org.springframework.beans.factory.annotation.Autowired;
 import org.telegram.telegrambots.meta.api.methods.BotApiMethod;
 import org.telegram.telegrambots.meta.api.objects.Update;
 import ru.nesterov.bot.TelegramUpdateUtils;
@@ -14,7 +15,8 @@ import java.lang.reflect.InvocationTargetException;
 import java.util.List;
 
 public abstract class StatefulCommandHandler <STATE, MEMORY> extends DisplayedCommandHandler {
-    private final ActionService actionService = new ActionService(getCommand());
+    @Autowired
+    protected ActionService actionService;
 
     protected final StateMachineProvider<STATE, MEMORY> stateMachineProvider;
     private final Class<MEMORY> memoryType;
@@ -47,7 +49,7 @@ public abstract class StatefulCommandHandler <STATE, MEMORY> extends DisplayedCo
     public BotApiMethod<?> handle(Update update) {
         StateMachine<STATE, Action, MEMORY> stateMachine = getStateMachine(update);
         List<Action> expectedActions = stateMachine.getExpectedActions();
-        Action action = actionService.defineTheAction(update, expectedActions);
+        Action action = actionService.defineTheAction(getCommand(), update, expectedActions);
 
         NextStateFunction<STATE> nextStateFunction = stateMachine.getNextStateFunction(action);
         BotApiMethod<?> botApiMethod = nextStateFunction.getFunctionForTransition().apply(update);

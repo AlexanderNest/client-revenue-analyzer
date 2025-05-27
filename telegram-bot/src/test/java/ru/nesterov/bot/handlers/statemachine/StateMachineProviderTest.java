@@ -19,6 +19,8 @@ public class StateMachineProviderTest {
         stateMachineProvider = new StateMachineProvider<>(StateTest.STARTED, MemoryTest.class);
     }
 
+    //TODO добавить тест если машины нет
+
     @Test
     void createAndGetMachineTest() {
         stateMachineProvider.addTransition(StateTest.STARTED, Action.COMMAND_INPUT, StateTest.WAITING_INPUT, update -> new SendMessage("1", "Текст"));
@@ -42,11 +44,7 @@ public class StateMachineProviderTest {
 
     @Test
     void removeMachineTest() {
-
-        stateMachineProvider.addTransition(StateTest.STARTED, Action.COMMAND_INPUT, StateTest.WAITING_INPUT, update -> new SendMessage("1", "Текст"));
-
-        StateMachine<StateTest, Action, MemoryTest> stateMachine = stateMachineProvider.createMachine(1L, new MemoryTest(), stateMachineProvider.getTransitions());
-
+        stateMachineProvider.createMachine(1L, new MemoryTest(), stateMachineProvider.getTransitions());
         stateMachineProvider.removeMachine(1L);
         Assertions.assertNull(stateMachineProvider.getMachine(1L));
     }

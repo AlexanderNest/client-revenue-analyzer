@@ -125,8 +125,7 @@ public class CreateClientTest extends RegisteredUserHandlerTest {
         assertEquals("Да", firstButtonText);
         assertEquals("Нет", secondButtonText);
 
-        message.setText("Нет");
-
+        message.setText(null);
         CallbackQuery callbackQuery = new CallbackQuery();
         callbackQuery.setId(String.valueOf(1));
         ButtonCallback callback = new ButtonCallback();
@@ -224,7 +223,7 @@ public class CreateClientTest extends RegisteredUserHandlerTest {
         assertEquals("Да", firstButtonText);
         assertEquals("Нет", secondButtonText);
 
-        message.setText("Нет");
+        message.setText(null);
 
         CallbackQuery callbackQuery = new CallbackQuery();
         callbackQuery.setId(String.valueOf(1));
@@ -324,7 +323,7 @@ public class CreateClientTest extends RegisteredUserHandlerTest {
         assertEquals("Да", firstButtonText);
         assertEquals("Нет", secondButtonText);
 
-        message.setText("Нет");
+        message.setText(null);
 
         CallbackQuery callbackQuery = new CallbackQuery();
         callbackQuery.setId(String.valueOf(1));

@@ -42,7 +42,8 @@ public class CreateClientHandler extends StatefulCommandHandler<State, CreateCli
                 .addTransition(State.PRICE_INPUT, Action.ANY_STRING, State.DESCRIPTION_INPUT, this::handlePricePerHourInput)
                 .addTransition(State.DESCRIPTION_INPUT, Action.ANY_STRING, State.NUMBER_INPUT, this::handleDescriptionInput)
                 .addTransition(State.NUMBER_INPUT, Action.ANY_STRING, State.CLIENT_NAME_GENERATION_INPUT, this::handlePhoneNumberInput)
-                .addTransition(State.CLIENT_NAME_GENERATION_INPUT, Action.ANY_CALLBACK_INPUT, State.FINISH, this::handleIdGenerationNeededInput);
+                .addTransition(State.CLIENT_NAME_GENERATION_INPUT, Action.CALLBACK_TRUE, State.FINISH, this::handleIdGenerationNeededInput)
+                .addTransition(State.CLIENT_NAME_GENERATION_INPUT, Action.CALLBACK_FALSE, State.FINISH, this::createClient);
     }
 
     private BotApiMethod<?> handleCreateClientCommand(Update update) {

@@ -27,8 +27,8 @@ public class GetYearBusynessStatisticsHandler extends StatefulCommandHandler<Sta
     @Override
     public void initTransitions() {
         stateMachineProvider
-                .addTransition(State.STARTED, Action.ANY_CALLBACK_INPUT, State.WAITING_YEAR_INPUT, this:: askForAYear)
-                .addTransition(State.WAITING_YEAR_INPUT, Action.ANY_STRING, State.FINISH, this:: handleYearInput);
+                .addTransition(State.STARTED, Action.COMMAND_INPUT, State.WAITING_YEAR_INPUT, this::askForAYear)
+                .addTransition(State.WAITING_YEAR_INPUT, Action.ANY_STRING, State.FINISH, this::handleYearInput);
     }
 
     private BotApiMethod<?> askForAYear(Update update) {
