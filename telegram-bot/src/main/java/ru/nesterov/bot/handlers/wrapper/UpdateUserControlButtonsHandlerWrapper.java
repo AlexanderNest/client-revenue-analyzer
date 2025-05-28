@@ -11,26 +11,27 @@ import ru.nesterov.bot.handlers.implementation.UpdateUserControlButtonsHandler;
 
 import java.time.Duration;
 import java.time.LocalDateTime;
-import java.util.HashMap;
 import java.util.Map;
+import java.util.concurrent.ConcurrentHashMap;
 
 @Component
 @RequiredArgsConstructor
 public class UpdateUserControlButtonsHandlerWrapper {
     private final UpdateUserControlButtonsHandler updateUserControlButtonsHandler;
-    private final Map<Long, LocalDateTime> timeMap = new HashMap<>();
+    private final Map<Long, LocalDateTime> timeMap = new ConcurrentHashMap<>();
 
-    @Value("${bot.update.time}")
+    @Value("${bot.buttons.update.time}")
     private Long timeIntervalInSeconds;
 
     public ReplyKeyboardMarkup getUpdateReplyKeyboardMarkup(Update update) {
         Long chatId = TelegramUpdateUtils.getChatId(update);
 
         if(timeMap.get(chatId) != null) {
-            boolean timeInterval = Duration.between(timeMap.get(chatId), (LocalDateTime.now()))
+            boolean timeInterval = Duration.between(timeMap.get(chatId), LocalDateTime.now())
                      .abs()
                      .getSeconds() > timeIntervalInSeconds;
             if(timeInterval) {
+                timeMap.put(chatId, LocalDateTime.now());
                 return updateUserControlButtonsHandler.getReplyKeyboardMarkup(update);
             }
         } else {
