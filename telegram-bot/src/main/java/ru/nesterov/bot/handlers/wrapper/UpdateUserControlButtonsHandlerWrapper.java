@@ -20,7 +20,7 @@ public class UpdateUserControlButtonsHandlerWrapper {
     private final UpdateUserControlButtonsHandler updateUserControlButtonsHandler;
     private final Map<Long, LocalDateTime> timeMap = new ConcurrentHashMap<>();
 
-    @Value("${bot.buttons.update.time}")
+    @Value("${bot.buttons.update.interval}")
     private Long timeIntervalInSeconds;
 
     public ReplyKeyboardMarkup getUpdateReplyKeyboardMarkup(Update update) {
