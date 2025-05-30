@@ -2,7 +2,6 @@ package ru.nesterov.bot.handlers.implementation;
 
 import lombok.RequiredArgsConstructor;
 import lombok.SneakyThrows;
-import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.stereotype.Component;
 import org.telegram.telegrambots.meta.api.methods.BotApiMethod;
 import org.telegram.telegrambots.meta.api.objects.CallbackQuery;
@@ -30,7 +29,6 @@ import java.util.stream.Collectors;
  */
 
 @Component
-@ConditionalOnProperty("bot.enabled")
 @RequiredArgsConstructor
 public class GetClientScheduleCommandHandler extends DisplayedCommandHandler {
     private final BotHandlersRequestsKeeper handlersKeeper;
@@ -100,6 +98,10 @@ public class GetClientScheduleCommandHandler extends DisplayedCommandHandler {
         InlineKeyboardMarkup keyboardMarkup = new InlineKeyboardMarkup();
         List<List<InlineKeyboardButton>> keyboard = new ArrayList<>();
         List<GetActiveClientResponse> clients = client.getActiveClients(userId);
+
+        if (clients.isEmpty()) {
+            return getPlainSendMessage(chatId, "Нет доступных клиентов");
+        }
 
         for (GetActiveClientResponse response : clients) {
             InlineKeyboardButton button = new InlineKeyboardButton();

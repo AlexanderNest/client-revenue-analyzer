@@ -4,7 +4,6 @@ import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.cache.annotation.Cacheable;
 import org.springframework.core.ParameterizedTypeReference;
 import org.springframework.http.HttpEntity;
@@ -44,7 +43,6 @@ import java.util.List;
 @Component
 @Slf4j
 @RequiredArgsConstructor
-@ConditionalOnProperty("bot.enabled")
 public class ClientRevenueAnalyzerIntegrationClient {
     private final RestTemplate restTemplate;
     private final RevenueAnalyzerProperties revenueAnalyzerProperties;

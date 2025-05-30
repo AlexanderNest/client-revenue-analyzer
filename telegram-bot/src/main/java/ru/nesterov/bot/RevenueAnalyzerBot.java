@@ -1,7 +1,6 @@
 package ru.nesterov.bot;
 
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.stereotype.Service;
 import org.telegram.telegrambots.bots.TelegramLongPollingBot;
 import org.telegram.telegrambots.meta.api.methods.BotApiMethod;
@@ -15,7 +14,6 @@ import ru.nesterov.properties.BotProperties;
 
 @Service
 @Slf4j
-@ConditionalOnProperty("bot.enabled")
 public class RevenueAnalyzerBot extends TelegramLongPollingBot {
     private final HandlersService handlersService;
     private final BotProperties botProperties;
