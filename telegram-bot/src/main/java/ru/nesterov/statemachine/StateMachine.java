@@ -13,7 +13,7 @@ import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.function.Function;
 
-public class StateMachine<STATE, ACTION, MEMORY> {
+public class StateMachine<STATE extends Enum<STATE>, ACTION, MEMORY> {
     private final Map<TransitionDescription<STATE>, NextStateFunction<STATE>> transitions = new ConcurrentHashMap<>();
     @Getter
     private STATE currentState;

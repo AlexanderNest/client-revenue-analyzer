@@ -12,6 +12,7 @@ import ru.nesterov.bot.handlers.abstractions.StatefulCommandHandler;
 import ru.nesterov.bot.handlers.implementation.CancelCommandHandler;
 
 import java.util.List;
+import java.util.function.Predicate;
 
 @Component
 @Slf4j
@@ -79,9 +80,17 @@ public class HandlersService {
         return null;
     }
 
-    public void resetHandlers(Long userId) {
+    public void resetFinishedHandlers(Long userId) {
+        resetHandlers(userId, handler -> handler.isFinished(userId));
+    }
+
+    public void resetAllHandlers(Long userId) {
+        resetHandlers(userId, handler -> true);
+    }
+
+    private void resetHandlers(Long userId, Predicate<StatefulCommandHandler<?, ?>> predicate) {
         statefulCommandHandlers.stream()
-                .filter(handler -> handler.isFinished(userId))
+                .filter(predicate)
                 .forEach(handler -> handler.resetState(userId));
     }
 
@@ -89,7 +98,7 @@ public class HandlersService {
         long userId = TelegramUpdateUtils.getUserId(update);
 
         CommandHandler commandHandler = statefulCommandHandlers.stream()
-                .filter(handler -> !handler.isFinished(userId))
+                .filter(handler -> !handler.isFinished(userId)) //TODO почему-то если вызывать сначала make events backup, потом он при нажатии на "нет" не сбрасывается заново подбирается
                 .findFirst()
                 .orElse(null);
 

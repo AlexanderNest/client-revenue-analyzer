@@ -20,7 +20,7 @@ public class CancelCommandHandler extends InvocableCommandHandler {
     public BotApiMethod<?> handle(Update update) {
         long userId = TelegramUpdateUtils.getUserId(update);
 
-        handlersService.resetHandlers(userId);
+        handlersService.resetAllHandlers(userId);
         return getPlainSendMessage(userId, "Контекст сброшен");
     }
 

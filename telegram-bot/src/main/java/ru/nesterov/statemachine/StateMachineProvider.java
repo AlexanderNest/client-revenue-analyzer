@@ -15,7 +15,7 @@ import java.util.function.Function;
 
 @Getter
 @Setter
-public class StateMachineProvider<STATE, MEMORY> {
+public class StateMachineProvider<STATE extends Enum<STATE>, MEMORY> {
 
     private final Map<Long, StateMachine<STATE, Action, MEMORY>> userMachines = new ConcurrentHashMap<>();
     private final STATE initialState;

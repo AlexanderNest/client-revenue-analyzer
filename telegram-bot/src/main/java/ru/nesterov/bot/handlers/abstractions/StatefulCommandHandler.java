@@ -4,7 +4,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.telegram.telegrambots.meta.api.methods.BotApiMethod;
 import org.telegram.telegrambots.meta.api.objects.Update;
 import ru.nesterov.bot.TelegramUpdateUtils;
-import ru.nesterov.bot.handlers.implementation.stateful.createClient.State;
 import ru.nesterov.bot.handlers.service.ActionService;
 import ru.nesterov.statemachine.StateMachine;
 import ru.nesterov.statemachine.StateMachineProvider;
@@ -14,7 +13,7 @@ import ru.nesterov.statemachine.dto.NextStateFunction;
 import java.lang.reflect.InvocationTargetException;
 import java.util.List;
 
-public abstract class StatefulCommandHandler <STATE, MEMORY> extends DisplayedCommandHandler {
+public abstract class StatefulCommandHandler<STATE extends Enum<STATE>, MEMORY> extends DisplayedCommandHandler {
     @Autowired
     protected ActionService actionService;
 
@@ -75,6 +74,6 @@ public abstract class StatefulCommandHandler <STATE, MEMORY> extends DisplayedCo
     @Override
     public boolean isFinished(Long userId) {
         StateMachine<STATE, Action, MEMORY> stateMachine = stateMachineProvider.getMachine(userId);
-        return stateMachine == null || stateMachine.getCurrentState() == State.FINISH;
+        return stateMachine == null || "FINISH".equals(stateMachine.getCurrentState().name());
     }
 }

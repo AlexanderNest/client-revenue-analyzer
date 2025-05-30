@@ -226,7 +226,7 @@ public class GetClientScheduleCommandHandler extends StatefulCommandHandler<Stat
 
     @Override
     public String getCommand() {
-        return "";
+        return "Узнать расписание клиента";
     }
 }
 

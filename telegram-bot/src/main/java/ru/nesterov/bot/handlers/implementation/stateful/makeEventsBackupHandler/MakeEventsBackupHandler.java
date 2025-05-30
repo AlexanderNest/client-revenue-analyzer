@@ -28,8 +28,8 @@ public class MakeEventsBackupHandler extends StatefulCommandHandler<State, MakeE
     public void initTransitions() {
         stateMachineProvider
                 .addTransition(State.STARTED, Action.COMMAND_INPUT, State.WAITING_FOR_CONFIRMATION, this::requestConfirmation)
-                .addTransition(State.WAITING_FOR_CONFIRMATION, Action.TRUE, State.FINISH, this::makeEventsBackup)
-                .addTransition(State.WAITING_FOR_CONFIRMATION, Action.FALSE, State.FINISH, this::getFinishMessageWithoutBackup);
+                .addTransition(State.WAITING_FOR_CONFIRMATION, Action.CALLBACK_TRUE, State.FINISH, this::makeEventsBackup)
+                .addTransition(State.WAITING_FOR_CONFIRMATION, Action.CALLBACK_FALSE, State.FINISH, this::getFinishMessageWithoutBackup);
     }
 
     private BotApiMethod<?> requestConfirmation(Update update) {
