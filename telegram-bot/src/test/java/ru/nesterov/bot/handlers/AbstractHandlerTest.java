@@ -9,6 +9,7 @@ import ru.nesterov.bot.handlers.implementation.CancelCommandHandler;
 import ru.nesterov.bot.handlers.service.BotHandlersRequestsKeeper;
 import ru.nesterov.bot.handlers.service.ButtonCallbackService;
 import ru.nesterov.bot.handlers.service.HandlersService;
+import ru.nesterov.bot.handlers.wrapper.UpdateUserControlButtonsHandlerWrapper;
 import ru.nesterov.calendar.InlineCalendarBuilder;
 import ru.nesterov.integration.ClientRevenueAnalyzerIntegrationClient;
 import ru.nesterov.properties.BotProperties;
@@ -23,7 +24,8 @@ import ru.nesterov.properties.BotProperties;
         HandlersService.class,
         ButtonCallbackService.class,
         BotProperties.class,
-        CancelCommandHandler.class
+        CancelCommandHandler.class,
+        UpdateUserControlButtonsHandlerWrapper.class
 })
 @SpringBootTest
 public abstract class AbstractHandlerTest {
@@ -39,6 +41,8 @@ public abstract class AbstractHandlerTest {
     protected BotProperties botProperties;
     @Autowired
     protected CancelCommandHandler cancelCommandHandler;
+    @Autowired
+    protected UpdateUserControlButtonsHandlerWrapper updateUserControlButtonsHandlerWrapper;
 
     @MockBean
     protected ClientRevenueAnalyzerIntegrationClient client;
