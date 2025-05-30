@@ -23,9 +23,4 @@ public class AiAnalyzerHandler extends DisplayedCommandHandler {
 
         return getPlainSendMessage(update.getMessage().getChatId(), response.getContent());
     }
-
-    @Override
-    public boolean isFinished(Long userId) {
-        return true;
-    }
 }

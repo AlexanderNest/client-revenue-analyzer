@@ -32,11 +32,6 @@ public class GetActiveClientsHandler extends DisplayedCommandHandler {
     }
 
     @Override
-    public boolean isFinished(Long userId) {
-        return true;
-    }
-
-    @Override
     public String getCommand() {
         return "Вывести список клиентов";
     }

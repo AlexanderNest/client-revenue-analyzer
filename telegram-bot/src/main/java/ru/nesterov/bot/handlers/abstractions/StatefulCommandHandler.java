@@ -71,7 +71,6 @@ public abstract class StatefulCommandHandler<STATE extends Enum<STATE>, MEMORY> 
      *      true - если надо сбросить обработчики для пользователя.
      *      false - если надо, чтобы при следующем обновлении в чате вызвался тот же обработчик
      */
-    @Override
     public boolean isFinished(Long userId) {
         StateMachine<STATE, Action, MEMORY> stateMachine = stateMachineProvider.getMachine(userId);
         return stateMachine == null || "FINISH".equals(stateMachine.getCurrentState().name());
