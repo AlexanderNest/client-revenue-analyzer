@@ -1,6 +1,10 @@
 package ru.nesterov.dto;
 
-import lombok.*;
+import lombok.AllArgsConstructor;
+import lombok.Builder;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
+import lombok.Setter;
 
 import java.time.LocalDate;
 
@@ -15,12 +19,4 @@ public class GetClientScheduleRequest {
     private LocalDate displayedMonth;
     private LocalDate firstDate;
     private LocalDate secondDate;
-
-    public boolean isFilled() {
-        return userId != null
-                && clientName != null
-                && displayedMonth != null
-                && firstDate != null
-                && secondDate != null;
-    }
 }

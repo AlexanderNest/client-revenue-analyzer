@@ -22,11 +22,6 @@ public abstract class InvocableCommandHandler extends SendingMessageCommandHandl
             return true;
         }
 
-//        boolean isPlainText = message != null && message.getText() != null;
-//        if (isPlainText && !isFinished(TelegramUpdateUtils.getUserId(update))) {
-//            return true;
-//        }
-
         CallbackQuery callbackQuery = update.getCallbackQuery();
 
         if (callbackQuery == null) {

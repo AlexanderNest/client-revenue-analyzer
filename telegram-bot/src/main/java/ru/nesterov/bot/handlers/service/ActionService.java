@@ -24,10 +24,8 @@ public class ActionService {
         if (update.getMessage() != null && update.getMessage().getText() != null) {
             String text = update.getMessage().getText();
 
-            if (text.equals(command)) {
-                if (expectedActions.contains(Action.COMMAND_INPUT)) {
-                    return Action.COMMAND_INPUT;
-                }
+            if (text.equals(command) && expectedActions.contains(Action.COMMAND_INPUT)) {
+                return Action.COMMAND_INPUT;
             }
 
             boolean isBoolean = false;

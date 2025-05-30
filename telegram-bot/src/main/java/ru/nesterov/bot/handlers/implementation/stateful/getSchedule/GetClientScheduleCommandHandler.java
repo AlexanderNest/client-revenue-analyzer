@@ -88,7 +88,7 @@ public class GetClientScheduleCommandHandler extends StatefulCommandHandler<Stat
 
             message = sendClientNamesKeyboard(chatId, userId);
         } else {
-            message = handleCallbackQuery(update, getStateMachine(update).getMemory());
+            message = handleCallbackQuery(update);
         }
         return message;
     }
@@ -168,7 +168,7 @@ public class GetClientScheduleCommandHandler extends StatefulCommandHandler<Stat
     }
 
     @SneakyThrows
-    private BotApiMethod<?> handleCallbackQuery(Update update, GetClientScheduleRequest getClientScheduleRequest) {
+    private BotApiMethod<?> handleCallbackQuery(Update update) {
         ButtonCallback callback = buttonCallbackService.buildButtonCallback(update.getCallbackQuery().getData());
 
         if (isValidDate(callback.getValue())) {
