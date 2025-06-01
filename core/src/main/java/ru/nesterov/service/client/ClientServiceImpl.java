@@ -14,6 +14,7 @@ import ru.nesterov.repository.UserRepository;
 import ru.nesterov.service.CalendarService;
 import ru.nesterov.service.date.helper.MonthDatesPair;
 import ru.nesterov.service.dto.ClientDto;
+import ru.nesterov.service.dto.ClientMeetingsStatistic;
 import ru.nesterov.service.dto.UserDto;
 import ru.nesterov.service.mapper.ClientMapper;
 
@@ -26,6 +27,7 @@ public class ClientServiceImpl implements ClientService {
     private final CalendarService calendarService;
     private final ClientRepository clientRepository;
     private final UserRepository userRepository;
+    private final ClientMeetingsStatistic clientMeetingsStatistic;
 
     public List<MonthDatesPair> getClientSchedule(UserDto userDto, String clientName, LocalDateTime leftDate, LocalDateTime rightDate) {
         Client client = clientRepository.findClientByNameAndUserId(clientName, userDto.getId());
@@ -77,4 +79,14 @@ public class ClientServiceImpl implements ClientService {
                 .map(ClientMapper::mapToClientDto)
                 .toList();
     }
+
+    @Override
+    public ClientDto getClientInfo(UserDto userDto, String clientName) {
+        int totalEvents = clientMeetingsStatistic.getSuccessfulEventsCount();
+        double totalIncome = clientMeetingsStatistic.getActualIncome();
+        int plannedCancelledEventsCount;
+        int notPlannedCancelledEventsCount;
+        return ClientMapper.mapToClientDto(clientRepository.findClientByNameAndUserId(clientName, userDto.getId()));
+    }
+
 }

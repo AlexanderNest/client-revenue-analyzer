@@ -41,8 +41,6 @@ public abstract class AbstractHandlerTest {
     protected BotProperties botProperties;
     @Autowired
     protected CancelCommandHandler cancelCommandHandler;
-    @Autowired
-    protected UpdateUserControlButtonsHandlerWrapper updateUserControlButtonsHandlerWrapper;
 
     @MockBean
     protected ClientRevenueAnalyzerIntegrationClient client;

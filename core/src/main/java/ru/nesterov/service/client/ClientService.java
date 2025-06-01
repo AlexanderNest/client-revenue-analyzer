@@ -14,4 +14,5 @@ public interface ClientService {
 
     List<ClientDto> getActiveClients(UserDto userDto);
 
+    ClientDto getClientInfo(UserDto userDto, String clientName);
 }

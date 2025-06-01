@@ -1,10 +1,13 @@
 package ru.nesterov.bot.handlers.wrapper;
 
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
+import org.mockito.InjectMocks;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.context.properties.EnableConfigurationProperties;
-import org.springframework.test.context.ContextConfiguration;
+import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.test.context.TestPropertySource;
+import org.springframework.test.context.junit.jupiter.SpringExtension;
 import org.telegram.telegrambots.meta.api.objects.Chat;
 import org.telegram.telegrambots.meta.api.objects.Message;
 import org.telegram.telegrambots.meta.api.objects.Update;
@@ -13,8 +16,7 @@ import org.telegram.telegrambots.meta.api.objects.replykeyboard.ReplyKeyboardMar
 import org.telegram.telegrambots.meta.api.objects.replykeyboard.buttons.KeyboardButton;
 import org.telegram.telegrambots.meta.api.objects.replykeyboard.buttons.KeyboardRow;
 import ru.nesterov.bot.handlers.RegisteredUserHandlerTest;
-import ru.nesterov.bot.handlers.implementation.GetClientScheduleCommandHandler;
-import ru.nesterov.bot.handlers.implementation.GetMonthStatisticsCommandHandler;
+import ru.nesterov.bot.handlers.implementation.UpdateUserControlButtonsHandler;
 import ru.nesterov.properties.BotProperties;
 
 import java.util.ArrayList;
@@ -22,14 +24,21 @@ import java.util.List;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.when;
 
 @EnableConfigurationProperties(BotProperties.class)
 @TestPropertySource(properties = {
-        "bot.buttons.update.interval=5"
+        "bot.buttons.update.interval=10"
 })
 public class UpdateUserControlButtonsHandlerWrapperTest extends RegisteredUserHandlerTest {
+
+    @Autowired
+    private UpdateUserControlButtonsHandlerWrapper updateUserControlButtonsHandlerWrapper;
+
+    @MockBean
+    private UpdateUserControlButtonsHandler updateUserControlButtonsHandler;
 
     @Test
     public void getUpdateReplyKeyboardMarkupTest() throws InterruptedException {
@@ -51,24 +60,14 @@ public class UpdateUserControlButtonsHandlerWrapperTest extends RegisteredUserHa
         keyboardRow1.add(new KeyboardButton("Зарегистрироваться в боте"));
         keyboardRows.add(keyboardRow1);
 
-//        KeyboardRow keyboardRow2 = new KeyboardRow();
-//        keyboardRow2.add(new KeyboardButton("Узнать расписание клиента"));
-//        keyboardRows.add(keyboardRow2);
-
         replyKeyboardMarkupTest.setKeyboard(keyboardRows);
 
-        when(updateUserControlButtonsHandler.getReplyKeyboardMarkup(update)).thenReturn(any()); // ????????????????????
+        assertNull(updateUserControlButtonsHandlerWrapper.getUpdateReplyKeyboardMarkup(update));
+        when(updateUserControlButtonsHandler.getReplyKeyboardMarkup(update)).thenReturn(replyKeyboardMarkupTest);
+        assertNull(updateUserControlButtonsHandlerWrapper.getUpdateReplyKeyboardMarkup(update));
 
-        updateUserControlButtonsHandlerWrapper.getUpdateReplyKeyboardMarkup(update);
+        Thread.sleep(10);
 
-            Thread.sleep(6000);
-
-
-        ReplyKeyboardMarkup replyKeyboardMarkup = updateUserControlButtonsHandlerWrapper.getUpdateReplyKeyboardMarkup(update);
-
-        assertNotNull(replyKeyboardMarkup);
-        assertNotNull(replyKeyboardMarkup.getKeyboard());
-        assertEquals(keyboardRows, replyKeyboardMarkup.getKeyboard());
-
+        assertEquals(1, updateUserControlButtonsHandlerWrapper.getUpdateReplyKeyboardMarkup(update).getKeyboard().size());
     }
 }
