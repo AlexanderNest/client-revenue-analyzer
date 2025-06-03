@@ -23,9 +23,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertNull;
-import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.when;
 
 @EnableConfigurationProperties(BotProperties.class)
@@ -33,7 +31,6 @@ import static org.mockito.Mockito.when;
         "bot.buttons.update.interval=10"
 })
 public class UpdateUserControlButtonsHandlerWrapperTest extends RegisteredUserHandlerTest {
-
     @Autowired
     private UpdateUserControlButtonsHandlerWrapper updateUserControlButtonsHandlerWrapper;
 
