@@ -33,7 +33,6 @@ import static org.mockito.Mockito.when;
 public class UpdateUserControlButtonsHandlerWrapperTest extends RegisteredUserHandlerTest {
     @Autowired
     private UpdateUserControlButtonsHandlerWrapper updateUserControlButtonsHandlerWrapper;
-
     @MockBean
     private UpdateUserControlButtonsHandler updateUserControlButtonsHandler;
 

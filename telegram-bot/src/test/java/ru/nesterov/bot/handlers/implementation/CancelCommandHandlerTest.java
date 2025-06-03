@@ -2,6 +2,7 @@ package ru.nesterov.bot.handlers.implementation;
 
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.test.context.ContextConfiguration;
 import org.telegram.telegrambots.meta.api.methods.BotApiMethod;
 import org.telegram.telegrambots.meta.api.methods.send.SendMessage;
@@ -12,15 +13,17 @@ import org.telegram.telegrambots.meta.api.objects.User;
 import ru.nesterov.bot.handlers.AbstractHandlerTest;
 import ru.nesterov.bot.handlers.abstractions.CommandHandler;
 import ru.nesterov.bot.handlers.service.HandlersService;
+import ru.nesterov.bot.handlers.wrapper.UpdateUserControlButtonsHandlerWrapper;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertInstanceOf;
 
 @ContextConfiguration(classes = {
         HandlersService.class,
-        CreateClientHandler.class
+        CreateClientHandler.class,
+        UpdateUserControlButtonsHandlerWrapper.class
 })
-public class CancelCommandHandlerTest  extends AbstractHandlerTest {
+public class CancelCommandHandlerTest extends AbstractHandlerTest {
     @Autowired
     private CreateClientHandler createClientHandler;
 
