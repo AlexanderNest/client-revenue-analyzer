@@ -22,8 +22,7 @@ import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.Set;
 
-import static org.junit.jupiter.api.Assertions.assertFalse;
-import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.junit.jupiter.api.Assertions.*;
 
 public class ControllerStandardsTest {
 
@@ -50,7 +49,7 @@ public class ControllerStandardsTest {
         }
     }
 
-    @DisplayName("Методы нтерфейсов-контроллеров должны иметь аннотаций swagger")
+    @DisplayName("Методы интерфейсов-контроллеров должны иметь аннотаций swagger")
     @Test
     public void testAllControllerInterfacesHaveSwaggerAnnotations() {
         Set<Class<?>> controllerInterfaces = getClassesAnnotatedWith(RequestMapping.class);
@@ -116,6 +115,35 @@ public class ControllerStandardsTest {
             }
         }
     }
+
+    @Test
+    @DisplayName("Проверка на дублирующиеся аннотации контроллеров из интерфейсов")
+    void testControllersDoNotHaveDuplicatedAnnotations() {
+        Set<Class<?>> controllerInterfaces = getClassesAnnotatedWith(RequestMapping.class);
+        for (Class<?> controllerInterface : controllerInterfaces) {
+            assertTrue(
+                    controllerInterface.isAnnotationPresent(Tag.class),
+                    "Interface " + controllerInterface.getName() + " is missing @Tag annotation");
+            Method[] methods = controllerInterface.getDeclaredMethods();
+            for (Method method : methods) {
+                assertTrue(
+                        method.isAnnotationPresent(Operation.class),
+                        "Method " + method.getName() + " in interface " + controllerInterface.getName() + " is missing @Operation annotation");
+            }
+        }
+        Set<Class<?>> classesImplementedInterfaces = getClassesAnnotatedWith(RestController.class);
+        for (Class<?> classImplementedInterface : classesImplementedInterfaces) {
+            assertTrue(classImplementedInterface.getInterfaces().length > 0,
+                    "Class" + classImplementedInterface.getName() + " does not implement interface");
+            assertNull(classImplementedInterface.getAnnotation(Tag.class), "@Tag is duplicated in class " + classImplementedInterface.getName());
+            Method[] methods = classImplementedInterface.getDeclaredMethods();
+            for (Method method : methods) {
+                assertNull(method.getAnnotation(Operation.class),
+                        "@Operation is duplicated in method" + method.getName() + " and in class " + classImplementedInterface.getName());
+            }
+        }
+    }
+
 
     @SneakyThrows
     private Set<Class<?>> getClassesAnnotatedWith(Class<? extends Annotation> annotation) {
