@@ -10,9 +10,9 @@ import org.telegram.telegrambots.meta.api.objects.Message;
 import org.telegram.telegrambots.meta.api.objects.Update;
 import org.telegram.telegrambots.meta.api.objects.User;
 import ru.nesterov.bot.handlers.AbstractHandlerTest;
+import ru.nesterov.bot.handlers.RegisteredUserHandlerTest;
 import ru.nesterov.bot.handlers.abstractions.CommandHandler;
 import ru.nesterov.bot.handlers.service.HandlersService;
-import ru.nesterov.bot.handlers.wrapper.UpdateUserControlButtonsHandlerWrapper;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertInstanceOf;
@@ -21,7 +21,7 @@ import static org.junit.jupiter.api.Assertions.assertInstanceOf;
         HandlersService.class,
         CreateClientHandler.class
 })
-public class CancelCommandHandlerTest extends AbstractHandlerTest {
+public class CancelCommandHandlerTest extends RegisteredUserHandlerTest {
     @Autowired
     private CreateClientHandler createClientHandler;
 
