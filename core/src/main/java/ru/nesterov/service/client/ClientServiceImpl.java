@@ -14,7 +14,6 @@ import ru.nesterov.repository.UserRepository;
 import ru.nesterov.service.CalendarService;
 import ru.nesterov.service.date.helper.MonthDatesPair;
 import ru.nesterov.service.dto.ClientDto;
-import ru.nesterov.service.dto.ClientMeetingsStatistic;
 import ru.nesterov.service.dto.UserDto;
 import ru.nesterov.service.mapper.ClientMapper;
 
