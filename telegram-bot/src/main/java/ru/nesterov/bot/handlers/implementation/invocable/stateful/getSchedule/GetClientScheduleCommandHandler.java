@@ -146,6 +146,7 @@ public class GetClientScheduleCommandHandler extends StatefulCommandHandler<Stat
 
     @SneakyThrows
     private BotApiMethod<?> handleCallbackQuery(Update update) {
+        //TODO добавить обработку кнопок влево вправо
         ButtonCallback callback = buttonCallbackService.buildButtonCallback(update.getCallbackQuery().getData());
 
         if (isValidDate(callback.getValue())) {

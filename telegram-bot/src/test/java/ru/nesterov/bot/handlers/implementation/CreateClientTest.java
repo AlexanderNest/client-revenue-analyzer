@@ -138,7 +138,7 @@ public class CreateClientTest extends RegisteredUserHandlerTest {
 
         update.setCallbackQuery(callbackQuery);
 
-        botApiMethod = createClientHandler.handle(update); //TODO тут почему-то в message возвращается Нет. Хотя должен прийти только в колбеке (по крайней мере так кажется). Надо проверить, как в реальности приходит это значение. Если оно правда там есть, то написать мне. Если его там нет, исправить тест
+        botApiMethod = createClientHandler.handle(update);
         sendMessage = (SendMessage) botApiMethod;
         assertEquals(String.join(System.lineSeparator(),
                 "Клиент успешно зарегистрирован!",
