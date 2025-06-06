@@ -5,12 +5,12 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.stereotype.Component;
 import org.telegram.telegrambots.meta.api.objects.Update;
-import ru.nesterov.bot.TelegramUpdateUtils;
 import ru.nesterov.bot.handlers.abstractions.CommandHandler;
 import ru.nesterov.bot.handlers.abstractions.Priority;
 import ru.nesterov.bot.handlers.abstractions.StatefulCommandHandler;
-import ru.nesterov.bot.handlers.implementation.CancelCommandHandler;
 import ru.nesterov.bot.handlers.implementation.UndefinedHandler;
+import ru.nesterov.bot.handlers.implementation.invocable.CancelCommandHandler;
+import ru.nesterov.bot.utils.TelegramUpdateUtils;
 
 import java.util.List;
 import java.util.function.Predicate;
