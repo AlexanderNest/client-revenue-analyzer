@@ -2,6 +2,7 @@ package ru.nesterov.bot.handlers.abstractions;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.telegram.telegrambots.meta.api.methods.BotApiMethod;
+import org.telegram.telegrambots.meta.api.objects.Message;
 import org.telegram.telegrambots.meta.api.objects.Update;
 import ru.nesterov.bot.TelegramUpdateUtils;
 import ru.nesterov.bot.handlers.service.ActionService;
@@ -63,6 +64,17 @@ public abstract class StatefulCommandHandler<STATE extends Enum<STATE>, MEMORY> 
         stateMachineProvider.removeMachine(userId);
     }
 
+    @Override
+    public boolean isApplicable(Update update) {
+        Message message = update.getMessage();
+        boolean isPlainText = message != null && message.getText() != null;
+        if (isPlainText && !isFinishedOrNotStarted(TelegramUpdateUtils.getUserId(update))) {
+            return true;
+        }
+
+        return super.isApplicable(update);
+    }
+
     /**
      * Определяет нужно ли сбрасывать обработчик для указанного пользователя.
      * Это полезно для тех случаев, когда один и тот же обработчик должен получить несколько сообщений подряд.
@@ -71,7 +83,7 @@ public abstract class StatefulCommandHandler<STATE extends Enum<STATE>, MEMORY> 
      *      true - если надо сбросить обработчики для пользователя.
      *      false - если надо, чтобы при следующем обновлении в чате вызвался тот же обработчик
      */
-    public boolean isFinished(Long userId) {
+    public boolean isFinishedOrNotStarted(Long userId) {
         StateMachine<STATE, Action, MEMORY> stateMachine = stateMachineProvider.getMachine(userId);
         return stateMachine == null || "FINISH".equals(stateMachine.getCurrentState().name());
     }

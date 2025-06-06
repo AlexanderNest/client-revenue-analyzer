@@ -207,8 +207,8 @@ public class EventsAnalyzerServiceImpl implements EventsAnalyzerService {
         CalendarServiceDto calendarServiceDto = CalendarServiceDto.builder()
                 .mainCalendar(userDto.getMainCalendar())
                 .cancelledCalendar(userDto.getCancelledCalendar())
-                .rightDate(startOfYear)
-                .leftDate(endOfYear)
+                .leftDate(startOfYear)
+                .rightDate(endOfYear)
                 .isCancelledCalendarEnabled(userDto.isCancelledCalendarEnabled())
                 .build();
         return calendarService.getEventsBetweenDates(calendarServiceDto);

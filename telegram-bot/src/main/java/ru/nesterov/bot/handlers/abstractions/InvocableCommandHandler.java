@@ -16,8 +16,8 @@ public abstract class InvocableCommandHandler extends SendingMessageCommandHandl
     @SneakyThrows
     public boolean isApplicable(Update update) {
         Message message = update.getMessage();
-        boolean isCurrentHandlerCommand = message != null && getCommand().equals(message.getText());
 
+        boolean isCurrentHandlerCommand = message != null && getCommand().equals(message.getText());
         if (isCurrentHandlerCommand) {
             return true;
         }

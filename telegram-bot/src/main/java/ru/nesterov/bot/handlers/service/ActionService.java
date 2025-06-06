@@ -34,8 +34,7 @@ public class ActionService {
                 if (expectedActions.contains(Action.TRUE)) {
                     return Action.TRUE;
                 }
-            }
-            if (falseAliases.contains(text.toLowerCase())) {
+            } else if (falseAliases.contains(text.toLowerCase())) {
                 isBoolean = true;
                 if (expectedActions.contains(Action.FALSE)) {
                     return Action.FALSE;
@@ -53,17 +52,29 @@ public class ActionService {
             }
         }
 
-        if (update.getCallbackQuery() != null && update.getCallbackQuery().getData() != null && (expectedActions.contains(Action.CALLBACK_FALSE) || expectedActions.contains(Action.CALLBACK_TRUE))) { //TODO тут скорее всего надо сделать как в случае с обычными булинами
+        if (update.getCallbackQuery() != null && update.getCallbackQuery().getData() != null) {
             ButtonCallback buttonCallback = buttonCallbackService.buildButtonCallback(update.getCallbackQuery().getData());
-            boolean value = Boolean.parseBoolean(buttonCallback.getValue());
 
-            if (value) {
-                return Action.CALLBACK_TRUE;
-            } else {
-                return Action.CALLBACK_FALSE;
+            boolean isBoolean = false;
+            if (trueAliases.contains(buttonCallback.getValue())) {
+                isBoolean = true;
+                if (expectedActions.contains(Action.CALLBACK_TRUE)) {
+                    return Action.CALLBACK_TRUE;
+                }
+            } else if (falseAliases.contains(buttonCallback.getValue())) {
+                isBoolean = true;
+                if (expectedActions.contains(Action.CALLBACK_FALSE)) {
+                    return Action.CALLBACK_FALSE;
+                }
             }
 
-            //TODO возможно тут надо добавить ANYCALLBACK
+            if (isBoolean && expectedActions.contains(Action.ANY_CALLBACK_BOOLEAN)) {
+                return Action.ANY_CALLBACK_BOOLEAN;
+            }
+
+            if (expectedActions.contains(Action.ANY_CALLBACK_INPUT)) {
+                return Action.ANY_CALLBACK_INPUT;
+            }
         }
 
         throw new IllegalArgumentException("Cannot define the action");

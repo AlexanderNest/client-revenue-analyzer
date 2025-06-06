@@ -9,5 +9,6 @@ public enum Action {
     ANY_STRING,
     CALLBACK_TRUE,
     CALLBACK_FALSE,
+    ANY_CALLBACK_BOOLEAN,
     ANY_CALLBACK_INPUT
 }

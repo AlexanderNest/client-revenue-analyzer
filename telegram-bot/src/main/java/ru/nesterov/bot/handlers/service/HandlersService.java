@@ -81,7 +81,7 @@ public class HandlersService {
     }
 
     public void resetFinishedHandlers(Long userId) {
-        resetHandlers(userId, handler -> handler.isFinished(userId));
+        resetHandlers(userId, handler -> handler.isFinishedOrNotStarted(userId));
     }
 
     public void resetAllHandlers(Long userId) {
@@ -98,7 +98,7 @@ public class HandlersService {
         long userId = TelegramUpdateUtils.getUserId(update);
 
         CommandHandler commandHandler = statefulCommandHandlers.stream()
-                .filter(handler -> !handler.isFinished(userId)) //TODO почему-то если вызывать сначала make events backup, потом он при нажатии на "нет" не сбрасывается заново подбирается
+                .filter(handler -> !handler.isFinishedOrNotStarted(userId)) //TODO почему-то если вызывать сначала make events backup, потом он при нажатии на "нет" не сбрасывается заново подбирается
                 .findFirst()
                 .orElse(null);
 
