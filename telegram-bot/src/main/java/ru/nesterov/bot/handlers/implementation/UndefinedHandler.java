@@ -10,11 +10,11 @@ import ru.nesterov.bot.handlers.abstractions.SendingMessageCommandHandler;
 public class UndefinedHandler extends SendingMessageCommandHandler {
     @Override
     public BotApiMethod<?> handle(Update update) {
-        return getPlainSendMessage(TelegramUpdateUtils.getUserId(update), update.getMessage().getText());
+        return getPlainSendMessage(TelegramUpdateUtils.getUserId(update), "Неизвестная команда");
     }
 
     @Override
     public boolean isApplicable(Update update) {
-        return false;
+        return false; // вызываем только вручную, если не нашли подходящий обработчик
     }
 }

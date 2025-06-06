@@ -48,7 +48,6 @@ public class GetClientScheduleCommandHandler extends StatefulCommandHandler<Stat
                 .addTransition(State.SELECT_CLIENT, Action.ANY_CALLBACK_INPUT, State.SELECT_FIRST_DATE, this::handleClientName)
                 .addTransition(State.SELECT_FIRST_DATE, Action.ANY_CALLBACK_INPUT, State.SELECT_SECOND_DATE, this::handleFirstDate)
                 .addTransition(State.SELECT_SECOND_DATE, Action.ANY_CALLBACK_INPUT, State.FINISH, this::handleSecondDate);
-//                .addTransition(State.SECOND_DATE_SELECTED, Action.ANY_CALLBACK_INPUT, State.FINISH, this::sendClientSchedule);
     }
 
     private BotApiMethod<?> handleClientName(Update update) {

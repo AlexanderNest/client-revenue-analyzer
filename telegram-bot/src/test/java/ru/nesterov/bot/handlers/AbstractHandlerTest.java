@@ -7,7 +7,6 @@ import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.test.context.ContextConfiguration;
 import ru.nesterov.bot.handlers.implementation.CancelCommandHandler;
 import ru.nesterov.bot.handlers.service.ActionService;
-import ru.nesterov.bot.handlers.service.BotHandlersRequestsKeeper;
 import ru.nesterov.bot.handlers.service.ButtonCallbackService;
 import ru.nesterov.bot.handlers.service.HandlersService;
 import ru.nesterov.calendar.InlineCalendarBuilder;

@@ -32,20 +32,10 @@ public class GetYearBusynessStatisticsHandler extends StatefulCommandHandler<Sta
     }
 
     private BotApiMethod<?> askForAYear(Update update) {
-        GetYearBusynessStatisticsRequest getYearBusynessStatisticsRequest = getStateMachine(update).getMemory();
-        if (getYearBusynessStatisticsRequest == null) {
-            GetYearBusynessStatisticsRequest newGetYearBusynessStatisticsRequest = GetYearBusynessStatisticsRequest.builder().build();
-            getStateMachine(update).setMemory(newGetYearBusynessStatisticsRequest);
-        }
-        if (getStateMachine(update).getMemory().getYear() == null){
-            return getPlainSendMessage(TelegramUpdateUtils.getChatId(update), "Введите год для расчета занятости");
-        }
-        return sendYearStatistics(update);
-
+        return getPlainSendMessage(TelegramUpdateUtils.getChatId(update), "Введите год для расчета занятости");
     }
 
     private BotApiMethod<?> handleYearInput(Update update) {
-
         int year;
         try {
             year = Integer.parseInt(update.getMessage().getText());

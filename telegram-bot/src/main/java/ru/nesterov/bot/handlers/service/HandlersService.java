@@ -10,6 +10,7 @@ import ru.nesterov.bot.handlers.abstractions.CommandHandler;
 import ru.nesterov.bot.handlers.abstractions.Priority;
 import ru.nesterov.bot.handlers.abstractions.StatefulCommandHandler;
 import ru.nesterov.bot.handlers.implementation.CancelCommandHandler;
+import ru.nesterov.bot.handlers.implementation.UndefinedHandler;
 
 import java.util.List;
 import java.util.function.Predicate;
@@ -21,14 +22,15 @@ public class HandlersService {
     private final List<CommandHandler> highestPriorityCommandHandlers;
     private final List<CommandHandler> normalPriorityCommandHandlers;
     private final List<CommandHandler> lowestPriorityCommandHandlers;
-    private final BotHandlersRequestsKeeper botHandlersRequestsKeeper;
+
+    private final UndefinedHandler undefinedHandler;
     private final CancelCommandHandler cancelCommandHandler;
 
     private final List<StatefulCommandHandler<?, ?>> statefulCommandHandlers;
 
     public HandlersService(List<CommandHandler> commandHandlers,
                            List<StatefulCommandHandler<?, ?>> statefulCommandHandlers,
-                           BotHandlersRequestsKeeper botHandlersRequestsKeeper,
+                           UndefinedHandler undefinedHandler,
                            CancelCommandHandler cancelCommandHandler) {
         this.statefulCommandHandlers = statefulCommandHandlers;
 
@@ -44,7 +46,7 @@ public class HandlersService {
                 .filter(ch -> ch.getPriority() == Priority.LOWEST)
                 .toList();
 
-        this.botHandlersRequestsKeeper = botHandlersRequestsKeeper;
+        this.undefinedHandler = undefinedHandler;
         this.cancelCommandHandler = cancelCommandHandler;
     }
 
@@ -77,7 +79,7 @@ public class HandlersService {
         }
 
         log.warn("Не удалось найти Handler для этого Update [{}]", update);
-        return null;
+        return undefinedHandler;
     }
 
     public void resetFinishedHandlers(Long userId) {
@@ -98,15 +100,14 @@ public class HandlersService {
         long userId = TelegramUpdateUtils.getUserId(update);
 
         CommandHandler commandHandler = statefulCommandHandlers.stream()
-                .filter(handler -> !handler.isFinishedOrNotStarted(userId)) //TODO почему-то если вызывать сначала make events backup, потом он при нажатии на "нет" не сбрасывается заново подбирается
+                .filter(handler -> !handler.isFinishedOrNotStarted(userId))
                 .findFirst()
                 .orElse(null);
 
         if (commandHandler != null) {
             if (commandHandler.isApplicable(update)) {
                 return commandHandler;
-            }
-            else {
+            } else {
                 throw new RuntimeException("Неподходящий commandHandler " + update + commandHandler);
             }
         }

@@ -1,7 +1,6 @@
 package ru.nesterov.statemachine;
 
 import lombok.Getter;
-import lombok.Setter;
 import org.telegram.telegrambots.meta.api.methods.BotApiMethod;
 import org.telegram.telegrambots.meta.api.objects.Update;
 import ru.nesterov.statemachine.dto.Action;
@@ -18,8 +17,7 @@ public class StateMachine<STATE extends Enum<STATE>, ACTION, MEMORY> {
     @Getter
     private STATE currentState;
     @Getter
-    @Setter
-    private MEMORY memory;
+    private final MEMORY memory;
 
     public StateMachine(STATE initialState, MEMORY memory) {
         this.currentState = initialState;
