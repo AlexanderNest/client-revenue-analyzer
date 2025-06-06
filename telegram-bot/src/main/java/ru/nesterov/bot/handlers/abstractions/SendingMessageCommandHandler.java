@@ -15,7 +15,7 @@ import org.telegram.telegrambots.meta.api.objects.replykeyboard.ReplyKeyboard;
 import org.telegram.telegrambots.meta.api.objects.replykeyboard.buttons.InlineKeyboardButton;
 import ru.nesterov.bot.handlers.callback.ButtonCallback;
 import ru.nesterov.bot.handlers.service.ButtonCallbackService;
-import ru.nesterov.integration.ClientRevenueAnalyzerIntegrationClient;
+import ru.nesterov.bot.integration.ClientRevenueAnalyzerIntegrationClient;
 
 /**
  * CommandHandler, который отправляет сообщения. Также содержит полезные методы для быстрого создания сообщений.

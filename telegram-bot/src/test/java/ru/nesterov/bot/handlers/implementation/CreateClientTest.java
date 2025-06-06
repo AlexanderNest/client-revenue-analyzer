@@ -14,11 +14,12 @@ import org.telegram.telegrambots.meta.api.objects.User;
 import org.telegram.telegrambots.meta.api.objects.replykeyboard.InlineKeyboardMarkup;
 import org.telegram.telegrambots.meta.api.objects.replykeyboard.ReplyKeyboard;
 import org.telegram.telegrambots.meta.api.objects.replykeyboard.buttons.InlineKeyboardButton;
+import ru.nesterov.bot.dto.CreateClientRequest;
+import ru.nesterov.bot.dto.CreateClientResponse;
 import ru.nesterov.bot.handlers.RegisteredUserHandlerTest;
 import ru.nesterov.bot.handlers.callback.ButtonCallback;
+import ru.nesterov.bot.handlers.implementation.invocable.stateful.createClient.CreateClientHandler;
 import ru.nesterov.bot.handlers.service.ButtonCallbackService;
-import ru.nesterov.dto.CreateClientRequest;
-import ru.nesterov.dto.CreateClientResponse;
 
 import java.text.SimpleDateFormat;
 import java.util.Date;
@@ -124,8 +125,7 @@ public class CreateClientTest extends RegisteredUserHandlerTest {
         assertEquals("Да", firstButtonText);
         assertEquals("Нет", secondButtonText);
 
-        message.setText("Нет");
-
+        message.setText(null);
         CallbackQuery callbackQuery = new CallbackQuery();
         callbackQuery.setId(String.valueOf(1));
         ButtonCallback callback = new ButtonCallback();
@@ -223,7 +223,7 @@ public class CreateClientTest extends RegisteredUserHandlerTest {
         assertEquals("Да", firstButtonText);
         assertEquals("Нет", secondButtonText);
 
-        message.setText("Нет");
+        message.setText(null);
 
         CallbackQuery callbackQuery = new CallbackQuery();
         callbackQuery.setId(String.valueOf(1));
@@ -323,7 +323,7 @@ public class CreateClientTest extends RegisteredUserHandlerTest {
         assertEquals("Да", firstButtonText);
         assertEquals("Нет", secondButtonText);
 
-        message.setText("Нет");
+        message.setText(null);
 
         CallbackQuery callbackQuery = new CallbackQuery();
         callbackQuery.setId(String.valueOf(1));
