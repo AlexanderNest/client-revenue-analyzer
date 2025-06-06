@@ -6,9 +6,9 @@ import org.junit.jupiter.api.Test;
 import org.telegram.telegrambots.meta.api.methods.BotApiMethod;
 import org.telegram.telegrambots.meta.api.methods.send.SendMessage;
 import org.telegram.telegrambots.meta.api.objects.Update;
-import ru.nesterov.statemachine.StateMachine;
-import ru.nesterov.statemachine.dto.Action;
-import ru.nesterov.statemachine.dto.NextStateFunction;
+import ru.nesterov.bot.statemachine.StateMachine;
+import ru.nesterov.bot.statemachine.dto.Action;
+import ru.nesterov.bot.statemachine.dto.NextStateFunction;
 
 import java.util.function.Function;
 

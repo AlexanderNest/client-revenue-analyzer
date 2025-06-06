@@ -16,11 +16,11 @@ import org.telegram.telegrambots.meta.api.objects.User;
 import org.telegram.telegrambots.meta.api.objects.replykeyboard.InlineKeyboardMarkup;
 import org.telegram.telegrambots.meta.api.objects.replykeyboard.ReplyKeyboard;
 import org.telegram.telegrambots.meta.api.objects.replykeyboard.buttons.InlineKeyboardButton;
+import ru.nesterov.bot.dto.GetActiveClientResponse;
+import ru.nesterov.bot.dto.GetClientScheduleResponse;
 import ru.nesterov.bot.handlers.RegisteredUserHandlerTest;
 import ru.nesterov.bot.handlers.callback.ButtonCallback;
-import ru.nesterov.bot.handlers.implementation.stateful.getSchedule.GetClientScheduleCommandHandler;
-import ru.nesterov.dto.GetActiveClientResponse;
-import ru.nesterov.dto.GetClientScheduleResponse;
+import ru.nesterov.bot.handlers.implementation.invocable.stateful.getSchedule.GetClientScheduleCommandHandler;
 
 import java.time.LocalDate;
 import java.time.LocalDateTime;

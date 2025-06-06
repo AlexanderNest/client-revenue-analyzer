@@ -5,10 +5,10 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.telegram.telegrambots.meta.api.methods.BotApiMethod;
 import org.telegram.telegrambots.meta.api.methods.send.SendMessage;
-import ru.nesterov.statemachine.StateMachine;
-import ru.nesterov.statemachine.StateMachineProvider;
-import ru.nesterov.statemachine.dto.Action;
-import ru.nesterov.statemachine.dto.NextStateFunction;
+import ru.nesterov.bot.statemachine.StateMachine;
+import ru.nesterov.bot.statemachine.StateMachineProvider;
+import ru.nesterov.bot.statemachine.dto.Action;
+import ru.nesterov.bot.statemachine.dto.NextStateFunction;
 
 public class StateMachineProviderTest {
 

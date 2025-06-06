@@ -1,10 +1,10 @@
 package ru.nesterov.mapper;
 
+import ru.nesterov.bot.dto.CreateUserRequest;
+import ru.nesterov.bot.dto.CreateUserResponse;
+import ru.nesterov.controller.response.GetUserResponse;
 import ru.nesterov.controller.response.YearBusynessStatisticsResponse;
 import ru.nesterov.service.dto.BusynessAnalysisResult;
-import ru.nesterov.controller.response.GetUserResponse;
-import ru.nesterov.dto.CreateUserRequest;
-import ru.nesterov.dto.CreateUserResponse;
 import ru.nesterov.service.dto.UserDto;
 
 public class UserMapper {

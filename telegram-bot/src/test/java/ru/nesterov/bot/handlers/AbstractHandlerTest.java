@@ -5,14 +5,14 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.test.context.ContextConfiguration;
-import ru.nesterov.bot.handlers.implementation.CancelCommandHandler;
+import ru.nesterov.bot.config.BotProperties;
 import ru.nesterov.bot.handlers.implementation.UndefinedHandler;
-import ru.nesterov.bot.handlers.service.ActionService;
+import ru.nesterov.bot.handlers.implementation.invocable.CancelCommandHandler;
+import ru.nesterov.bot.handlers.implementation.invocable.stateful.getSchedule.InlineCalendarBuilder;
 import ru.nesterov.bot.handlers.service.ButtonCallbackService;
 import ru.nesterov.bot.handlers.service.HandlersService;
-import ru.nesterov.calendar.InlineCalendarBuilder;
-import ru.nesterov.integration.ClientRevenueAnalyzerIntegrationClient;
-import ru.nesterov.properties.BotProperties;
+import ru.nesterov.bot.integration.ClientRevenueAnalyzerIntegrationClient;
+import ru.nesterov.bot.statemachine.ActionService;
 
 /**
  * Базовый тест для Handler. Содержит основные бины, которые используют обработчики.

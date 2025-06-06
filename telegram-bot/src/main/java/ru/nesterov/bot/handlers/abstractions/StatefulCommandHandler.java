@@ -4,12 +4,12 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.telegram.telegrambots.meta.api.methods.BotApiMethod;
 import org.telegram.telegrambots.meta.api.objects.Message;
 import org.telegram.telegrambots.meta.api.objects.Update;
-import ru.nesterov.bot.TelegramUpdateUtils;
-import ru.nesterov.bot.handlers.service.ActionService;
-import ru.nesterov.statemachine.StateMachine;
-import ru.nesterov.statemachine.StateMachineProvider;
-import ru.nesterov.statemachine.dto.Action;
-import ru.nesterov.statemachine.dto.NextStateFunction;
+import ru.nesterov.bot.statemachine.ActionService;
+import ru.nesterov.bot.statemachine.StateMachine;
+import ru.nesterov.bot.statemachine.StateMachineProvider;
+import ru.nesterov.bot.statemachine.dto.Action;
+import ru.nesterov.bot.statemachine.dto.NextStateFunction;
+import ru.nesterov.bot.utils.TelegramUpdateUtils;
 
 import java.lang.reflect.InvocationTargetException;
 import java.util.List;
