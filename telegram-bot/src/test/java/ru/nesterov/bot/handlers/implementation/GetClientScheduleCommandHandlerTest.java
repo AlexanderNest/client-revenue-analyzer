@@ -1,7 +1,6 @@
 package ru.nesterov.bot.handlers.implementation;
 
 import lombok.SneakyThrows;
-import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.test.context.ContextConfiguration;
@@ -100,7 +99,6 @@ public class GetClientScheduleCommandHandlerTest extends RegisteredUserHandlerTe
 
     @SneakyThrows
     @Test
-    @Disabled
     void handleFirstDateShouldReturnCalendarKeyboard() {
         Update updateWithCommand = createUpdateWithMessage();
         handler.handle(updateWithCommand);
@@ -124,7 +122,7 @@ public class GetClientScheduleCommandHandlerTest extends RegisteredUserHandlerTe
     }
 
     @Test
-    @Disabled
+
     void handleSecondDateShouldReturnClientSchedule() {
         Update updateWithCommand = createUpdateWithMessage();
         handler.handle(updateWithCommand);
@@ -195,7 +193,7 @@ public class GetClientScheduleCommandHandlerTest extends RegisteredUserHandlerTe
     }
 
     @Test
-    @Disabled
+
     void handleSwitchMonthWhenSelectedFirstDate1() {
         Update updateWithCommand = createUpdateWithMessage();
         handler.handle(updateWithCommand);
@@ -220,7 +218,7 @@ public class GetClientScheduleCommandHandlerTest extends RegisteredUserHandlerTe
     }
 
     @Test
-    @Disabled
+
     void handleSwitchMonthWhenSelectedFirstDate2() {
         Update updateWithCommand = createUpdateWithMessage();
         handler.handle(updateWithCommand);

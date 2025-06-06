@@ -6,6 +6,7 @@ import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.test.context.ContextConfiguration;
 import ru.nesterov.bot.handlers.implementation.CancelCommandHandler;
+import ru.nesterov.bot.handlers.implementation.UndefinedHandler;
 import ru.nesterov.bot.handlers.service.ActionService;
 import ru.nesterov.bot.handlers.service.ButtonCallbackService;
 import ru.nesterov.bot.handlers.service.HandlersService;
@@ -18,18 +19,16 @@ import ru.nesterov.properties.BotProperties;
  */
 @ContextConfiguration(classes = {
         ObjectMapper.class,
-        BotHandlersRequestsKeeper.class,
         InlineCalendarBuilder.class,
         HandlersService.class,
         ButtonCallbackService.class,
         BotProperties.class,
         CancelCommandHandler.class,
-        ActionService.class
+        ActionService.class,
+        UndefinedHandler.class
 })
 @SpringBootTest
 public abstract class AbstractHandlerTest {
-    @Autowired
-    protected BotHandlersRequestsKeeper keeper;
     @Autowired
     protected ObjectMapper objectMapper;
     @Autowired

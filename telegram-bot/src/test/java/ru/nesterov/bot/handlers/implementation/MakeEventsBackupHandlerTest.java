@@ -54,211 +54,245 @@ class MakeEventsBackupHandlerTest extends RegisteredUserHandlerTest {
     public void setUp() {
         command = handler.getCommand();
     }
-    
+
     @Test
     void handle() {
+        int datesRangeForBackup = 7;
+
         MakeEventsBackupRequest request = MakeEventsBackupRequest.builder()
                 .isEventsBackupMade(true)
                 .build();
-        
+
+        LocalDateTime from = LocalDateTime.now().minusDays(datesRangeForBackup);
+        LocalDateTime to = LocalDateTime.now().plusDays(datesRangeForBackup);
+
         MakeEventsBackupResponse response = MakeEventsBackupResponse.builder()
                 .savedEventsCount(2)
                 .isBackupMade(true)
-                .from(LocalDateTime.now().minusDays(datesRangeForBackup))
-                .to(LocalDateTime.now().plusDays(datesRangeForBackup))
+                .from(from)
+                .to(to)
                 .build();
-        
+
         when(client.makeEventsBackup(anyLong())).thenReturn(response);
-        
+
         Chat chat = new Chat();
         chat.setId(CHAT_ID);
         User user = new User();
         user.setId(USER_ID);
-        
+
         Message message = new Message();
         message.setText(command);
         message.setChat(chat);
         message.setFrom(user);
         message.setMessageId(1);
-        
-        Update update = new Update();
-        update.setMessage(message);
-        
-        BotApiMethod<?> botApiMethod = handler.handle(update);
+
+        Update firstUpdate = new Update();
+        firstUpdate.setMessage(message);
+
+        BotApiMethod<?> botApiMethod = handler.handle(firstUpdate);
         assertInstanceOf(SendMessage.class, botApiMethod);
-        
+
         SendMessage sendMessage = (SendMessage) botApiMethod;
         assertEquals("Выполнить резервное копирование событий?", sendMessage.getText());
-        
+
         ReplyKeyboard markup = sendMessage.getReplyMarkup();
         assertInstanceOf(InlineKeyboardMarkup.class, markup);
-        
+
         InlineKeyboardMarkup inlineKeyboardMarkup = (InlineKeyboardMarkup) markup;
         List<List<InlineKeyboardButton>> yesNoKeyboard = inlineKeyboardMarkup.getKeyboard();
         assertEquals(1, yesNoKeyboard.size());
-        
+
         String firstButtonText = yesNoKeyboard.get(0).get(0).getText();
-        String secondButtonText = yesNoKeyboard.get(0).get(1).getText();
+        String secondButtonText = yesNoKeyboard.get(0).get(1).getText    ();
         assertEquals("Да", firstButtonText);
         assertEquals("Нет", secondButtonText);
-        
-        message.setText("Да");
-        
+
         CallbackQuery callbackQuery = new CallbackQuery();
-        callbackQuery.setId(String.valueOf(1));
+        callbackQuery.setId("1");
+
+        Message callbackMessage = new Message();
+        callbackMessage.setMessageId(1);
+        callbackMessage.setChat(chat);
+        callbackMessage.setFrom(user);
+
         ButtonCallback callback = new ButtonCallback();
-        callbackQuery.setFrom(user);
-        callbackQuery.setMessage(message);
         callback.setCommand(command);
         callback.setValue(request.getIsEventsBackupMade().toString());
         String callbackData = buttonCallbackService.getTelegramButtonCallbackString(callback);
         callbackQuery.setData(callbackData);
-        
-        update.setCallbackQuery(callbackQuery);
-        
-        botApiMethod = handler.handle(update);
+        callbackQuery.setMessage(callbackMessage);
+        callbackQuery.setFrom(user);
+
+        Update secondUpdate = new Update();
+        secondUpdate.setCallbackQuery(callbackQuery);
+
+        botApiMethod = handler.handle(secondUpdate);
+        assertInstanceOf(EditMessageText.class, botApiMethod);
+
         EditMessageText editMessageText = (EditMessageText) botApiMethod;
-        
+
         DateTimeFormatter dateTimeFormatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm");
-        
+
         assertEquals(
-                String.format("Резервная копия событий (%d шт.) в период с %s по %s сохранена", response.getSavedEventsCount(), response.getFrom().format(dateTimeFormatter), response.getTo().format(dateTimeFormatter)),
+                String.format("Резервная копия событий (%d шт.) в период с %s по %s сохранена",
+                        response.getSavedEventsCount(),
+                        from.format(dateTimeFormatter),
+                        to.format(dateTimeFormatter)),
                 editMessageText.getText()
         );
     }
-    
+
     @Test
     void handleAlreadyMadeBackup() {
         MakeEventsBackupRequest request = MakeEventsBackupRequest.builder()
                 .isEventsBackupMade(true)
                 .build();
-        
+
         MakeEventsBackupResponse response = MakeEventsBackupResponse.builder()
                 .isBackupMade(false)
                 .cooldownMinutes(delayBetweenManualBackups)
                 .build();
-        
+
         when(client.makeEventsBackup(anyLong())).thenReturn(response);
-        
+
         Chat chat = new Chat();
         chat.setId(CHAT_ID);
         User user = new User();
         user.setId(USER_ID);
-        
+
         Message message = new Message();
         message.setText(command);
         message.setChat(chat);
         message.setFrom(user);
         message.setMessageId(1);
-        
-        Update update = new Update();
-        update.setMessage(message);
-        
-        BotApiMethod<?> botApiMethod = handler.handle(update);
+
+        Update firstUpdate = new Update();
+        firstUpdate.setMessage(message);
+
+        BotApiMethod<?> botApiMethod = handler.handle(firstUpdate);
         assertInstanceOf(SendMessage.class, botApiMethod);
-        
+
         SendMessage sendMessage = (SendMessage) botApiMethod;
         assertEquals("Выполнить резервное копирование событий?", sendMessage.getText());
-        
+
         ReplyKeyboard markup = sendMessage.getReplyMarkup();
         assertInstanceOf(InlineKeyboardMarkup.class, markup);
-        
+
         InlineKeyboardMarkup inlineKeyboardMarkup = (InlineKeyboardMarkup) markup;
         List<List<InlineKeyboardButton>> yesNoKeyboard = inlineKeyboardMarkup.getKeyboard();
         assertEquals(1, yesNoKeyboard.size());
-        
+
         String firstButtonText = yesNoKeyboard.get(0).get(0).getText();
         String secondButtonText = yesNoKeyboard.get(0).get(1).getText();
         assertEquals("Да", firstButtonText);
         assertEquals("Нет", secondButtonText);
-        
-        message.setText("Да");
-        
+
         CallbackQuery callbackQuery = new CallbackQuery();
-        callbackQuery.setId(String.valueOf(1));
+        callbackQuery.setId("1");
+
+        Message callbackMessage = new Message();
+        callbackMessage.setMessageId(1);
+        callbackMessage.setChat(chat);
+        callbackMessage.setFrom(user);
+        callbackMessage.setText("Да");
+
         ButtonCallback callback = new ButtonCallback();
-        callbackQuery.setFrom(user);
-        callbackQuery.setMessage(message);
         callback.setCommand(command);
         callback.setValue(request.getIsEventsBackupMade().toString());
         String callbackData = buttonCallbackService.getTelegramButtonCallbackString(callback);
         callbackQuery.setData(callbackData);
-        
-        update.setCallbackQuery(callbackQuery);
-        
-        botApiMethod = handler.handle(update);
+        callbackQuery.setMessage(callbackMessage);
+        callbackQuery.setFrom(user);
+
+        Update secondUpdate = new Update();
+        secondUpdate.setCallbackQuery(callbackQuery);
+
+        botApiMethod = handler.handle(secondUpdate);
+        assertInstanceOf(EditMessageText.class, botApiMethod);
+
         EditMessageText editMessageText = (EditMessageText) botApiMethod;
-        
+
         assertEquals(
                 String.format("Выполнить резервное копирование событий возможно по прошествии %d минут(ы)", delayBetweenManualBackups),
                 editMessageText.getText()
         );
     }
-    
+
     @Test
     void handleWithoutBackup() {
         MakeEventsBackupRequest request = MakeEventsBackupRequest.builder()
                 .isEventsBackupMade(false)
                 .build();
-        
+
+        LocalDateTime from = LocalDateTime.now().minusDays(datesRangeForBackup);
+        LocalDateTime to = LocalDateTime.now().plusDays(datesRangeForBackup);
+
         MakeEventsBackupResponse response = MakeEventsBackupResponse.builder()
                 .savedEventsCount(2)
                 .isBackupMade(request.getIsEventsBackupMade())
-                .from(LocalDateTime.now().minusDays(datesRangeForBackup))
-                .to(LocalDateTime.now().plusDays(datesRangeForBackup))
+                .from(from)
+                .to(to)
                 .build();
-        
+
         when(client.makeEventsBackup(anyLong())).thenReturn(response);
-        
+
         Chat chat = new Chat();
         chat.setId(CHAT_ID);
         User user = new User();
         user.setId(USER_ID);
-        
+
         Message message = new Message();
         message.setText(command);
         message.setChat(chat);
         message.setFrom(user);
         message.setMessageId(1);
-        
-        Update update = new Update();
-        update.setMessage(message);
-        
-        BotApiMethod<?> botApiMethod = handler.handle(update);
+
+        Update firstUpdate = new Update();
+        firstUpdate.setMessage(message);
+
+        BotApiMethod<?> botApiMethod = handler.handle(firstUpdate);
         assertInstanceOf(SendMessage.class, botApiMethod);
-        
+
         SendMessage sendMessage = (SendMessage) botApiMethod;
         assertEquals("Выполнить резервное копирование событий?", sendMessage.getText());
-        
+
         ReplyKeyboard markup = sendMessage.getReplyMarkup();
         assertInstanceOf(InlineKeyboardMarkup.class, markup);
-        
+
         InlineKeyboardMarkup inlineKeyboardMarkup = (InlineKeyboardMarkup) markup;
         List<List<InlineKeyboardButton>> yesNoKeyboard = inlineKeyboardMarkup.getKeyboard();
         assertEquals(1, yesNoKeyboard.size());
-        
+
         String firstButtonText = yesNoKeyboard.get(0).get(0).getText();
         String secondButtonText = yesNoKeyboard.get(0).get(1).getText();
         assertEquals("Да", firstButtonText);
         assertEquals("Нет", secondButtonText);
-        
-        message.setText("Нет");
-        
+
         CallbackQuery callbackQuery = new CallbackQuery();
-        callbackQuery.setId(String.valueOf(1));
+        callbackQuery.setId("1");
+
+        Message callbackMessage = new Message();
+        callbackMessage.setMessageId(1);
+        callbackMessage.setChat(chat);
+        callbackMessage.setFrom(user);
+        callbackMessage.setText("Нет");
+
         ButtonCallback callback = new ButtonCallback();
-        callbackQuery.setFrom(user);
-        callbackQuery.setMessage(message);
         callback.setCommand(command);
         callback.setValue(request.getIsEventsBackupMade().toString());
         String callbackData = buttonCallbackService.getTelegramButtonCallbackString(callback);
         callbackQuery.setData(callbackData);
-        
-        update.setCallbackQuery(callbackQuery);
-        
-        botApiMethod = handler.handle(update);
+        callbackQuery.setMessage(callbackMessage);
+        callbackQuery.setFrom(user);
+
+        Update secondUpdate = new Update();
+        secondUpdate.setCallbackQuery(callbackQuery);
+
+        botApiMethod = handler.handle(secondUpdate);
+        assertInstanceOf(EditMessageText.class, botApiMethod);
+
         EditMessageText editMessageText = (EditMessageText) botApiMethod;
-        
+
         assertEquals("Вы отказались от выполнения резервного копирования событий", editMessageText.getText());
     }
 }
