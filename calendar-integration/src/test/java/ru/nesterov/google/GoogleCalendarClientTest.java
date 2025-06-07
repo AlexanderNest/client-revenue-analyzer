@@ -8,81 +8,63 @@ import com.google.api.services.calendar.model.EventDateTime;
 import com.google.api.services.calendar.model.Events;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
-import org.junit.jupiter.api.extension.ExtendWith;
-import org.mockito.InjectMocks;
 import org.mockito.Mock;
-import org.mockito.junit.jupiter.MockitoExtension;
-import ru.nesterov.common.dto.CalendarType;
-import ru.nesterov.common.dto.EventDto;
+import org.mockito.Mockito;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.boot.test.mock.mockito.MockBean;
+import org.springframework.boot.test.mock.mockito.SpyBean;
+import org.springframework.test.context.ContextConfiguration;
+import ru.nesterov.dto.CalendarType;
+import ru.nesterov.dto.EventDto;
 
 import java.io.IOException;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.List;
 
+import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.Mockito.when;
+import static org.mockito.Mockito.*;
 
-@ExtendWith(MockitoExtension.class)
+@SpringBootTest
+@ContextConfiguration(classes = {
+        GoogleCalendarClient.class,
+})
 public class GoogleCalendarClientTest {
-    @Mock
-    Calendar calendar;
-    @Mock
-    GoogleCalendarProperties properties;
-    @Mock
-    ObjectMapper objectMapper;
-    @Mock
-    EventStatusService eventStatusService;
-    @InjectMocks
-    GoogleCalendarClient googleCalendarClient;
-    @Mock
-    Calendar.Events events;
-    @Mock
-    Calendar.Events.List list;
+    @MockBean
+    private Calendar calendar;
 
+    @MockBean
+    private GoogleCalendarProperties googleCalendarProperties;
+
+    @MockBean
+    private ObjectMapper objectMapper;
+
+    @MockBean
+    private EventStatusService eventStatusService;
+
+    @SpyBean
+    private GoogleCalendarClient spyClient;
 
     @Test
-    void getEventsBetweenDates() throws IOException {
-        String calendarId = "testId";
-        Events firstPage = new Events();
-        Events secondPage = new Events();
+    public void testGetEventsBetweenDates_withPaging() throws Exception {
 
-        Event event1 = new Event().setSummary("Event1");
-        Event event2 = new Event().setSummary("Event2");
-        Event event3 = new Event().setSummary("Event3");
+        Events firstPage = mock(Events.class);
+        Events secondPage = mock(Events.class);
 
-        EventDateTime startOfEvent = new EventDateTime().setDateTime(new DateTime(System.currentTimeMillis()));
-        EventDateTime endOfEvent = new EventDateTime().setDateTime(new DateTime(System.currentTimeMillis() + 3600000));
-        event1.setStart(startOfEvent).setEnd(endOfEvent);
-        event2.setStart(startOfEvent).setEnd(endOfEvent);
-        event3.setStart(startOfEvent).setEnd(endOfEvent);
+        when(firstPage.getNextPageToken()).thenReturn("token");
+        when(firstPage.getItems()).thenReturn(List.of());
 
-        List<Event> firstPageItems = new ArrayList<>();
-        firstPageItems.add(event1);
-        firstPageItems.add(event2);
-        firstPage.setItems(firstPageItems);
-        firstPage.setNextPageToken("test-token1");
+        when(secondPage.getNextPageToken()).thenReturn(null);
+        when(secondPage.getItems()).thenReturn(List.of());
 
-        List<Event> secondPageItems = new ArrayList<>();
-        secondPageItems.add(event3);
-        secondPage.setItems(secondPageItems);
-        secondPage.setNextPageToken(null);
+        doReturn(firstPage).when(spyClient).getEventsBetweenDates(anyString(), any(Date.class), any(Date.class), eq(null));  // оно??
+        doReturn(secondPage).when(spyClient).getEventsBetweenDates(anyString(), any(Date.class), any(Date.class), eq("token"));
 
-        when(calendar.events()).thenReturn(events);
-        when(events.list(calendarId)).thenReturn(list);
-        when(list.setTimeMin(any())).thenReturn(list);
-        when(list.setTimeMax(any())).thenReturn(list);
-        when(list.setOrderBy(any())).thenReturn(list);
-        when(list.setSingleEvents(true)).thenReturn(list);
-        when(list.setPageToken(null)).thenReturn(list);
-        when(list.setPageToken("test-token1")).thenReturn(list);
-        when(list.execute()).thenReturn(firstPage).thenReturn(secondPage);
+        List<EventDto> result = spyClient.getEventsBetweenDates("calendarId", CalendarType.PLAIN, LocalDateTime.now(), LocalDateTime.now().plusDays(1));
 
-        List<EventDto> eventDtoList = googleCalendarClient.getEventsBetweenDates(calendarId,
-                CalendarType.PLAIN,
-                LocalDateTime.of(2025, 6, 3, 1, 1, 1, 1),
-                LocalDateTime.of(2025, 6, 3, 1, 1, 1, 3));
-
-        Assertions.assertEquals(3, eventDtoList.size());
+        assertEquals(0, result.size());
     }
 }

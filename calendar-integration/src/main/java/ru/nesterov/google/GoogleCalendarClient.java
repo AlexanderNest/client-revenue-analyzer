@@ -112,7 +112,7 @@ public class GoogleCalendarClient implements CalendarClient {
         return allEvents;
     }
 
-    private Events getEventsBetweenDates(String calendarId, Date startTime, Date endTime, String nextPageToken) throws IOException {
+    protected Events getEventsBetweenDates(String calendarId, Date startTime, Date endTime, String nextPageToken) throws IOException {
         log.debug("Send request to google");
         Events events = calendar.events().list(calendarId)
                 .setTimeMin(new DateTime(startTime))
