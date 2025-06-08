@@ -5,8 +5,8 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 import org.telegram.telegrambots.meta.api.objects.Update;
 import org.telegram.telegrambots.meta.api.objects.replykeyboard.ReplyKeyboardMarkup;
-import ru.nesterov.bot.TelegramUpdateUtils;
-import ru.nesterov.bot.handlers.implementation.UpdateUserControlButtonsHandler;
+import ru.nesterov.bot.handlers.implementation.invocable.UpdateUserControlButtonsHandler;
+import ru.nesterov.bot.utils.TelegramUpdateUtils;
 
 import java.time.Duration;
 import java.time.LocalDateTime;

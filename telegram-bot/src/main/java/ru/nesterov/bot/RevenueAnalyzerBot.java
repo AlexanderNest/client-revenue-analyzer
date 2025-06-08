@@ -13,8 +13,6 @@ import ru.nesterov.bot.exception.UserFriendlyException;
 import ru.nesterov.bot.handlers.abstractions.CommandHandler;
 import ru.nesterov.bot.handlers.service.HandlersService;
 import ru.nesterov.bot.handlers.wrapper.UpdateUserControlButtonsHandlerWrapper;
-import ru.nesterov.exception.UserFriendlyException;
-import ru.nesterov.properties.BotProperties;
 import ru.nesterov.bot.utils.TelegramUpdateUtils;
 
 @Service

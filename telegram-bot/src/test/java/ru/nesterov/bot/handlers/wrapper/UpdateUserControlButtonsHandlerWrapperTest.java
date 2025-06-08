@@ -12,9 +12,10 @@ import org.telegram.telegrambots.meta.api.objects.User;
 import org.telegram.telegrambots.meta.api.objects.replykeyboard.ReplyKeyboardMarkup;
 import org.telegram.telegrambots.meta.api.objects.replykeyboard.buttons.KeyboardButton;
 import org.telegram.telegrambots.meta.api.objects.replykeyboard.buttons.KeyboardRow;
+import ru.nesterov.bot.config.BotProperties;
 import ru.nesterov.bot.handlers.RegisteredUserHandlerTest;
-import ru.nesterov.bot.handlers.implementation.UpdateUserControlButtonsHandler;
-import ru.nesterov.properties.BotProperties;
+import ru.nesterov.bot.handlers.implementation.invocable.UpdateUserControlButtonsHandler;
+
 
 import java.util.ArrayList;
 import java.util.List;
