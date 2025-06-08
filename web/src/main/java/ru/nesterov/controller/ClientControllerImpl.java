@@ -52,4 +52,11 @@ public class ClientControllerImpl implements ClientController {
                 .map(ClientMapper::mapToClientResponse)
                 .toList();
     }
+
+    @Override
+    public ClientResponse getActiveClients(@RequestHeader(name = "X-username") String username, @RequestBody String clientName) {
+        return ClientMapper.mapToClientResponse(clientService.getClientInfo(userService.getUserByUsername(username), clientName));
+    }
+
+
 }

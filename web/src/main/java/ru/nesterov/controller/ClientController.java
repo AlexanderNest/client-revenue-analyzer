@@ -63,4 +63,7 @@ public interface ClientController {
     )
     @PostMapping("/getActiveClients")
     List<ClientResponse> getActiveClients(@RequestHeader(name = "X-username") String username);
+
+    @PostMapping("/getClientInfo")
+    ClientResponse getActiveClients(@RequestHeader(name = "X-username") String username, @RequestBody String string);
 }
