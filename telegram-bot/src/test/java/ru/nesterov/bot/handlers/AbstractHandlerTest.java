@@ -5,32 +5,40 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.test.context.ContextConfiguration;
-import ru.nesterov.bot.handlers.service.BotHandlersRequestsKeeper;
+import ru.nesterov.bot.config.BotProperties;
+import ru.nesterov.bot.handlers.implementation.UndefinedHandler;
+import ru.nesterov.bot.handlers.implementation.invocable.CancelCommandHandler;
+import ru.nesterov.bot.handlers.implementation.invocable.stateful.getSchedule.InlineCalendarBuilder;
 import ru.nesterov.bot.handlers.service.ButtonCallbackService;
 import ru.nesterov.bot.handlers.service.HandlersService;
-import ru.nesterov.calendar.InlineCalendarBuilder;
-import ru.nesterov.integration.ClientRevenueAnalyzerIntegrationClient;
+import ru.nesterov.bot.integration.ClientRevenueAnalyzerIntegrationClient;
+import ru.nesterov.bot.statemachine.ActionService;
 
 /**
  * Базовый тест для Handler. Содержит основные бины, которые используют обработчики.
  */
 @ContextConfiguration(classes = {
         ObjectMapper.class,
-        BotHandlersRequestsKeeper.class,
         InlineCalendarBuilder.class,
         HandlersService.class,
-        ButtonCallbackService.class
+        ButtonCallbackService.class,
+        BotProperties.class,
+        CancelCommandHandler.class,
+        ActionService.class,
+        UndefinedHandler.class
 })
 @SpringBootTest
 public abstract class AbstractHandlerTest {
-    @Autowired
-    protected BotHandlersRequestsKeeper keeper;
     @Autowired
     protected ObjectMapper objectMapper;
     @Autowired
     protected HandlersService handlerService;
     @Autowired
     protected ButtonCallbackService buttonCallbackService;
+    @Autowired
+    protected BotProperties botProperties;
+    @Autowired
+    protected CancelCommandHandler cancelCommandHandler;
 
     @MockBean
     protected ClientRevenueAnalyzerIntegrationClient client;

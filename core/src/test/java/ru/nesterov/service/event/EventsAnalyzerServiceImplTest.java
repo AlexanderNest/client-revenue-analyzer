@@ -6,9 +6,9 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.test.context.ContextConfiguration;
-import ru.nesterov.dto.EventDto;
-import ru.nesterov.dto.EventExtensionDto;
-import ru.nesterov.dto.EventStatus;
+import ru.nesterov.common.dto.EventDto;
+import ru.nesterov.common.dto.EventExtensionDto;
+import ru.nesterov.common.dto.EventStatus;
 import ru.nesterov.entity.Client;
 import ru.nesterov.entity.User;
 import ru.nesterov.google.EventStatusServiceImpl;
@@ -151,4 +151,5 @@ class EventsAnalyzerServiceImplTest {
         assertEquals(1, statuses.get(EventStatus.PLANNED));
         assertEquals(1, statuses.get(EventStatus.REQUIRES_SHIFT));
     }
+
 }

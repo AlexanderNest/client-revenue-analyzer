@@ -3,8 +3,8 @@ package ru.nesterov.service.event;
 import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
-import ru.nesterov.dto.EventDto;
-import ru.nesterov.dto.EventExtensionDto;
+import ru.nesterov.common.dto.EventDto;
+import ru.nesterov.common.dto.EventExtensionDto;
 import ru.nesterov.entity.Client;
 import ru.nesterov.exception.ClientNotFoundException;
 import ru.nesterov.repository.ClientRepository;
@@ -31,6 +31,9 @@ public class EventService {
     }
     
     public double getEventDuration(EventDto eventDto) {
+        if (eventDto.getStart().isAfter(eventDto.getEnd())) {
+            throw new IllegalArgumentException();
+        }
         Duration duration = Duration.between(eventDto.getStart(), eventDto.getEnd());
         return duration.toMinutes() / 60.0;
     }
