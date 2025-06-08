@@ -60,7 +60,7 @@ public class UpdateUserControlButtonsHandlerWrapperTest extends RegisteredUserHa
         when(updateUserControlButtonsHandler.getReplyKeyboardMarkup(update)).thenReturn(replyKeyboardMarkupTest);
         assertNull(updateUserControlButtonsHandlerWrapper.getUpdateReplyKeyboardMarkup(update));
 
-        Thread.sleep(10);
+        Thread.sleep(100);
 
         assertEquals(1, updateUserControlButtonsHandlerWrapper.getUpdateReplyKeyboardMarkup(update).getKeyboard().size());
     }
