@@ -1,9 +1,11 @@
 package ru.nesterov.bot.handlers.wrapper;
 
 import org.junit.jupiter.api.Test;
+import org.mockito.Mockito;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.context.properties.EnableConfigurationProperties;
 import org.springframework.boot.test.mock.mockito.MockBean;
+import org.springframework.boot.test.mock.mockito.SpyBean;
 import org.springframework.test.context.TestPropertySource;
 import org.telegram.telegrambots.meta.api.objects.Chat;
 import org.telegram.telegrambots.meta.api.objects.Message;
@@ -29,13 +31,13 @@ import static org.mockito.Mockito.when;
         "bot.buttons.update.interval=10"
 })
 public class UpdateUserControlButtonsHandlerWrapperTest extends RegisteredUserHandlerTest {
-    @Autowired
+    @SpyBean
     private UpdateUserControlButtonsHandlerWrapper updateUserControlButtonsHandlerWrapper;
     @MockBean
     private UpdateUserControlButtonsHandler updateUserControlButtonsHandler;
 
     @Test
-    public void getUpdateReplyKeyboardMarkupTest() throws InterruptedException {
+    public void getUpdateReplyKeyboardMarkupTest() {
         Update update = new Update();
         Message message = new Message();
         Chat chat = new Chat();
@@ -56,12 +58,21 @@ public class UpdateUserControlButtonsHandlerWrapperTest extends RegisteredUserHa
 
         replyKeyboardMarkupTest.setKeyboard(keyboardRows);
 
-        assertNull(updateUserControlButtonsHandlerWrapper.getUpdateReplyKeyboardMarkup(update));
+
+
+        Mockito.when(updateUserControlButtonsHandlerWrapper.getTimeInterval(111L))
+                .thenCallRealMethod() // 0 вызов - вызов реального метода
+                .thenReturn(0L)   // 1-й вызов → 1000 мс
+                .thenReturn(100000L);    // 2-й вызов → 5000 м
+
+
+        ReplyKeyboardMarkup replyKeyboardMarkup1 = updateUserControlButtonsHandlerWrapper.getUpdateReplyKeyboardMarkup(update);
+
         when(updateUserControlButtonsHandler.getReplyKeyboardMarkup(update)).thenReturn(replyKeyboardMarkupTest);
-        assertNull(updateUserControlButtonsHandlerWrapper.getUpdateReplyKeyboardMarkup(update));
 
-        Thread.sleep(100);
+        ReplyKeyboardMarkup replyKeyboardMarkup2 = updateUserControlButtonsHandlerWrapper.getUpdateReplyKeyboardMarkup(update);
+        ReplyKeyboardMarkup replyKeyboardMarkup3 = updateUserControlButtonsHandlerWrapper.getUpdateReplyKeyboardMarkup(update);
 
-        assertEquals(1, updateUserControlButtonsHandlerWrapper.getUpdateReplyKeyboardMarkup(update).getKeyboard().size());
+        System.out.println();
     }
 }

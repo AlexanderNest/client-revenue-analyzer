@@ -26,9 +26,7 @@ public class UpdateUserControlButtonsHandlerWrapper {
         Long chatId = TelegramUpdateUtils.getChatId(update);
 
         if(timeMap.get(chatId) != null) {
-            long timeInterval = Duration.between(timeMap.get(chatId), LocalDateTime.now())
-                    .abs()
-                    .toMillis();
+            long timeInterval = getTimeInterval(chatId);
             if(timeInterval > timeIntervalInMilliSeconds) {
                 timeMap.put(chatId, LocalDateTime.now());
                 return updateUserControlButtonsHandler.getReplyKeyboardMarkup(update);
@@ -37,5 +35,11 @@ public class UpdateUserControlButtonsHandlerWrapper {
             timeMap.put(chatId, LocalDateTime.now());
         }
         return null;
+    }
+
+    public long getTimeInterval(long chatId) {
+        return Duration.between(timeMap.get(chatId), LocalDateTime.now())
+                .abs()
+                .toMillis();
     }
 }
