@@ -1,28 +1,26 @@
 package ru.nesterov.service.holiday;
-import static org.mockito.Mockito.when;
-
-import java.time.LocalDateTime;
-import java.time.format.DateTimeFormatter;
-import java.util.Arrays;
-import java.util.List;
-import java.util.Objects;
 
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
-
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.test.context.ContextConfiguration;
-import ru.nesterov.dto.CalendarType;
-import ru.nesterov.dto.EventDto;
-import ru.nesterov.dto.EventExtensionDto;
-import ru.nesterov.dto.EventStatus;
-
+import ru.nesterov.common.dto.CalendarType;
+import ru.nesterov.common.dto.EventDto;
+import ru.nesterov.common.dto.EventExtensionDto;
+import ru.nesterov.common.dto.EventStatus;
 import ru.nesterov.google.GoogleCalendarClient;
 import ru.nesterov.google.GoogleCalendarService;
 import ru.nesterov.service.dto.GetHolidaysRequest;
+
+import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
+import java.util.Arrays;
+import java.util.List;
+
+import static org.mockito.Mockito.when;
 
 @SpringBootTest
 @ContextConfiguration(classes = GoogleCalendarService.class)

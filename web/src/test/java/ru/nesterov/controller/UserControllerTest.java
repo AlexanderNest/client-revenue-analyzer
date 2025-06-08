@@ -2,8 +2,8 @@ package ru.nesterov.controller;
 
 import org.junit.jupiter.api.Test;
 import org.springframework.http.MediaType;
-import ru.nesterov.dto.CreateUserRequest;
-import ru.nesterov.dto.GetUserRequest;
+import ru.nesterov.bot.dto.CreateUserRequest;
+import ru.nesterov.bot.dto.GetUserRequest;
 import ru.nesterov.entity.User;
 
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;

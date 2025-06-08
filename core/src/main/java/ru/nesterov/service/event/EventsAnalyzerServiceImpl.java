@@ -3,17 +3,16 @@ package ru.nesterov.service.event;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
-import ru.nesterov.dto.CalendarServiceDto;
-import ru.nesterov.dto.EventDto;
-import ru.nesterov.dto.EventStatus;
+import ru.nesterov.common.dto.CalendarServiceDto;
+import ru.nesterov.common.dto.EventDto;
+import ru.nesterov.common.dto.EventStatus;
+import ru.nesterov.common.service.CalendarService;
+import ru.nesterov.common.service.EvenExtensionService;
 import ru.nesterov.entity.Client;
-import ru.nesterov.entity.User;
 import ru.nesterov.exception.ClientNotFoundException;
 import ru.nesterov.exception.UnknownEventStatusException;
 import ru.nesterov.repository.ClientRepository;
 import ru.nesterov.repository.UserRepository;
-import ru.nesterov.service.CalendarService;
-import ru.nesterov.service.EvenExtensionService;
 import ru.nesterov.service.date.helper.MonthDatesPair;
 import ru.nesterov.service.date.helper.MonthHelper;
 import ru.nesterov.service.date.helper.WeekHelper;
@@ -208,8 +207,8 @@ public class EventsAnalyzerServiceImpl implements EventsAnalyzerService {
         CalendarServiceDto calendarServiceDto = CalendarServiceDto.builder()
                 .mainCalendar(userDto.getMainCalendar())
                 .cancelledCalendar(userDto.getCancelledCalendar())
-                .rightDate(startOfYear)
-                .leftDate(endOfYear)
+                .leftDate(startOfYear)
+                .rightDate(endOfYear)
                 .isCancelledCalendarEnabled(userDto.isCancelledCalendarEnabled())
                 .build();
         return calendarService.getEventsBetweenDates(calendarServiceDto);

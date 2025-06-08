@@ -12,6 +12,7 @@ import org.telegram.telegrambots.meta.api.objects.User;
 import ru.nesterov.bot.handlers.AbstractHandlerTest;
 import ru.nesterov.bot.handlers.RegisteredUserHandlerTest;
 import ru.nesterov.bot.handlers.abstractions.CommandHandler;
+import ru.nesterov.bot.handlers.implementation.invocable.stateful.createClient.CreateClientHandler;
 import ru.nesterov.bot.handlers.service.HandlersService;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;

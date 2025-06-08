@@ -1,7 +1,7 @@
 package ru.nesterov.google;
 
-import ru.nesterov.dto.CalendarType;
-import ru.nesterov.dto.EventDto;
+import ru.nesterov.common.dto.CalendarType;
+import ru.nesterov.common.dto.EventDto;
 
 import java.time.LocalDateTime;
 import java.util.List;

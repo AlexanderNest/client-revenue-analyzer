@@ -1,20 +1,25 @@
 package ru.nesterov.bot;
 
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.stereotype.Service;
 import org.telegram.telegrambots.bots.TelegramLongPollingBot;
 import org.telegram.telegrambots.meta.api.methods.BotApiMethod;
 import org.telegram.telegrambots.meta.api.methods.send.SendMessage;
 import org.telegram.telegrambots.meta.api.objects.Update;
 import org.telegram.telegrambots.meta.exceptions.TelegramApiException;
+import ru.nesterov.bot.config.BotProperties;
+import ru.nesterov.bot.exception.UserFriendlyException;
 import ru.nesterov.bot.handlers.abstractions.CommandHandler;
 import ru.nesterov.bot.handlers.service.HandlersService;
 import ru.nesterov.bot.handlers.wrapper.UpdateUserControlButtonsHandlerWrapper;
 import ru.nesterov.exception.UserFriendlyException;
 import ru.nesterov.properties.BotProperties;
+import ru.nesterov.bot.utils.TelegramUpdateUtils;
 
 @Service
 @Slf4j
+@ConditionalOnProperty("bot.enabled")
 public class RevenueAnalyzerBot extends TelegramLongPollingBot {
     private final HandlersService handlersService;
     private final BotProperties botProperties;
@@ -46,9 +51,7 @@ public class RevenueAnalyzerBot extends TelegramLongPollingBot {
         } catch (UserFriendlyException exception) {
             botApiMethod = buildTextMessage(update, exception.getMessage());
         } finally {
-            if (commandHandler.isFinished(userId)) {
-                handlersService.resetHandlers(userId);
-            }
+            handlersService.resetFinishedHandlers(userId);
         }
 
         if (botApiMethod instanceof SendMessage) {
