@@ -8,7 +8,7 @@ import ru.nesterov.dto.CalendarServiceDto;
 import ru.nesterov.dto.EventDto;
 import ru.nesterov.entity.Client;
 import ru.nesterov.entity.User;
-import ru.nesterov.exception.ClientIsAlreadyCreatedException;
+import ru.nesterov.exception.ClientDataIntegrityException;
 import ru.nesterov.exception.ClientNotFoundException;
 import ru.nesterov.repository.ClientRepository;
 import ru.nesterov.repository.UserRepository;
@@ -31,11 +31,6 @@ public class ClientServiceImpl implements ClientService {
     private final CalendarService calendarService;
     private final ClientRepository clientRepository;
     private final UserRepository userRepository;
-    private final IndexesService indexesService;
-    private static final Pattern H2_PATTERN =
-            Pattern.compile("\"([A-Za-z0-9_.]+)\" ON", Pattern.CASE_INSENSITIVE);
-    private static final Pattern CONSTRAINT_PATTERN =
-            Pattern.compile("constraint \\$?([A-Za-z0-9_.]+)\\$?", Pattern.CASE_INSENSITIVE);
 
     public List<MonthDatesPair> getClientSchedule(UserDto userDto, String clientName, LocalDateTime leftDate, LocalDateTime rightDate) {
         Client client = clientRepository.findClientByNameAndUserId(clientName, userDto.getId());
@@ -59,11 +54,11 @@ public class ClientServiceImpl implements ClientService {
                 .toList();
     }
 
-    public ClientDto createClient(UserDto userDto, ClientDto clientDto, boolean isIdGenerationNeeded) throws ClientIsAlreadyCreatedException {
+    public ClientDto createClient(UserDto userDto, ClientDto clientDto, boolean isIdGenerationNeeded) throws ClientDataIntegrityException {
         List<Client> clientsWithThisName = clientRepository.findAllByExactNameOrNameStartingWithAndEndingWithNumberAndUserId(clientDto.getName(), userDto.getId());
 
         if (!clientsWithThisName.isEmpty() && !isIdGenerationNeeded) {
-            throw new ClientIsAlreadyCreatedException(clientDto.getName());
+            throw new ClientDataIntegrityException("Клиент с таким именем уже существует");
         }
         if (!clientsWithThisName.isEmpty()) {
             clientDto.setName(clientDto.getName() + " " + (clientsWithThisName.size() + 1));
@@ -73,40 +68,19 @@ public class ClientServiceImpl implements ClientService {
         try {
             Client toSave = ClientMapper.mapToClient(clientDto);
             toSave.setUser(user);
-
-            // ВАЖНО: сразу вставляем и флашим
             Client saved = clientRepository.saveAndFlush(toSave);
-
             return ClientMapper.mapToClientDto(saved);
 
         } catch (DataIntegrityViolationException ex) {
-            // разбираем исключительно ex.getMessage() — там уже есть имя индекса
-            String raw = ex.getMessage();
-            String constraint = null;
-            if (raw != null) {
-                Matcher m = H2_PATTERN.matcher(raw);
-                if (m.find()) {
-                    constraint = m.group(1);
-                } else {
-                    m = CONSTRAINT_PATTERN.matcher(raw);
-                    if (m.find()) {
-                        constraint = m.group(1);
-                    }
-                }
-            }
+            String alias = DataIntegrityViolationExceptionHandler.getLocalizedMessage(ex);
 
-            String alias = (constraint != null)
-                    ? indexesService.getAlias(constraint)
-                    : null;
+            String message = (alias != null)
+                    ? String.format("%s уже используется", alias)
+                    : "Одно из значений, указанных для этого клиента уже используется";
 
-            String msg = (alias != null)
-                    ? String.format("Клиент с таким %s уже существует", alias)
-                    : "Клиент с таким идентификатором уже существует";
-
-            throw new ClientIsAlreadyCreatedException(msg);
+            throw new ClientDataIntegrityException(message);
         }
     }
-
 
 
     @Override
@@ -116,19 +90,4 @@ public class ClientServiceImpl implements ClientService {
                 .toList();
     }
 
-    private String getConstraintName(DataIntegrityViolationException ex) {
-        String raw = ex.getMostSpecificCause().getMessage();
-        if (raw == null) {
-            return null;
-        }
-        Matcher m = H2_PATTERN.matcher(raw);
-        if (m.find()) {
-            return m.group(1);
-        }
-        m = CONSTRAINT_PATTERN.matcher(raw);
-        if (m.find()) {
-            return m.group(1);
-        }
-        return null;
-    }
 }

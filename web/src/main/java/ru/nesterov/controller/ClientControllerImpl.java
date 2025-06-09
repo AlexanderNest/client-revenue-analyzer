@@ -1,19 +1,14 @@
 package ru.nesterov.controller;
 
 import lombok.RequiredArgsConstructor;
-import org.springframework.http.HttpStatus;
-import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestHeader;
 import org.springframework.web.bind.annotation.RestController;
-import org.springframework.web.server.ResponseStatusException;
 import ru.nesterov.controller.request.CreateClientRequest;
 import ru.nesterov.controller.request.GetClientScheduleRequest;
 import ru.nesterov.controller.response.ClientResponse;
 import ru.nesterov.controller.response.EventScheduleResponse;
-import ru.nesterov.exception.ClientIsAlreadyCreatedException;
 import ru.nesterov.mapper.ClientMapper;
-import ru.nesterov.service.database.IndexesService;
 import ru.nesterov.service.user.UserService;
 import ru.nesterov.service.client.ClientService;
 import ru.nesterov.service.date.helper.MonthDatesPair;
@@ -35,15 +30,17 @@ public class ClientControllerImpl implements ClientController {
                 .toList();
     }
 
-    public ResponseEntity<ClientResponse> createClient(@RequestHeader(name = "X-username") String username, @RequestBody CreateClientRequest createClientRequest) {
-        ClientDto clientDto = ClientMapper.mapToClientDto(createClientRequest);
-        try {
-            ClientDto result = clientService.createClient(userService.getUserByUsername(username), clientDto, createClientRequest.isIdGenerationNeeded());
-            ClientResponse response = ClientMapper.mapToClientResponse(result);
-            return ResponseEntity.ok(response);
-        } catch (ClientIsAlreadyCreatedException e) {
-            throw new ResponseStatusException(HttpStatus.CONFLICT, e.getMessage());
-        }
+    public ClientResponse createClient(
+            @RequestHeader("X-username") String username,
+            @RequestBody CreateClientRequest createClientRequest) {
+
+        ClientDto dto = ClientMapper.mapToClientDto(createClientRequest);
+        ClientDto saved = clientService.createClient(
+                userService.getUserByUsername(username),
+                dto,
+                createClientRequest.isIdGenerationNeeded()
+        );
+        return ClientMapper.mapToClientResponse(saved);
     }
 
     @Override

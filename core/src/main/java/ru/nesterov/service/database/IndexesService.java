@@ -10,8 +10,14 @@ public class IndexesService {
             "IDX_UNIQUE_CLIENT_NAME_PER_USER", "Имя клиента"
     );
 
-    public String getAlias(String indexName){
-        return indexes.get(indexName);
+    public String getAlias(String indexName) {
+        if (indexName == null) {
+            return null;
+        }
+        String simple = indexName.contains(".")
+                ? indexName.substring(indexName.lastIndexOf('.') + 1)
+                : indexName;
+        return indexes.get(simple);
     }
-
 }
+

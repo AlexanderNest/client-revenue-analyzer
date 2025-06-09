@@ -1,5 +1,6 @@
 package ru.nesterov.integration;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.RequiredArgsConstructor;
@@ -84,14 +85,15 @@ public class ClientRevenueAnalyzerIntegrationClient {
 
     public CreateClientResponse createClient(String userId, CreateClientRequest createClientRequest) {
         try {
-            ResponseEntity<CreateClientResponse> responseEntity = post(userId, createClientRequest, "/revenue-analyzer/client/create", CreateClientResponse.class);
+            ResponseEntity<CreateClientResponse> responseEntity =
+                    post(userId, createClientRequest, "/revenue-analyzer/client/create", CreateClientResponse.class);
             return responseEntity.getBody();
         } catch (HttpClientErrorException.Conflict ex) {
-            String conflictMessage = extractErrorMessage(ex.getResponseBodyAsString());
-
+            String body = ex.getResponseBodyAsString();
+            String message = extractErrorMessage(body);
             return CreateClientResponse.builder()
                     .responseCode(HttpStatus.CONFLICT.value())
-                    .errorMessage(conflictMessage)
+                    .errorMessage(message)
                     .build();
         }
     }
@@ -154,9 +156,12 @@ public class ClientRevenueAnalyzerIntegrationClient {
         return responseEntity.getBody();
     }
 
-    private <T> ResponseEntity<T> exchange(String username, Object request, String endpoint, Class<T> responseType, HttpMethod httpMethod) {
+    private <T> ResponseEntity<T> exchange(String username,
+                                           Object request,
+                                           String endpoint,
+                                           Class<T> responseType,
+                                           HttpMethod httpMethod) {
         HttpEntity<Object> entity = new HttpEntity<>(request, createHeaders(username));
-
         try {
             return restTemplate.exchange(
                     revenueAnalyzerProperties.getUrl() + endpoint,
@@ -166,10 +171,10 @@ public class ClientRevenueAnalyzerIntegrationClient {
             );
         } catch (HttpClientErrorException.NotFound ignore) {
             return new ResponseEntity<>(HttpStatus.NOT_FOUND);
-        } catch (HttpClientErrorException.Conflict ignore) {
-            return new ResponseEntity<>(HttpStatus.CONFLICT);
-        } catch (HttpServerErrorException.InternalServerError ignore) {
-            throw new UserFriendlyException(getResponseMessage(ignore.getResponseBodyAsString()));
+        } catch (HttpClientErrorException.Conflict ex) {
+            throw ex;
+        } catch (HttpServerErrorException.InternalServerError ex) {
+            throw new UserFriendlyException(getResponseMessage(ex.getResponseBodyAsString()));
         }
     }
 
@@ -193,13 +198,13 @@ public class ClientRevenueAnalyzerIntegrationClient {
 
     private String extractErrorMessage(String responseBody) {
         try {
-            JsonNode jsonNode = objectMapper.readTree(responseBody);
-            return jsonNode.has("message")
-                    ? jsonNode.get("message").asText()
-                    : "Клиент уже существует";
-        } catch (Exception e) {
-            log.error("Cannot parse conflict response: [{}]", responseBody, e);
-            return "Клиент уже существует";
+            JsonNode root = objectMapper.readTree(responseBody);
+            if (root.has("message")) {
+                return root.get("message").asText();
+            }
+        } catch (JsonProcessingException e) {
+            log.warn("Не удалось распарсить тело ошибки при создании клиента: {}", responseBody, e);
         }
+        return "Клиент уже существует";
     }
 }
