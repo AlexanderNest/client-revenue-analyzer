@@ -1,23 +1,20 @@
 package ru.nesterov.bot.handlers.implementation;
 
 import lombok.RequiredArgsConstructor;
-import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.stereotype.Component;
 import org.telegram.telegrambots.meta.api.methods.BotApiMethod;
 import org.telegram.telegrambots.meta.api.objects.Update;
-import ru.nesterov.bot.TelegramUpdateUtils;
+import ru.nesterov.bot.dto.GetUnpaidEventsResponse;
 import ru.nesterov.bot.handlers.abstractions.DisplayedCommandHandler;
-import ru.nesterov.dto.EventResponse;
-import ru.nesterov.dto.GetUnpaidEventsResponse;
-import ru.nesterov.integration.ClientRevenueAnalyzerIntegrationClient;
+import ru.nesterov.bot.handlers.abstractions.Priority;
+import ru.nesterov.bot.utils.TelegramUpdateUtils;
 
+import java.time.format.DateTimeFormatter;
 import java.util.List;
 
 @RequiredArgsConstructor
 @Component
-@ConditionalOnProperty("bot.enabled")
 public class GetUnpaidEventsHandler extends DisplayedCommandHandler {
-    private final ClientRevenueAnalyzerIntegrationClient client;
 
     @Override
     public String getCommand() {
@@ -25,37 +22,37 @@ public class GetUnpaidEventsHandler extends DisplayedCommandHandler {
     }
 
     @Override
-    public BotApiMethod<?> handle(Update update) {
-        long userId = TelegramUpdateUtils.getUserId(update);
-        long chatId = TelegramUpdateUtils.getChatId(update);
-
-        GetUnpaidEventsResponse getUnpaidEventsResponse = client.getUnpaidEvents(userId);
-        List<EventResponse> unpaidEvents = getUnpaidEventsResponse.getEvents();
-
-        if (unpaidEvents.isEmpty()) {
-            return getPlainSendMessage(chatId, "Нет неоплаченных событий");
-        }
-
-        String message = formatMessage(unpaidEvents);
-        return getPlainSendMessage(chatId, message);
+    public Priority getPriority() {
+        return Priority.HIGHEST;
     }
 
-    private String formatMessage(List<EventResponse> events) {
+    @Override
+    public boolean isDisplayedForRegistered() {
+        return super.isDisplayedForRegistered();
+    }
+
+    @Override
+    public BotApiMethod<?> handle(Update update) {
+
+        List<GetUnpaidEventsResponse> unpaidEvents = client.getUnpaidEvents(TelegramUpdateUtils.getUserId(update));
+
+        if (unpaidEvents.isEmpty()) {
+            return getPlainSendMessage(TelegramUpdateUtils.getChatId(update), "Нет неоплаченных событий");
+        }
+        String message = formatMessage(unpaidEvents);
+        return getPlainSendMessage(TelegramUpdateUtils.getUserId(update), message);
+    }
+
+    private String formatMessage(List<GetUnpaidEventsResponse> events) {
         StringBuilder message = new StringBuilder("Неоплаченные события:\n");
-        for(EventResponse event : events) {
+        for(GetUnpaidEventsResponse event : events) {
             message
                     .append("- ")
                     .append(event.getSummary())
                     .append(" (")
-                    .append(event.getEventStart())
+                    .append(event.getStart().format(DateTimeFormatter.ofPattern("dd.MM.yyyy HH:mm")))
                     .append(")\n");
         }
-
         return message.toString();
-    }
-
-    @Override
-    public boolean isFinished(Long userId) {
-        return true;
     }
 }
