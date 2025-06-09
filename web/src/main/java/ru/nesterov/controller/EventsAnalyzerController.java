@@ -82,6 +82,6 @@ public interface EventsAnalyzerController {
                     @ApiResponse(responseCode = "500", description = "Внутренняя ошибка сервера")
             }
     )
-    @GetMapping("/getUnpaidEvents")
+    @PostMapping("/getUnpaidEvents")
     List<EventResponse> getUnpaidEvents(@RequestHeader(name = "X-username") String username);
 }

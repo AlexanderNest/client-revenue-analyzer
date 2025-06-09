@@ -6,5 +6,5 @@ import java.time.LocalDateTime;
 @Data
 public class GetUnpaidEventsResponse {
     private String summary;
-    private LocalDateTime start;
+    private LocalDateTime eventStart;
 }

@@ -50,7 +50,7 @@ public class GetUnpaidEventsHandler extends DisplayedCommandHandler {
                     .append("- ")
                     .append(event.getSummary())
                     .append(" (")
-                    .append(event.getStart().format(DateTimeFormatter.ofPattern("dd.MM.yyyy HH:mm")))
+                    .append(event.getEventStart().format(DateTimeFormatter.ofPattern("dd.MM.yyyy HH:mm")))
                     .append(")\n");
         }
         return message.toString();
