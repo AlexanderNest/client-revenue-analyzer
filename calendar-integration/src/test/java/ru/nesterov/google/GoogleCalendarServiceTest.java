@@ -143,4 +143,5 @@ class GoogleCalendarServiceTest {
         assertEquals(LocalDateTime.of(2024, 01, 01, 00, 00), eventDtos.get(1).getStart());
         assertEquals(LocalDateTime.of(2024, 01, 01, 01, 00), eventDtos.get(1).getEnd());
     }
+
 }
