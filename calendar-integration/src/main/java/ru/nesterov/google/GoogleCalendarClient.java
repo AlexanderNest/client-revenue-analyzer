@@ -81,6 +81,7 @@ public class GoogleCalendarClient implements CalendarClient {
         this.calendar = createCalendarService();
     }
 
+
     @SneakyThrows
     private Calendar createCalendarService() {
         GoogleCredentials credentials = GoogleCredentials.fromStream(new FileInputStream(properties.getServiceAccountFilePath()))

@@ -83,15 +83,17 @@ public class ClientRevenueAnalyzerIntegrationClient {
     }
 
     public CreateClientResponse createClient(String userId, CreateClientRequest createClientRequest) {
-        ResponseEntity<CreateClientResponse> responseEntity = post(userId, createClientRequest, "/revenue-analyzer/client/create", CreateClientResponse.class);
-        HttpStatusCode statusCode = responseEntity.getStatusCode();
-        if (statusCode.isSameCodeAs(HttpStatus.CONFLICT)) {
+        try {
+            ResponseEntity<CreateClientResponse> responseEntity = post(userId, createClientRequest, "/revenue-analyzer/client/create", CreateClientResponse.class);
+            return responseEntity.getBody();
+        } catch (HttpClientErrorException.Conflict ex) {
+            String conflictMessage = extractErrorMessage(ex.getResponseBodyAsString());
+
             return CreateClientResponse.builder()
-                    .responseCode(statusCode.value())
+                    .responseCode(HttpStatus.CONFLICT.value())
+                    .errorMessage(conflictMessage)
                     .build();
         }
-
-        return responseEntity.getBody();
     }
 
     public CreateUserResponse createUser(CreateUserRequest createUserRequest) {
@@ -187,5 +189,17 @@ public class ClientRevenueAnalyzerIntegrationClient {
         headers.set("X-username", username);
 
         return headers;
+    }
+
+    private String extractErrorMessage(String responseBody) {
+        try {
+            JsonNode jsonNode = objectMapper.readTree(responseBody);
+            return jsonNode.has("message")
+                    ? jsonNode.get("message").asText()
+                    : "Клиент уже существует";
+        } catch (Exception e) {
+            log.error("Cannot parse conflict response: [{}]", responseBody, e);
+            return "Клиент уже существует";
+        }
     }
 }

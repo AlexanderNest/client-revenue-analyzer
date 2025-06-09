@@ -117,9 +117,14 @@ public class CreateClientHandler extends DisplayedCommandHandler {
     private BotApiMethod<?> createClient(Update update, CreateClientRequest createClientRequest) {
         long chatId = TelegramUpdateUtils.getChatId(update);
         CreateClientResponse response = client.createClient(String.valueOf(TelegramUpdateUtils.getUserId(update)), createClientRequest);
+
         if (response.getResponseCode() == 409) {
-            return getPlainSendMessage(chatId, "Клиент с таким именем уже создан");
+            String message = response.getErrorMessage() != null
+                    ? response.getErrorMessage()
+                    : "Клиент уже существует";
+            return getPlainSendMessage(chatId, message);
         }
+
         return getPlainSendMessage(chatId, formatCreateClientResponse(response));
     }
 

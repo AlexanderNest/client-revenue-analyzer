@@ -6,12 +6,14 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestHeader;
 import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.server.ResponseStatusException;
 import ru.nesterov.controller.request.CreateClientRequest;
 import ru.nesterov.controller.request.GetClientScheduleRequest;
 import ru.nesterov.controller.response.ClientResponse;
 import ru.nesterov.controller.response.EventScheduleResponse;
 import ru.nesterov.exception.ClientIsAlreadyCreatedException;
 import ru.nesterov.mapper.ClientMapper;
+import ru.nesterov.service.database.IndexesService;
 import ru.nesterov.service.user.UserService;
 import ru.nesterov.service.client.ClientService;
 import ru.nesterov.service.date.helper.MonthDatesPair;
@@ -40,7 +42,7 @@ public class ClientControllerImpl implements ClientController {
             ClientResponse response = ClientMapper.mapToClientResponse(result);
             return ResponseEntity.ok(response);
         } catch (ClientIsAlreadyCreatedException e) {
-            return ResponseEntity.status(HttpStatus.CONFLICT).build();
+            throw new ResponseStatusException(HttpStatus.CONFLICT, e.getMessage());
         }
     }
 
