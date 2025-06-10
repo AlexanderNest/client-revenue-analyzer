@@ -118,8 +118,7 @@ public class ClientRevenueAnalyzerIntegrationClient {
     }
 
     public List<GetUnpaidEventsResponse> getUnpaidEvents(long userId) {
-        return postForList(String.valueOf(userId),
-                null,
+        return getForList(String.valueOf(userId),
                 "/revenue-analyzer/events/analyzer/getUnpaidEvents",
                 new ParameterizedTypeReference<>() {}
         );
@@ -132,6 +131,19 @@ public class ClientRevenueAnalyzerIntegrationClient {
 
     private <T> ResponseEntity<T> post(String username, Object request, String endpoint, Class<T> responseType) {
         return exchange(username, request, endpoint, responseType, HttpMethod.POST);
+    }
+
+    private <T> List<T> getForList(String username, String endpoint, ParameterizedTypeReference<List<T>> typeReference) {
+        HttpEntity<Object> requestEntity = new HttpEntity<>(createHeaders(username));
+
+        ResponseEntity<List<T>> responseEntity = restTemplate.exchange(
+                revenueAnalyzerProperties.getUrl() + endpoint,
+                HttpMethod.GET,
+                requestEntity,
+                typeReference
+        );
+
+        return responseEntity.getBody();
     }
 
     private <T> List<T> postForList(String username, Object request, String endpoint, ParameterizedTypeReference<List<T>> typeReference) {
