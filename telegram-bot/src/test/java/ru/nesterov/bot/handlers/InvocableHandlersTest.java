@@ -4,7 +4,6 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
-import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.web.client.RestTemplate;
 import ru.nesterov.bot.handlers.abstractions.InvocableCommandHandler;
@@ -24,7 +23,6 @@ import ru.nesterov.calendar.InlineCalendarBuilder;
 import ru.nesterov.integration.ClientRevenueAnalyzerIntegrationClient;
 import ru.nesterov.properties.BotProperties;
 import ru.nesterov.properties.RevenueAnalyzerProperties;
-
 import java.util.List;
 
 import static org.junit.jupiter.api.Assertions.assertFalse;
@@ -51,12 +49,9 @@ import static org.junit.jupiter.api.Assertions.assertNotNull;
         BotProperties.class,
         InlineCalendarBuilder.class})
 
-
-
 public class InvocableHandlersTest{
     @Autowired
     private List<InvocableCommandHandler> handlers;
-
 
     @Test
     public void allHandlersCommandIsNotEmpty() {
