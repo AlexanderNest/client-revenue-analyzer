@@ -7,10 +7,10 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.test.context.ContextConfiguration;
-import ru.nesterov.dto.CalendarServiceDto;
-import ru.nesterov.dto.CalendarType;
-import ru.nesterov.dto.EventDto;
-import ru.nesterov.dto.EventStatus;
+import ru.nesterov.common.dto.CalendarServiceDto;
+import ru.nesterov.common.dto.CalendarType;
+import ru.nesterov.common.dto.EventDto;
+import ru.nesterov.common.dto.EventStatus;
 
 import java.time.LocalDateTime;
 import java.util.List;
