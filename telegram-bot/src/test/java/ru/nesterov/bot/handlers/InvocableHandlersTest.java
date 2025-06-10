@@ -18,6 +18,7 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 public class InvocableHandlersTest extends AbstractHandlerTest {
     @Autowired
     private List<InvocableCommandHandler> handlers;
+
     @Test
     public void allHandlersCommandIsNotEmpty() {
         assertFalse(handlers.isEmpty(), "Handlers list should not be empty");
