@@ -1,21 +1,28 @@
 package ru.nesterov.app.standards;
 
+import com.fasterxml.jackson.annotation.JsonView;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.responses.ApiResponse;
+import io.swagger.v3.oas.annotations.responses.ApiResponses;
+import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import io.swagger.v3.oas.annotations.tags.Tag;
+import jakarta.validation.Valid;
 import lombok.SneakyThrows;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.reflections.Reflections;
 import org.reflections.scanners.Scanners;
 import org.reflections.util.ConfigurationBuilder;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
 
 import java.io.File;
 import java.io.IOException;
 import java.lang.annotation.Annotation;
 import java.lang.reflect.Method;
+import java.lang.reflect.Parameter;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.ArrayList;
@@ -117,29 +124,30 @@ public class ControllerStandardsTest {
     }
 
     @Test
-    @DisplayName("Проверка на дублирующиеся аннотации контроллеров из интерфейсов")
-    void testControllersDoNotHaveDuplicatedAnnotations() {
-        Set<Class<?>> controllerInterfaces = getClassesAnnotatedWith(RequestMapping.class);
-        for (Class<?> controllerInterface : controllerInterfaces) {
-            assertTrue(
-                    controllerInterface.isAnnotationPresent(Tag.class),
-                    "Interface " + controllerInterface.getName() + " is missing @Tag annotation");
-            Method[] methods = controllerInterface.getDeclaredMethods();
-            for (Method method : methods) {
-                assertTrue(
-                        method.isAnnotationPresent(Operation.class),
-                        "Method " + method.getName() + " in interface " + controllerInterface.getName() + " is missing @Operation annotation");
+    @DisplayName("Проверка на отсутствие аннотаций в контроллерах")
+    void testControllersDoNotHaveAnnotations() {
+        Set<Class<? extends Annotation>> classAnnotation = Set.of(Tag.class, CrossOrigin.class, SecurityRequirement.class);
+
+        Set<Class<? extends Annotation>> methodAnnotation = Set.of(Operation.class, Tag.class, ApiResponses.class, ApiResponse.class,
+                InitBinder.class, Valid.class, JsonView.class, ResponseStatus.class, CrossOrigin.class, SecurityRequirement.class);
+
+        Set<Class<? extends Annotation>> methodsParametersAnnotation = Set.of(CookieValue.class,
+                MatrixVariable.class, AuthenticationPrincipal.class);
+
+        Set<Class<?>> controllerClasses = getClassesAnnotatedWith(RestController.class);
+        for (Class<?> controllerClass : controllerClasses) {
+            for (Class<? extends Annotation> annotation : classAnnotation) {
+                assertNull(controllerClass.getAnnotation(annotation), "Annotation " + annotation.getName() + " in class " + controllerClass.getName() + " should not be in this class");
             }
-        }
-        Set<Class<?>> classesImplementedInterfaces = getClassesAnnotatedWith(RestController.class);
-        for (Class<?> classImplementedInterface : classesImplementedInterfaces) {
-            assertTrue(classImplementedInterface.getInterfaces().length > 0,
-                    "Class" + classImplementedInterface.getName() + " does not implement interface");
-            assertNull(classImplementedInterface.getAnnotation(Tag.class), "@Tag is duplicated in class " + classImplementedInterface.getName());
-            Method[] methods = classImplementedInterface.getDeclaredMethods();
-            for (Method method : methods) {
-                assertNull(method.getAnnotation(Operation.class),
-                        "@Operation is duplicated in method" + method.getName() + " and in class " + classImplementedInterface.getName());
+            for (Method method: controllerClass.getDeclaredMethods()) {
+                for (Class<? extends Annotation> annotation : methodAnnotation) {
+                    assertNull(method.getAnnotation(annotation), "Annotation " + annotation.getName() + " in class " + controllerClass.getName() + " should not be in this " + method.getName() + " method");
+                }
+                for (Parameter parameter : method.getParameters()) {
+                    for (Class<? extends Annotation> annotation : methodsParametersAnnotation) {
+                        assertNull(parameter.getAnnotation(annotation), "Annotation " + annotation.getName() + " in class " + controllerClass.getName() + " should not be in this " + method.getName() + " method parameter ");
+                    }
+                }
             }
         }
     }

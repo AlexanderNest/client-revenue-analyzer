@@ -74,11 +74,21 @@ public class GoogleCalendarClient implements CalendarClient {
     private final ObjectMapper objectMapper;
     private final EventStatusService eventStatusService;
 
-    public GoogleCalendarClient(GoogleCalendarProperties properties, ObjectMapper objectMapper, EventStatusService eventStatusService, Calendar calendar) {
+    public GoogleCalendarClient(GoogleCalendarProperties properties, ObjectMapper objectMapper, EventStatusService eventStatusService) {
         this.properties = properties;
         this.objectMapper = objectMapper;
         this.eventStatusService = eventStatusService;
-        this.calendar = calendar;
+        this.calendar = createCalendarService();
+    }
+
+    @SneakyThrows
+    private Calendar createCalendarService() {
+        GoogleCredentials credentials = GoogleCredentials.fromStream(new FileInputStream(properties.getServiceAccountFilePath()))
+                .createScoped(List.of(CalendarScopes.CALENDAR_READONLY));
+
+        return new Calendar.Builder(GoogleNetHttpTransport.newTrustedTransport(), GsonFactory.getDefaultInstance(), new HttpCredentialsAdapter(credentials))
+                .setApplicationName(properties.getApplicationName())
+                .build();
     }
 
     @SneakyThrows
