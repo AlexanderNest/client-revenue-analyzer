@@ -52,4 +52,5 @@ public class ClientControllerImpl implements ClientController {
                 .map(ClientMapper::mapToClientResponse)
                 .toList();
     }
+
 }

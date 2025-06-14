@@ -45,6 +45,10 @@ public class UpdateUserControlButtonsHandler extends InvocableCommandHandler {
 
     @Override
     public BotApiMethod<?> handle(Update update) {
+        return getReplyKeyboard(TelegramUpdateUtils.getChatId(update), "Выберите опцию:", getReplyKeyboardMarkup(update));
+    }
+
+    public ReplyKeyboardMarkup getReplyKeyboardMarkup(Update update) {
         ReplyKeyboardMarkup keyboardMarkup = new ReplyKeyboardMarkup();
         keyboardMarkup.setResizeKeyboard(true);
 
@@ -54,7 +58,7 @@ public class UpdateUserControlButtonsHandler extends InvocableCommandHandler {
         List<KeyboardRow> keyboardRows = buildKeyboardRows(isRegistered, buttonsPerLine);
 
         keyboardMarkup.setKeyboard(keyboardRows);
-        return getReplyKeyboard(TelegramUpdateUtils.getChatId(update), "Выберите опцию:", keyboardMarkup);
+        return keyboardMarkup;
     }
 
     @Override

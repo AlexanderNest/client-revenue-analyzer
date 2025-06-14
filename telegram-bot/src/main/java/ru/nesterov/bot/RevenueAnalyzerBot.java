@@ -12,6 +12,7 @@ import ru.nesterov.bot.config.BotProperties;
 import ru.nesterov.bot.exception.UserFriendlyException;
 import ru.nesterov.bot.handlers.abstractions.CommandHandler;
 import ru.nesterov.bot.handlers.service.HandlersService;
+import ru.nesterov.bot.handlers.wrapper.UpdateUserControlButtonsHandlerWrapper;
 import ru.nesterov.bot.utils.TelegramUpdateUtils;
 
 @Service
@@ -20,11 +21,13 @@ import ru.nesterov.bot.utils.TelegramUpdateUtils;
 public class RevenueAnalyzerBot extends TelegramLongPollingBot {
     private final HandlersService handlersService;
     private final BotProperties botProperties;
+    private final UpdateUserControlButtonsHandlerWrapper updateUserControlButtonsHandlerWrapper;
 
-    public RevenueAnalyzerBot(BotProperties botProperties, HandlersService handlersService) {
+    public RevenueAnalyzerBot(BotProperties botProperties, HandlersService handlersService, UpdateUserControlButtonsHandlerWrapper updateUserControlButtonsHandlerWrapper) {
         super(botProperties.getApiToken());
         this.handlersService = handlersService;
         this.botProperties = botProperties;
+        this.updateUserControlButtonsHandlerWrapper = updateUserControlButtonsHandlerWrapper;
     }
 
     @Override
@@ -39,17 +42,23 @@ public class RevenueAnalyzerBot extends TelegramLongPollingBot {
 
         log.debug("Выбранный CommandHandler = {}", commandHandler.getClass().getSimpleName());
 
-        BotApiMethod<?> sendMessage;
+        BotApiMethod<?> botApiMethod;
 
         try {
-            sendMessage = commandHandler.handle(update);
+            botApiMethod = commandHandler.handle(update);
         } catch (UserFriendlyException exception) {
-            sendMessage = buildTextMessage(update, exception.getMessage());
+            botApiMethod = buildTextMessage(update, exception.getMessage());
         } finally {
             handlersService.resetFinishedHandlers(userId);
         }
 
-        sendMessage(sendMessage);
+        if (botApiMethod instanceof SendMessage) {
+            SendMessage sendMessage = (SendMessage) botApiMethod;
+            if(sendMessage.getReplyMarkup() == null) {
+                sendMessage.setReplyMarkup(updateUserControlButtonsHandlerWrapper.getUpdateReplyKeyboardMarkup(update));
+            }
+        }
+        sendMessage(botApiMethod);
     }
 
     @Override
