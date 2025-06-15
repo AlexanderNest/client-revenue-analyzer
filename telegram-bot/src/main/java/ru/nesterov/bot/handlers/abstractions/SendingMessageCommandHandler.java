@@ -32,6 +32,7 @@ public abstract class SendingMessageCommandHandler implements CommandHandler {
 
     /**
      * Вернет метод для отправки простого сообщения в чат
+     *
      * @param text - сообщение для отправки
      */
     public BotApiMethod<?> getPlainSendMessage(long chatId, String text) {
@@ -45,6 +46,7 @@ public abstract class SendingMessageCommandHandler implements CommandHandler {
 
     /**
      * Метод для изменения уже отправленного сообщения в чат
+     *
      * @param keyboardMarkup - если в сообщении нужно добавить клавиатуру
      */
     public EditMessageText editMessage(long chatId, int messageId, String text, @Nullable InlineKeyboardMarkup keyboardMarkup) {
@@ -84,7 +86,7 @@ public abstract class SendingMessageCommandHandler implements CommandHandler {
     /**
      * Собирает inline кнопку с указанным значением для коллбека
      *
-     * @param visibleText текст, который будет отображаться на кнопке
+     * @param visibleText   текст, который будет отображаться на кнопке
      * @param callbackValue значение коллбека для этой кнопки
      * @return созданная кнопка
      */

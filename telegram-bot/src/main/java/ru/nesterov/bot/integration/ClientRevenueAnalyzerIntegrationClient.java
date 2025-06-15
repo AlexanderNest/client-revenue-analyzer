@@ -11,7 +11,6 @@ import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpMethod;
 import org.springframework.http.HttpStatus;
-import org.springframework.http.HttpStatusCode;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Component;
 import org.springframework.web.client.HttpClientErrorException;
@@ -92,6 +91,7 @@ public class ClientRevenueAnalyzerIntegrationClient {
             String body = ex.getResponseBodyAsString();
             String message = extractErrorMessage(body);
             return CreateClientResponse.builder()
+
                     .responseCode(HttpStatus.CONFLICT.value())
                     .errorMessage(message)
                     .build();
