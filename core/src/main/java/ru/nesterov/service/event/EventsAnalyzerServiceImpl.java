@@ -18,6 +18,7 @@ import ru.nesterov.service.date.helper.MonthHelper;
 import ru.nesterov.service.date.helper.WeekHelper;
 import ru.nesterov.service.dto.BusynessAnalysisResult;
 import ru.nesterov.service.dto.ClientMeetingsStatistic;
+import ru.nesterov.service.dto.FullClientInfoDto;
 import ru.nesterov.service.dto.IncomeAnalysisResult;
 import ru.nesterov.service.dto.UserDto;
 
@@ -244,5 +245,10 @@ public class EventsAnalyzerServiceImpl implements EventsAnalyzerService {
         result.setDays(sortedWeekDayHours);
 
         return result;
+    }
+
+    public FullClientInfoDto getFullClientInfo(UserDto userDto, String clientName) {
+        FullClientInfoDto fullClientInfoDto;
+        return null;
     }
 }
