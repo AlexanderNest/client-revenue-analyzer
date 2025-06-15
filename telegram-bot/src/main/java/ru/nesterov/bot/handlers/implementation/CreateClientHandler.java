@@ -8,9 +8,11 @@ import org.telegram.telegrambots.meta.api.objects.Update;
 import org.telegram.telegrambots.meta.api.objects.replykeyboard.InlineKeyboardMarkup;
 import org.telegram.telegrambots.meta.api.objects.replykeyboard.buttons.InlineKeyboardButton;
 import ru.nesterov.bot.TelegramUpdateUtils;
+import ru.nesterov.bot.dto.CreateClientRequest;
 import ru.nesterov.bot.handlers.abstractions.DisplayedCommandHandler;
 import ru.nesterov.bot.handlers.callback.ButtonCallback;
 import ru.nesterov.bot.handlers.service.BotHandlersRequestsKeeper;
+import ru.nesterov.bot.utils.TelegramUpdateUtils;
 import ru.nesterov.dto.CreateClientRequest;
 import ru.nesterov.dto.CreateClientResponse;
 

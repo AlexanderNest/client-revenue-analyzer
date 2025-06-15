@@ -13,7 +13,6 @@ import ru.nesterov.exception.ClientDataIntegrityException;
 import ru.nesterov.exception.ClientNotFoundException;
 import ru.nesterov.repository.ClientRepository;
 import ru.nesterov.repository.UserRepository;
-import ru.nesterov.service.CalendarService;
 import ru.nesterov.service.database.IndexesService;
 import ru.nesterov.service.date.helper.MonthDatesPair;
 import ru.nesterov.service.dto.ClientDto;
@@ -66,7 +65,6 @@ public class ClientServiceImpl implements ClientService {
         }
 
         User user = userRepository.findByUsername(userDto.getUsername());
-        Client client;
         try {
             Client toSave = ClientMapper.mapToClient(clientDto);
             toSave.setUser(user);
@@ -82,7 +80,6 @@ public class ClientServiceImpl implements ClientService {
 
             throw new ClientDataIntegrityException(message);
         }
-        return ClientMapper.mapToClientDto(client);
     }
 
     @Override
