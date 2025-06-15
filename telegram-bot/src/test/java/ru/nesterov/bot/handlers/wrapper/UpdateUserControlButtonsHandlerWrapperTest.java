@@ -2,7 +2,6 @@ package ru.nesterov.bot.handlers.wrapper;
 
 import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.context.properties.EnableConfigurationProperties;
 import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.boot.test.mock.mockito.SpyBean;
@@ -18,11 +17,11 @@ import ru.nesterov.bot.config.BotProperties;
 import ru.nesterov.bot.handlers.RegisteredUserHandlerTest;
 import ru.nesterov.bot.handlers.implementation.invocable.UpdateUserControlButtonsHandler;
 
-
 import java.util.ArrayList;
 import java.util.List;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNotEquals;
 import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.mockito.Mockito.when;
 
@@ -58,21 +57,22 @@ public class UpdateUserControlButtonsHandlerWrapperTest extends RegisteredUserHa
 
         replyKeyboardMarkupTest.setKeyboard(keyboardRows);
 
-
+        updateUserControlButtonsHandlerWrapper.getUpdateReplyKeyboardMarkup(update);
 
         Mockito.when(updateUserControlButtonsHandlerWrapper.getTimeInterval(111L))
                 .thenCallRealMethod() // 0 вызов - вызов реального метода
-                .thenReturn(0L)   // 1-й вызов → 1000 мс
-                .thenReturn(100000L);    // 2-й вызов → 5000 м
-
-
-        ReplyKeyboardMarkup replyKeyboardMarkup1 = updateUserControlButtonsHandlerWrapper.getUpdateReplyKeyboardMarkup(update);
+                .thenReturn(10L)   // 1-й вызов → 1000 мс
+                .thenReturn(10000L);    // 2-й вызов → 5000 м
 
         when(updateUserControlButtonsHandler.getReplyKeyboardMarkup(update)).thenReturn(replyKeyboardMarkupTest);
 
-        ReplyKeyboardMarkup replyKeyboardMarkup2 = updateUserControlButtonsHandlerWrapper.getUpdateReplyKeyboardMarkup(update);
-        ReplyKeyboardMarkup replyKeyboardMarkup3 = updateUserControlButtonsHandlerWrapper.getUpdateReplyKeyboardMarkup(update);
+        ReplyKeyboardMarkup replyKeyboardMarkup1 = updateUserControlButtonsHandlerWrapper.getUpdateReplyKeyboardMarkup(update);
+        assertNull(replyKeyboardMarkup1);
 
-        System.out.println();
+        ReplyKeyboardMarkup replyKeyboardMarkup2 = updateUserControlButtonsHandlerWrapper.getUpdateReplyKeyboardMarkup(update);
+        assertNotEquals(replyKeyboardMarkup2, replyKeyboardMarkupTest);
+
+        ReplyKeyboardMarkup replyKeyboardMarkup3 = updateUserControlButtonsHandlerWrapper.getUpdateReplyKeyboardMarkup(update);
+        assertEquals(replyKeyboardMarkup3, replyKeyboardMarkupTest);
     }
 }
