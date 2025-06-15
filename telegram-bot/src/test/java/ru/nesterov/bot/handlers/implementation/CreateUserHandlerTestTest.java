@@ -7,17 +7,22 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.test.context.ContextConfiguration;
 import org.telegram.telegrambots.meta.api.methods.BotApiMethod;
 import org.telegram.telegrambots.meta.api.methods.send.SendMessage;
-import org.telegram.telegrambots.meta.api.objects.*;
+import org.telegram.telegrambots.meta.api.objects.CallbackQuery;
+import org.telegram.telegrambots.meta.api.objects.Chat;
+import org.telegram.telegrambots.meta.api.objects.Message;
+import org.telegram.telegrambots.meta.api.objects.Update;
+import org.telegram.telegrambots.meta.api.objects.User;
 import org.telegram.telegrambots.meta.api.objects.replykeyboard.InlineKeyboardMarkup;
 import org.telegram.telegrambots.meta.api.objects.replykeyboard.ReplyKeyboard;
 import org.telegram.telegrambots.meta.api.objects.replykeyboard.buttons.InlineKeyboardButton;
+import ru.nesterov.bot.dto.CreateUserRequest;
+import ru.nesterov.bot.dto.CreateUserResponse;
+import ru.nesterov.bot.dto.GetUserRequest;
+import ru.nesterov.bot.dto.GetUserResponse;
 import ru.nesterov.bot.handlers.RegisteredUserHandlerTest;
 import ru.nesterov.bot.handlers.callback.ButtonCallback;
+import ru.nesterov.bot.handlers.implementation.invocable.stateful.createUser.CreateUserHandler;
 import ru.nesterov.bot.handlers.service.ButtonCallbackService;
-import ru.nesterov.dto.CreateUserRequest;
-import ru.nesterov.dto.CreateUserResponse;
-import ru.nesterov.dto.GetUserRequest;
-import ru.nesterov.dto.GetUserResponse;
 
 import java.util.List;
 
@@ -205,9 +210,12 @@ public class CreateUserHandlerTestTest extends RegisteredUserHandlerTest {
                 .cancelledCalendarId(request.getCancelledCalendarId())
                 .build();
 
-        CreateUserRequest request1 = keeper.getRequest(user.getId(), CreateUserHandler.class, CreateUserRequest.class);
+        CreateUserRequest createUserRequest = CreateUserRequest.builder()
+                .userIdentifier("3")
+                .mainCalendarId("12345mc")
+                .build();
 
-        when(client.createUser(request1)).thenReturn(createUserResponse);
+        when(client.createUser(createUserRequest)).thenReturn(createUserResponse);
 
         botApiMethod = createUserHandler.handle(update);
         sendMessage = (SendMessage) botApiMethod;
