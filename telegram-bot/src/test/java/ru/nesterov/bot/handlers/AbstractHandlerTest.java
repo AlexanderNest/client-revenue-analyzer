@@ -11,6 +11,7 @@ import ru.nesterov.bot.handlers.implementation.invocable.CancelCommandHandler;
 import ru.nesterov.bot.handlers.implementation.invocable.stateful.getSchedule.InlineCalendarBuilder;
 import ru.nesterov.bot.handlers.service.ButtonCallbackService;
 import ru.nesterov.bot.handlers.service.HandlersService;
+import ru.nesterov.bot.handlers.wrapper.UpdateUserControlButtonsHandlerWrapper;
 import ru.nesterov.bot.integration.ClientRevenueAnalyzerIntegrationClient;
 import ru.nesterov.bot.statemachine.ActionService;
 
@@ -25,7 +26,8 @@ import ru.nesterov.bot.statemachine.ActionService;
         BotProperties.class,
         CancelCommandHandler.class,
         ActionService.class,
-        UndefinedHandler.class
+        UndefinedHandler.class,
+        UpdateUserControlButtonsHandlerWrapper.class
 })
 @SpringBootTest
 public abstract class AbstractHandlerTest {
