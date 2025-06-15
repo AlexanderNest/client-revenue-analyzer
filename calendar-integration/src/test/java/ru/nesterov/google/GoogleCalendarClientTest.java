@@ -1,16 +1,9 @@
 package ru.nesterov.google;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.google.api.client.util.DateTime;
 import com.google.api.services.calendar.Calendar;
-import com.google.api.services.calendar.model.Event;
-import com.google.api.services.calendar.model.EventDateTime;
 import com.google.api.services.calendar.model.Events;
-import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
-import org.mockito.Mock;
-import org.mockito.Mockito;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.boot.test.mock.mockito.SpyBean;
@@ -18,9 +11,7 @@ import org.springframework.test.context.ContextConfiguration;
 import ru.nesterov.dto.CalendarType;
 import ru.nesterov.dto.EventDto;
 
-import java.io.IOException;
 import java.time.LocalDateTime;
-import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 
@@ -31,19 +22,13 @@ import static org.mockito.Mockito.*;
 @SpringBootTest
 @ContextConfiguration(classes = {
         GoogleCalendarClient.class,
+        GoogleCalendarProperties.class,
+        ObjectMapper.class,
+        EventStatusServiceImpl.class
 })
 public class GoogleCalendarClientTest {
     @MockBean
     private Calendar calendar;
-
-    @MockBean
-    private GoogleCalendarProperties googleCalendarProperties;
-
-    @MockBean
-    private ObjectMapper objectMapper;
-
-    @MockBean
-    private EventStatusService eventStatusService;
 
     @SpyBean
     private GoogleCalendarClient spyClient;
