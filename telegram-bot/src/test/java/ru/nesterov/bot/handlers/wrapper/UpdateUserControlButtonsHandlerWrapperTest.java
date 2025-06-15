@@ -36,7 +36,7 @@ public class UpdateUserControlButtonsHandlerWrapperTest extends RegisteredUserHa
     private UpdateUserControlButtonsHandler updateUserControlButtonsHandler;
 
     @Test
-    public void getUpdateReplyKeyboardMarkupTest() {
+    public void updateReplyKeyboardMarkupTest() {
         Update update = new Update();
         Message message = new Message();
         Chat chat = new Chat();
