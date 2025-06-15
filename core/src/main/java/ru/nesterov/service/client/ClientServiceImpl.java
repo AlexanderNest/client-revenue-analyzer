@@ -4,8 +4,9 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.stereotype.Service;
-import ru.nesterov.dto.CalendarServiceDto;
-import ru.nesterov.dto.EventDto;
+import ru.nesterov.common.dto.CalendarServiceDto;
+import ru.nesterov.common.dto.EventDto;
+import ru.nesterov.common.service.CalendarService;
 import ru.nesterov.entity.Client;
 import ru.nesterov.entity.User;
 import ru.nesterov.exception.ClientDataIntegrityException;
@@ -65,6 +66,7 @@ public class ClientServiceImpl implements ClientService {
         }
 
         User user = userRepository.findByUsername(userDto.getUsername());
+        Client client;
         try {
             Client toSave = ClientMapper.mapToClient(clientDto);
             toSave.setUser(user);
@@ -80,8 +82,8 @@ public class ClientServiceImpl implements ClientService {
 
             throw new ClientDataIntegrityException(message);
         }
+        return ClientMapper.mapToClientDto(client);
     }
-
 
     @Override
     public List<ClientDto> getActiveClients(UserDto userDto) {
@@ -89,5 +91,4 @@ public class ClientServiceImpl implements ClientService {
                 .map(ClientMapper::mapToClientDto)
                 .toList();
     }
-
 }

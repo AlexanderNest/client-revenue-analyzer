@@ -1,5 +1,7 @@
 package ru.nesterov.exception;
 
+import ru.nesterov.common.exception.AppException;
+
 import java.time.LocalDateTime;
 
 public class ClientNotFoundException extends AppException {

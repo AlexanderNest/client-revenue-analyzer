@@ -3,7 +3,7 @@ package ru.nesterov.google;
 import com.google.api.services.calendar.model.Event;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
-import ru.nesterov.dto.EventStatus;
+import ru.nesterov.common.dto.EventStatus;
 import ru.nesterov.google.exception.UnknownEventColorIdException;
 
 import java.util.List;

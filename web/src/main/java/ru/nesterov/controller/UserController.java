@@ -9,10 +9,10 @@ import io.swagger.v3.oas.annotations.tags.Tag;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
+import ru.nesterov.bot.dto.CreateUserRequest;
+import ru.nesterov.bot.dto.CreateUserResponse;
 import ru.nesterov.controller.request.GetUserRequest;
 import ru.nesterov.controller.response.GetUserResponse;
-import ru.nesterov.dto.CreateUserRequest;
-import ru.nesterov.dto.CreateUserResponse;
 
 @Tag(name = "Управление пользователями", description = "API для управления пользователями")
 @RequestMapping("/user")

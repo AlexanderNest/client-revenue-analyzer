@@ -8,9 +8,10 @@ import org.telegram.telegrambots.meta.api.objects.Chat;
 import org.telegram.telegrambots.meta.api.objects.Message;
 import org.telegram.telegrambots.meta.api.objects.Update;
 import org.telegram.telegrambots.meta.api.objects.User;
+import ru.nesterov.bot.dto.AiAnalyzerResponse;
 import ru.nesterov.bot.handlers.RegisteredUserHandlerTest;
 import ru.nesterov.bot.handlers.abstractions.CommandHandler;
-import ru.nesterov.dto.AiAnalyzerResponse;
+import ru.nesterov.bot.handlers.implementation.invocable.AiAnalyzerHandler;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertInstanceOf;
