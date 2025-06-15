@@ -1,4 +1,4 @@
-package ru.nesterov.bot.handlers.implementation;
+package ru.nesterov.bot.handlers.implementation.invocable;
 
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Component;
