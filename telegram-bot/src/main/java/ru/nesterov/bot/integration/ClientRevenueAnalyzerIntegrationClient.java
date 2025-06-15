@@ -18,21 +18,7 @@ import org.springframework.web.client.HttpServerErrorException;
 import org.springframework.web.client.RestTemplate;
 import ru.nesterov.bot.config.BotProperties;
 import ru.nesterov.bot.config.RevenueAnalyzerProperties;
-import ru.nesterov.bot.dto.AiAnalyzerResponse;
-import ru.nesterov.bot.dto.CreateClientRequest;
-import ru.nesterov.bot.dto.CreateClientResponse;
-import ru.nesterov.bot.dto.CreateUserRequest;
-import ru.nesterov.bot.dto.CreateUserResponse;
-import ru.nesterov.bot.dto.GetActiveClientResponse;
-import ru.nesterov.bot.dto.GetClientScheduleResponse;
-import ru.nesterov.bot.dto.GetForClientScheduleRequest;
-import ru.nesterov.bot.dto.GetForMonthRequest;
-import ru.nesterov.bot.dto.GetForYearRequest;
-import ru.nesterov.bot.dto.GetIncomeAnalysisForMonthResponse;
-import ru.nesterov.bot.dto.GetUserRequest;
-import ru.nesterov.bot.dto.GetUserResponse;
-import ru.nesterov.bot.dto.GetYearBusynessStatisticsResponse;
-import ru.nesterov.bot.dto.MakeEventsBackupResponse;
+import ru.nesterov.bot.dto.*;
 import ru.nesterov.bot.exception.InternalException;
 import ru.nesterov.bot.exception.UserFriendlyException;
 
@@ -131,12 +117,33 @@ public class ClientRevenueAnalyzerIntegrationClient {
         return response.getBody();
     }
 
+    public List<GetUnpaidEventsResponse> getUnpaidEvents(long userId) {
+        return getForList(String.valueOf(userId),
+                "/revenue-analyzer/events/analyzer/getUnpaidEvents",
+                new ParameterizedTypeReference<>() {}
+        );
+    }
+
+
     private <T> ResponseEntity<T> get(String username, String endpoint, Class<T> responseType) {
         return exchange(username, null, endpoint, responseType, HttpMethod.GET);
     }
 
     private <T> ResponseEntity<T> post(String username, Object request, String endpoint, Class<T> responseType) {
         return exchange(username, request, endpoint, responseType, HttpMethod.POST);
+    }
+
+    private <T> List<T> getForList(String username, String endpoint, ParameterizedTypeReference<List<T>> typeReference) {
+        HttpEntity<Object> requestEntity = new HttpEntity<>(createHeaders(username));
+
+        ResponseEntity<List<T>> responseEntity = restTemplate.exchange(
+                revenueAnalyzerProperties.getUrl() + endpoint,
+                HttpMethod.GET,
+                requestEntity,
+                typeReference
+        );
+
+        return responseEntity.getBody();
     }
 
     private <T> List<T> postForList(String username, Object request, String endpoint, ParameterizedTypeReference<List<T>> typeReference) {
