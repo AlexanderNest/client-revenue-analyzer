@@ -11,7 +11,7 @@ import java.util.Locale;
 
 public class PlainTextMapper {
     private static final List<String> trueAliases = List.of("yes", "да");
-    private static final List<String> falseAliases = List.of("no", "нет");
+    private static final List<String> falseAliases = List.of("no");
     private static final DateTimeFormatter formatter = DateTimeFormatter.ofPattern("dd.MM.yyyy HH:mm");
 
     public static <T> T fillFromString(String data, Class<T> classForBuild) {
@@ -29,7 +29,7 @@ public class PlainTextMapper {
             String[] parts = line.split(":", 2);
 
             if (parts.length != 2) {
-                throw new RuntimeException("Неверный формат строки: " + line);
+                continue;
             }
 
             String key = parts[0].trim();
@@ -70,7 +70,7 @@ public class PlainTextMapper {
     private static <T> void setFieldValue(T object, Field field, String value) {
         try {
             try {
-                String enrichedDate = value + " 00:00";  // на данный момент конкретное время не интересно, важна фактическая дата переноса
+                String enrichedDate = value + " 00:00";  // на данный момент конкретное время не интересно, важная фактическая дата переноса
                 LocalDateTime dateTime = LocalDateTime.parse(enrichedDate, formatter);
                 field.set(object, dateTime);
             } catch (Exception ignored) {}
@@ -110,6 +110,6 @@ public class PlainTextMapper {
             return false;
         }
 
-        throw new IllegalArgumentException("Неверный формат значения для поля boolean: " + value);
+        throw new IllegalArgumentException();
     }
 }
