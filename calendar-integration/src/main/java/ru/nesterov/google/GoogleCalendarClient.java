@@ -6,6 +6,7 @@ import com.google.api.client.json.gson.GsonFactory;
 import com.google.api.client.util.DateTime;
 import com.google.api.services.calendar.Calendar;
 import com.google.api.services.calendar.CalendarScopes;
+import com.google.api.services.calendar.model.Event;
 import com.google.api.services.calendar.model.EventDateTime;
 import com.google.api.services.calendar.model.Events;
 import com.google.auth.http.HttpCredentialsAdapter;
@@ -103,6 +104,22 @@ public class GoogleCalendarClient implements CalendarClient {
                 .toList();
     }
 
+    // ?
+    public Events getEventsBetweenDates(String calendarId, CalendarType calendarType, LocalDateTime leftDate, LocalDateTime rightDate, String eventName) throws IOException {
+        Date startTime = Date.from(leftDate.atZone(ZoneId.systemDefault()).toInstant());
+        Date endTime = Date.from(rightDate.atZone(ZoneId.systemDefault()).toInstant());
+
+        Events events = calendar.events().list(calendarId)
+                .setTimeMin(new DateTime(startTime))
+                .setTimeMax(new DateTime(endTime))
+                .setOrderBy("startTime")
+                .setSingleEvents(true)
+                .setQ(eventName)
+                .execute();
+        log.debug("Response from google received");
+        return events;
+    }
+
     private List<Events> getEventsBetweenDates(String calendarId, Date startTime, Date endTime) throws IOException {
         int pageNumber = 1;
 
@@ -134,6 +151,7 @@ public class GoogleCalendarClient implements CalendarClient {
         log.debug("Response from google received");
         return events;
     }
+
 
     private EventDto buildEvent(com.google.api.services.calendar.model.Event event, CalendarType calendarType) {
         EventStatus eventStatus;
