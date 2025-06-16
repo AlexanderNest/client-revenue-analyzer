@@ -14,6 +14,7 @@ import ru.nesterov.controller.request.CreateClientRequest;
 import ru.nesterov.controller.request.GetClientScheduleRequest;
 import ru.nesterov.controller.response.ClientResponse;
 import ru.nesterov.controller.response.EventScheduleResponse;
+import ru.nesterov.controller.response.FullClientInfoResponse;
 
 import java.util.List;
 
@@ -65,5 +66,5 @@ public interface ClientController {
     List<ClientResponse> getActiveClients(@RequestHeader(name = "X-username") String username);
 
     @PostMapping("/getClientInfo")
-    ClientResponse getActiveClients(@RequestHeader(name = "X-username") String username, @RequestBody String string);
+    FullClientInfoResponse getClientInfo(@RequestHeader(name = "X-username") String username, @RequestBody String string);
 }
