@@ -246,9 +246,4 @@ public class EventsAnalyzerServiceImpl implements EventsAnalyzerService {
 
         return result;
     }
-
-    public FullClientInfoDto getFullClientInfo(UserDto userDto, String clientName) {
-        FullClientInfoDto fullClientInfoDto;
-        return null;
-    }
 }
