@@ -43,12 +43,9 @@ public class RevenueAnalyzerBot extends TelegramLongPollingBot {
 
         try {
             sendMessage = commandHandler.handle(update);
-        } catch (UserFriendlyException exception) {
-            handlersService.resetBrokeHandler(commandHandler, userId);
-            sendMessage = buildTextMessage(update, exception.getMessage());
         } catch (Exception exception) {
             handlersService.resetBrokeHandler(commandHandler, userId);
-            sendMessage = buildTextMessage(update, "Обработчик сломался, проверьте логи");
+            sendMessage = buildTextMessage(update, exception.getMessage());
         } finally {
             handlersService.resetFinishedHandlers(userId);
         }
