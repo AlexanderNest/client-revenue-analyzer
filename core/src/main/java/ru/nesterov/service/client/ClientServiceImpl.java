@@ -13,7 +13,6 @@ import ru.nesterov.exception.ClientDataIntegrityException;
 import ru.nesterov.exception.ClientNotFoundException;
 import ru.nesterov.repository.ClientRepository;
 import ru.nesterov.repository.UserRepository;
-import ru.nesterov.service.database.IndexesService;
 import ru.nesterov.service.date.helper.MonthDatesPair;
 import ru.nesterov.service.dto.ClientDto;
 import ru.nesterov.service.dto.UserDto;
@@ -21,8 +20,6 @@ import ru.nesterov.service.mapper.ClientMapper;
 
 import java.time.LocalDateTime;
 import java.util.List;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
 
 @Service
 @Slf4j

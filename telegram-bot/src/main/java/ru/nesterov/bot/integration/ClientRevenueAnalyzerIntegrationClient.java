@@ -11,6 +11,7 @@ import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpMethod;
 import org.springframework.http.HttpStatus;
+import org.springframework.http.HttpStatusCode;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Component;
 import org.springframework.web.client.HttpClientErrorException;
@@ -82,20 +83,57 @@ public class ClientRevenueAnalyzerIntegrationClient {
         return responseEntity.getBody();
     }
 
-    public CreateClientResponse createClient(String userId, CreateClientRequest createClientRequest) {
-        try {
-            ResponseEntity<CreateClientResponse> responseEntity =
-                    post(userId, createClientRequest, "/revenue-analyzer/client/create", CreateClientResponse.class);
-            return responseEntity.getBody();
-        } catch (HttpClientErrorException.Conflict ex) {
-            String body = ex.getResponseBodyAsString();
-            String message = extractErrorMessage(body);
-            return CreateClientResponse.builder()
+//    public CreateClientResponse createClient(String userId, CreateClientRequest createClientRequest) {
+//        try {
+//            ResponseEntity<CreateClientResponse> responseEntity =
+//                    post(userId, createClientRequest, "/revenue-analyzer/client/create", CreateClientResponse.class);
+//            return responseEntity.getBody();
+//        } catch (HttpClientErrorException.Conflict ex) {
+//            String body = ex.getResponseBodyAsString();
+//            String message = extractErrorMessage(body);
+//            return CreateClientResponse.builder()
+//
+//                    .responseCode(HttpStatus.CONFLICT.value())
+//                    .errorMessage(message)
+//                    .build();
+//        }
+//    }
 
+    public CreateClientResponse createClient(String userId, CreateClientRequest createClientRequest) {
+        // 1) Делаем POST, но просим тело ответа как String
+        ResponseEntity<String> response = restTemplate.exchange(
+                revenueAnalyzerProperties.getUrl() + "/revenue-analyzer/client/create",
+                HttpMethod.POST,
+                new HttpEntity<>(createClientRequest, createHeaders(userId)),
+                String.class
+        );
+
+        HttpStatusCode status = response.getStatusCode();
+        String    body   = response.getBody();
+
+        // 2) Если 409 — парсим сообщение и возвращаем ошибку
+        if (status == HttpStatus.CONFLICT) {
+            String message = extractErrorMessage(body);  // ваш JSON → message
+            return CreateClientResponse.builder()
                     .responseCode(HttpStatus.CONFLICT.value())
                     .errorMessage(message)
                     .build();
         }
+
+        // 3) Если 200 (успех) — десериализуем CreateClientResponse
+        if (status.is2xxSuccessful()) {
+            try {
+                return objectMapper.readValue(body, CreateClientResponse.class);
+            } catch (JsonProcessingException e) {
+                log.error("Не удалось десериализовать CreateClientResponse", e);
+                throw new InternalException(e);
+            }
+        }
+
+        // 4) На всякий случай — для прочих статусов кидаем
+        throw new UserFriendlyException(
+                String.format("Непредвиденный ответ от сервера: %d", status.value())
+        );
     }
 
     public CreateUserResponse createUser(CreateUserRequest createUserRequest) {
@@ -113,7 +151,8 @@ public class ClientRevenueAnalyzerIntegrationClient {
                 String.valueOf(userId),
                 request,
                 "/revenue-analyzer/client/getSchedule",
-                new ParameterizedTypeReference<>() {}
+                new ParameterizedTypeReference<>() {
+                }
         );
     }
 
@@ -121,7 +160,8 @@ public class ClientRevenueAnalyzerIntegrationClient {
         return postForList(String.valueOf(userId),
                 null,
                 "/revenue-analyzer/client/getActiveClients",
-                new ParameterizedTypeReference<>() {}
+                new ParameterizedTypeReference<>() {
+                }
         );
     }
 
@@ -156,11 +196,34 @@ public class ClientRevenueAnalyzerIntegrationClient {
         return responseEntity.getBody();
     }
 
-    private <T> ResponseEntity<T> exchange(String username,
-                                           Object request,
-                                           String endpoint,
-                                           Class<T> responseType,
-                                           HttpMethod httpMethod) {
+    //    private <T> ResponseEntity<T> exchange(String username,
+//                                           Object request,
+//                                           String endpoint,
+//                                           Class<T> responseType,
+//                                           HttpMethod httpMethod) {
+//        HttpEntity<Object> entity = new HttpEntity<>(request, createHeaders(username));
+//        try {
+//            return restTemplate.exchange(
+//                    revenueAnalyzerProperties.getUrl() + endpoint,
+//                    httpMethod,
+//                    entity,
+//                    responseType
+//            );
+//        } catch (HttpClientErrorException.NotFound ignore) {
+//            return new ResponseEntity<>(HttpStatus.NOT_FOUND);
+//        } catch (HttpClientErrorException.Conflict ex) {
+//            throw ex;
+//        } catch (HttpServerErrorException.InternalServerError ex) {
+//            throw new UserFriendlyException(getResponseMessage(ex.getResponseBodyAsString()));
+//        }
+//    }
+    private <T> ResponseEntity<T> exchange(
+            String username,
+            Object request,
+            String endpoint,
+            Class<T> responseType,
+            HttpMethod httpMethod) {
+
         HttpEntity<Object> entity = new HttpEntity<>(request, createHeaders(username));
         try {
             return restTemplate.exchange(
@@ -169,12 +232,10 @@ public class ClientRevenueAnalyzerIntegrationClient {
                     entity,
                     responseType
             );
-        } catch (HttpClientErrorException.NotFound ignore) {
+        } catch (HttpClientErrorException.NotFound nf) {
             return new ResponseEntity<>(HttpStatus.NOT_FOUND);
-        } catch (HttpClientErrorException.Conflict ex) {
-            throw ex;
-        } catch (HttpServerErrorException.InternalServerError ex) {
-            throw new UserFriendlyException(getResponseMessage(ex.getResponseBodyAsString()));
+        } catch (HttpServerErrorException.InternalServerError ise) {
+            throw new UserFriendlyException(getResponseMessage(ise.getResponseBodyAsString()));
         }
     }
 
