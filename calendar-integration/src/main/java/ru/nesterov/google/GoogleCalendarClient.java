@@ -6,6 +6,7 @@ import com.google.api.client.json.gson.GsonFactory;
 import com.google.api.client.util.DateTime;
 import com.google.api.services.calendar.Calendar;
 import com.google.api.services.calendar.CalendarScopes;
+import com.google.api.services.calendar.model.Event;
 import com.google.api.services.calendar.model.EventDateTime;
 import com.google.api.services.calendar.model.Events;
 import com.google.auth.http.HttpCredentialsAdapter;
@@ -170,35 +171,37 @@ public class GoogleCalendarClient implements CalendarClient {
 
     @Nullable
     private EventExtensionDto buildEventExtension(com.google.api.services.calendar.model.Event event) {
-        log.trace("Сборка EventExtensionDto для EventDto с названием [{}] and date [{}]", event.getSummary(), event.getStart());
-
         if (event.getDescription() == null) {
-            log.trace("EventDto не содержит EventExtensionDto");
             return null;
         }
 
-        EventExtensionDto eventExtensionDto = buildFromPlainText(event.getDescription());
-        if (eventExtensionDto != null) {
-            return eventExtensionDto;
+        EventExtensionDto eventExtensionDtoFromPlainText = buildFromPlainText(event);
+        if (eventExtensionDtoFromPlainText != null) {
+            return eventExtensionDtoFromPlainText;
+        }
+        log.trace("Не удалось собрать EventExtensionDto в виде PLAIN TEXT, неверный формат, event = {}", event);
+
+        EventExtensionDto extensionDtoFromJson = buildFromJson(event);
+        if (extensionDtoFromJson != null) {
+            return extensionDtoFromJson;
         }
 
-        return buildFromJson(event.getDescription());
+        log.error("Не удалось собрать EventExtensionDto ни одним из вариантов, неверный формат расширения события. {}", event);
+        throw new CannotBuildEventException(event.getSummary(), event.getStart());
     }
 
-    private EventExtensionDto buildFromJson(String description) {
+    private EventExtensionDto buildFromJson(Event event) {
         try {
-            return objectMapper.readValue(description, EventExtensionDto.class);
+            return objectMapper.readValue(event.getDescription(), EventExtensionDto.class);
         } catch (Exception e) {
-            log.trace("Не удалось собрать EventExtensionDto в виде JSON, неверный формат", e);
             return null;
         }
     }
 
-    private EventExtensionDto buildFromPlainText(String description) {
+    private EventExtensionDto buildFromPlainText(Event event) {
         try {
-            return PlainTextMapper.fillFromString(description, EventExtensionDto.class);
+            return PlainTextMapper.fillFromString(event.getDescription(), EventExtensionDto.class);
         } catch (Exception e) {
-            log.trace("Не удалось собрать EventExtensionDto в виде PLAIN TEXT, неверный формат", e);
             return null;
         }
     }
