@@ -10,6 +10,7 @@ import ru.nesterov.controller.request.CreateClientRequest;
 import ru.nesterov.controller.request.GetClientScheduleRequest;
 import ru.nesterov.controller.response.ClientResponse;
 import ru.nesterov.controller.response.EventScheduleResponse;
+import ru.nesterov.controller.response.FullClientInfoResponse;
 import ru.nesterov.exception.ClientIsAlreadyCreatedException;
 import ru.nesterov.mapper.ClientMapper;
 import ru.nesterov.service.user.UserService;
@@ -52,4 +53,11 @@ public class ClientControllerImpl implements ClientController {
                 .map(ClientMapper::mapToClientResponse)
                 .toList();
     }
+
+    @Override
+    public FullClientInfoResponse getClientInfo(@RequestHeader(name = "X-username") String username, @RequestBody String clientName) {
+        return ClientMapper.mapToFullClientInfoResponse(clientService.getClientInfo(userService.getUserByUsername(username), clientName));
+    }
+
+
 }
