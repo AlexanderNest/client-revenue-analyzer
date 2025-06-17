@@ -1,4 +1,4 @@
-package ru.nesterov.google.exception;
+package ru.nesterov.exception;
 
 import com.google.api.services.calendar.model.EventDateTime;
 import ru.nesterov.common.exception.AppException;

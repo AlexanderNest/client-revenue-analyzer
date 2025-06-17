@@ -1,11 +1,11 @@
 package ru.nesterov.service.status;
 
-import com.google.api.services.calendar.model.Event;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.test.context.ContextConfiguration;
-import ru.nesterov.common.dto.EventStatus;
+import ru.nesterov.dto.EventStatus;
+import ru.nesterov.dto.PrimaryEventData;
 import ru.nesterov.google.EventStatusServiceImpl;
 
 import java.util.ArrayList;
@@ -29,14 +29,16 @@ public class EventDtoStatusServiceTest {
 
     @Test
     public void getSuccessStatusTest() {
-        Event event2 = new Event();
-        event2.setColorId("2");
-        EventStatus status2 = eventStatusService.getEventStatus(event2);
+        PrimaryEventData primaryEventData2 = PrimaryEventData.builder()
+                .colorId("2")
+                .build();
+        EventStatus status2 = eventStatusService.getEventStatus(primaryEventData2);
 
-        Event event10 = new Event();
-        event10.setColorId("10");
+        PrimaryEventData primaryEventData10 = PrimaryEventData.builder()
+                .colorId("10")
+                .build();
 
-        EventStatus status10 = eventStatusService.getEventStatus(event10);
+        EventStatus status10 = eventStatusService.getEventStatus(primaryEventData10);
 
         assertEquals(EventStatus.SUCCESS, status2);
         assertEquals(EventStatus.SUCCESS, status10);
@@ -44,29 +46,31 @@ public class EventDtoStatusServiceTest {
 
     @Test
     public void getCancelledStatusTest() {
-        Event event11 = new Event();
-        event11.setColorId("11");
+        PrimaryEventData primaryEventData11 = PrimaryEventData.builder()
+                .colorId("11")
+                .build();
 
-        EventStatus status11 = eventStatusService.getEventStatus(event11);
+        EventStatus status11 = eventStatusService.getEventStatus(primaryEventData11);
 
         assertEquals(EventStatus.CANCELLED, status11);
     }
 
     @Test
     public void getRequiresShiftStatusTest() {
-        Event event5 = new Event();
-        event5.setColorId("5");
+        PrimaryEventData primaryEventData5 = PrimaryEventData.builder()
+                .colorId("5")
+                .build();
 
-        EventStatus status5 = eventStatusService.getEventStatus(event5);
+        EventStatus status5 = eventStatusService.getEventStatus(primaryEventData5);
 
         assertEquals(EventStatus.REQUIRES_SHIFT, status5);
     }
 
     @Test
     public void getPlannedStatusTest() {
-        Event event = new Event();
+        PrimaryEventData primaryEventData = PrimaryEventData.builder().build();
 
-        EventStatus statusNull = eventStatusService.getEventStatus(event);
+        EventStatus statusNull = eventStatusService.getEventStatus(primaryEventData);
 
         assertEquals(EventStatus.PLANNED, statusNull);
     }

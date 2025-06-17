@@ -7,10 +7,10 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.test.context.ContextConfiguration;
-import ru.nesterov.common.dto.CalendarServiceDto;
-import ru.nesterov.common.dto.CalendarType;
-import ru.nesterov.common.dto.EventDto;
-import ru.nesterov.common.dto.EventStatus;
+import ru.nesterov.dto.CalendarType;
+import ru.nesterov.dto.EventDto;
+import ru.nesterov.dto.EventStatus;
+import ru.nesterov.dto.EventsFilter;
 
 import java.time.LocalDateTime;
 import java.util.List;
@@ -79,7 +79,7 @@ class GoogleCalendarServiceTest {
         LocalDateTime leftDate = LocalDateTime.of(2023, 01, 01, 00, 00);
         LocalDateTime rightDate = LocalDateTime.of(2024, 01, 01, 00, 00);
 
-        CalendarServiceDto calendarServiceDto = CalendarServiceDto.builder()
+        EventsFilter eventsFilter = EventsFilter.builder()
                 .mainCalendar(MAIN_CALENDAR_ID)
                 .cancelledCalendar(CANCELLED_CALENDAR_ID)
                 .leftDate(leftDate)
@@ -87,7 +87,7 @@ class GoogleCalendarServiceTest {
                 .isCancelledCalendarEnabled(true)
                 .build();
 
-        List<EventDto> eventDtos = googleCalendarService.getEventsBetweenDates(calendarServiceDto);
+        List<EventDto> eventDtos = googleCalendarService.getEventsBetweenDates(eventsFilter);
         assertNotNull(eventDtos);
         assertEquals(4, eventDtos.size());
 
@@ -119,7 +119,7 @@ class GoogleCalendarServiceTest {
         LocalDateTime leftDate = LocalDateTime.of(2023, 01, 01, 00, 00);
         LocalDateTime rightDate = LocalDateTime.of(2024, 01, 01, 00, 00);
 
-        CalendarServiceDto calendarServiceDto = CalendarServiceDto.builder()
+        EventsFilter eventsFilter = EventsFilter.builder()
                 .mainCalendar(MAIN_CALENDAR_ID)
                 .cancelledCalendar(null)
                 .leftDate(leftDate)
@@ -127,7 +127,7 @@ class GoogleCalendarServiceTest {
                 .isCancelledCalendarEnabled(false)
                 .build();
 
-        List<EventDto> eventDtos = googleCalendarService.getEventsBetweenDates(calendarServiceDto);
+        List<EventDto> eventDtos = googleCalendarService.getEventsBetweenDates(eventsFilter);
         assertNotNull(eventDtos);
         assertEquals(2, eventDtos.size());
 

@@ -15,12 +15,15 @@ import lombok.SneakyThrows;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.stereotype.Component;
-import ru.nesterov.common.dto.CalendarType;
-import ru.nesterov.common.dto.EventDto;
-import ru.nesterov.common.dto.EventExtensionDto;
-import ru.nesterov.common.dto.EventStatus;
-import ru.nesterov.common.util.PlainTextMapper;
-import ru.nesterov.google.exception.CannotBuildEventException;
+import ru.nesterov.dto.CalendarType;
+import ru.nesterov.dto.EventDto;
+import ru.nesterov.dto.EventExtensionDto;
+import ru.nesterov.dto.EventStatus;
+import ru.nesterov.dto.PrimaryEventData;
+import ru.nesterov.exception.CannotBuildEventException;
+import ru.nesterov.service.CalendarClient;
+import ru.nesterov.service.EventStatusService;
+import ru.nesterov.util.PlainTextMapper;
 
 import javax.annotation.Nullable;
 import java.io.FileInputStream;
@@ -160,7 +163,13 @@ public class GoogleCalendarClient implements CalendarClient {
         } else if (calendarType == CalendarType.PLAIN) {
             eventStatus = null;
         } else {
-            eventStatus = eventStatusService.getEventStatus(event);
+            PrimaryEventData primaryEventData = PrimaryEventData.builder()
+                    .colorId(event.getColorId())
+                    .name(event.getSummary())
+                    .eventStart(event.getStart().getDateTime())
+                    .build();
+
+            eventStatus = eventStatusService.getEventStatus(primaryEventData);
         }
 
         try {
