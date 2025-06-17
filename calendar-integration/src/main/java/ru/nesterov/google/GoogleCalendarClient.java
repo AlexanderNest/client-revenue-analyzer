@@ -6,7 +6,6 @@ import com.google.api.client.json.gson.GsonFactory;
 import com.google.api.client.util.DateTime;
 import com.google.api.services.calendar.Calendar;
 import com.google.api.services.calendar.CalendarScopes;
-import com.google.api.services.calendar.model.Event;
 import com.google.api.services.calendar.model.EventDateTime;
 import com.google.api.services.calendar.model.Events;
 import com.google.auth.http.HttpCredentialsAdapter;
@@ -31,6 +30,7 @@ import java.time.ZoneId;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
+import java.util.stream.Stream;
 
 /*
 Основные методы Google Calendar API для работы с событиями:
@@ -94,43 +94,42 @@ public class GoogleCalendarClient implements CalendarClient {
 
     @SneakyThrows
     public List<EventDto> getEventsBetweenDates(String calendarId, CalendarType calendarType, LocalDateTime leftDate, LocalDateTime rightDate) {
+        return getEventsBetweenDatesInternal(calendarId, calendarType, leftDate, rightDate, null);
+    }
+
+    @SneakyThrows
+    public List<EventDto> getEventsBetweenDates(String calendarId, CalendarType calendarType, LocalDateTime leftDate, LocalDateTime rightDate, String clientName) {
+        return getEventsBetweenDatesInternal(calendarId, calendarType, leftDate, rightDate, clientName);
+    }
+
+    @SneakyThrows
+    private List<EventDto> getEventsBetweenDatesInternal(String calendarId, CalendarType calendarType, LocalDateTime leftDate, LocalDateTime rightDate, String clientName) {
         Date startTime = Date.from(leftDate.atZone(ZoneId.systemDefault()).toInstant());
         Date endTime = Date.from(rightDate.atZone(ZoneId.systemDefault()).toInstant());
 
-        List<Events> events = getEventsBetweenDates(calendarId, startTime, endTime);
-        return events.stream()
+        List<Events> events = getEventsBetweenDates(calendarId, clientName, startTime, endTime);
+        Stream<EventDto> eventDtoStream = events.stream()
                 .flatMap(e -> e.getItems().stream())
-                .map(event -> buildEvent(event, calendarType))
-                .toList();
+                .map(event -> buildEvent(event, calendarType));
+
+        if (clientName != null) {
+            eventDtoStream = eventDtoStream.filter(eventDto -> eventDto.getSummary().equals(clientName));
+        }
+
+        return eventDtoStream.toList();
     }
 
-    // ?
-    public Events getEventsBetweenDates(String calendarId, CalendarType calendarType, LocalDateTime leftDate, LocalDateTime rightDate, String eventName) throws IOException {
-        Date startTime = Date.from(leftDate.atZone(ZoneId.systemDefault()).toInstant());
-        Date endTime = Date.from(rightDate.atZone(ZoneId.systemDefault()).toInstant());
-
-        Events events = calendar.events().list(calendarId)
-                .setTimeMin(new DateTime(startTime))
-                .setTimeMax(new DateTime(endTime))
-                .setOrderBy("startTime")
-                .setSingleEvents(true)
-                .setQ(eventName)
-                .execute();
-        log.debug("Response from google received");
-        return events;
-    }
-
-    private List<Events> getEventsBetweenDates(String calendarId, Date startTime, Date endTime) throws IOException {
+    private List<Events> getEventsBetweenDates(String calendarId, String clientName, Date startTime, Date endTime) throws IOException {
         int pageNumber = 1;
 
         List<Events> allEvents = new ArrayList<>();
 
-        Events events = getEventsBetweenDates(calendarId, startTime, endTime, null);
+        Events events = getEventsBetweenDates(calendarId, clientName, startTime, endTime, null);
         allEvents.add(events);
         log.debug("Для calendarId = [{}] [{} - {}] извлечена страница №[{}]", calendarId, startTime, endTime, pageNumber);
 
         while (events.getNextPageToken() != null) {
-            events = getEventsBetweenDates(calendarId, startTime, endTime, events.getNextPageToken());
+            events = getEventsBetweenDates(calendarId, clientName, startTime, endTime, events.getNextPageToken());
             allEvents.add(events);
             pageNumber++;
             log.debug("Для calendarId = [{}] [{} - {}] извлечена страница №[{}]", calendarId, startTime, endTime, pageNumber);
@@ -139,7 +138,7 @@ public class GoogleCalendarClient implements CalendarClient {
         return allEvents;
     }
 
-    private Events getEventsBetweenDates(String calendarId, Date startTime, Date endTime, String nextPageToken) throws IOException {
+    private Events getEventsBetweenDates(String calendarId, String clientName, Date startTime, Date endTime, String nextPageToken) throws IOException {
         log.debug("Send request to google");
         Events events = calendar.events().list(calendarId)
                 .setTimeMin(new DateTime(startTime))
@@ -147,11 +146,11 @@ public class GoogleCalendarClient implements CalendarClient {
                 .setOrderBy("startTime")
                 .setSingleEvents(true)
                 .setPageToken(nextPageToken)
+                .setQ(clientName)
                 .execute();
         log.debug("Response from google received");
         return events;
     }
-
 
     private EventDto buildEvent(com.google.api.services.calendar.model.Event event, CalendarType calendarType) {
         EventStatus eventStatus;
