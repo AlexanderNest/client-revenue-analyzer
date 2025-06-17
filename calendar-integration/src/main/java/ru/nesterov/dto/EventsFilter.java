@@ -1,4 +1,4 @@
-package ru.nesterov.common.dto;
+package ru.nesterov.dto;
 
 import lombok.Builder;
 import lombok.EqualsAndHashCode;
@@ -9,7 +9,7 @@ import java.time.LocalDateTime;
 @Builder
 @Getter
 @EqualsAndHashCode
-public class CalendarServiceDto {
+public class EventsFilter {
     private String mainCalendar;
     private String cancelledCalendar;
     private LocalDateTime leftDate;

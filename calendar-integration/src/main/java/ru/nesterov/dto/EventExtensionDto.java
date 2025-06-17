@@ -1,7 +1,7 @@
-package ru.nesterov.common.dto;
+package ru.nesterov.dto;
 
 import lombok.Data;
-import ru.nesterov.common.annotation.FieldAlias;
+import ru.nesterov.annotation.FieldAlias;
 
 import java.time.LocalDateTime;
 

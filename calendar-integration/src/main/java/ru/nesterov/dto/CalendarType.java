@@ -1,4 +1,4 @@
-package ru.nesterov.common.dto;
+package ru.nesterov.dto;
 
 public enum CalendarType {
     MAIN,

@@ -1,6 +1,6 @@
-package ru.nesterov.common.util;
+package ru.nesterov.util;
 
-import ru.nesterov.common.annotation.FieldAlias;
+import ru.nesterov.annotation.FieldAlias;
 
 import java.lang.reflect.Field;
 import java.lang.reflect.InvocationTargetException;

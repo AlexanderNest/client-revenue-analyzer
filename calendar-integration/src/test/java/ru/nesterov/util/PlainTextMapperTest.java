@@ -1,8 +1,7 @@
 package ru.nesterov.util;
 
 import org.junit.jupiter.api.Test;
-import ru.nesterov.common.dto.EventExtensionDto;
-import ru.nesterov.common.util.PlainTextMapper;
+import ru.nesterov.dto.EventExtensionDto;
 
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
