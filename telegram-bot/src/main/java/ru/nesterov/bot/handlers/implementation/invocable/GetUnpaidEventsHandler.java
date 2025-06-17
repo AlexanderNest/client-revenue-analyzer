@@ -22,7 +22,6 @@ public class GetUnpaidEventsHandler extends DisplayedCommandHandler {
 
     @Override
     public BotApiMethod<?> handle(Update update) {
-
         List<GetUnpaidEventsResponse> unpaidEvents = client.getUnpaidEvents(TelegramUpdateUtils.getUserId(update));
 
         if (unpaidEvents.isEmpty()) {
