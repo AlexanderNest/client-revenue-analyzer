@@ -9,7 +9,6 @@ import org.telegram.telegrambots.meta.api.methods.send.SendMessage;
 import org.telegram.telegrambots.meta.api.objects.Update;
 import org.telegram.telegrambots.meta.exceptions.TelegramApiException;
 import ru.nesterov.bot.config.BotProperties;
-import ru.nesterov.bot.exception.UserFriendlyException;
 import ru.nesterov.bot.handlers.abstractions.CommandHandler;
 import ru.nesterov.bot.handlers.service.HandlersService;
 import ru.nesterov.bot.utils.TelegramUpdateUtils;
@@ -43,7 +42,8 @@ public class RevenueAnalyzerBot extends TelegramLongPollingBot {
 
         try {
             sendMessage = commandHandler.handle(update);
-        } catch (UserFriendlyException exception) {
+        } catch (Exception exception) {
+            handlersService.resetBrokeHandler(commandHandler, userId);
             sendMessage = buildTextMessage(update, exception.getMessage());
         } finally {
             handlersService.resetFinishedHandlers(userId);
