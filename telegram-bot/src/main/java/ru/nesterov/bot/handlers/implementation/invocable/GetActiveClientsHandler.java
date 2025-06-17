@@ -9,12 +9,15 @@ import ru.nesterov.bot.handlers.abstractions.DisplayedCommandHandler;
 import ru.nesterov.bot.utils.TelegramUpdateUtils;
 
 import java.util.List;
-import java.util.stream.Collectors;
-import java.util.stream.IntStream;
 
 @Component
 @RequiredArgsConstructor
 public class GetActiveClientsHandler extends DisplayedCommandHandler {
+    @Override
+    public String getCommand() {
+        return "Вывести список клиентов";
+    }
+
     @Override
     public BotApiMethod<?> handle(Update update) {
         long userId = TelegramUpdateUtils.getUserId(update);
@@ -22,29 +25,28 @@ public class GetActiveClientsHandler extends DisplayedCommandHandler {
 
         if (activeClientResponseList.isEmpty()) {
             return getPlainSendMessage(TelegramUpdateUtils.getChatId(update),
-                    "ℹ️ У вас пока нет клиентов.");
+                    "У вас пока нет клиентов.");
         }
 
-        String activeClients = IntStream.range(0, activeClientResponseList.size())
-                .mapToObj(i -> {
-                    GetActiveClientResponse client = activeClientResponseList.get(i);
-                    return String.format(
-                                    "%d. %s %n" +
-                                    "     Тариф: %d руб/час %n" +
-                                    "     Описание: %s %n",
-                            i + 1,
-                            client.getName(),
-                            client.getPricePerHour(),
-                            client.getDescription()
-                    );
-                })
-                .collect(Collectors.joining("\n"));
-
-        return getPlainSendMessage(TelegramUpdateUtils.getChatId(update), activeClients);
+        String activeClientsMessage = getActiveClientsMessage(activeClientResponseList);
+        return getPlainSendMessage(TelegramUpdateUtils.getChatId(update), activeClientsMessage);
     }
 
-    @Override
-    public String getCommand() {
-        return "Вывести список клиентов";
+    private String getActiveClientsMessage(List<GetActiveClientResponse> activeClientResponseList) {
+        StringBuilder activeClientsResponse = new StringBuilder();
+        for (int i = 0;  i < activeClientResponseList.size(); i++ ){
+            GetActiveClientResponse clientResponse = activeClientResponseList.get(i);
+            String clientDescription = String.format(
+                    "%d. %s%n     Тариф: %d руб/час %n     Описание: %s %n",
+                    i + 1,
+                    clientResponse.getName(),
+                    clientResponse.getPricePerHour(),
+                    clientResponse.getDescription()
+            );
+
+            activeClientsResponse.append(clientDescription);
+        }
+
+        return activeClientsResponse.toString();
     }
 }
