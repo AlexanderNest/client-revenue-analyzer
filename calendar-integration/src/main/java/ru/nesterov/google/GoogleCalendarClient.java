@@ -169,7 +169,7 @@ public class GoogleCalendarClient implements CalendarClient {
                     .summary(event.getSummary())
                     .start(getLocalDateTime(event.getStart()))
                     .end(getLocalDateTime(event.getEnd()))
-                    .eventExtensionDto(buildEventExtension(event))
+                    .eventExtensionDto(buildEventExtension(event, calendarType))
                     .build();
         } catch (Exception e) {
             throw new CannotBuildEventException(event.getSummary(), event.getStart(), e);
@@ -187,8 +187,8 @@ public class GoogleCalendarClient implements CalendarClient {
     }
 
     @Nullable
-    private EventExtensionDto buildEventExtension(com.google.api.services.calendar.model.Event event) {
-        if (event.getDescription() == null) {
+    private EventExtensionDto buildEventExtension(com.google.api.services.calendar.model.Event event, CalendarType calendarType) {
+        if (calendarType == CalendarType.PLAIN || event.getDescription() == null) {
             return null;
         }
 
