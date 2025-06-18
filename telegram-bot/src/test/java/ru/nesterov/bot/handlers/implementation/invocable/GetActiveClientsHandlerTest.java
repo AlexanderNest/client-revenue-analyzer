@@ -3,7 +3,6 @@ package ru.nesterov.bot.handlers.implementation.invocable;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.test.context.ContextConfiguration;
-import org.telegram.telegrambots.meta.api.methods.BotApiMethod;
 import org.telegram.telegrambots.meta.api.methods.send.SendMessage;
 import org.telegram.telegrambots.meta.api.objects.Update;
 import ru.nesterov.bot.dto.GetActiveClientResponse;
@@ -12,7 +11,8 @@ import ru.nesterov.bot.handlers.abstractions.CommandHandler;
 
 import java.util.List;
 
-import static org.junit.jupiter.api.Assertions.*;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertInstanceOf;
 import static org.mockito.Mockito.when;
 
 @ContextConfiguration(classes = {
@@ -32,26 +32,26 @@ class GetActiveClientsHandlerTest extends RegisteredUserHandlerTest {
         clientResponse.setName("Макс");
         clientResponse.setPricePerHour(999);
         clientResponse.setDescription("SSS");
+
         GetActiveClientResponse clientResponse2 = new GetActiveClientResponse();
         clientResponse2.setName("Анна");
         clientResponse2.setPricePerHour(100);
         clientResponse2.setDescription("Zzz");
 
-        List<GetActiveClientResponse> getActiveClientResponseList = List.of(clientResponse, clientResponse2);
-        when(client.getActiveClients(1L)).thenReturn(getActiveClientResponseList);
+        List<GetActiveClientResponse> getActiveClientsResponseList = List.of(clientResponse, clientResponse2);
 
-        BotApiMethod<?> botApiMethod = commandHandler.handle(update);
-        assertInstanceOf(SendMessage.class, botApiMethod);
-        SendMessage sendStatistics = (SendMessage) botApiMethod;
-        sendStatistics.getText();
+        when(client.getActiveClients(1L)).thenReturn(getActiveClientsResponseList);
 
-        String expectedMessage = ("1. Макс" + System.lineSeparator() +
+        SendMessage result = (SendMessage) commandHandler.handle(update);
+
+        String expectedMessage = (
+                "1. Макс" + System.lineSeparator() +
                 "     Тариф: 999 руб/час" + System.lineSeparator() +
                 "     Описание: SSS" + System.lineSeparator() +
                 "2. Анна" + System.lineSeparator() +
                 "     Тариф: 100 руб/час" + System.lineSeparator() +
-                "     Описание: Zzz").trim();
+                "     Описание: Zzz");
 
-        assertEquals(expectedMessage, sendStatistics.getText().trim());
+        assertEquals(expectedMessage, result.getText());
     }
 }
