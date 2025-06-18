@@ -39,21 +39,4 @@ class AiAnalyzerHandlerTest extends RegisteredUserHandlerTest {
 
         assertEquals(aiAnalyzerResponse.getContent(), sendStatistics.getText());
     }
-
-    private Update createUpdateWithMessage(String text) {
-        Chat chat = new Chat();
-        chat.setId(1L);
-        User user = new User();
-        user.setId(1L);
-
-        Message message = new Message();
-        message.setText(text);
-        message.setChat(chat);
-        message.setFrom(user);
-
-        Update update = new Update();
-        update.setMessage(message);
-
-        return update;
-    }
 }
