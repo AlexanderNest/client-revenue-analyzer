@@ -4,6 +4,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.stereotype.Service;
 import ru.nesterov.common.dto.CalendarServiceDto;
+import ru.nesterov.common.dto.CalendarType;
 import ru.nesterov.common.dto.EventDto;
 import ru.nesterov.common.service.CalendarService;
 import ru.nesterov.common.service.EvenExtensionService;
@@ -11,6 +12,7 @@ import ru.nesterov.entity.Client;
 import ru.nesterov.entity.User;
 import ru.nesterov.exception.ClientIsAlreadyCreatedException;
 import ru.nesterov.exception.ClientNotFoundException;
+import ru.nesterov.google.GoogleCalendarClient;
 import ru.nesterov.repository.ClientRepository;
 import ru.nesterov.repository.UserRepository;
 import ru.nesterov.service.date.helper.MonthDatesPair;
@@ -33,7 +35,7 @@ public class ClientServiceImpl implements ClientService {
     private final ClientRepository clientRepository;
     private final UserRepository userRepository;
     private final EventService eventService;
-    private final EventsAnalyzerService eventsAnalyzerService;
+
 
     public List<MonthDatesPair> getClientSchedule(UserDto userDto, String clientName, LocalDateTime leftDate, LocalDateTime rightDate) {
         Client client = clientRepository.findClientByNameAndUserId(clientName, userDto.getId());
@@ -98,21 +100,22 @@ public class ClientServiceImpl implements ClientService {
                 .startDate(clientDto.getStartDate())
                 .phone(clientDto.getPhone())
                 .serviceDuration(ChronoUnit.MONTHS.between(LocalDateTime.ofInstant(clientDto.getStartDate().toInstant(), ZoneId.systemDefault()), LocalDateTime.now()))
-                .totalMeetings(getTotalMeetings(userDto).size())
-                .totalMeetingsHours(getMeetingsHours(getTotalMeetings(userDto)))
-                .totalIncome(getMeetingsHours(getTotalMeetings(userDto)) * clientDto.getPricePerHour())
-                .plannedCancelledEventsCount(getPlannedCancelledEventsCount(getTotalMeetings(userDto)))
-                .unplannedCancelledEventsCount(getUnplannedCancelledEventsCount(getTotalMeetings(userDto)))
+                .totalMeetings(getTotalMeetings(userDto, clientName).size())
+                .totalMeetingsHours(getMeetingsHours(getTotalMeetings(userDto, clientName)))
+                .totalIncome(getMeetingsHours(getTotalMeetings(userDto, clientName)) * clientDto.getPricePerHour())
+                .plannedCancelledEventsCount(getPlannedCancelledEventsCount(getTotalMeetings(userDto, clientName)))
+                .unplannedCancelledEventsCount(getUnplannedCancelledEventsCount(getTotalMeetings(userDto, clientName)))
                 .build();
     }
 
-    public List<EventDto> getTotalMeetings(UserDto userDto) {
+    public List<EventDto> getTotalMeetings(UserDto userDto, String clientName) {
         CalendarServiceDto calendarServiceDto = CalendarServiceDto.builder()
                 .cancelledCalendar(userDto.getCancelledCalendar())
                 .mainCalendar(userDto.getMainCalendar())
-                .leftDate(LocalDateTime.now().minusMonths(2))
+                .leftDate(LocalDateTime.now().minusMonths(2))   // minusYears
                 .rightDate(LocalDateTime.now())
                 .isCancelledCalendarEnabled(userDto.isCancelledCalendarEnabled())
+                .clientName(clientName)
                 .build();
 
         return calendarService.getEventsBetweenDates(calendarServiceDto);

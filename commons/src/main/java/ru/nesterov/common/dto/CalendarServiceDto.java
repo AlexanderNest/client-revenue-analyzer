@@ -15,4 +15,5 @@ public class CalendarServiceDto {
     private LocalDateTime leftDate;
     private LocalDateTime rightDate;
     private boolean isCancelledCalendarEnabled;
+    private String clientName;
 }
