@@ -7,12 +7,11 @@ import org.telegram.telegrambots.meta.api.methods.send.SendMessage;
 import org.telegram.telegrambots.meta.api.objects.Update;
 import ru.nesterov.bot.dto.GetActiveClientResponse;
 import ru.nesterov.bot.handlers.RegisteredUserHandlerTest;
-import ru.nesterov.bot.handlers.abstractions.CommandHandler;
 
+import java.util.Collections;
 import java.util.List;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertInstanceOf;
 import static org.mockito.Mockito.when;
 
 @ContextConfiguration(classes = {
@@ -23,16 +22,13 @@ class GetActiveClientsHandlerTest extends RegisteredUserHandlerTest {
     private GetActiveClientsHandler getActiveClientsHandler;
 
     @Test
-    void handle() {
+    void handleShouldReturnFormattedMessage() {
         Update update = createUpdateWithMessage(getActiveClientsHandler.getCommand());
-        CommandHandler commandHandler = handlerService.getHandler(update);
-        assertInstanceOf(GetActiveClientsHandler.class, commandHandler);
 
         GetActiveClientResponse clientResponse = new GetActiveClientResponse();
         clientResponse.setName("Макс");
         clientResponse.setPricePerHour(999);
         clientResponse.setDescription("SSS");
-
         GetActiveClientResponse clientResponse2 = new GetActiveClientResponse();
         clientResponse2.setName("Анна");
         clientResponse2.setPricePerHour(100);
@@ -42,7 +38,7 @@ class GetActiveClientsHandlerTest extends RegisteredUserHandlerTest {
 
         when(client.getActiveClients(1L)).thenReturn(getActiveClientsResponseList);
 
-        SendMessage result = (SendMessage) commandHandler.handle(update);
+        SendMessage result = (SendMessage) getActiveClientsHandler.handle(update);
 
         String expectedMessage = (
                 "1. Макс" + System.lineSeparator() +
@@ -50,8 +46,19 @@ class GetActiveClientsHandlerTest extends RegisteredUserHandlerTest {
                 "     Описание: SSS" + System.lineSeparator() +
                 "2. Анна" + System.lineSeparator() +
                 "     Тариф: 100 руб/час" + System.lineSeparator() +
-                "     Описание: Zzz");
+                "     Описание: Zzz"+ System.lineSeparator());
 
         assertEquals(expectedMessage, result.getText());
+    }
+
+    @Test
+    void handleShouldReturnNoClientsMessage() {
+        Update update = createUpdateWithMessage(getActiveClientsHandler.getCommand());
+
+        when(client.getActiveClients(1L)).thenReturn(Collections.emptyList());
+
+        SendMessage result = (SendMessage) getActiveClientsHandler.handle(update);
+
+        assertEquals("У вас пока нет клиентов.", result.getText());
     }
 }
