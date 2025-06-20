@@ -19,10 +19,10 @@ public class InvocableHandlersTest extends AbstractHandlerTest {
 
     @Test
     public void allHandlersCommandIsNotEmpty() {
-        assertFalse(handlers.isEmpty(), "Handlers list should not be empty");
+        assertFalse(handlers.isEmpty(), "Handlers list не должен быть пустым");
 
         for (InvocableCommandHandler handler : handlers) {
-            assertNotNull(handler, "Handler should not be null");
+            assertNotNull(handler, "Handler не должен быть null");
 
             String command = handler.getCommand();
             assertTrue(StringUtils.isNotBlank(command), "Команда + '" + command + "' не должна быть пустой или состоять из пробелов для handler: " + handler.getClass().getSimpleName());
