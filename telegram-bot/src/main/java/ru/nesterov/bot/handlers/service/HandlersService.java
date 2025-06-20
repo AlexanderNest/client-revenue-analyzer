@@ -6,6 +6,7 @@ import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.stereotype.Component;
 import org.telegram.telegrambots.meta.api.objects.Update;
 import ru.nesterov.bot.handlers.abstractions.CommandHandler;
+import ru.nesterov.bot.handlers.abstractions.InvocableCommandHandler;
 import ru.nesterov.bot.handlers.abstractions.Priority;
 import ru.nesterov.bot.handlers.abstractions.StatefulCommandHandler;
 import ru.nesterov.bot.handlers.implementation.UndefinedHandler;
@@ -56,6 +57,13 @@ public class HandlersService {
 
         if (cancelCommandHandler.isApplicable(update)) {
             return cancelCommandHandler;
+        }
+
+        //Проверяем является ли update командой
+        if (isCommandUpdate(update)){
+            // Для любой команды сначала сбрасываем все обработчики
+            long userId = TelegramUpdateUtils.getUserId(update);
+            resetAllHandlers(userId);
         }
 
         commandHandler = getStartedHandler(update);
@@ -121,5 +129,26 @@ public class HandlersService {
             }
         }
         return null;
+    }
+
+    // Метод для проверки, является ли update командой
+    private boolean isCommandUpdate(Update update) {
+        // Проверяем все InvocableCommandHandler'ы
+        for (CommandHandler handler : highestPriorityCommandHandlers) {
+            if (handler instanceof InvocableCommandHandler && handler.isApplicable(update)) {
+                return true;
+            }
+        }
+        for (CommandHandler handler : normalPriorityCommandHandlers) {
+            if (handler instanceof InvocableCommandHandler && handler.isApplicable(update)) {
+                return true;
+            }
+        }
+        for (CommandHandler handler : lowestPriorityCommandHandlers) {
+            if (handler instanceof InvocableCommandHandler && handler.isApplicable(update)) {
+                return true;
+            }
+        }
+        return false;
     }
 }
