@@ -89,8 +89,17 @@ public class ActionService {
             }
         }
 
+
         if (expectedActions.contains(Action.ANY_CALLBACK_INPUT)) {
             return Action.ANY_CALLBACK_INPUT;
+        }
+
+        if (expectedActions.contains(Action.CALLBACK_DATE)) {
+            return Action.CALLBACK_DATE;
+        }
+
+        if (expectedActions.contains(Action.CALLBACK_PREV_NEXT)) {
+            return Action.CALLBACK_PREV_NEXT;
         }
 
         return null;
