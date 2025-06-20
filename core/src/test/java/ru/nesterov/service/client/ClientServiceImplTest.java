@@ -6,15 +6,15 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.test.context.ContextConfiguration;
-import ru.nesterov.common.dto.CalendarServiceDto;
-import ru.nesterov.common.dto.EventDto;
-import ru.nesterov.common.dto.EventStatus;
-import ru.nesterov.common.service.CalendarService;
+import ru.nesterov.dto.EventDto;
+import ru.nesterov.dto.EventStatus;
+import ru.nesterov.dto.EventsFilter;
 import ru.nesterov.entity.Client;
 import ru.nesterov.entity.User;
 import ru.nesterov.exception.ClientNotFoundException;
 import ru.nesterov.repository.ClientRepository;
 import ru.nesterov.repository.UserRepository;
+import ru.nesterov.service.CalendarService;
 import ru.nesterov.service.date.helper.MonthDatesPair;
 import ru.nesterov.service.dto.UserDto;
 
@@ -99,7 +99,7 @@ public class ClientServiceImplTest {
         LocalDateTime from = LocalDateTime.of(2024, 8, 9, 11, 30);
         LocalDateTime to = LocalDateTime.of(2024, 8, 13, 12, 30);
 
-        CalendarServiceDto calendarServiceDto = CalendarServiceDto.builder()
+        EventsFilter eventsFilter = EventsFilter.builder()
                 .mainCalendar(user.getMainCalendar())
                 .cancelledCalendar(user.getCancelledCalendar())
                 .leftDate(from)
@@ -107,7 +107,7 @@ public class ClientServiceImplTest {
                 .isCancelledCalendarEnabled(user.isCancelledCalendarEnabled())
                 .build();
 
-        when(calendarService.getEventsBetweenDates(calendarServiceDto))
+        when(calendarService.getEventsBetweenDates(eventsFilter))
                 .thenReturn(List.of(eventDto1, eventDto2, eventDto3, eventDto4, eventDto5));
     }
 

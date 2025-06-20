@@ -90,6 +90,12 @@ public class HandlersService {
         return undefinedHandler;
     }
 
+    public void resetBrokeHandler(CommandHandler commandHandler, long userId) {
+        if (commandHandler instanceof StatefulCommandHandler<?,?>) {
+            ((StatefulCommandHandler<?, ?>) commandHandler).resetState(userId);
+        }
+    }
+
     public void resetFinishedHandlers(Long userId) {
         resetHandlers(userId, handler -> handler.isFinishedOrNotStarted(userId));
     }

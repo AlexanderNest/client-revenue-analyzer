@@ -1,6 +1,6 @@
 package ru.nesterov.service.mapper;
 
-import ru.nesterov.common.dto.EventDto;
+import ru.nesterov.dto.EventDto;
 import ru.nesterov.entity.Event;
 
 public class EventMapper {
