@@ -89,7 +89,7 @@ public class GoogleCalendarClient implements CalendarClient {
     @SneakyThrows
     private Calendar createCalendarService() {
         GoogleCredentials credentials = GoogleCredentials.fromStream(new FileInputStream(properties.getServiceAccountFilePath()))
-                    .createScoped(List.of(CalendarScopes.CALENDAR_READONLY));
+                .createScoped(List.of(CalendarScopes.CALENDAR_READONLY));
 
         return new Calendar.Builder(GoogleNetHttpTransport.newTrustedTransport(), GsonFactory.getDefaultInstance(), new HttpCredentialsAdapter(credentials))
                 .setApplicationName(properties.getApplicationName())
