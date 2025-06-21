@@ -91,6 +91,7 @@ public class ClientServiceImpl implements ClientService {
     @Override
     public FullClientInfoDto getClientInfo(UserDto userDto, String clientName) {
         ClientDto clientDto = ClientMapper.mapToClientDto(clientRepository.findClientByNameAndUserId(clientName, userDto.getId()));
+        List<EventDto> allClientsMeetings = getTotalMeetings(userDto, clientName);
 
         return FullClientInfoDto.builder()
                 .id(clientDto.getId())
@@ -100,11 +101,11 @@ public class ClientServiceImpl implements ClientService {
                 .startDate(clientDto.getStartDate())
                 .phone(clientDto.getPhone())
                 .serviceDuration(ChronoUnit.MONTHS.between(LocalDateTime.ofInstant(clientDto.getStartDate().toInstant(), ZoneId.systemDefault()), LocalDateTime.now()))
-                .totalMeetings(getTotalMeetings(userDto, clientName).size())
-                .totalMeetingsHours(getMeetingsHours(getTotalMeetings(userDto, clientName)))
-                .totalIncome(getMeetingsHours(getTotalMeetings(userDto, clientName)) * clientDto.getPricePerHour())
-                .plannedCancelledEventsCount(getPlannedCancelledEventsCount(getTotalMeetings(userDto, clientName)))
-                .unplannedCancelledEventsCount(getUnplannedCancelledEventsCount(getTotalMeetings(userDto, clientName)))
+                .totalMeetings(allClientsMeetings.size())
+                .totalMeetingsHours(getMeetingsHours(allClientsMeetings))
+                .totalIncome(getMeetingsHours(allClientsMeetings) * clientDto.getPricePerHour())
+                .plannedCancelledEventsCount(getPlannedCancelledEventsCount(userDto, allClientsMeetings))
+                .unplannedCancelledEventsCount(getUnplannedCancelledEventsCount(userDto, allClientsMeetings))
                 .build();
     }
 
@@ -129,25 +130,23 @@ public class ClientServiceImpl implements ClientService {
         return meetingsHours;
     }
 
-    public int getUnplannedCancelledEventsCount(List<EventDto> eventDtos) {
-        int unplannedCancelledEventsCount = 0;
-        for(EventDto eventDto : eventDtos) {
-            if (EvenExtensionService.isPlannedStatus(eventDto)) {
-                unplannedCancelledEventsCount++;
-            }
-        }
-        return unplannedCancelledEventsCount;
-    }
-
-    public int getPlannedCancelledEventsCount(List<EventDto> eventDtos) {
+    public int getPlannedCancelledEventsCount(UserDto userDto, List<EventDto> eventDtos) {
         int plannedCancelledEventsCount = 0;
         for(EventDto eventDto : eventDtos) {
-            if (!(EvenExtensionService.isPlannedStatus(eventDto))) {
+            if (EvenExtensionService.isPlannedStatus(eventDto) && userDto.isCancelledCalendarEnabled()) {
                 plannedCancelledEventsCount++;
             }
         }
         return plannedCancelledEventsCount;
     }
 
-
+    public int getUnplannedCancelledEventsCount(UserDto userDto, List<EventDto> eventDtos) {
+        int unplannedCancelledEventsCount = 0;
+        for(EventDto eventDto : eventDtos) {
+            if (!(EvenExtensionService.isPlannedStatus(eventDto)) && userDto.isCancelledCalendarEnabled()) {
+                unplannedCancelledEventsCount++;
+            }
+        }
+        return unplannedCancelledEventsCount;
+    }
 }
