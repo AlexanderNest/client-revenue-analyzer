@@ -67,7 +67,6 @@ public class ClientServiceImpl implements ClientService {
             toSave.setUser(user);
             Client saved = clientRepository.saveAndFlush(toSave);
             return ClientMapper.mapToClientDto(saved);
-
         } catch (DataIntegrityViolationException ex) {
             String alias = DataIntegrityViolationExceptionHandler.getLocalizedMessage(ex);
 

@@ -19,7 +19,6 @@ import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.List;
 
-
 /**
  * Процесс регистрации нового пользователя
  */
@@ -85,7 +84,6 @@ public class CreateClientHandler extends StatefulCommandHandler<State, CreateCli
         return createClient(update);
     }
 
-
     private BotApiMethod<?> createClient(Update update) {
         long chatId = TelegramUpdateUtils.getChatId(update);
         CreateClientResponse response = client.createClient(
@@ -99,7 +97,6 @@ public class CreateClientHandler extends StatefulCommandHandler<State, CreateCli
 
         return getPlainSendMessage(chatId, formatCreateClientResponse(response));
     }
-
 
     private String formatCreateClientResponse(CreateClientResponse response) {
         SimpleDateFormat formatter = new SimpleDateFormat("dd.MM.yyyy");
@@ -118,6 +115,5 @@ public class CreateClientHandler extends StatefulCommandHandler<State, CreateCli
 
         return buttonCallback.getValue();
     }
-
 }
 

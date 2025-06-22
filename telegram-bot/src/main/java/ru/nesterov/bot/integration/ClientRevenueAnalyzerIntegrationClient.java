@@ -11,7 +11,6 @@ import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpMethod;
 import org.springframework.http.HttpStatus;
-import org.springframework.http.HttpStatusCode;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Component;
 import org.springframework.web.client.HttpClientErrorException;
@@ -67,7 +66,6 @@ public class ClientRevenueAnalyzerIntegrationClient {
 
     public AiAnalyzerResponse getAiStatistics(long userId) {
         String currentMonth = LocalDate.now().getMonth().name().toLowerCase();
-
         GetForMonthRequest request = new GetForMonthRequest();
         request.setMonthName(currentMonth);
 
@@ -80,7 +78,6 @@ public class ClientRevenueAnalyzerIntegrationClient {
         if (responseEntity.getStatusCode().isSameCodeAs(HttpStatus.NOT_FOUND)) {
             return null;
         }
-
         return responseEntity.getBody();
     }
 
@@ -108,7 +105,6 @@ public class ClientRevenueAnalyzerIntegrationClient {
             throw new UserFriendlyException(
                     String.format("Непредвиденный ответ от сервера: %d", response.getStatusCodeValue())
             );
-
         } catch (HttpClientErrorException.Conflict ex) {
             String body = ex.getResponseBodyAsString();
             String message = extractErrorMessage(body);
@@ -248,5 +244,4 @@ public class ClientRevenueAnalyzerIntegrationClient {
         }
         return "Клиент уже существует";
     }
-
 }

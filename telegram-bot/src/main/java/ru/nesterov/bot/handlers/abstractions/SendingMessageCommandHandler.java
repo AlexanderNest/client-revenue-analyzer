@@ -32,7 +32,6 @@ public abstract class SendingMessageCommandHandler implements CommandHandler {
 
     /**
      * Вернет метод для отправки простого сообщения в чат
-     *
      * @param text - сообщение для отправки
      */
     public BotApiMethod<?> getPlainSendMessage(long chatId, String text) {

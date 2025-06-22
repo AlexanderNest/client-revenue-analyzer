@@ -13,7 +13,6 @@ import ru.nesterov.exception.ClientDataIntegrityException;
 @RestControllerAdvice
 @Slf4j
 public class RestExceptionHandler {
-
     @ExceptionHandler(AppException.class)
     @ResponseStatus(HttpStatus.INTERNAL_SERVER_ERROR)
     public ResponseWithMessage handleAppException(AppException exception) {
@@ -31,5 +30,4 @@ public class RestExceptionHandler {
         log.error("AppException", exception);
         return responseWithMessage;
     }
-
 }
