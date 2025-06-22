@@ -63,9 +63,9 @@ public class ClientServiceImpl implements ClientService {
 
         User user = userRepository.findByUsername(userDto.getUsername());
         try {
-            Client toSave = ClientMapper.mapToClient(clientDto);
-            toSave.setUser(user);
-            Client saved = clientRepository.saveAndFlush(toSave);
+            Client forSave = ClientMapper.mapToClient(clientDto);
+            forSave.setUser(user);
+            Client saved = clientRepository.save(forSave);
             return ClientMapper.mapToClientDto(saved);
         } catch (DataIntegrityViolationException ex) {
             String alias = DataIntegrityViolationExceptionHandler.getLocalizedMessage(ex);

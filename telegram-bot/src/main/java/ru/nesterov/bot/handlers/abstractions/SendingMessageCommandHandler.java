@@ -38,14 +38,12 @@ public abstract class SendingMessageCommandHandler implements CommandHandler {
         return buildSendMessage(chatId, text, null);
     }
 
-
     public BotApiMethod<?> getReplyKeyboard(long chatId, String text, ReplyKeyboard replyKeyboard) {
         return buildSendMessage(chatId, text, replyKeyboard);
     }
 
     /**
      * Метод для изменения уже отправленного сообщения в чат
-     *
      * @param keyboardMarkup - если в сообщении нужно добавить клавиатуру
      */
     public EditMessageText editMessage(long chatId, int messageId, String text, @Nullable InlineKeyboardMarkup keyboardMarkup) {
@@ -71,7 +69,6 @@ public abstract class SendingMessageCommandHandler implements CommandHandler {
         return answerCallbackQuery;
     }
 
-
     private SendMessage buildSendMessage(long chatId, String text, ReplyKeyboard replyKeyboard) {
         SendMessage message = new SendMessage();
         message.setChatId(String.valueOf(chatId));
@@ -81,11 +78,10 @@ public abstract class SendingMessageCommandHandler implements CommandHandler {
         return message;
     }
 
-
     /**
      * Собирает inline кнопку с указанным значением для коллбека
      *
-     * @param visibleText   текст, который будет отображаться на кнопке
+     * @param visibleText текст, который будет отображаться на кнопке
      * @param callbackValue значение коллбека для этой кнопки
      * @return созданная кнопка
      */
