@@ -168,6 +168,7 @@ public class CreateClientTest extends RegisteredUserHandlerTest {
 
         CreateClientResponse response = CreateClientResponse.builder()
                 .responseCode(409)
+                .errorMessage("Клиент с таким именем уже существует")
                 .build();
 
         when(client.createClient(any(), any())).thenReturn(response);
@@ -240,9 +241,102 @@ public class CreateClientTest extends RegisteredUserHandlerTest {
         botApiMethod = createClientHandler.handle(update);
         sendMessage = (SendMessage) botApiMethod;
 
-        assertEquals("Клиент с таким именем уже создан", sendMessage.getText());
+        assertEquals("Клиент с таким именем уже существует", sendMessage.getText());
     }
 
+    @Test
+    void handleCreateClientWithTheSamePhone() {
+        Chat chat = new Chat();
+        chat.setId(4L);
+
+        User user = new User();
+        user.setId(4L);
+
+        CreateClientRequest request = CreateClientRequest.builder()
+                .name("Sasha")
+                .pricePerHour(2000)
+                .phone("8913")
+                .idGenerationNeeded(true)
+                .description("description")
+                .build();
+
+        CreateClientResponse response = CreateClientResponse.builder()
+                .responseCode(409)
+                .errorMessage("Номер телефона уже используется")
+                .build();
+
+        when(client.createClient(any(), any())).thenReturn(response);
+
+        Message message = new Message();
+        message.setText(COMMAND);
+        message.setFrom(user);
+        message.setChat(chat);
+
+        Update update = new Update();
+        update.setMessage(message);
+
+        BotApiMethod<?> botApiMethod = createClientHandler.handle(update);
+        assertInstanceOf(SendMessage.class, botApiMethod);
+        SendMessage sendMessage = (SendMessage) botApiMethod;
+        assertEquals("Введите имя", sendMessage.getText());
+
+        message.setText(request.getName());
+        update.setMessage(message);
+        botApiMethod = createClientHandler.handle(update);
+        sendMessage = (SendMessage) botApiMethod;
+        assertEquals("Введите стоимость за час", sendMessage.getText());
+
+        message.setText(request.getPricePerHour().toString());
+        update.setMessage(message);
+        botApiMethod = createClientHandler.handle(update);
+        sendMessage = (SendMessage) botApiMethod;
+        assertEquals("Введите описание", sendMessage.getText());
+
+        message.setText(request.getDescription());
+        update.setMessage(message);
+        botApiMethod = createClientHandler.handle(update);
+        sendMessage = (SendMessage) botApiMethod;
+        assertEquals("Введите номер телефона", sendMessage.getText());
+
+        message.setText(request.getPhone());
+        update.setMessage(message);
+        botApiMethod = createClientHandler.handle(update);
+        sendMessage = (SendMessage) botApiMethod;
+        assertEquals("Включить генерацию нового имени, если клиент с таким именем уже существует?", sendMessage.getText());
+
+        ReplyKeyboard markup = sendMessage.getReplyMarkup();
+        assertInstanceOf(InlineKeyboardMarkup.class, markup);
+
+        InlineKeyboardMarkup inlineKeyboardMarkup = (InlineKeyboardMarkup) markup;
+
+        List<List<InlineKeyboardButton>> keyboard = inlineKeyboardMarkup.getKeyboard();
+
+        assertEquals(1, keyboard.size());
+
+        String firstButtonText = keyboard.get(0).get(0).getText();
+        String secondButtonText = keyboard.get(0).get(1).getText();
+        assertEquals("Да", firstButtonText);
+        assertEquals("Нет", secondButtonText);
+
+        message.setText(null);
+
+        CallbackQuery callbackQuery = new CallbackQuery();
+        callbackQuery.setId(String.valueOf(1));
+        ButtonCallback callback = new ButtonCallback();
+        callbackQuery.setFrom(user);
+        callbackQuery.setMessage(message);
+        callback.setCommand(COMMAND);
+        callback.setValue(request.getIdGenerationNeeded().toString());
+        String callbackData = buttonCallbackService.getTelegramButtonCallbackString(callback);
+        callbackQuery.setData(callbackData);
+
+        update.setCallbackQuery(callbackQuery);
+
+        botApiMethod = createClientHandler.handle(update);
+        sendMessage = (SendMessage) botApiMethod;
+
+        assertEquals("Номер телефона уже используется", sendMessage.getText());
+    }
     @Test
     void handleCreateClientWithTheSameNameWithIdGeneration() {
         Chat chat = new Chat();
