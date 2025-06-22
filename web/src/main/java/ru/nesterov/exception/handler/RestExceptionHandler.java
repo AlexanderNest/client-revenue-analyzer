@@ -8,10 +8,12 @@ import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
 import ru.nesterov.common.exception.AppException;
 import ru.nesterov.controller.response.ResponseWithMessage;
+import ru.nesterov.exception.ClientDataIntegrityException;
 
 @RestControllerAdvice
 @Slf4j
 public class RestExceptionHandler {
+
     @ExceptionHandler(AppException.class)
     @ResponseStatus(HttpStatus.INTERNAL_SERVER_ERROR)
     public ResponseWithMessage handleAppException(AppException exception) {
@@ -20,4 +22,14 @@ public class RestExceptionHandler {
         log.error("AppException", exception);
         return responseWithMessage;
     }
+
+    @ExceptionHandler(ClientDataIntegrityException.class)
+    @ResponseStatus(HttpStatus.CONFLICT)
+    public ResponseWithMessage handleClientDataIntegrityException(ClientDataIntegrityException exception){
+        ResponseWithMessage responseWithMessage = new ResponseWithMessage();
+        responseWithMessage.setMessage(exception.getMessage());
+        log.error("AppException", exception);
+        return responseWithMessage;
+    }
+
 }

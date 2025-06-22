@@ -19,6 +19,7 @@ import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.List;
 
+
 /**
  * Процесс регистрации нового пользователя
  */
@@ -84,18 +85,6 @@ public class CreateClientHandler extends StatefulCommandHandler<State, CreateCli
         return createClient(update);
     }
 
-//    private BotApiMethod<?> createClient(Update update) {
-//        long chatId = TelegramUpdateUtils.getChatId(update);
-//        CreateClientResponse response = client.createClient(String.valueOf(TelegramUpdateUtils.getUserId(update)), getStateMachine(update).getMemory());
-//        if (response.getResponseCode() == HttpStatus.CONFLICT.value()) {
-//            String message = response.getErrorMessage() != null
-//                    ? response.getErrorMessage()
-//                    : "Клиент уже существует";
-//            return getPlainSendMessage(chatId, message);
-//        }
-//
-//        return getPlainSendMessage(chatId, formatCreateClientResponse(response));
-//    }
 
     private BotApiMethod<?> createClient(Update update) {
         long chatId = TelegramUpdateUtils.getChatId(update);
@@ -105,10 +94,9 @@ public class CreateClientHandler extends StatefulCommandHandler<State, CreateCli
         );
 
         if (response.getResponseCode() == HttpStatus.CONFLICT.value()) {
-            // здесь в errorMessage уже «Номер телефона уже используется» или «Имя клиента…»
             return getPlainSendMessage(chatId, response.getErrorMessage());
         }
-        // иначе — успешная регистрация
+
         return getPlainSendMessage(chatId, formatCreateClientResponse(response));
     }
 
@@ -130,5 +118,6 @@ public class CreateClientHandler extends StatefulCommandHandler<State, CreateCli
 
         return buttonCallback.getValue();
     }
+
 }
 
