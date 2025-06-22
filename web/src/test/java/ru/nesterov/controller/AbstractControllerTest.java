@@ -6,12 +6,12 @@ import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMock
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.test.web.servlet.MockMvc;
-import ru.nesterov.common.service.CalendarService;
 import ru.nesterov.entity.Client;
 import ru.nesterov.entity.User;
 import ru.nesterov.google.GoogleCalendarClient;
 import ru.nesterov.repository.ClientRepository;
 import ru.nesterov.repository.UserRepository;
+import ru.nesterov.service.CalendarService;
 
 @AutoConfigureMockMvc
 @SpringBootTest

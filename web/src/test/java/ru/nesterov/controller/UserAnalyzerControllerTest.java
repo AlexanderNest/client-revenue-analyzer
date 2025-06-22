@@ -2,9 +2,9 @@ package ru.nesterov.controller;
 
 import org.junit.jupiter.api.Test;
 import org.springframework.http.MediaType;
-import ru.nesterov.common.dto.EventDto;
-import ru.nesterov.common.dto.EventStatus;
 import ru.nesterov.controller.request.GetForYearRequest;
+import ru.nesterov.dto.EventDto;
+import ru.nesterov.dto.EventStatus;
 import ru.nesterov.entity.Client;
 import ru.nesterov.entity.User;
 

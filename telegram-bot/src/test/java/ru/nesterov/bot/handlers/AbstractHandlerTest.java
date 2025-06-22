@@ -5,6 +5,10 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.test.context.ContextConfiguration;
+import org.telegram.telegrambots.meta.api.objects.Chat;
+import org.telegram.telegrambots.meta.api.objects.Message;
+import org.telegram.telegrambots.meta.api.objects.Update;
+import org.telegram.telegrambots.meta.api.objects.User;
 import ru.nesterov.bot.config.BotProperties;
 import ru.nesterov.bot.handlers.implementation.UndefinedHandler;
 import ru.nesterov.bot.handlers.implementation.invocable.CancelCommandHandler;
@@ -42,4 +46,21 @@ public abstract class AbstractHandlerTest {
 
     @MockBean
     protected ClientRevenueAnalyzerIntegrationClient client;
+
+    protected Update createUpdateWithMessage(String text) {
+        Chat chat = new Chat();
+        chat.setId(1L);
+        User user = new User();
+        user.setId(1L);
+
+        Message message = new Message();
+        message.setText(text);
+        message.setChat(chat);
+        message.setFrom(user);
+
+        Update update = new Update();
+        update.setMessage(message);
+
+        return update;
+    }
 }

@@ -1,10 +1,11 @@
 package ru.nesterov.google;
 
-import com.google.api.services.calendar.model.Event;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
-import ru.nesterov.common.dto.EventStatus;
-import ru.nesterov.google.exception.UnknownEventColorIdException;
+import ru.nesterov.dto.EventStatus;
+import ru.nesterov.dto.PrimaryEventData;
+import ru.nesterov.exception.UnknownEventColorIdException;
+import ru.nesterov.service.EventStatusService;
 
 import java.util.List;
 
@@ -33,7 +34,21 @@ public class EventStatusServiceImpl implements EventStatusService {
         this.plannedColorCodes = plannedColorCodes;
         nullWasUsed = addNullCode(plannedColorCodes, nullWasUsed);
     }
-    
+
+    public EventStatus getEventStatus(PrimaryEventData primaryEventData) {
+        if (successColorCodes.contains(primaryEventData.getColorId())) {
+            return EventStatus.SUCCESS;
+        } else if (plannedColorCodes.contains(primaryEventData.getColorId())) {
+            return EventStatus.PLANNED;
+        } else if (cancelledColorCodes.contains(primaryEventData.getColorId())) {
+            return EventStatus.CANCELLED;
+        } else if (requiresShiftColorCodes.contains(primaryEventData.getColorId())) {
+            return EventStatus.REQUIRES_SHIFT;
+        }
+
+        throw new UnknownEventColorIdException(primaryEventData.getColorId(), primaryEventData.getName(), primaryEventData.getEventStart());
+    }
+
     private boolean addNullCode(List<String> codes, boolean nullWasUsed) {
         if (codes.isEmpty()) {
             if (nullWasUsed) {
@@ -44,20 +59,5 @@ public class EventStatusServiceImpl implements EventStatusService {
         }
         
         return false;
-    }
-
-    public EventStatus getEventStatus(Event event) {
-        String eventColorId = event.getColorId();
-        if (successColorCodes.contains(eventColorId)) {
-            return EventStatus.SUCCESS;
-        } else if (plannedColorCodes.contains(eventColorId)) {
-            return EventStatus.PLANNED;
-        } else if (cancelledColorCodes.contains(eventColorId)) {
-            return EventStatus.CANCELLED;
-        } else if (requiresShiftColorCodes.contains(eventColorId)) {
-            return EventStatus.REQUIRES_SHIFT;
-        }
-
-        throw new UnknownEventColorIdException(eventColorId, event.getSummary(), event.getStart());
     }
 }
