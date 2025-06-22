@@ -51,7 +51,7 @@ public interface ClientController {
             }
     )
     @PostMapping("/create")
-    ResponseEntity<ClientResponse> createClient(@RequestHeader(name = "X-username") String username, @RequestBody CreateClientRequest createClientRequest);
+    ClientResponse createClient(@RequestHeader(name = "X-username") String username, @RequestBody CreateClientRequest createClientRequest);
 
     @Operation(
             summary = "Вывод информации об активных клиентах",

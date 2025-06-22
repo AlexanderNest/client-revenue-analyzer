@@ -38,7 +38,6 @@ public abstract class SendingMessageCommandHandler implements CommandHandler {
         return buildSendMessage(chatId, text, null);
     }
 
-
     public BotApiMethod<?> getReplyKeyboard(long chatId, String text, ReplyKeyboard replyKeyboard) {
         return buildSendMessage(chatId, text, replyKeyboard);
     }
@@ -70,7 +69,6 @@ public abstract class SendingMessageCommandHandler implements CommandHandler {
         return answerCallbackQuery;
     }
 
-
     private SendMessage buildSendMessage(long chatId, String text, ReplyKeyboard replyKeyboard) {
         SendMessage message = new SendMessage();
         message.setChatId(String.valueOf(chatId));
@@ -79,7 +77,6 @@ public abstract class SendingMessageCommandHandler implements CommandHandler {
 
         return message;
     }
-
 
     /**
      * Собирает inline кнопку с указанным значением для коллбека
