@@ -11,6 +11,7 @@ import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpMethod;
 import org.springframework.http.HttpStatus;
+import org.springframework.http.HttpStatusCode;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Component;
 import org.springframework.web.client.HttpClientErrorException;
@@ -29,6 +30,7 @@ import ru.nesterov.bot.dto.GetForClientScheduleRequest;
 import ru.nesterov.bot.dto.GetForMonthRequest;
 import ru.nesterov.bot.dto.GetForYearRequest;
 import ru.nesterov.bot.dto.GetIncomeAnalysisForMonthResponse;
+import ru.nesterov.bot.dto.GetUnpaidEventsResponse;
 import ru.nesterov.bot.dto.GetUserRequest;
 import ru.nesterov.bot.dto.GetUserResponse;
 import ru.nesterov.bot.dto.GetYearBusynessStatisticsResponse;
@@ -81,7 +83,6 @@ public class ClientRevenueAnalyzerIntegrationClient {
 
         return responseEntity.getBody();
     }
-
 
     public CreateClientResponse createClient(String userId, CreateClientRequest createClientRequest) {
         try {
@@ -136,8 +137,7 @@ public class ClientRevenueAnalyzerIntegrationClient {
                 String.valueOf(userId),
                 request,
                 "/revenue-analyzer/client/getSchedule",
-                new ParameterizedTypeReference<>() {
-                }
+                new ParameterizedTypeReference<>() {}
         );
     }
 
@@ -145,8 +145,7 @@ public class ClientRevenueAnalyzerIntegrationClient {
         return postForList(String.valueOf(userId),
                 null,
                 "/revenue-analyzer/client/getActiveClients",
-                new ParameterizedTypeReference<>() {
-                }
+                new ParameterizedTypeReference<>() {}
         );
     }
 
@@ -160,12 +159,32 @@ public class ClientRevenueAnalyzerIntegrationClient {
         return response.getBody();
     }
 
+    public List<GetUnpaidEventsResponse> getUnpaidEvents(long userId) {
+        return getForList(String.valueOf(userId),
+                "/revenue-analyzer/events/analyzer/getUnpaidEvents",
+                new ParameterizedTypeReference<>() {}
+        );
+    }
+
     private <T> ResponseEntity<T> get(String username, String endpoint, Class<T> responseType) {
         return exchange(username, null, endpoint, responseType, HttpMethod.GET);
     }
 
     private <T> ResponseEntity<T> post(String username, Object request, String endpoint, Class<T> responseType) {
         return exchange(username, request, endpoint, responseType, HttpMethod.POST);
+    }
+
+    private <T> List<T> getForList(String username, String endpoint, ParameterizedTypeReference<List<T>> typeReference) {
+        HttpEntity<Object> requestEntity = new HttpEntity<>(createHeaders(username));
+
+        ResponseEntity<List<T>> responseEntity = restTemplate.exchange(
+                revenueAnalyzerProperties.getUrl() + endpoint,
+                HttpMethod.GET,
+                requestEntity,
+                typeReference
+        );
+
+        return responseEntity.getBody();
     }
 
     private <T> List<T> postForList(String username, Object request, String endpoint, ParameterizedTypeReference<List<T>> typeReference) {
@@ -181,15 +200,9 @@ public class ClientRevenueAnalyzerIntegrationClient {
         return responseEntity.getBody();
     }
 
-
-    private <T> ResponseEntity<T> exchange(
-            String username,
-            Object request,
-            String endpoint,
-            Class<T> responseType,
-            HttpMethod httpMethod) {
-
+    private <T> ResponseEntity<T> exchange(String username, Object request, String endpoint, Class<T> responseType, HttpMethod httpMethod) {
         HttpEntity<Object> entity = new HttpEntity<>(request, createHeaders(username));
+
         try {
             return restTemplate.exchange(
                     revenueAnalyzerProperties.getUrl() + endpoint,
@@ -197,10 +210,12 @@ public class ClientRevenueAnalyzerIntegrationClient {
                     entity,
                     responseType
             );
-        } catch (HttpClientErrorException.NotFound nf) {
+        } catch (HttpClientErrorException.NotFound ignore) {
             return new ResponseEntity<>(HttpStatus.NOT_FOUND);
-        } catch (HttpServerErrorException.InternalServerError ise) {
-            throw new UserFriendlyException(getResponseMessage(ise.getResponseBodyAsString()));
+        } catch (HttpClientErrorException.Conflict ignore) {
+            return new ResponseEntity<>(HttpStatus.CONFLICT);
+        } catch (HttpServerErrorException.InternalServerError ignore) {
+            throw new UserFriendlyException(getResponseMessage(ignore.getResponseBodyAsString()));
         }
     }
 

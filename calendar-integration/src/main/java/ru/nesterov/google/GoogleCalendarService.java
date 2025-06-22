@@ -4,10 +4,10 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.stereotype.Component;
-import ru.nesterov.common.dto.CalendarServiceDto;
-import ru.nesterov.common.dto.CalendarType;
-import ru.nesterov.common.dto.EventDto;
-import ru.nesterov.common.service.CalendarService;
+import ru.nesterov.dto.CalendarType;
+import ru.nesterov.dto.EventDto;
+import ru.nesterov.dto.EventsFilter;
+import ru.nesterov.service.CalendarService;
 
 import java.time.LocalDateTime;
 import java.util.ArrayList;
@@ -27,11 +27,11 @@ public class GoogleCalendarService implements CalendarService {
     }
 
     @Override
-    public List<EventDto> getEventsBetweenDates(CalendarServiceDto calendarServiceDto) {
-        List<EventDto> eventsFromMainCalendar = googleCalendarClient.getEventsBetweenDates(calendarServiceDto.getMainCalendar(), CalendarType.MAIN, calendarServiceDto.getLeftDate(), calendarServiceDto.getRightDate());
+    public List<EventDto> getEventsBetweenDates(EventsFilter eventsFilter) {
+        List<EventDto> eventsFromMainCalendar = googleCalendarClient.getEventsBetweenDates(eventsFilter.getMainCalendar(), CalendarType.MAIN, eventsFilter.getLeftDate(), eventsFilter.getRightDate());
 
-        if (calendarServiceDto.getCancelledCalendar() != null && calendarServiceDto.isCancelledCalendarEnabled()) {
-            List<EventDto> eventsFromCancelledCalendar = googleCalendarClient.getEventsBetweenDates(calendarServiceDto.getCancelledCalendar(), CalendarType.CANCELLED, calendarServiceDto.getLeftDate(), calendarServiceDto.getRightDate());
+        if (eventsFilter.getCancelledCalendar() != null && eventsFilter.isCancelledCalendarEnabled()) {
+            List<EventDto> eventsFromCancelledCalendar = googleCalendarClient.getEventsBetweenDates(eventsFilter.getCancelledCalendar(), CalendarType.CANCELLED, eventsFilter.getLeftDate(), eventsFilter.getRightDate());
             return mergeEvents(eventsFromMainCalendar, eventsFromCancelledCalendar);
         }
         return eventsFromMainCalendar;

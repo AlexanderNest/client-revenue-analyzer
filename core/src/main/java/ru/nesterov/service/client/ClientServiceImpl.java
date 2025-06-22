@@ -4,15 +4,15 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.stereotype.Service;
-import ru.nesterov.common.dto.CalendarServiceDto;
-import ru.nesterov.common.dto.EventDto;
-import ru.nesterov.common.service.CalendarService;
+import ru.nesterov.dto.EventDto;
+import ru.nesterov.dto.EventsFilter;
 import ru.nesterov.entity.Client;
 import ru.nesterov.entity.User;
 import ru.nesterov.exception.ClientDataIntegrityException;
 import ru.nesterov.exception.ClientNotFoundException;
 import ru.nesterov.repository.ClientRepository;
 import ru.nesterov.repository.UserRepository;
+import ru.nesterov.service.CalendarService;
 import ru.nesterov.service.date.helper.MonthDatesPair;
 import ru.nesterov.service.dto.ClientDto;
 import ru.nesterov.service.dto.UserDto;
@@ -35,7 +35,7 @@ public class ClientServiceImpl implements ClientService {
             throw new ClientNotFoundException(clientName);
         }
 
-        CalendarServiceDto calendarServiceDto = CalendarServiceDto.builder()
+        EventsFilter eventsFilter = EventsFilter.builder()
                 .cancelledCalendar(userDto.getCancelledCalendar())
                 .mainCalendar(userDto.getMainCalendar())
                 .leftDate(leftDate)
@@ -43,7 +43,7 @@ public class ClientServiceImpl implements ClientService {
                 .isCancelledCalendarEnabled(userDto.isCancelledCalendarEnabled())
                 .build();
 
-        List<EventDto> eventDtos = calendarService.getEventsBetweenDates(calendarServiceDto);
+        List<EventDto> eventDtos = calendarService.getEventsBetweenDates(eventsFilter);
 
         return eventDtos.stream()
                 .filter(event -> event.getSummary().equals(client.getName()))
