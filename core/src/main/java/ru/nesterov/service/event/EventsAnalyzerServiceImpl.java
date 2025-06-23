@@ -38,6 +38,16 @@ public class EventsAnalyzerServiceImpl implements EventsAnalyzerService {
     private final EventService eventService;
     private final UserRepository userRepository;
 
+    public ClientMeetingsStatistic getStatisticsByOneClientMeetings(UserDto userDto) {
+        // поиск статисики клиента за весь период (2 года)
+        return null;
+    }
+
+    private Map<String, ClientMeetingsStatistic> getStatisticsOfClientMeetings(UserDto userDto) {
+        // общее для методов  getStatisticsOfEachClientMeetings() и getStatisticsByOneClientMeetings()
+        return null;
+    }
+
     public Map<String, ClientMeetingsStatistic> getStatisticsOfEachClientMeetings(UserDto userDto, String monthName) {
         List<EventDto> eventDtos = getEventsByMonth(userDto, monthName);
 
@@ -56,9 +66,9 @@ public class EventsAnalyzerServiceImpl implements EventsAnalyzerService {
             }
 
             if (eventStatus == EventStatus.SUCCESS) {
-                handleSuccessfulEvent(clientMeetingsStatistic, eventDto);
+                handleSuccessfulEvent(clientMeetingsStatistic, eventDto, userDto);
             } else if (eventStatus == EventStatus.CANCELLED) {
-                handleCancelledEvent(clientMeetingsStatistic, eventDto);
+                handleCancelledEvent(clientMeetingsStatistic, eventDto, userDto);
             }
 
 
@@ -68,13 +78,15 @@ public class EventsAnalyzerServiceImpl implements EventsAnalyzerService {
         return meetingsStatistics;
     }
 
-    private void handleSuccessfulEvent(ClientMeetingsStatistic clientMeetingsStatistic, EventDto eventDto){
+    private void handleSuccessfulEvent(ClientMeetingsStatistic clientMeetingsStatistic, EventDto eventDto, UserDto userDto){
         double eventDuration = eventService.getEventDuration(eventDto);
+        long clientId = clientRepository.findClientByNameAndUserId(eventDto.getSummary(), userDto.getId()).getId();
+        clientMeetingsStatistic.getClientId(clientId);
         clientMeetingsStatistic.increaseSuccessfulHours(eventDuration);
         clientMeetingsStatistic.increaseSuccessfulEvents(1);
     }
 
-    private void handleCancelledEvent(ClientMeetingsStatistic clientMeetingsStatistic, EventDto eventDto){
+    private void handleCancelledEvent(ClientMeetingsStatistic clientMeetingsStatistic, EventDto eventDto, UserDto userDto){
         double eventDuration = eventService.getEventDuration(eventDto);
         clientMeetingsStatistic.increaseCancelled(eventDuration);
         if (EvenExtensionService.isPlannedStatus(eventDto)) {

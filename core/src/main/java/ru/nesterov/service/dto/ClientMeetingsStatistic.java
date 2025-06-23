@@ -2,10 +2,19 @@ package ru.nesterov.service.dto;
 
 import lombok.Getter;
 import lombok.Setter;
+import ru.nesterov.common.dto.EventDto;
+
+import java.util.Date;
 
 @Getter
 @Setter
 public class ClientMeetingsStatistic {
+    private long id;
+    private String description;
+    private Date startDate;
+    private long serviceDuration;
+    private String phone;
+    private double totalMeetingsHours;
     private double successfulMeetingsHours;
     private double cancelledMeetingsHours;
     private double incomePerHour;
@@ -31,6 +40,10 @@ public class ClientMeetingsStatistic {
 
     public double getLostIncome() {
         return cancelledMeetingsHours * incomePerHour;
+    }
+
+    public void getClientId(long clientId) {
+         this.id = clientId;
     }
 
     public double getActualIncome() {
@@ -61,6 +74,7 @@ public class ClientMeetingsStatistic {
     @Override
     public String toString() {
         return "ClientMeetingsStatistic{" +
+                "id=" + id +
                 "successfulMeetingsHours=" + successfulMeetingsHours +
                 ", cancelledMeetingsHours=" + cancelledMeetingsHours +
                 ", successfulMeetingsPercentage=" + getSuccessfulMeetingsPercentage() +

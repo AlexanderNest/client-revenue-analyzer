@@ -6,6 +6,7 @@ import org.springframework.stereotype.Service;
 import ru.nesterov.common.dto.CalendarServiceDto;
 import ru.nesterov.common.dto.CalendarType;
 import ru.nesterov.common.dto.EventDto;
+import ru.nesterov.common.dto.EventStatus;
 import ru.nesterov.common.service.CalendarService;
 import ru.nesterov.common.service.EvenExtensionService;
 import ru.nesterov.entity.Client;
@@ -88,65 +89,4 @@ public class ClientServiceImpl implements ClientService {
                 .toList();
     }
 
-    @Override
-    public FullClientInfoDto getClientInfo(UserDto userDto, String clientName) {
-        ClientDto clientDto = ClientMapper.mapToClientDto(clientRepository.findClientByNameAndUserId(clientName, userDto.getId()));
-        List<EventDto> allClientsMeetings = getTotalMeetings(userDto, clientName);
-
-        return FullClientInfoDto.builder()
-                .id(clientDto.getId())
-                .name(clientDto.getName())
-                .pricePerHour(clientDto.getPricePerHour())
-                .description(clientDto.getDescription())
-                .startDate(clientDto.getStartDate())
-                .phone(clientDto.getPhone())
-                .serviceDuration(ChronoUnit.MONTHS.between(LocalDateTime.ofInstant(clientDto.getStartDate().toInstant(), ZoneId.systemDefault()), LocalDateTime.now()))
-                .totalMeetings(allClientsMeetings.size())
-                .totalMeetingsHours(getMeetingsHours(allClientsMeetings))
-                .totalIncome(getMeetingsHours(allClientsMeetings) * clientDto.getPricePerHour())
-                .plannedCancelledEventsCount(getPlannedCancelledEventsCount(userDto, allClientsMeetings))
-                .unplannedCancelledEventsCount(getUnplannedCancelledEventsCount(userDto, allClientsMeetings))
-                .build();
-    }
-
-    public List<EventDto> getTotalMeetings(UserDto userDto, String clientName) {
-        CalendarServiceDto calendarServiceDto = CalendarServiceDto.builder()
-                .cancelledCalendar(userDto.getCancelledCalendar())
-                .mainCalendar(userDto.getMainCalendar())
-                .leftDate(LocalDateTime.now().minusMonths(2))   // minusYears
-                .rightDate(LocalDateTime.now())
-                .isCancelledCalendarEnabled(userDto.isCancelledCalendarEnabled())
-                .clientName(clientName)
-                .build();
-
-        return calendarService.getEventsBetweenDates(calendarServiceDto);
-    }
-
-    public double getMeetingsHours(List<EventDto> eventDtoList) {
-        double meetingsHours = 0;
-        for(EventDto eventDto : eventDtoList) {
-            meetingsHours += eventService.getEventDuration(eventDto);
-        }
-        return meetingsHours;
-    }
-
-    public int getPlannedCancelledEventsCount(UserDto userDto, List<EventDto> eventDtos) {
-        int plannedCancelledEventsCount = 0;
-        for(EventDto eventDto : eventDtos) {
-            if (EvenExtensionService.isPlannedStatus(eventDto) && userDto.isCancelledCalendarEnabled()) {
-                plannedCancelledEventsCount++;
-            }
-        }
-        return plannedCancelledEventsCount;
-    }
-
-    public int getUnplannedCancelledEventsCount(UserDto userDto, List<EventDto> eventDtos) {
-        int unplannedCancelledEventsCount = 0;
-        for(EventDto eventDto : eventDtos) {
-            if (!(EvenExtensionService.isPlannedStatus(eventDto)) && userDto.isCancelledCalendarEnabled()) {
-                unplannedCancelledEventsCount++;
-            }
-        }
-        return unplannedCancelledEventsCount;
-    }
 }
