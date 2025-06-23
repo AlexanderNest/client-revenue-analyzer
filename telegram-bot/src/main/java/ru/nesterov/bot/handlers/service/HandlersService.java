@@ -28,12 +28,15 @@ public class HandlersService {
     private final CancelCommandHandler cancelCommandHandler;
 
     private final List<StatefulCommandHandler<?, ?>> statefulCommandHandlers;
+    private final List<InvocableCommandHandler> invocableCommandHandlers;
 
     public HandlersService(List<CommandHandler> commandHandlers,
                            List<StatefulCommandHandler<?, ?>> statefulCommandHandlers,
                            UndefinedHandler undefinedHandler,
-                           CancelCommandHandler cancelCommandHandler) {
+                           CancelCommandHandler cancelCommandHandler,
+                           List<InvocableCommandHandler> invocableCommandHandlers) {
         this.statefulCommandHandlers = statefulCommandHandlers;
+        this.invocableCommandHandlers = invocableCommandHandlers;
 
         highestPriorityCommandHandlers = commandHandlers.stream()
                 .filter(ch -> ch.getPriority() == Priority.HIGHEST)
@@ -137,24 +140,10 @@ public class HandlersService {
         return null;
     }
 
+    // ЕСЛИ ПРИШЛО ЧТО-ТО, А MESSAGE ПУСТ, ТО ТАМ ТОЧНО НЕ КОМАНДА, ЕЕ СМОТРЕТЬ НЕ НАДО
     // Метод для проверки, является ли update командой
-    private boolean isCommandUpdate(Update update) {
-        // Проверяем все InvocableCommandHandler'ы
-        for (CommandHandler handler : highestPriorityCommandHandlers) {
-            if (handler instanceof InvocableCommandHandler && handler.isApplicable(update)) {
-                return true;
-            }
-        }
-        for (CommandHandler handler : normalPriorityCommandHandlers) {
-            if (handler instanceof InvocableCommandHandler && handler.isApplicable(update)) {
-                return true;
-            }
-        }
-        for (CommandHandler handler : lowestPriorityCommandHandlers) {
-            if (handler instanceof InvocableCommandHandler && handler.isApplicable(update)) {
-                return true;
-            }
-        }
-        return false;
+    public boolean isCommandUpdate(Update update) {
+        return invocableCommandHandlers.stream()
+                        .anyMatch(handler -> update.getMessage() != null && handler.getCommand().equals(update.getMessage().getText()));
     }
 }
