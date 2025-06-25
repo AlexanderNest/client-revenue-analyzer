@@ -4,6 +4,9 @@ import lombok.Getter;
 import lombok.Setter;
 import ru.nesterov.common.dto.EventDto;
 
+import java.time.LocalDateTime;
+import java.time.ZoneId;
+import java.time.temporal.ChronoUnit;
 import java.util.Date;
 
 @Getter
@@ -14,7 +17,6 @@ public class ClientMeetingsStatistic {
     private Date startDate;
     private long serviceDuration;
     private String phone;
-    private double totalMeetingsHours;
     private double successfulMeetingsHours;
     private double cancelledMeetingsHours;
     private double incomePerHour;
@@ -38,12 +40,12 @@ public class ClientMeetingsStatistic {
         return 100.0 * successfulMeetingsHours / (successfulMeetingsHours + cancelledMeetingsHours);
     }
 
-    public double getLostIncome() {
-        return cancelledMeetingsHours * incomePerHour;
+    public long getServiceDuration() {
+        return ChronoUnit.MONTHS.between(LocalDateTime.ofInstant(getStartDate().toInstant(), ZoneId.systemDefault()), LocalDateTime.now());
     }
 
-    public void getClientId(long clientId) {
-         this.id = clientId;
+    public double getLostIncome() {
+        return cancelledMeetingsHours * incomePerHour;
     }
 
     public double getActualIncome() {
@@ -75,6 +77,10 @@ public class ClientMeetingsStatistic {
     public String toString() {
         return "ClientMeetingsStatistic{" +
                 "id=" + id +
+                "description=" + description +
+                "startDate=" + startDate +
+                "serviceDuration=" + getServiceDuration() +
+                "phone=" + phone +
                 "successfulMeetingsHours=" + successfulMeetingsHours +
                 ", cancelledMeetingsHours=" + cancelledMeetingsHours +
                 ", successfulMeetingsPercentage=" + getSuccessfulMeetingsPercentage() +

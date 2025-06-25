@@ -39,7 +39,7 @@ public interface EventsAnalyzerController {
             }
     )
     @PostMapping("/getClientsStatistics")
-    Map<String, ClientMeetingsStatistic> getClientStatistics(@RequestHeader(name = "X-username") String username, @RequestBody GetForMonthRequest request);
+    Map<String, ClientMeetingsStatistic> getClientsStatistics(@RequestHeader(name = "X-username") String username, @RequestBody GetForMonthRequest request);
 
     @Operation(
             summary = "Получить статусы событий за месяц",
@@ -55,6 +55,10 @@ public interface EventsAnalyzerController {
                     @ApiResponse(responseCode = "500", description = "Внутренняя ошибка сервера")
             }
     )
+
+    @PostMapping("/getStatisticsByOneClient")
+    Map<String, ClientMeetingsStatistic> getStatisticsByOneClientMeetings(@RequestHeader(name = "X-username") String username, @RequestBody String clientName);
+
     @PostMapping("/getEventsStatusesForMonth")
     Map<EventStatus, Integer> getEventsStatusesForMonth(@RequestHeader(name = "X-username") String username, @RequestBody GetForMonthRequest request);
 

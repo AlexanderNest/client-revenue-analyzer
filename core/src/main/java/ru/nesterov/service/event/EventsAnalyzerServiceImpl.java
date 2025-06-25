@@ -18,7 +18,6 @@ import ru.nesterov.service.date.helper.MonthHelper;
 import ru.nesterov.service.date.helper.WeekHelper;
 import ru.nesterov.service.dto.BusynessAnalysisResult;
 import ru.nesterov.service.dto.ClientMeetingsStatistic;
-import ru.nesterov.service.dto.FullClientInfoDto;
 import ru.nesterov.service.dto.IncomeAnalysisResult;
 import ru.nesterov.service.dto.UserDto;
 
@@ -38,27 +37,41 @@ public class EventsAnalyzerServiceImpl implements EventsAnalyzerService {
     private final EventService eventService;
     private final UserRepository userRepository;
 
-    public ClientMeetingsStatistic getStatisticsByOneClientMeetings(UserDto userDto) {
+    public Map<String, ClientMeetingsStatistic> getStatisticsByOneClientMeetings(UserDto userDto, String clientName) {
         // поиск статисики клиента за весь период (2 года)
-        return null;
-    }
 
-    private Map<String, ClientMeetingsStatistic> getStatisticsOfClientMeetings(UserDto userDto) {
-        // общее для методов  getStatisticsOfEachClientMeetings() и getStatisticsByOneClientMeetings()
-        return null;
+        CalendarServiceDto calendarServiceDto = CalendarServiceDto.builder()
+                .mainCalendar(userDto.getMainCalendar())
+                .cancelledCalendar(userDto.getCancelledCalendar())
+                .leftDate(LocalDateTime.now().minusYears(2))
+                .rightDate(LocalDateTime.now())
+                .isCancelledCalendarEnabled(userDto.isCancelledCalendarEnabled())
+                .clientName(clientName)
+                .build();
+
+        List<EventDto> eventDtos = calendarService.getEventsBetweenDates(calendarServiceDto);
+
+
+
+        return getStatisticsOfClientMeetings(userDto, eventDtos);
     }
 
     public Map<String, ClientMeetingsStatistic> getStatisticsOfEachClientMeetings(UserDto userDto, String monthName) {
         List<EventDto> eventDtos = getEventsByMonth(userDto, monthName);
 
-        Map<String, ClientMeetingsStatistic> meetingsStatistics = new HashMap<>();
+        return getStatisticsOfClientMeetings(userDto, eventDtos);
+    }
 
+    private Map<String, ClientMeetingsStatistic> getStatisticsOfClientMeetings(UserDto userDto, List<EventDto> eventDtos) {
+        // общее для методов  getStatisticsOfEachClientMeetings() и getStatisticsByOneClientMeetings()
+
+        Map<String, ClientMeetingsStatistic> meetingsStatistics = new HashMap<>();
         for (EventDto eventDto : eventDtos) {
             EventStatus eventStatus = eventDto.getStatus();
-
+            Client client = clientRepository.findClientByNameAndUserId(eventDto.getSummary(), userDto.getId());
             ClientMeetingsStatistic clientMeetingsStatistic = meetingsStatistics.get(eventDto.getSummary());
             if (clientMeetingsStatistic == null) {
-                Client client = clientRepository.findClientByNameAndUserId(eventDto.getSummary(), userDto.getId());
+
                 if (client == null) {
                     throw new ClientNotFoundException(eventDto.getSummary());
                 }
@@ -66,27 +79,26 @@ public class EventsAnalyzerServiceImpl implements EventsAnalyzerService {
             }
 
             if (eventStatus == EventStatus.SUCCESS) {
-                handleSuccessfulEvent(clientMeetingsStatistic, eventDto, userDto);
+                handleSuccessfulEvent(clientMeetingsStatistic, eventDto, client);
             } else if (eventStatus == EventStatus.CANCELLED) {
-                handleCancelledEvent(clientMeetingsStatistic, eventDto, userDto);
+                handleCancelledEvent(clientMeetingsStatistic, eventDto);
             }
-
-
             meetingsStatistics.put(eventDto.getSummary(), clientMeetingsStatistic);
         }
-
         return meetingsStatistics;
     }
 
-    private void handleSuccessfulEvent(ClientMeetingsStatistic clientMeetingsStatistic, EventDto eventDto, UserDto userDto){
+    private void handleSuccessfulEvent(ClientMeetingsStatistic clientMeetingsStatistic, EventDto eventDto, Client client){
         double eventDuration = eventService.getEventDuration(eventDto);
-        long clientId = clientRepository.findClientByNameAndUserId(eventDto.getSummary(), userDto.getId()).getId();
-        clientMeetingsStatistic.getClientId(clientId);
+        clientMeetingsStatistic.setId(client.getId());
+        clientMeetingsStatistic.setDescription(client.getDescription());
+        clientMeetingsStatistic.setStartDate(client.getStartDate());
+        clientMeetingsStatistic.setPhone(client.getPhone());
         clientMeetingsStatistic.increaseSuccessfulHours(eventDuration);
         clientMeetingsStatistic.increaseSuccessfulEvents(1);
     }
 
-    private void handleCancelledEvent(ClientMeetingsStatistic clientMeetingsStatistic, EventDto eventDto, UserDto userDto){
+    private void handleCancelledEvent(ClientMeetingsStatistic clientMeetingsStatistic, EventDto eventDto){
         double eventDuration = eventService.getEventDuration(eventDto);
         clientMeetingsStatistic.increaseCancelled(eventDuration);
         if (EvenExtensionService.isPlannedStatus(eventDto)) {

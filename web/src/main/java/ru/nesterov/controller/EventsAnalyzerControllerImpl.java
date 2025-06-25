@@ -23,8 +23,12 @@ public class EventsAnalyzerControllerImpl implements EventsAnalyzerController {
     private final EventsAnalyzerService eventsAnalyzerService;
     private final UserService userService;
 
-    public Map<String, ClientMeetingsStatistic> getClientStatistics(@RequestHeader(name = "X-username") String username, @RequestBody GetForMonthRequest request) {
+    public Map<String, ClientMeetingsStatistic> getClientsStatistics(@RequestHeader(name = "X-username") String username, @RequestBody GetForMonthRequest request) {
         return eventsAnalyzerService.getStatisticsOfEachClientMeetings(userService.getUserByUsername(username), request.getMonthName());
+    }
+
+    public Map<String, ClientMeetingsStatistic> getStatisticsByOneClientMeetings(@RequestHeader(name = "X-username") String username, @RequestBody String clientName) {
+        return eventsAnalyzerService.getStatisticsByOneClientMeetings(userService.getUserByUsername(username), clientName);
     }
 
     public Map<EventStatus, Integer> getEventsStatusesForMonth(@RequestHeader(name = "X-username") String username, @RequestBody GetForMonthRequest request) {
