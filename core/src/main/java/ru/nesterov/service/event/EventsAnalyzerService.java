@@ -16,7 +16,7 @@ public interface EventsAnalyzerService {
     Map<EventStatus, Integer> getEventStatusesByMonthName(UserDto userDto, String monthName);
     IncomeAnalysisResult getIncomeAnalysisByMonth(UserDto userDto, String monthName);
     Map<String, ClientMeetingsStatistic> getStatisticsByOneClientMeetings(UserDto userDto, String clientName);
-    Map<String, ClientMeetingsStatistic> getStatisticsOfEachClientMeetings(UserDto userDto, String monthName);
+    Map<String, ClientMeetingsStatistic> getStatisticsOfEachClientMeetingsForMonth(UserDto userDto, String monthName);
     List<EventDto> getUnpaidEventsBetweenDates(UserDto userDto, LocalDateTime leftDate, LocalDateTime rightDate);
     List<EventDto> getUnpaidEvents(UserDto userDto);
     BusynessAnalysisResult getBusynessStatisticsByYear(UserDto userDto, int year);

@@ -38,8 +38,6 @@ public class EventsAnalyzerServiceImpl implements EventsAnalyzerService {
     private final UserRepository userRepository;
 
     public Map<String, ClientMeetingsStatistic> getStatisticsByOneClientMeetings(UserDto userDto, String clientName) {
-        // поиск статисики клиента за весь период (2 года)
-
         CalendarServiceDto calendarServiceDto = CalendarServiceDto.builder()
                 .mainCalendar(userDto.getMainCalendar())
                 .cancelledCalendar(userDto.getCancelledCalendar())
@@ -51,20 +49,16 @@ public class EventsAnalyzerServiceImpl implements EventsAnalyzerService {
 
         List<EventDto> eventDtos = calendarService.getEventsBetweenDates(calendarServiceDto);
 
-
-
         return getStatisticsOfClientMeetings(userDto, eventDtos);
     }
 
-    public Map<String, ClientMeetingsStatistic> getStatisticsOfEachClientMeetings(UserDto userDto, String monthName) {
+    public Map<String, ClientMeetingsStatistic> getStatisticsOfEachClientMeetingsForMonth(UserDto userDto, String monthName) {
         List<EventDto> eventDtos = getEventsByMonth(userDto, monthName);
 
         return getStatisticsOfClientMeetings(userDto, eventDtos);
     }
 
     private Map<String, ClientMeetingsStatistic> getStatisticsOfClientMeetings(UserDto userDto, List<EventDto> eventDtos) {
-        // общее для методов  getStatisticsOfEachClientMeetings() и getStatisticsByOneClientMeetings()
-
         Map<String, ClientMeetingsStatistic> meetingsStatistics = new HashMap<>();
         for (EventDto eventDto : eventDtos) {
             EventStatus eventStatus = eventDto.getStatus();
