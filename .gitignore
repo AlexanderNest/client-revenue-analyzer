@@ -38,3 +38,4 @@ build/
 /data/
 /core/data/
 .codiumai
+/telegram-bot/src/test/java/ru/nesterov/bot/handlers/HandlersServiceTestForME.java

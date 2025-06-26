@@ -14,6 +14,7 @@ import ru.nesterov.bot.handlers.implementation.invocable.CancelCommandHandler;
 import ru.nesterov.bot.utils.TelegramUpdateUtils;
 
 import java.util.List;
+import java.util.Objects;
 import java.util.function.Predicate;
 
 @Component
@@ -140,10 +141,10 @@ public class HandlersService {
         return null;
     }
 
-    // ЕСЛИ ПРИШЛО ЧТО-ТО, А MESSAGE ПУСТ, ТО ТАМ ТОЧНО НЕ КОМАНДА, ЕЕ СМОТРЕТЬ НЕ НАДО
-    // Метод для проверки, является ли update командой
-    public boolean isCommandUpdate(Update update) {
-        return invocableCommandHandlers.stream()
-                        .anyMatch(handler -> update.getMessage() != null && handler.getCommand().equals(update.getMessage().getText()));
-    }
+        public boolean isCommandUpdate(Update update) {
+            return invocableCommandHandlers.stream()
+                            .anyMatch(handler -> update.getMessage() != null && handler.getCommand().equals(update.getMessage().getText()));
+        }
+
+
 }

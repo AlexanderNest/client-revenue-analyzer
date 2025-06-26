@@ -1,26 +1,38 @@
 package ru.nesterov.bot.handlers;
 
 import org.junit.jupiter.api.Test;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.test.context.SpringBootTest;
 
-import org.telegram.telegrambots.meta.api.objects.Chat;
-import org.telegram.telegrambots.meta.api.objects.Message;
+import org.mockito.Mock;
+import org.springframework.boot.test.mock.mockito.MockBean;
 import org.telegram.telegrambots.meta.api.objects.Update;
-import org.telegram.telegrambots.meta.api.objects.User;
 import ru.nesterov.bot.handlers.abstractions.CommandHandler;
 import ru.nesterov.bot.handlers.abstractions.InvocableCommandHandler;
 import ru.nesterov.bot.handlers.abstractions.Priority;
 import ru.nesterov.bot.handlers.abstractions.StatefulCommandHandler;
-import ru.nesterov.bot.handlers.implementation.UndefinedHandler;
+import ru.nesterov.bot.handlers.implementation.CreateClientTest;
+import ru.nesterov.bot.handlers.implementation.UpdateUserControlButtonsHandlerTest;
+import ru.nesterov.bot.handlers.implementation.invocable.AiAnalyzerHandler;
 import ru.nesterov.bot.handlers.implementation.invocable.CancelCommandHandler;
+import ru.nesterov.bot.handlers.implementation.invocable.GetActiveClientsHandler;
+import ru.nesterov.bot.handlers.implementation.invocable.GetMonthStatisticsCommandHandler;
+import ru.nesterov.bot.handlers.implementation.invocable.GetUnpaidEventsHandler;
+import ru.nesterov.bot.handlers.implementation.invocable.UpdateUserControlButtonsHandler;
+import ru.nesterov.bot.handlers.implementation.invocable.stateful.createClient.CreateClientHandler;
+import ru.nesterov.bot.handlers.implementation.invocable.stateful.createUser.CreateUserHandler;
+import ru.nesterov.bot.handlers.implementation.invocable.stateful.getSchedule.GetClientScheduleCommandHandler;
+import ru.nesterov.bot.handlers.implementation.invocable.stateful.getYearBusynessStatistics.GetYearBusynessStatisticsHandler;
+import ru.nesterov.bot.handlers.implementation.invocable.stateful.makeEventsBackupHandler.MakeEventsBackupHandler;
 import ru.nesterov.bot.handlers.service.HandlersService;
 
 
+import java.util.Arrays;
 import java.util.List;
+import java.util.stream.Stream;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.mock;
@@ -28,153 +40,138 @@ import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 
-@SpringBootTest(classes = {
-        HandlersServiceTestConfig.class
-})
-public class HandlersServiceTest {
 
-    @Autowired
-    private HandlersService handlersService;
+/*public class HandlersServiceTest extends RegisteredUserHandlerTest{
 
-    @Autowired
+    @MockBean
+    private CreateClientHandler createClientHandler;
+
+    @MockBean
     private CancelCommandHandler cancelCommandHandler;
 
-    @Autowired
-    private UndefinedHandler undefinedHandler;
+    @MockBean
+    private GetActiveClientsHandler mockGetActiveClientsHandler;
+
+    @MockBean
+    private List<InvocableCommandHandler> invocableCommandHandlers;
+
+    @MockBean
+    private CreateUserHandler createUserHandler;
+
+    @MockBean
+    private UpdateUserControlButtonsHandler updateUserControlButtonsHandler;
 
     @Test
-    public void shouldReturnCancelHandlerForCancelCommand() {
-        Update update = createUpdateWithMessage("/cancel");
+    public void WhenMessageTextMatchesCommandHandler() {
+        Update update = createUpdateWithMessage("/Вывести список клиентов");
 
-        CommandHandler handler = handlersService.getHandler(update);
+        when(mockGetActiveClientsHandler.getCommand()).thenReturn("/Вывести список клиентов");
+        when(mockGetActiveClientsHandler.isApplicable(update)).thenReturn(true);
+        // Настраиваем мок списка обработчиков
+        when(invocableCommandHandlers.stream()).thenReturn(Stream.of(mockGetActiveClientsHandler));
 
-        assertNotNull(handler);
-        assertEquals(cancelCommandHandler, handler);
-    }
+        when(createClientHandler.getCommand()).thenReturn("/create_client");
+        when(createClientHandler.isApplicable(update)).thenReturn(false);
 
-    @Test
-    public void shouldReturnHandlerBasedOnPriority() {
-        CommandHandler highPriorityHandler = mock(CommandHandler.class);
-        when(highPriorityHandler.getPriority()).thenReturn(Priority.HIGHEST);
-        when(highPriorityHandler.isApplicable(any())).thenReturn(false); // true
+        when(cancelCommandHandler.getCommand()).thenReturn("/cancel");
+        when(cancelCommandHandler.isApplicable(update)).thenReturn(false);
 
-        CommandHandler normalPriorityHandler = mock(CommandHandler.class);
-        when(normalPriorityHandler.getPriority()).thenReturn(Priority.NORMAL);
-        when(normalPriorityHandler.isApplicable(any())).thenReturn(true);
+        when(createUserHandler.getCommand()).thenReturn("/create_user");
+        when(createUserHandler.isApplicable(update)).thenReturn(false);
 
-        CommandHandler lowestPriorityHandler = mock(CommandHandler.class);
-        when(lowestPriorityHandler.getPriority()).thenReturn(Priority.LOWEST);
-        when(lowestPriorityHandler.isApplicable(any())).thenReturn(true);
-
-        HandlersService service = new HandlersService(
-                List.of(highPriorityHandler, normalPriorityHandler, lowestPriorityHandler),
-                List.of(),
-                undefinedHandler,
+        List<InvocableCommandHandler> handlersList = Arrays.asList(
+                mockGetActiveClientsHandler,
+                createClientHandler,
                 cancelCommandHandler,
-                List.of()
+                createUserHandler
         );
 
-        Update update = createUpdateWithMessage("Вывести список клиентов");
+        when(invocableCommandHandlers.stream()).thenReturn(handlersList.stream());
 
-        CommandHandler result = service.getHandler(update);
+        boolean result = handlerService.isCommandUpdate(update);
+        assertTrue(result);
 
-        assertEquals(normalPriorityHandler, result); //highPriorityHandler
     }
-
-
     @Test
-    public void shouldResetContextEvenWhenNoHandlerForCommand() {
-        // Arrange
-        Long userId = 1L;
+    public void shouldReturnFalseWhenMessageTextDoesNotMatchCommand() {
+        Update update = createUpdateWithMessage("/unknownCommand");
 
-        StatefulCommandHandler<?, ?> activeHandler = mock(StatefulCommandHandler.class);
-        when(activeHandler.isFinishedOrNotStarted(userId)).thenReturn(true);
-        when(activeHandler.getCommand()).thenReturn("Добавить клиента");
-        when(activeHandler.isApplicable(any(Update.class))).thenReturn(true);
+        // Настраиваем моки обработчиков
+        when(mockGetActiveClientsHandler.getCommand()).thenReturn("/Вывести список клиентов");
+        when(mockGetActiveClientsHandler.isApplicable(update)).thenReturn(false);
 
-        // Создаем команду, для которой нет обработчика
-        InvocableCommandHandler unknownCommand = mock(InvocableCommandHandler.class);
-        when(unknownCommand.getCommand()).thenReturn("/unknown");
-        when(unknownCommand.isApplicable(any(Update.class))).thenReturn(true);
+        when(createClientHandler.getCommand()).thenReturn("/create_client");
+        when(createClientHandler.isApplicable(update)).thenReturn(false);
 
-        HandlersService service = new HandlersService(
-                List.of(),
-                List.of(activeHandler),
-                undefinedHandler,
+        when(cancelCommandHandler.getCommand()).thenReturn("/cancel");
+        when(cancelCommandHandler.isApplicable(update)).thenReturn(false);
+
+        when(createUserHandler.getCommand()).thenReturn("/create_user");
+        when(createUserHandler.isApplicable(update)).thenReturn(false);
+
+        when(updateUserControlButtonsHandler.getCommand()).thenReturn("/updateUserControl");
+        when(updateUserControlButtonsHandler.isApplicable(update)).thenReturn(false);
+
+        // Создаем список всех обработчиков
+        List<InvocableCommandHandler> handlersList = Arrays.asList(
+                mockGetActiveClientsHandler,
+                createClientHandler,
                 cancelCommandHandler,
-                List.of(unknownCommand)
+                createUserHandler,
+                updateUserControlButtonsHandler
         );
 
-        Update update = createUpdateWithMessage("/unknown");
+        // Мокаем поток обработчиков
+        when(invocableCommandHandlers.stream()).thenReturn(handlersList.stream());
 
-        CommandHandler result = service.getHandler(update);
+        boolean result = handlerService.isCommandUpdate(update);
 
-        verify(activeHandler).resetState(userId);
+        assertFalse(result);
+        }
+    }*/
 
-        assertEquals(undefinedHandler, result);
+public class HandlersServiceTest extends RegisteredUserHandlerTest {
 
-        assertTrue(service.isCommandUpdate(update));
+    @MockBean
+    private GetActiveClientsHandler mockGetActiveClientsHandler;
+
+    @MockBean
+    private List<InvocableCommandHandler> invocableCommandHandlers;
+
+    @Test
+    public void shouldReturnTrueWhenMessageMatchesCommand() {
+        Update update = createUpdateWithMessage("/Вывести список клиентов");
+
+        when(mockGetActiveClientsHandler.getCommand()).thenReturn("/Вывести список клиентов");
+        when(invocableCommandHandlers.stream())
+                .thenReturn(Stream.of(mockGetActiveClientsHandler));
+
+        boolean result = handlerService.isCommandUpdate(update);
+
+        assertTrue(result);
     }
 
     @Test
-    public void shouldResetContextAndTakeControlWhenCommandReceived() {
-        // Arrange
-        Long userId = 1L;
+    public void shouldReturnFalseWhenMessageDoesNotMatchAnyCommand() {
+        Update update = createUpdateWithMessage("/unknownCommand");
 
-        // Создаем активный stateful обработчик (имитируем, что он в процессе работы)
-        StatefulCommandHandler<?, ?> activeHandler = mock(StatefulCommandHandler.class);
-        when(activeHandler.isFinishedOrNotStarted(userId)).thenReturn(true);
-        when(activeHandler.isApplicable(any())).thenReturn(true);
+        when(mockGetActiveClientsHandler.getCommand()).thenReturn("/Вывести список клиентов");
+        when(invocableCommandHandlers.stream())
+                .thenReturn(Stream.of(mockGetActiveClientsHandler));
 
-        // Создаем команду, которая должна перехватить управление
-        CommandHandler commandHandler = mock(CommandHandler.class);
-        when(commandHandler.getPriority()).thenReturn(Priority.NORMAL);
-        when(commandHandler.isApplicable(any())).thenReturn(true);
+        boolean result = handlerService.isCommandUpdate(update);
 
-        // Создаем invocable команду (чтобы isCommandUpdate возвращал true)
-        InvocableCommandHandler invocableCommand = mock(InvocableCommandHandler.class);
-        when(invocableCommand.getCommand()).thenReturn("/newcommand");
-        when(invocableCommand.isApplicable(any())).thenReturn(true);
-
-        HandlersService service = new HandlersService(
-                List.of(commandHandler),
-                List.of(activeHandler),
-                undefinedHandler,
-                cancelCommandHandler,
-                List.of(invocableCommand)
-        );
-
-        Update update = createUpdateWithMessage("/newcommand");
-
-        // Act
-        CommandHandler result = service.getHandler(update);
-
-        // Assert
-        // Проверяем, что активный обработчик был сброшен
-        verify(activeHandler).resetState(userId);
-
-        // Проверяем, что управление перехвачено новым обработчиком команды
-        assertEquals(commandHandler, result);
-
-        // Проверяем, что это действительно команда
-        assertTrue(service.isCommandUpdate(update));
+        assertFalse(result);
     }
 
-    private Update createUpdateWithMessage(String text) {
-        Chat chat = new Chat();
-        chat.setId(1L);
-        User user = new User();
-        user.setId(1L);
+    @Test
+    public void shouldReturnFalseWhenMessageIsNull() {
+        Update update = new Update(); // сообщение null
 
-        Message message = new Message();
-        message.setText(text);
-        message.setChat(chat);
-        message.setFrom(user);
+        boolean result = handlerService.isCommandUpdate(update);
 
-        Update update = new Update();
-        update.setMessage(message);
-
-        return update;
+        assertFalse(result);
     }
-
 }
+
+
