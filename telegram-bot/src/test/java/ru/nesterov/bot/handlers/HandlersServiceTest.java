@@ -1,61 +1,39 @@
 package ru.nesterov.bot.handlers;
 
 import org.junit.jupiter.api.Test;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.test.context.ContextConfiguration;
+import ru.nesterov.bot.handlers.abstractions.CommandHandler;
+import ru.nesterov.bot.handlers.implementation.invocable.GetUnpaidEventsHandler;
+import ru.nesterov.bot.handlers.implementation.invocable.stateful.createClient.CreateClientHandler;
 
-import org.springframework.boot.test.mock.mockito.MockBean;
-import org.telegram.telegrambots.meta.api.objects.Update;
-import ru.nesterov.bot.handlers.abstractions.InvocableCommandHandler;
-import ru.nesterov.bot.handlers.implementation.invocable.GetActiveClientsHandler;
+import static org.junit.jupiter.api.Assertions.assertInstanceOf;
 
-import java.util.List;
-import java.util.stream.Stream;
-
-import static org.junit.jupiter.api.Assertions.assertFalse;
-import static org.junit.jupiter.api.Assertions.assertTrue;
-import static org.mockito.Mockito.when;
-
+@ContextConfiguration(
+        classes = {
+                CreateClientHandler.class,
+                GetUnpaidEventsHandler.class
+        }
+)
 public class HandlersServiceTest extends RegisteredUserHandlerTest {
-
-    @MockBean
-    private GetActiveClientsHandler mockGetActiveClientsHandler;
-
-    @MockBean
-    private List<InvocableCommandHandler> invocableCommandHandlers;
+    @Autowired
+    private CreateClientHandler createClientHandler;
+    @Autowired
+    private GetUnpaidEventsHandler getUnpaidEventsHandler;
 
     @Test
-    public void shouldReturnTrueWhenMessageMatchesCommand() {
-        Update update = createUpdateWithMessage("/Вывести список клиентов");
+    public void shouldResetContextWhenNewCommandWasInput() {
+        System.out.println(createClientHandler.handle(createUpdateWithMessage(createClientHandler.getCommand())));
+        CommandHandler commandHandler = handlerService.getHandler(createUpdateWithMessage(getUnpaidEventsHandler.getCommand()));
 
-        when(mockGetActiveClientsHandler.getCommand()).thenReturn("/Вывести список клиентов");
-        when(invocableCommandHandlers.stream())
-                .thenReturn(Stream.of(mockGetActiveClientsHandler));
-
-        boolean result = handlerService.isCommandUpdate(update);
-
-        assertTrue(result);
+        assertInstanceOf(GetUnpaidEventsHandler.class, commandHandler);
     }
 
     @Test
-    public void shouldReturnFalseWhenMessageDoesNotMatchAnyCommand() {
-        Update update = createUpdateWithMessage("/unknownCommand");
+    public void shouldNotResetStarterHandler() {
+        createClientHandler.handle((createUpdateWithMessage(createClientHandler.getCommand())));
+        CommandHandler commandHandler = handlerService.getHandler(createUpdateWithMessage("Вася"));
 
-        when(mockGetActiveClientsHandler.getCommand()).thenReturn("/Вывести список клиентов");
-        when(invocableCommandHandlers.stream())
-                .thenReturn(Stream.of(mockGetActiveClientsHandler));
-
-        boolean result = handlerService.isCommandUpdate(update);
-
-        assertFalse(result);
-    }
-
-    @Test
-    public void shouldReturnFalseWhenMessageIsNull() {
-        Update update = new Update(); // сообщение null
-
-        boolean result = handlerService.isCommandUpdate(update);
-
-        assertFalse(result);
+        assertInstanceOf(CreateClientHandler.class, commandHandler);
     }
 }
-
-

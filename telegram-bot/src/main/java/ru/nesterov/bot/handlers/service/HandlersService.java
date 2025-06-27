@@ -14,7 +14,6 @@ import ru.nesterov.bot.handlers.implementation.invocable.CancelCommandHandler;
 import ru.nesterov.bot.utils.TelegramUpdateUtils;
 
 import java.util.List;
-import java.util.Objects;
 import java.util.function.Predicate;
 
 @Component
@@ -63,9 +62,7 @@ public class HandlersService {
             return cancelCommandHandler;
         }
 
-        //Проверяем является ли update командой
         if (isCommandUpdate(update)){
-            // Для любой команды сначала сбрасываем все обработчики
             long userId = TelegramUpdateUtils.getUserId(update);
             resetAllHandlers(userId);
         }
@@ -141,10 +138,9 @@ public class HandlersService {
         return null;
     }
 
-        public boolean isCommandUpdate(Update update) {
-            return invocableCommandHandlers.stream()
-                            .anyMatch(handler -> update.getMessage() != null && handler.getCommand().equals(update.getMessage().getText()));
-        }
-
+    private boolean isCommandUpdate(Update update) {
+        return invocableCommandHandlers.stream()
+                .anyMatch(handler -> update.getMessage() != null && handler.getCommand().equals(update.getMessage().getText()));
+    }
 
 }
