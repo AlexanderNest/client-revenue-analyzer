@@ -65,7 +65,11 @@ public class GetClientScheduleCommandHandler extends StatefulCommandHandler<Stat
         ButtonCallback buttonCallback = buttonCallbackService.buildButtonCallback(update.getCallbackQuery().getData());
 
         getStateMachine(update).getMemory().setFirstDate(LocalDate.parse(buttonCallback.getValue()));
-        return sendCalendarKeyBoard(update, ENTER_SECOND_DATE, getStateMachine(update).getMemory().getFirstDate());
+        LocalDate firstDate = getStateMachine(update).getMemory().getFirstDate();
+        if (firstDate == null) {
+            firstDate = LocalDate.now();
+        }
+        return sendCalendarKeyBoard(update, ENTER_SECOND_DATE, firstDate);
     }
 
     @SneakyThrows
@@ -146,21 +150,6 @@ public class GetClientScheduleCommandHandler extends StatefulCommandHandler<Stat
                 .collect(Collectors.joining("\n\n"));
     }
 
-    @SneakyThrows
-    private BotApiMethod<?> handleCallbackQuery(Update update) {
-        //TODO добавить обработку кнопок влево вправо
-        ButtonCallback callback = buttonCallbackService.buildButtonCallback(update.getCallbackQuery().getData());
-
-        if (isValidDate(callback.getValue())) {
-            return handleFirstDate(update);
-        } else {
-            return switch (callback.getValue()) {
-                case "Next", "Prev" -> handleMonthSwitch(update);
-                default -> handleClientName(update);
-            };
-        }
-    }
-
     private boolean isValidDate(String dateStr) {
         DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd");
         try {
@@ -173,21 +162,22 @@ public class GetClientScheduleCommandHandler extends StatefulCommandHandler<Stat
 
     @SneakyThrows
     private BotApiMethod<?> handleMonthSwitch(Update update) {
-        if ("Next".equals(update.getCallbackQuery().getData())) {
-            getStateMachine(update)
-                    .getMemory()
-                    .setDisplayedMonth(getStateMachine(update)
-                            .getMemory()
-                            .getDisplayedMonth()
-                            .plusMonths(1));
-        } else if ("Prev".equals(update.getCallbackQuery().getData())) {
-            getStateMachine(update)
-                    .getMemory()
-                    .setDisplayedMonth(getStateMachine(update)
-                            .getMemory()
-                            .getDisplayedMonth()
-                            .minusMonths(1));
+        ButtonCallback callback = buttonCallbackService.buildButtonCallback(update.getCallbackQuery().getData());
+
+        LocalDate displayedDate = getStateMachine(update).getMemory().getDisplayedMonth();
+
+        if (displayedDate == null) {
+            displayedDate = LocalDate.now().withDayOfMonth(1);
+            getStateMachine(update).getMemory().setDisplayedMonth(displayedDate);
         }
+
+        if ("Next".equals(callback.getValue())) {
+            displayedDate = displayedDate.plusMonths(1);
+        } else if ("Prev".equals(callback.getValue())) {
+            displayedDate = displayedDate.minusMonths(1);
+        }
+
+        getStateMachine(update).getMemory().setDisplayedMonth(displayedDate);
 
         String calendarMessage = "";
         if (getStateMachine(update).getMemory().getFirstDate() == null) {
@@ -196,7 +186,9 @@ public class GetClientScheduleCommandHandler extends StatefulCommandHandler<Stat
             calendarMessage = ENTER_SECOND_DATE;
         }
 
-        return sendCalendarKeyBoard(update, calendarMessage, getStateMachine(update).getMemory().getDisplayedMonth());
+        LocalDate firstDayOfMonth = displayedDate.withDayOfMonth(1);
+
+        return sendCalendarKeyBoard(update, calendarMessage, firstDayOfMonth);
     }
 
     @Override
