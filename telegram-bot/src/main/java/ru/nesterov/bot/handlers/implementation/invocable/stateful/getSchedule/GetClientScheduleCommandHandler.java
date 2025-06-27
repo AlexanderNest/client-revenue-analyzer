@@ -17,7 +17,6 @@ import ru.nesterov.bot.utils.TelegramUpdateUtils;
 
 import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
-import java.time.format.DateTimeParseException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Locale;
@@ -65,11 +64,7 @@ public class GetClientScheduleCommandHandler extends StatefulCommandHandler<Stat
         ButtonCallback buttonCallback = buttonCallbackService.buildButtonCallback(update.getCallbackQuery().getData());
 
         getStateMachine(update).getMemory().setFirstDate(LocalDate.parse(buttonCallback.getValue()));
-        LocalDate firstDate = getStateMachine(update).getMemory().getFirstDate();
-        if (firstDate == null) {
-            firstDate = LocalDate.now();
-        }
-        return sendCalendarKeyBoard(update, ENTER_SECOND_DATE, firstDate);
+        return sendCalendarKeyBoard(update, ENTER_SECOND_DATE, getStateMachine(update).getMemory().getFirstDate());
     }
 
     @SneakyThrows
@@ -113,7 +108,7 @@ public class GetClientScheduleCommandHandler extends StatefulCommandHandler<Stat
         }
         keyboardMarkup.setKeyboard(keyboard);
 
-        return getReplyKeyboard(TelegramUpdateUtils.getChatId(update), "Выберите клиента, для которого хотите получить расписание:", keyboardMarkup);
+        return getReplyKeyboard(TelegramUpdateUtils.getChatId(update), "Выберите клиента для которого хотите получить расписание:", keyboardMarkup);
     }
 
     @SneakyThrows
@@ -148,16 +143,6 @@ public class GetClientScheduleCommandHandler extends StatefulCommandHandler<Stat
                             startDate, startTime, endTime);
                 })
                 .collect(Collectors.joining("\n\n"));
-    }
-
-    private boolean isValidDate(String dateStr) {
-        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd");
-        try {
-            LocalDate.parse(dateStr, formatter);
-            return true;
-        } catch (DateTimeParseException e) {
-            return false;
-        }
     }
 
     @SneakyThrows
