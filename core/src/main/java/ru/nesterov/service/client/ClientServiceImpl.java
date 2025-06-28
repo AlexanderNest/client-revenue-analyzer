@@ -34,7 +34,6 @@ public class ClientServiceImpl implements ClientService {
     private final CalendarService calendarService;
     private final ClientRepository clientRepository;
     private final UserRepository userRepository;
-    private final EventService eventService;
 
 
     public List<MonthDatesPair> getClientSchedule(UserDto userDto, String clientName, LocalDateTime leftDate, LocalDateTime rightDate) {

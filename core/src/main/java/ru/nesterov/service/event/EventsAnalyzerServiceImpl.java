@@ -12,7 +12,6 @@ import ru.nesterov.entity.Client;
 import ru.nesterov.exception.ClientNotFoundException;
 import ru.nesterov.exception.UnknownEventStatusException;
 import ru.nesterov.repository.ClientRepository;
-import ru.nesterov.repository.UserRepository;
 import ru.nesterov.service.date.helper.MonthDatesPair;
 import ru.nesterov.service.date.helper.MonthHelper;
 import ru.nesterov.service.date.helper.WeekHelper;
@@ -35,7 +34,6 @@ public class EventsAnalyzerServiceImpl implements EventsAnalyzerService {
     private final ClientRepository clientRepository;
     private final EventsAnalyzerProperties eventsAnalyzerProperties;
     private final EventService eventService;
-    private final UserRepository userRepository;
 
     public Map<String, ClientMeetingsStatistic> getStatisticsByOneClientMeetings(UserDto userDto, String clientName) {
         CalendarServiceDto calendarServiceDto = CalendarServiceDto.builder()
