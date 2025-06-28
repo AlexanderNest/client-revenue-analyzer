@@ -2,7 +2,6 @@ package ru.nesterov.service.dto;
 
 import lombok.Getter;
 import lombok.Setter;
-import ru.nesterov.common.dto.EventDto;
 
 import java.time.LocalDateTime;
 import java.time.ZoneId;

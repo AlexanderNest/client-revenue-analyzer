@@ -4,32 +4,20 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.stereotype.Service;
-import ru.nesterov.common.dto.CalendarServiceDto;
-import ru.nesterov.common.dto.CalendarType;
-import ru.nesterov.common.dto.EventDto;
-import ru.nesterov.common.dto.EventStatus;
-import ru.nesterov.common.service.CalendarService;
-import ru.nesterov.common.service.EvenExtensionService;
 import ru.nesterov.dto.EventDto;
 import ru.nesterov.dto.EventsFilter;
 import ru.nesterov.entity.Client;
 import ru.nesterov.entity.User;
 import ru.nesterov.exception.ClientDataIntegrityException;
 import ru.nesterov.exception.ClientNotFoundException;
-import ru.nesterov.google.GoogleCalendarClient;
 import ru.nesterov.repository.ClientRepository;
 import ru.nesterov.repository.UserRepository;
 import ru.nesterov.service.CalendarService;
 import ru.nesterov.service.date.helper.MonthDatesPair;
 import ru.nesterov.service.dto.ClientDto;
 import ru.nesterov.service.dto.UserDto;
-import ru.nesterov.service.event.EventService;
-import ru.nesterov.service.event.EventsAnalyzerService;
 import ru.nesterov.service.mapper.ClientMapper;
-
 import java.time.LocalDateTime;
-import java.time.ZoneId;
-import java.time.temporal.ChronoUnit;
 import java.util.List;
 
 @Service

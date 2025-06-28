@@ -36,7 +36,7 @@ public class EventsAnalyzerServiceImpl implements EventsAnalyzerService {
     private final EventService eventService;
 
     public Map<String, ClientMeetingsStatistic> getStatisticsByOneClientMeetings(UserDto userDto, String clientName) {
-        CalendarServiceDto calendarServiceDto = CalendarServiceDto.builder()
+        EventsFilter eventsFilter = EventsFilter.builder()
                 .mainCalendar(userDto.getMainCalendar())
                 .cancelledCalendar(userDto.getCancelledCalendar())
                 .leftDate(LocalDateTime.now().minusYears(2))
@@ -45,7 +45,7 @@ public class EventsAnalyzerServiceImpl implements EventsAnalyzerService {
                 .clientName(clientName)
                 .build();
 
-        List<EventDto> eventDtos = calendarService.getEventsBetweenDates(calendarServiceDto);
+        List<EventDto> eventDtos = calendarService.getEventsBetweenDates(eventsFilter);
 
         return getStatisticsOfClientMeetings(userDto, eventDtos);
     }
@@ -208,7 +208,7 @@ public class EventsAnalyzerServiceImpl implements EventsAnalyzerService {
 
     private List<EventDto> getEventsByMonth(UserDto userDto, String monthName) {
         MonthDatesPair monthDatesPair = MonthHelper.getFirstAndLastDayOfMonth(monthName);
-        CalendarServiceDto calendarServiceDto = CalendarServiceDto.builder()
+        EventsFilter eventsFilter = EventsFilter.builder()
                 .mainCalendar(userDto.getMainCalendar())
                 .cancelledCalendar(userDto.getCancelledCalendar())
                 .leftDate(monthDatesPair.getFirstDate())
