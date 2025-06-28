@@ -1,7 +1,7 @@
 package ru.nesterov.service.event;
 
-import ru.nesterov.common.dto.EventDto;
-import ru.nesterov.common.dto.EventStatus;
+import ru.nesterov.dto.EventDto;
+import ru.nesterov.dto.EventStatus;
 import ru.nesterov.service.dto.BusynessAnalysisResult;
 import ru.nesterov.service.dto.ClientMeetingsStatistic;
 import ru.nesterov.service.dto.IncomeAnalysisResult;

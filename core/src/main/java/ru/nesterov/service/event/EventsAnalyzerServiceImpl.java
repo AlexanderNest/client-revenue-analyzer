@@ -3,15 +3,15 @@ package ru.nesterov.service.event;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
-import ru.nesterov.common.dto.CalendarServiceDto;
-import ru.nesterov.common.dto.EventDto;
-import ru.nesterov.common.dto.EventStatus;
-import ru.nesterov.common.service.CalendarService;
-import ru.nesterov.common.service.EvenExtensionService;
+import ru.nesterov.dto.EventDto;
+import ru.nesterov.dto.EventStatus;
+import ru.nesterov.dto.EventsFilter;
 import ru.nesterov.entity.Client;
 import ru.nesterov.exception.ClientNotFoundException;
 import ru.nesterov.exception.UnknownEventStatusException;
 import ru.nesterov.repository.ClientRepository;
+import ru.nesterov.repository.UserRepository;
+import ru.nesterov.service.CalendarService;
 import ru.nesterov.service.date.helper.MonthDatesPair;
 import ru.nesterov.service.date.helper.MonthHelper;
 import ru.nesterov.service.date.helper.WeekHelper;
@@ -157,7 +157,7 @@ public class EventsAnalyzerServiceImpl implements EventsAnalyzerService {
 
     @Override
     public List<EventDto> getUnpaidEventsBetweenDates(UserDto userDto, LocalDateTime leftDate, LocalDateTime rightDate) {
-        CalendarServiceDto calendarServiceDto = CalendarServiceDto.builder()
+        EventsFilter eventsFilter = EventsFilter.builder()
                 .mainCalendar(userDto.getMainCalendar())
                 .cancelledCalendar(userDto.getCancelledCalendar())
                 .rightDate(rightDate)
@@ -165,7 +165,7 @@ public class EventsAnalyzerServiceImpl implements EventsAnalyzerService {
                 .isCancelledCalendarEnabled(userDto.isCancelledCalendarEnabled())
                 .build();
 
-        return calendarService.getEventsBetweenDates(calendarServiceDto).stream()
+        return calendarService.getEventsBetweenDates(eventsFilter).stream()
                 .filter(event -> {
                     EventStatus eventStatus = event.getStatus();
                     return eventStatus == EventStatus.PLANNED || eventStatus == EventStatus.REQUIRES_SHIFT;
@@ -186,7 +186,7 @@ public class EventsAnalyzerServiceImpl implements EventsAnalyzerService {
     }
 
     public Map<EventStatus, Integer> getEventStatusesBetweenDates(UserDto userDto, LocalDateTime leftDate, LocalDateTime rightDate) {
-        CalendarServiceDto calendarServiceDto = CalendarServiceDto.builder()
+        EventsFilter eventsFilter = EventsFilter.builder()
                 .mainCalendar(userDto.getMainCalendar())
                 .cancelledCalendar(userDto.getCancelledCalendar())
                 .rightDate(rightDate)
@@ -194,7 +194,7 @@ public class EventsAnalyzerServiceImpl implements EventsAnalyzerService {
                 .isCancelledCalendarEnabled(userDto.isCancelledCalendarEnabled())
                 .build();
 
-        List<EventDto> eventDtos = calendarService.getEventsBetweenDates(calendarServiceDto);
+        List<EventDto> eventDtos = calendarService.getEventsBetweenDates(eventsFilter);
 
         Map<EventStatus, Integer> statuses = new HashMap<>();
         for (EventDto eventDto : eventDtos) {
@@ -215,20 +215,20 @@ public class EventsAnalyzerServiceImpl implements EventsAnalyzerService {
                 .rightDate(monthDatesPair.getLastDate())
                 .isCancelledCalendarEnabled(userDto.isCancelledCalendarEnabled())
                 .build();
-        return calendarService.getEventsBetweenDates(calendarServiceDto);
+        return calendarService.getEventsBetweenDates(eventsFilter);
     }
 
     private List<EventDto> getEventsByYear(UserDto userDto, int year) {
         LocalDateTime startOfYear = LocalDateTime.of(year, 1, 1, 0, 0);
         LocalDateTime endOfYear = LocalDateTime.of(year, 12, 31, 23, 59);
-        CalendarServiceDto calendarServiceDto = CalendarServiceDto.builder()
+        EventsFilter eventsFilter = EventsFilter.builder()
                 .mainCalendar(userDto.getMainCalendar())
                 .cancelledCalendar(userDto.getCancelledCalendar())
                 .leftDate(startOfYear)
                 .rightDate(endOfYear)
                 .isCancelledCalendarEnabled(userDto.isCancelledCalendarEnabled())
                 .build();
-        return calendarService.getEventsBetweenDates(calendarServiceDto);
+        return calendarService.getEventsBetweenDates(eventsFilter);
     }
 
     @Override

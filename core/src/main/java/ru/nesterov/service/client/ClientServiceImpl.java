@@ -1,6 +1,7 @@
 package ru.nesterov.service.client;
 
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.stereotype.Service;
 import ru.nesterov.common.dto.CalendarServiceDto;
@@ -9,13 +10,16 @@ import ru.nesterov.common.dto.EventDto;
 import ru.nesterov.common.dto.EventStatus;
 import ru.nesterov.common.service.CalendarService;
 import ru.nesterov.common.service.EvenExtensionService;
+import ru.nesterov.dto.EventDto;
+import ru.nesterov.dto.EventsFilter;
 import ru.nesterov.entity.Client;
 import ru.nesterov.entity.User;
-import ru.nesterov.exception.ClientIsAlreadyCreatedException;
+import ru.nesterov.exception.ClientDataIntegrityException;
 import ru.nesterov.exception.ClientNotFoundException;
 import ru.nesterov.google.GoogleCalendarClient;
 import ru.nesterov.repository.ClientRepository;
 import ru.nesterov.repository.UserRepository;
+import ru.nesterov.service.CalendarService;
 import ru.nesterov.service.date.helper.MonthDatesPair;
 import ru.nesterov.service.dto.ClientDto;
 import ru.nesterov.service.dto.UserDto;
@@ -29,12 +33,12 @@ import java.time.temporal.ChronoUnit;
 import java.util.List;
 
 @Service
+@Slf4j
 @RequiredArgsConstructor
 public class ClientServiceImpl implements ClientService {
     private final CalendarService calendarService;
     private final ClientRepository clientRepository;
     private final UserRepository userRepository;
-
 
     public List<MonthDatesPair> getClientSchedule(UserDto userDto, String clientName, LocalDateTime leftDate, LocalDateTime rightDate) {
         Client client = clientRepository.findClientByNameAndUserId(clientName, userDto.getId());
@@ -42,7 +46,7 @@ public class ClientServiceImpl implements ClientService {
             throw new ClientNotFoundException(clientName);
         }
 
-        CalendarServiceDto calendarServiceDto = CalendarServiceDto.builder()
+        EventsFilter eventsFilter = EventsFilter.builder()
                 .cancelledCalendar(userDto.getCancelledCalendar())
                 .mainCalendar(userDto.getMainCalendar())
                 .leftDate(leftDate)
@@ -50,7 +54,7 @@ public class ClientServiceImpl implements ClientService {
                 .isCancelledCalendarEnabled(userDto.isCancelledCalendarEnabled())
                 .build();
 
-        List<EventDto> eventDtos = calendarService.getEventsBetweenDates(calendarServiceDto);
+        List<EventDto> eventDtos = calendarService.getEventsBetweenDates(eventsFilter);
 
         return eventDtos.stream()
                 .filter(event -> event.getSummary().equals(client.getName()))
@@ -58,26 +62,31 @@ public class ClientServiceImpl implements ClientService {
                 .toList();
     }
 
-    public ClientDto createClient(UserDto userDto, ClientDto clientDto, boolean isIdGenerationNeeded) throws ClientIsAlreadyCreatedException {
+    public ClientDto createClient(UserDto userDto, ClientDto clientDto, boolean isIdGenerationNeeded) throws ClientDataIntegrityException {
         List<Client> clientsWithThisName = clientRepository.findAllByExactNameOrNameStartingWithAndEndingWithNumberAndUserId(clientDto.getName(), userDto.getId());
 
         if (!clientsWithThisName.isEmpty() && !isIdGenerationNeeded) {
-            throw new ClientIsAlreadyCreatedException(clientDto.getName());
+            throw new ClientDataIntegrityException("Клиент с таким именем уже существует");
         }
         if (!clientsWithThisName.isEmpty()) {
             clientDto.setName(clientDto.getName() + " " + (clientsWithThisName.size() + 1));
         }
 
         User user = userRepository.findByUsername(userDto.getUsername());
-        Client client;
         try {
-            Client clientForSave = ClientMapper.mapToClient(clientDto);
-            clientForSave.setUser(user);
-            client = clientRepository.save(clientForSave);
-        } catch (DataIntegrityViolationException exception) {
-            throw new ClientIsAlreadyCreatedException(clientDto.getName());
+            Client forSave = ClientMapper.mapToClient(clientDto);
+            forSave.setUser(user);
+            Client saved = clientRepository.save(forSave);
+            return ClientMapper.mapToClientDto(saved);
+        } catch (DataIntegrityViolationException ex) {
+            String alias = DataIntegrityViolationExceptionHandler.getLocalizedMessage(ex);
+
+            String message = (alias != null)
+                    ? String.format("%s уже используется", alias)
+                    : "Одно из значений, указанных для этого клиента уже используется";
+
+            throw new ClientDataIntegrityException(message);
         }
-        return ClientMapper.mapToClientDto(client);
     }
 
     @Override
@@ -86,5 +95,4 @@ public class ClientServiceImpl implements ClientService {
                 .map(ClientMapper::mapToClientDto)
                 .toList();
     }
-
 }

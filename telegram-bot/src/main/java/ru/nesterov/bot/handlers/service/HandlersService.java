@@ -6,6 +6,7 @@ import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.stereotype.Component;
 import org.telegram.telegrambots.meta.api.objects.Update;
 import ru.nesterov.bot.handlers.abstractions.CommandHandler;
+import ru.nesterov.bot.handlers.abstractions.InvocableCommandHandler;
 import ru.nesterov.bot.handlers.abstractions.Priority;
 import ru.nesterov.bot.handlers.abstractions.StatefulCommandHandler;
 import ru.nesterov.bot.handlers.implementation.UndefinedHandler;
@@ -27,12 +28,15 @@ public class HandlersService {
     private final CancelCommandHandler cancelCommandHandler;
 
     private final List<StatefulCommandHandler<?, ?>> statefulCommandHandlers;
+    private final List<InvocableCommandHandler> invocableCommandHandlers;
 
     public HandlersService(List<CommandHandler> commandHandlers,
                            List<StatefulCommandHandler<?, ?>> statefulCommandHandlers,
                            UndefinedHandler undefinedHandler,
-                           CancelCommandHandler cancelCommandHandler) {
+                           CancelCommandHandler cancelCommandHandler,
+                           List<InvocableCommandHandler> invocableCommandHandlers) {
         this.statefulCommandHandlers = statefulCommandHandlers;
+        this.invocableCommandHandlers = invocableCommandHandlers;
 
         highestPriorityCommandHandlers = commandHandlers.stream()
                 .filter(ch -> ch.getPriority() == Priority.HIGHEST)
@@ -56,6 +60,11 @@ public class HandlersService {
 
         if (cancelCommandHandler.isApplicable(update)) {
             return cancelCommandHandler;
+        }
+
+        if (isCommandUpdate(update)){
+            long userId = TelegramUpdateUtils.getUserId(update);
+            resetAllHandlers(userId);
         }
 
         commandHandler = getStartedHandler(update);
@@ -128,4 +137,10 @@ public class HandlersService {
         }
         return null;
     }
+
+    private boolean isCommandUpdate(Update update) {
+        return invocableCommandHandlers.stream()
+                .anyMatch(handler -> update.getMessage() != null && handler.getCommand().equals(update.getMessage().getText()));
+    }
+
 }

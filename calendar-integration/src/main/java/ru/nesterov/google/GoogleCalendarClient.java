@@ -6,6 +6,7 @@ import com.google.api.client.json.gson.GsonFactory;
 import com.google.api.client.util.DateTime;
 import com.google.api.services.calendar.Calendar;
 import com.google.api.services.calendar.CalendarScopes;
+import com.google.api.services.calendar.model.Event;
 import com.google.api.services.calendar.model.EventDateTime;
 import com.google.api.services.calendar.model.Events;
 import com.google.auth.http.HttpCredentialsAdapter;
@@ -14,12 +15,15 @@ import lombok.SneakyThrows;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.stereotype.Component;
-import ru.nesterov.common.dto.CalendarType;
-import ru.nesterov.common.dto.EventDto;
-import ru.nesterov.common.dto.EventExtensionDto;
-import ru.nesterov.common.dto.EventStatus;
-import ru.nesterov.common.util.PlainTextMapper;
-import ru.nesterov.google.exception.CannotBuildEventException;
+import ru.nesterov.dto.CalendarType;
+import ru.nesterov.dto.EventDto;
+import ru.nesterov.dto.EventExtensionDto;
+import ru.nesterov.dto.EventStatus;
+import ru.nesterov.dto.PrimaryEventData;
+import ru.nesterov.exception.CannotBuildEventException;
+import ru.nesterov.service.CalendarClient;
+import ru.nesterov.service.EventStatusService;
+import ru.nesterov.util.PlainTextMapper;
 
 import javax.annotation.Nullable;
 import java.io.FileInputStream;
@@ -159,7 +163,13 @@ public class GoogleCalendarClient implements CalendarClient {
         } else if (calendarType == CalendarType.PLAIN) {
             eventStatus = null;
         } else {
-            eventStatus = eventStatusService.getEventStatus(event);
+            PrimaryEventData primaryEventData = PrimaryEventData.builder()
+                    .colorId(event.getColorId())
+                    .name(event.getSummary())
+                    .eventStart(event.getStart().getDateTime())
+                    .build();
+
+            eventStatus = eventStatusService.getEventStatus(primaryEventData);
         }
 
         try {
@@ -168,7 +178,7 @@ public class GoogleCalendarClient implements CalendarClient {
                     .summary(event.getSummary())
                     .start(getLocalDateTime(event.getStart()))
                     .end(getLocalDateTime(event.getEnd()))
-                    .eventExtensionDto(buildEventExtension(event))
+                    .eventExtensionDto(buildEventExtension(event, calendarType))
                     .build();
         } catch (Exception e) {
             throw new CannotBuildEventException(event.getSummary(), event.getStart(), e);
@@ -186,36 +196,38 @@ public class GoogleCalendarClient implements CalendarClient {
     }
 
     @Nullable
-    private EventExtensionDto buildEventExtension(com.google.api.services.calendar.model.Event event) {
-        log.trace("Сборка EventExtensionDto для EventDto с названием [{}] and date [{}]", event.getSummary(), event.getStart());
-
-        if (event.getDescription() == null) {
-            log.trace("EventDto не содержит EventExtensionDto");
+    private EventExtensionDto buildEventExtension(com.google.api.services.calendar.model.Event event, CalendarType calendarType) {
+        if (calendarType == CalendarType.PLAIN || event.getDescription() == null) {
             return null;
         }
 
-        EventExtensionDto eventExtensionDto = buildFromPlainText(event.getDescription());
-        if (eventExtensionDto != null) {
-            return eventExtensionDto;
+        EventExtensionDto eventExtensionDtoFromPlainText = buildFromPlainText(event);
+        if (eventExtensionDtoFromPlainText != null) {
+            return eventExtensionDtoFromPlainText;
+        }
+        log.trace("Не удалось собрать EventExtensionDto в виде PLAIN TEXT, неверный формат, event = {}", event);
+
+        EventExtensionDto extensionDtoFromJson = buildFromJson(event);
+        if (extensionDtoFromJson != null) {
+            return extensionDtoFromJson;
         }
 
-        return buildFromJson(event.getDescription());
+        log.error("Не удалось собрать EventExtensionDto ни одним из вариантов, неверный формат расширения события. {}", event);
+        throw new CannotBuildEventException(event.getSummary(), event.getStart());
     }
 
-    private EventExtensionDto buildFromJson(String description) {
+    private EventExtensionDto buildFromJson(Event event) {
         try {
-            return objectMapper.readValue(description, EventExtensionDto.class);
+            return objectMapper.readValue(event.getDescription(), EventExtensionDto.class);
         } catch (Exception e) {
-            log.trace("Не удалось собрать EventExtensionDto в виде JSON, неверный формат", e);
             return null;
         }
     }
 
-    private EventExtensionDto buildFromPlainText(String description) {
+    private EventExtensionDto buildFromPlainText(Event event) {
         try {
-            return PlainTextMapper.fillFromString(description, EventExtensionDto.class);
+            return PlainTextMapper.fillFromString(event.getDescription(), EventExtensionDto.class);
         } catch (Exception e) {
-            log.trace("Не удалось собрать EventExtensionDto в виде PLAIN TEXT, неверный формат", e);
             return null;
         }
     }

@@ -1,5 +1,6 @@
 package ru.nesterov.bot.integration;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.RequiredArgsConstructor;
@@ -10,7 +11,6 @@ import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpMethod;
 import org.springframework.http.HttpStatus;
-import org.springframework.http.HttpStatusCode;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Component;
 import org.springframework.web.client.HttpClientErrorException;
@@ -29,6 +29,7 @@ import ru.nesterov.bot.dto.GetForClientScheduleRequest;
 import ru.nesterov.bot.dto.GetForMonthRequest;
 import ru.nesterov.bot.dto.GetForYearRequest;
 import ru.nesterov.bot.dto.GetIncomeAnalysisForMonthResponse;
+import ru.nesterov.bot.dto.GetUnpaidEventsResponse;
 import ru.nesterov.bot.dto.GetUserRequest;
 import ru.nesterov.bot.dto.GetUserResponse;
 import ru.nesterov.bot.dto.GetYearBusynessStatisticsResponse;
@@ -65,7 +66,6 @@ public class ClientRevenueAnalyzerIntegrationClient {
 
     public AiAnalyzerResponse getAiStatistics(long userId) {
         String currentMonth = LocalDate.now().getMonth().name().toLowerCase();
-
         GetForMonthRequest request = new GetForMonthRequest();
         request.setMonthName(currentMonth);
 
@@ -78,20 +78,44 @@ public class ClientRevenueAnalyzerIntegrationClient {
         if (responseEntity.getStatusCode().isSameCodeAs(HttpStatus.NOT_FOUND)) {
             return null;
         }
-
         return responseEntity.getBody();
     }
 
     public CreateClientResponse createClient(String userId, CreateClientRequest createClientRequest) {
-        ResponseEntity<CreateClientResponse> responseEntity = post(userId, createClientRequest, "/revenue-analyzer/client/create", CreateClientResponse.class);
-        HttpStatusCode statusCode = responseEntity.getStatusCode();
-        if (statusCode.isSameCodeAs(HttpStatus.CONFLICT)) {
-            return CreateClientResponse.builder()
-                    .responseCode(statusCode.value())
-                    .build();
-        }
+        try {
+            ResponseEntity<String> response = restTemplate.exchange(
+                    revenueAnalyzerProperties.getUrl() + "/revenue-analyzer/client/create",
+                    HttpMethod.POST,
+                    new HttpEntity<>(createClientRequest, createHeaders(userId)),
+                    String.class
+            );
 
-        return responseEntity.getBody();
+            if (response.getStatusCode().is2xxSuccessful()) {
+                return objectMapper.readValue(response.getBody(), CreateClientResponse.class);
+            }
+
+            if (response.getStatusCode() == HttpStatus.CONFLICT) {
+                String message = extractErrorMessage(response.getBody());
+                return CreateClientResponse.builder()
+                        .responseCode(HttpStatus.CONFLICT.value())
+                        .errorMessage(message)
+                        .build();
+            }
+
+            throw new UserFriendlyException(
+                    String.format("Непредвиденный ответ от сервера: %d", response.getStatusCodeValue())
+            );
+        } catch (HttpClientErrorException.Conflict ex) {
+            String body = ex.getResponseBodyAsString();
+            String message = extractErrorMessage(body);
+            return CreateClientResponse.builder()
+                    .responseCode(HttpStatus.CONFLICT.value())
+                    .errorMessage(message)
+                    .build();
+        } catch (JsonProcessingException e) {
+            log.error("Не удалось десериализовать CreateClientResponse", e);
+            throw new InternalException(e);
+        }
     }
 
     public CreateUserResponse createUser(CreateUserRequest createUserRequest) {
@@ -131,12 +155,32 @@ public class ClientRevenueAnalyzerIntegrationClient {
         return response.getBody();
     }
 
+    public List<GetUnpaidEventsResponse> getUnpaidEvents(long userId) {
+        return getForList(String.valueOf(userId),
+                "/revenue-analyzer/events/analyzer/getUnpaidEvents",
+                new ParameterizedTypeReference<>() {}
+        );
+    }
+
     private <T> ResponseEntity<T> get(String username, String endpoint, Class<T> responseType) {
         return exchange(username, null, endpoint, responseType, HttpMethod.GET);
     }
 
     private <T> ResponseEntity<T> post(String username, Object request, String endpoint, Class<T> responseType) {
         return exchange(username, request, endpoint, responseType, HttpMethod.POST);
+    }
+
+    private <T> List<T> getForList(String username, String endpoint, ParameterizedTypeReference<List<T>> typeReference) {
+        HttpEntity<Object> requestEntity = new HttpEntity<>(createHeaders(username));
+
+        ResponseEntity<List<T>> responseEntity = restTemplate.exchange(
+                revenueAnalyzerProperties.getUrl() + endpoint,
+                HttpMethod.GET,
+                requestEntity,
+                typeReference
+        );
+
+        return responseEntity.getBody();
     }
 
     private <T> List<T> postForList(String username, Object request, String endpoint, ParameterizedTypeReference<List<T>> typeReference) {
@@ -187,5 +231,17 @@ public class ClientRevenueAnalyzerIntegrationClient {
         headers.set("X-username", username);
 
         return headers;
+    }
+
+    private String extractErrorMessage(String responseBody) {
+        try {
+            JsonNode root = objectMapper.readTree(responseBody);
+            if (root.has("message")) {
+                return root.get("message").asText();
+            }
+        } catch (JsonProcessingException e) {
+            log.warn("Не удалось распарсить тело ошибки при создании клиента: {}", responseBody, e);
+        }
+        return "Клиент уже существует";
     }
 }

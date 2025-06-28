@@ -5,10 +5,10 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.http.MediaType;
 import ru.nesterov.bot.dto.GetForMonthRequest;
-import ru.nesterov.common.dto.CalendarType;
-import ru.nesterov.common.dto.EventDto;
-import ru.nesterov.common.dto.EventExtensionDto;
-import ru.nesterov.common.dto.EventStatus;
+import ru.nesterov.dto.CalendarType;
+import ru.nesterov.dto.EventDto;
+import ru.nesterov.dto.EventExtensionDto;
+import ru.nesterov.dto.EventStatus;
 import ru.nesterov.entity.Client;
 import ru.nesterov.entity.User;
 
