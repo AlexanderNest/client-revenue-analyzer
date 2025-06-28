@@ -10,7 +10,6 @@ import ru.nesterov.entity.Client;
 import ru.nesterov.exception.ClientNotFoundException;
 import ru.nesterov.exception.UnknownEventStatusException;
 import ru.nesterov.repository.ClientRepository;
-import ru.nesterov.repository.UserRepository;
 import ru.nesterov.service.CalendarService;
 import ru.nesterov.service.date.helper.MonthDatesPair;
 import ru.nesterov.service.date.helper.MonthHelper;

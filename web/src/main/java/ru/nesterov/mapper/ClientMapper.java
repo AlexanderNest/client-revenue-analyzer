@@ -2,7 +2,6 @@ package ru.nesterov.mapper;
 
 import ru.nesterov.controller.request.CreateClientRequest;
 import ru.nesterov.controller.response.ClientResponse;
-import ru.nesterov.controller.response.FullClientInfoResponse;
 import ru.nesterov.service.dto.ClientDto;
 
 public class ClientMapper {
