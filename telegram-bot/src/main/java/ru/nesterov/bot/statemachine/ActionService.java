@@ -92,8 +92,12 @@ public class ActionService {
             }
         }
 
-        if (value.equals("Prev") || value.equals("Next") && expectedActions.contains(Action.CALLBACK_PREV_NEXT)) {
-            return Action.CALLBACK_PREV_NEXT;
+        if (value.equals("Prev") && expectedActions.contains(Action.CALLBACK_PREV)) {
+            return Action.CALLBACK_PREV;
+        }
+
+        if (value.equals("Next") && expectedActions.contains(Action.CALLBACK_NEXT)) {
+            return Action.CALLBACK_NEXT;
         }
 
         if (isValidDate(value)) {
