@@ -21,9 +21,10 @@ jobs:
         uses: actions/ai-inference@v1
         with:
           prompt: |
-            Summarize the following GitHub issue in one paragraph:
+            Прочитай эту задачу и объясни на понятном языке, о чем она.:
             Title: ${{ github.event.issue.title }}
             Body: ${{ github.event.issue.body }}
+            Предполагается, что эту задачу может читать человек, который может не понимать что-то в терминах, поэтому тебе надо предложить основные технологии, которые могут помочь решить эту задачу. Или дать список того, что надо изучить
 
       - name: Comment with AI summary
         run: |
