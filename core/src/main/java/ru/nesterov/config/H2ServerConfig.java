@@ -10,18 +10,14 @@ import java.sql.SQLException;
 @Slf4j
 @Configuration
 public class H2ServerConfig {
-    private static final Server server;
-
-    static {
-        server = startServer();
-    }
+    private static final Server server = startServer();
 
     private static Server startServer() {
         try {
             log.info("Starting H2 server with params -tcp -tcpAllowOthers -tcpPort 9092...");
-            Server starterServer = Server.createTcpServer("-tcp", "-tcpAllowOthers", "-tcpPort", "9092").start();
+            Server startedServer = Server.createTcpServer("-tcp", "-tcpAllowOthers", "-tcpPort", "9092").start();
             log.info("H2 server started");
-            return starterServer;
+            return startedServer;
         } catch (SQLException e) {
             throw new RuntimeException(e);
         }
