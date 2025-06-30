@@ -110,6 +110,7 @@ public class GetClientScheduleCommandHandler extends StatefulCommandHandler<Stat
         return getReplyKeyboard(TelegramUpdateUtils.getChatId(update), "Выберите клиента для которого хотите получить расписание:", keyboardMarkup);
     }
 
+
     @SneakyThrows
     private BotApiMethod<?> sendClientSchedule(Update update) {
         List<GetClientScheduleResponse> response = client.getClientSchedule(
