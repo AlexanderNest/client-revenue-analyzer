@@ -1,4 +1,4 @@
-package ru.nesterov.gigachat;
+package ru.nesterov.gigachat.dto;
 
 import lombok.Data;
 

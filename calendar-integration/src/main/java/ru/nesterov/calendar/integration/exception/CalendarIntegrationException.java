@@ -1,6 +1,6 @@
 package ru.nesterov.calendar.integration.exception;
 
-public abstract class CalendarIntegrationException extends RuntimeException {
+public class CalendarIntegrationException extends RuntimeException {
     public CalendarIntegrationException(String message, Throwable cause) {
         super(message, cause);
     }
