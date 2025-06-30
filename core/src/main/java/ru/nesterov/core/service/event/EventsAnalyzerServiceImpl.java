@@ -86,7 +86,7 @@ public class EventsAnalyzerServiceImpl implements EventsAnalyzerService {
         double eventDuration = eventService.getEventDuration(eventDto);
         clientMeetingsStatistic.increaseCancelled(eventDuration);
         if (eventDto.getStatus() == EventStatus.UNPLANNED_CANCELLED) {
-            clientMeetingsStatistic.increasePlannedCancelledEvents(1);
+            clientMeetingsStatistic.increaseNotPlannedCancelledEvents(1);
         }
     }
 

@@ -78,7 +78,7 @@ public class EventsAnalyzerControllerTest extends AbstractControllerTest {
 
         EventDto eventDto6 = EventDto.builder()
                 .summary("testName1")
-                .status(EventStatus.PLANNED_CANCELLED)
+                .status(EventStatus.UNPLANNED_CANCELLED)
                 .start(LocalDateTime.of(2024, 8, 14, 11, 30))
                 .end(LocalDateTime.of(2024, 8, 14, 12, 30))
                 .eventExtensionDto(eventExtensionDto6)
@@ -156,8 +156,8 @@ public class EventsAnalyzerControllerTest extends AbstractControllerTest {
                 .andExpect(jsonPath("$.testName2.successfulMeetingsHours").value(1))
                 .andExpect(jsonPath("$.testName2.cancelledMeetingsHours").value(1))
                 .andExpect(jsonPath("$.testName2.successfulEventsCount").value(1))
-                .andExpect(jsonPath("$.testName2.plannedCancelledEventsCount").value(0))
-                .andExpect(jsonPath("$.testName2.notPlannedCancelledEventsCount").value(1))
+                .andExpect(jsonPath("$.testName2.plannedCancelledEventsCount").value(1))
+                .andExpect(jsonPath("$.testName2.notPlannedCancelledEventsCount").value(0))
                 .andExpect(jsonPath("$.testName2.incomePerHour").value(1000))
                 .andExpect(jsonPath("$.testName2.actualIncome").value(1000))
                 .andExpect(jsonPath("$.testName2.lostIncome").value(1000));
