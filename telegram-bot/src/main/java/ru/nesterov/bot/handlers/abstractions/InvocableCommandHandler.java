@@ -9,6 +9,9 @@ import ru.nesterov.bot.handlers.callback.ButtonCallback;
  * Обработчик, который вызывается по отправленной команде
  */
 public abstract class InvocableCommandHandler extends SendingMessageCommandHandler {
+    /**
+     * Команда, которая вызовет обработчик
+     */
     public abstract String getCommand();
 
     @Override

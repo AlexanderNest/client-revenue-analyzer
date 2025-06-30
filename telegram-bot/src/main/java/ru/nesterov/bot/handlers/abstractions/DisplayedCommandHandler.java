@@ -14,10 +14,16 @@ public abstract class DisplayedCommandHandler extends InvocableCommandHandler im
         return 5;
     }
 
+    /**
+     * Определяет, будет ли обработчик отображаться для зарегистрированных пользователей
+     */
     public boolean isDisplayedForRegistered() {
         return true;
     }
 
+    /**
+     * Определяет, будет ли обработчик отображаться для незарегистрированных пользователей
+     */
     public boolean isDisplayedForUnregistered() {
         return false;
     }

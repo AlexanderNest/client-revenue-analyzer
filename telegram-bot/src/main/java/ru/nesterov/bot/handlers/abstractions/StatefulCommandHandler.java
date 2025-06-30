@@ -27,7 +27,32 @@ public abstract class StatefulCommandHandler<STATE extends Enum<STATE>, MEMORY> 
         initTransitions();
     }
 
-    public StateMachine<STATE, Action, MEMORY> getStateMachine(Update update) {
+    /**
+     * Инициализирует переходы между состояниями. Метод должен быть вызван в конструкторе.
+     */
+    protected abstract void initTransitions();
+
+    public void resetState(long userId) {
+        stateMachineProvider.removeMachine(userId);
+    }
+
+    /**
+     * Определяет нужно ли сбрасывать обработчик для указанного пользователя.
+     * Это полезно для тех случаев, когда один и тот же обработчик должен получить несколько сообщений подряд.
+     * @param userId
+     * @return
+     *      true - если надо сбросить обработчики для пользователя.
+     *      false - если надо, чтобы при следующем обновлении в чате вызвался тот же обработчик
+     */
+    public boolean isFinishedOrNotStarted(Long userId) {
+        StateMachine<STATE, Action, MEMORY> stateMachine = stateMachineProvider.getMachine(userId);
+        return stateMachine == null || "FINISH".equals(stateMachine.getCurrentState().name());
+    }
+
+    /**
+     * Возвращает машину для указанного пользователя. Если машина для пользователя не существует, создает ее.
+     */
+    protected StateMachine<STATE, Action, MEMORY> getStateMachine(Update update) {
         long userId = TelegramUpdateUtils.getUserId(update);
         StateMachine<STATE, Action, MEMORY> stateMachine = stateMachineProvider.getMachine(userId);
         if (stateMachine == null){
@@ -58,12 +83,6 @@ public abstract class StatefulCommandHandler<STATE extends Enum<STATE>, MEMORY> 
         return botApiMethod;
     }
 
-    public abstract void initTransitions();
-
-    public void resetState(long userId) {
-        stateMachineProvider.removeMachine(userId);
-    }
-
     @Override
     public boolean isApplicable(Update update) {
         Message message = update.getMessage();
@@ -73,18 +92,5 @@ public abstract class StatefulCommandHandler<STATE extends Enum<STATE>, MEMORY> 
         }
 
         return super.isApplicable(update);
-    }
-
-    /**
-     * Определяет нужно ли сбрасывать обработчик для указанного пользователя.
-     * Это полезно для тех случаев, когда один и тот же обработчик должен получить несколько сообщений подряд.
-     * @param userId
-     * @return
-     *      true - если надо сбросить обработчики для пользователя.
-     *      false - если надо, чтобы при следующем обновлении в чате вызвался тот же обработчик
-     */
-    public boolean isFinishedOrNotStarted(Long userId) {
-        StateMachine<STATE, Action, MEMORY> stateMachine = stateMachineProvider.getMachine(userId);
-        return stateMachine == null || "FINISH".equals(stateMachine.getCurrentState().name());
     }
 }
