@@ -2,10 +2,15 @@ package ru.nesterov.gigachat.service;
 
 import lombok.SneakyThrows;
 import org.springframework.beans.factory.annotation.Qualifier;
-import org.springframework.http.*;
+import org.springframework.http.HttpEntity;
+import org.springframework.http.HttpHeaders;
+import org.springframework.http.HttpMethod;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.MediaType;
+import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 import org.springframework.web.client.RestTemplate;
-import ru.nesterov.gigachat.GigaChatIntegrationProperties;
+import ru.nesterov.gigachat.config.GigaChatIntegrationProperties;
 import ru.nesterov.gigachat.request.GigaChatTextGenerationRequest;
 import ru.nesterov.gigachat.request.Message;
 import ru.nesterov.gigachat.response.Choice;

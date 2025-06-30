@@ -4,9 +4,9 @@ import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.test.context.ContextConfiguration;
-import ru.nesterov.dto.EventStatus;
-import ru.nesterov.dto.PrimaryEventData;
-import ru.nesterov.google.EventStatusServiceImpl;
+import ru.nesterov.calendar.integration.dto.EventStatus;
+import ru.nesterov.calendar.integration.dto.PrimaryEventData;
+import ru.nesterov.calendar.integration.google.EventStatusServiceImpl;
 
 import java.util.ArrayList;
 import java.util.List;
