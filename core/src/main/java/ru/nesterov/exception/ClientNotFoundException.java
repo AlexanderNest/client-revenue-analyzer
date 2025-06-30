@@ -1,10 +1,8 @@
 package ru.nesterov.exception;
 
-import ru.nesterov.common.exception.AppException;
-
 import java.time.LocalDateTime;
 
-public class ClientNotFoundException extends AppException {
+public class ClientNotFoundException extends CoreException {
     public ClientNotFoundException(String clientName) {
         super("Клиент с именем [" + clientName + "] не найден в базе");
     }

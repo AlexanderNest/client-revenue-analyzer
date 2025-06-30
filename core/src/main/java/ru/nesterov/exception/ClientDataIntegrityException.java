@@ -1,11 +1,6 @@
 package ru.nesterov.exception;
 
-import org.springframework.http.HttpStatus;
-import org.springframework.web.bind.annotation.ResponseStatus;
-import ru.nesterov.common.exception.AppException;
-
-@ResponseStatus(HttpStatus.CONFLICT)
-public class ClientDataIntegrityException extends AppException {
+public class ClientDataIntegrityException extends CoreException {
     public ClientDataIntegrityException(String message) {
         super(message);
     }

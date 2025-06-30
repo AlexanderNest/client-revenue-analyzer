@@ -6,19 +6,29 @@ import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
-import ru.nesterov.common.exception.AppException;
 import ru.nesterov.controller.response.ResponseWithMessage;
+import ru.nesterov.exception.CalendarIntegrationException;
 import ru.nesterov.exception.ClientDataIntegrityException;
+import ru.nesterov.exception.CoreException;
 
 @RestControllerAdvice
 @Slf4j
 public class RestExceptionHandler {
-    @ExceptionHandler(AppException.class)
+    @ExceptionHandler(CoreException.class)
     @ResponseStatus(HttpStatus.INTERNAL_SERVER_ERROR)
-    public ResponseWithMessage handleAppException(AppException exception) {
+    public ResponseWithMessage handleAppException(CoreException exception) {
         ResponseWithMessage responseWithMessage = new ResponseWithMessage();
         responseWithMessage.setMessage(exception.getMessage());
-        log.error("AppException", exception);
+        log.error("Core exception", exception);
+        return responseWithMessage;
+    }
+
+    @ExceptionHandler(CalendarIntegrationException.class)
+    @ResponseStatus(HttpStatus.INTERNAL_SERVER_ERROR)
+    public ResponseWithMessage handleAppException(CalendarIntegrationException exception) {
+        ResponseWithMessage responseWithMessage = new ResponseWithMessage();
+        responseWithMessage.setMessage(exception.getMessage());
+        log.error("Google calendar exception", exception);
         return responseWithMessage;
     }
 

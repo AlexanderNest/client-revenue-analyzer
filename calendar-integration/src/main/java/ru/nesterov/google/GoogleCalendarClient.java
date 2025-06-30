@@ -20,7 +20,7 @@ import ru.nesterov.dto.EventDto;
 import ru.nesterov.dto.EventExtensionDto;
 import ru.nesterov.dto.EventStatus;
 import ru.nesterov.dto.PrimaryEventData;
-import ru.nesterov.exception.CannotBuildEventException;
+import ru.nesterov.exception.CannotBuildEventIntegrationException;
 import ru.nesterov.service.CalendarClient;
 import ru.nesterov.service.EventStatusService;
 import ru.nesterov.util.PlainTextMapper;
@@ -181,7 +181,7 @@ public class GoogleCalendarClient implements CalendarClient {
                     .eventExtensionDto(buildEventExtension(event, calendarType))
                     .build();
         } catch (Exception e) {
-            throw new CannotBuildEventException(event.getSummary(), event.getStart(), e);
+            throw new CannotBuildEventIntegrationException(event.getSummary(), event.getStart(), e); //TODO тут надо как-то разбить исключния которе вылетают мои от тех, которые выкидываются сами по себе
         }
     }
 
@@ -213,7 +213,7 @@ public class GoogleCalendarClient implements CalendarClient {
         }
 
         log.error("Не удалось собрать EventExtensionDto ни одним из вариантов, неверный формат расширения события. {}", event);
-        throw new CannotBuildEventException(event.getSummary(), event.getStart());
+        throw new CannotBuildEventIntegrationException(event.getSummary(), event.getStart());
     }
 
     private EventExtensionDto buildFromJson(Event event) {

@@ -19,7 +19,6 @@
         <module>core</module>
         <module>calendar-integration</module>
         <module>web</module>
-        <module>commons</module>
         <module>telegram-bot</module>
         <module>gigachat-integration</module>
     </modules>
@@ -57,13 +56,6 @@
                 <artifactId>gigachat-integration</artifactId>
                 <version>${project.version}</version>
             </dependency>
-            <dependency>
-                <groupId>ru.nesterov</groupId>
-                <artifactId>commons</artifactId>
-                <version>${project.version}</version>
-                <scope>compile</scope>
-            </dependency>
-
             <dependency>
                 <groupId>com.google.api-client</groupId>
                 <artifactId>google-api-client</artifactId>

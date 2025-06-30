@@ -4,7 +4,7 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import ru.nesterov.dto.EventStatus;
 import ru.nesterov.dto.PrimaryEventData;
-import ru.nesterov.exception.UnknownEventColorIdException;
+import ru.nesterov.exception.UnknownEventColorIdIntegrationException;
 import ru.nesterov.service.EventStatusService;
 
 import java.util.List;
@@ -46,7 +46,7 @@ public class EventStatusServiceImpl implements EventStatusService {
             return EventStatus.REQUIRES_SHIFT;
         }
 
-        throw new UnknownEventColorIdException(primaryEventData.getColorId(), primaryEventData.getName(), primaryEventData.getEventStart());
+        throw new UnknownEventColorIdIntegrationException(primaryEventData.getColorId(), primaryEventData.getName(), primaryEventData.getEventStart());
     }
 
     private boolean addNullCode(List<String> codes, boolean nullWasUsed) {

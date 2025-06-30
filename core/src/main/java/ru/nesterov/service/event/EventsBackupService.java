@@ -15,9 +15,9 @@ import ru.nesterov.entity.Event;
 import ru.nesterov.entity.EventBackup;
 import ru.nesterov.entity.User;
 import ru.nesterov.exception.EventBackupTimeoutException;
-import ru.nesterov.google.GoogleCalendarService;
 import ru.nesterov.repository.EventsBackupRepository;
 import ru.nesterov.repository.UserRepository;
+import ru.nesterov.service.CalendarService;
 import ru.nesterov.service.dto.EventBackupDto;
 import ru.nesterov.service.mapper.EventMapper;
 
@@ -33,7 +33,7 @@ import java.util.concurrent.TimeUnit;
 @Slf4j
 public class EventsBackupService {
     private final UserRepository userRepository;
-    private final GoogleCalendarService googleCalendarService;
+    private final CalendarService calendarService;
     private final EventsBackupProperties eventsBackupProperties;
     private final EventsBackupRepository eventsBackupRepository;
     
@@ -128,7 +128,7 @@ public class EventsBackupService {
                     .leftDate(backupStartDate)
                     .isCancelledCalendarEnabled(user.isCancelledCalendarEnabled())
                     .build();
-            List<EventDto> eventDtos = googleCalendarService.getEventsBetweenDates(eventsFilter);
+            List<EventDto> eventDtos = calendarService.getEventsBetweenDates(eventsFilter);
             
             List<Event> eventsToBackup = eventDtos.stream()
                     .map(EventMapper::mapToEvent)

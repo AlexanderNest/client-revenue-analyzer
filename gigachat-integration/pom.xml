@@ -25,11 +25,6 @@
             <artifactId>commons-lang3</artifactId>
         </dependency>
         <dependency>
-            <groupId>ru.nesterov</groupId>
-            <artifactId>commons</artifactId>
-            <scope>compile</scope>
-        </dependency>
-        <dependency>
             <groupId>org.apache.httpcomponents</groupId>
             <artifactId>httpclient</artifactId>
         </dependency>
