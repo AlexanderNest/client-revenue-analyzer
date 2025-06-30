@@ -29,8 +29,8 @@ jobs:
         run: |
           ISSUE_NUMBER=${{ steps.extract.outputs.issue_number }}
           PR_URL=${{ github.event.pull_request.html_url }}
-          PR_TITLE=${{ github.event.pull_request.title }}
-
-          gh issue comment $ISSUE_NUMBER --body "🔗 Открыт новый PR, связанный с этой задачей: [$PR_TITLE]($PR_URL)"
+          PR_TITLE=$(echo "${{ github.event.pull_request.title }}" | sed 's/"/\\"/g')
+          
+          gh issue comment "$ISSUE_NUMBER" --body "🔗 Открыт новый PR, связанный с этой задачей: [$(printf "%s" "$PR_TITLE")]($PR_URL)"
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
