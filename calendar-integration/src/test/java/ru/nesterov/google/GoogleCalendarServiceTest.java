@@ -7,10 +7,12 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.test.context.ContextConfiguration;
-import ru.nesterov.dto.CalendarType;
-import ru.nesterov.dto.EventDto;
-import ru.nesterov.dto.EventStatus;
-import ru.nesterov.dto.EventsFilter;
+import ru.nesterov.calendar.integration.dto.CalendarType;
+import ru.nesterov.calendar.integration.dto.EventDto;
+import ru.nesterov.calendar.integration.dto.EventStatus;
+import ru.nesterov.calendar.integration.dto.EventsFilter;
+import ru.nesterov.calendar.integration.google.GoogleCalendarClient;
+import ru.nesterov.calendar.integration.google.GoogleCalendarService;
 
 import java.time.LocalDateTime;
 import java.util.List;

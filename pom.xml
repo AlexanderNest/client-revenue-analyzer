@@ -42,6 +42,10 @@
     <dependencyManagement>
         <dependencies>
             <dependency>
+                <groupId>org.springframework.boot</groupId>
+                <artifactId>spring-boot-starter-aop</artifactId>
+            </dependency>
+            <dependency>
                 <groupId>ru.nesterov</groupId>
                 <artifactId>calendar-integration</artifactId>
                 <version>${project.version}</version>
