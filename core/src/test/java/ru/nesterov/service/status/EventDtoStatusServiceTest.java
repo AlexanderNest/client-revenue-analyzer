@@ -45,14 +45,25 @@ public class EventDtoStatusServiceTest {
     }
 
     @Test
-    public void getCancelledStatusTest() {
+    public void getPlannedCancelledStatusTest() {
+        PrimaryEventData primaryEventData6 = PrimaryEventData.builder()
+                .colorId("6")
+                .build();
+
+        EventStatus status11 = eventStatusService.getEventStatus(primaryEventData6);
+
+        assertEquals(EventStatus.PLANNED_CANCELLED, status11);
+    }
+
+    @Test
+    public void getUnplannedCancelledStatusTest() {
         PrimaryEventData primaryEventData11 = PrimaryEventData.builder()
                 .colorId("11")
                 .build();
 
         EventStatus status11 = eventStatusService.getEventStatus(primaryEventData11);
 
-        assertEquals(EventStatus.CANCELLED, status11);
+        assertEquals(EventStatus.UNPLANNED_CANCELLED, status11);
     }
 
     @Test

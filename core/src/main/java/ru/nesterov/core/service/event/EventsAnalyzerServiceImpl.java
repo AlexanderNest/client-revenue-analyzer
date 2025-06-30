@@ -55,8 +55,10 @@ public class EventsAnalyzerServiceImpl implements EventsAnalyzerService {
 
             if (eventStatus == EventStatus.SUCCESS) {
                 handleSuccessfulEvent(clientMeetingsStatistic, eventDto);
-            } else if (eventStatus == EventStatus.CANCELLED) {
-                handleCancelledEvent(clientMeetingsStatistic, eventDto);
+            } else if (eventStatus == EventStatus.PLANNED_CANCELLED) {
+                handlePlannedCancelledEvent(clientMeetingsStatistic, eventDto);
+            } else if (eventStatus == EventStatus.UNPLANNED_CANCELLED) {
+                handleUnplannedCancelledEvent(clientMeetingsStatistic, eventDto);
             }
 
 
@@ -72,13 +74,19 @@ public class EventsAnalyzerServiceImpl implements EventsAnalyzerService {
         clientMeetingsStatistic.increaseSuccessfulEvents(1);
     }
 
-    private void handleCancelledEvent(ClientMeetingsStatistic clientMeetingsStatistic, EventDto eventDto){
+    private void handlePlannedCancelledEvent(ClientMeetingsStatistic clientMeetingsStatistic, EventDto eventDto){
         double eventDuration = eventService.getEventDuration(eventDto);
         clientMeetingsStatistic.increaseCancelled(eventDuration);
-        if (EvenExtensionService.isPlannedStatus(eventDto)) {
+        if (eventDto.getStatus() == EventStatus.PLANNED_CANCELLED) {
             clientMeetingsStatistic.increasePlannedCancelledEvents(1);
-        } else {
-            clientMeetingsStatistic.increaseNotPlannedCancelledEvents(1);
+        }
+    }
+
+    private void handleUnplannedCancelledEvent(ClientMeetingsStatistic clientMeetingsStatistic, EventDto eventDto){
+        double eventDuration = eventService.getEventDuration(eventDto);
+        clientMeetingsStatistic.increaseCancelled(eventDuration);
+        if (eventDto.getStatus() == EventStatus.UNPLANNED_CANCELLED) {
+            clientMeetingsStatistic.increasePlannedCancelledEvents(1);
         }
     }
 
@@ -109,7 +117,7 @@ public class EventsAnalyzerServiceImpl implements EventsAnalyzerService {
             if (eventStatus == EventStatus.SUCCESS) {
                 actualIncome += eventPrice;
                 expectedIncome += eventPrice;
-            } else if (eventStatus == EventStatus.CANCELLED) {
+            } else if (eventStatus == EventStatus.PLANNED_CANCELLED) {
                 lostIncome += eventPrice;
 
                 if(isHoliday(holidayDtos, eventDto)) {

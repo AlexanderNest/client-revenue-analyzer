@@ -70,7 +70,7 @@ public class EventsAnalyzerControllerTest extends AbstractControllerTest {
 
         EventDto eventDto5 = EventDto.builder()
                 .summary("testName1")
-                .status(EventStatus.CANCELLED)
+                .status(EventStatus.PLANNED_CANCELLED)
                 .start(LocalDateTime.of(2024, 8, 13, 11, 30))
                 .end(LocalDateTime.of(2024, 8, 13, 12, 30))
                 .eventExtensionDto(eventExtensionDto5)
@@ -78,7 +78,7 @@ public class EventsAnalyzerControllerTest extends AbstractControllerTest {
 
         EventDto eventDto6 = EventDto.builder()
                 .summary("testName1")
-                .status(EventStatus.CANCELLED)
+                .status(EventStatus.PLANNED_CANCELLED)
                 .start(LocalDateTime.of(2024, 8, 14, 11, 30))
                 .end(LocalDateTime.of(2024, 8, 14, 12, 30))
                 .eventExtensionDto(eventExtensionDto6)
@@ -86,7 +86,7 @@ public class EventsAnalyzerControllerTest extends AbstractControllerTest {
 
         EventDto eventDto7 = EventDto.builder()
                 .summary("testName2")
-                .status(EventStatus.CANCELLED)
+                .status(EventStatus.PLANNED_CANCELLED)
                 .start(LocalDateTime.of(2024, 8, 14, 11, 30))
                 .end(LocalDateTime.of(2024, 8, 14, 12, 30))
                 .eventExtensionDto(eventExtensionDto6)
