@@ -16,12 +16,10 @@ public class EventStatusServiceImpl implements EventStatusService {
     private final List<String> requiresShiftColorCodes;
     private final List<String> plannedColorCodes;
     private final List<String> unplannedCancelledColorCodes;
-    private final List<String> plannedCancelledColorCodes;
 
     public EventStatusServiceImpl(@Value("${app.calendar.color.successful}") List<String> successColorCodes,
                                   @Value("${app.calendar.color.cancelled}") List<String> cancelledColorCodes,
                                   @Value("${app.calendar.color.unplanned.cancelled}") List<String> unplannedCancelledColorCodes,
-                                  @Value("${app.calendar.color.planned.cancelled}") List<String> plannedCancelledColorCodes,
                                   @Value("${app.calendar.color.requires.shift}") List<String> requiresShiftColorCodes,
                                   @Value("${app.calendar.color.planned}") List<String> plannedColorCodes) {
 
@@ -34,15 +32,13 @@ public class EventStatusServiceImpl implements EventStatusService {
         
         this.requiresShiftColorCodes = requiresShiftColorCodes;
         nullWasUsed = addNullCode(requiresShiftColorCodes, nullWasUsed);
-        
+
         this.plannedColorCodes = plannedColorCodes;
         nullWasUsed = addNullCode(plannedColorCodes, nullWasUsed);
 
         this.unplannedCancelledColorCodes = unplannedCancelledColorCodes;
         nullWasUsed = addNullCode(unplannedCancelledColorCodes, nullWasUsed);
 
-        this.plannedCancelledColorCodes = plannedCancelledColorCodes;
-        nullWasUsed = addNullCode(plannedColorCodes, nullWasUsed);
     }
 
     public EventStatus getEventStatus(PrimaryEventData primaryEventData) {
@@ -56,8 +52,6 @@ public class EventStatusServiceImpl implements EventStatusService {
             return EventStatus.REQUIRES_SHIFT;
         } else if (unplannedCancelledColorCodes.contains(primaryEventData.getColorId())) {
             return EventStatus.UNPLANNED_CANCELLED;
-        } else if (plannedCancelledColorCodes.contains(primaryEventData.getColorId())) {
-            return EventStatus.PLANNED_CANCELLED;
         }
 
         throw new UnknownEventColorIdException(primaryEventData.getColorId(), primaryEventData.getName(), primaryEventData.getEventStart());

@@ -22,9 +22,9 @@ public class EventDtoStatusServiceTest {
 
     @Test
     public void defaultColorAlreadyUsedTest() {
-        assertThrows(IllegalArgumentException.class, () -> new EventStatusServiceImpl(new ArrayList<>(), new ArrayList<>(), List.of("1"), List.of("2")));
-        assertThrows(IllegalArgumentException.class, () -> new EventStatusServiceImpl(List.of("1"), new ArrayList<>(), new ArrayList<>(), List.of("2")));
-        assertThrows(IllegalArgumentException.class, () -> new EventStatusServiceImpl(List.of("1"), List.of("2"), new ArrayList<>(), new ArrayList<>()));
+        assertThrows(IllegalArgumentException.class, () -> new EventStatusServiceImpl(new ArrayList<>(), new ArrayList<>(), List.of("1"), List.of("2"), new ArrayList<>()));
+        assertThrows(IllegalArgumentException.class, () -> new EventStatusServiceImpl(List.of("1"), new ArrayList<>(), new ArrayList<>(), List.of("2"), new ArrayList<>()));
+        assertThrows(IllegalArgumentException.class, () -> new EventStatusServiceImpl(List.of("1"), List.of("2"), new ArrayList<>(), new ArrayList<>(), new ArrayList<>()));
     }
 
     @Test
