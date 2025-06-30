@@ -12,12 +12,13 @@ jobs:
       pull-requests: read
 
     steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
       - name: Extract issue number from PR title
         id: extract
         run: |
-          # Ищем номер issue в заголовке PR
           ISSUE_REF=$(echo "${{ github.event.pull_request.title }}" | grep -oE '#([0-9]+)' | head -n1 | tr -d '#')
-          
           if [[ -n "$ISSUE_REF" ]]; then
             echo "issue_number=$ISSUE_REF" >> $GITHUB_OUTPUT
           else
@@ -30,7 +31,7 @@ jobs:
           ISSUE_NUMBER=${{ steps.extract.outputs.issue_number }}
           PR_URL=${{ github.event.pull_request.html_url }}
           PR_TITLE=$(echo "${{ github.event.pull_request.title }}" | sed 's/"/\\"/g')
-          
+
           gh issue comment "$ISSUE_NUMBER" --body "🔗 Открыт новый PR, связанный с этой задачей: [$(printf "%s" "$PR_TITLE")]($PR_URL)"
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
