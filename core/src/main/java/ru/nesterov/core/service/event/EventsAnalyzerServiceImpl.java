@@ -57,10 +57,9 @@ public class EventsAnalyzerServiceImpl implements EventsAnalyzerService {
                 handleSuccessfulEvent(clientMeetingsStatistic, eventDto);
             } else if (eventStatus == EventStatus.PLANNED_CANCELLED) {
                 handlePlannedCancelledEvent(clientMeetingsStatistic, eventDto);
-            } else if (eventStatus == EventStatus.UNPLANNED_CANCELLED) {
+            } else if (eventStatus == EventStatus.UNPLANNED_CANCELLED || EvenExtensionService.isPlannedStatus(eventDto)) {
                 handleUnplannedCancelledEvent(clientMeetingsStatistic, eventDto);
             }
-
 
             meetingsStatistics.put(eventDto.getSummary(), clientMeetingsStatistic);
         }
@@ -77,17 +76,13 @@ public class EventsAnalyzerServiceImpl implements EventsAnalyzerService {
     private void handlePlannedCancelledEvent(ClientMeetingsStatistic clientMeetingsStatistic, EventDto eventDto){
         double eventDuration = eventService.getEventDuration(eventDto);
         clientMeetingsStatistic.increaseCancelled(eventDuration);
-        if (eventDto.getStatus() == EventStatus.PLANNED_CANCELLED) {
-            clientMeetingsStatistic.increasePlannedCancelledEvents(1);
-        }
+        clientMeetingsStatistic.increasePlannedCancelledEvents(1);
     }
 
     private void handleUnplannedCancelledEvent(ClientMeetingsStatistic clientMeetingsStatistic, EventDto eventDto){
         double eventDuration = eventService.getEventDuration(eventDto);
         clientMeetingsStatistic.increaseCancelled(eventDuration);
-        if (eventDto.getStatus() == EventStatus.UNPLANNED_CANCELLED) {
-            clientMeetingsStatistic.increaseNotPlannedCancelledEvents(1);
-        }
+        clientMeetingsStatistic.increaseNotPlannedCancelledEvents(1);
     }
 
     public IncomeAnalysisResult getIncomeAnalysisByMonth(UserDto userDto, String monthName) {
