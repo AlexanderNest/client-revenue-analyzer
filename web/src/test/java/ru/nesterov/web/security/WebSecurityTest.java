@@ -3,8 +3,8 @@ package ru.nesterov.web.security;
 import org.junit.jupiter.api.Test;
 import org.springframework.http.MediaType;
 import org.springframework.test.context.TestPropertySource;
-import ru.nesterov.controller.AbstractControllerTest;
-import ru.nesterov.entity.User;
+import ru.nesterov.core.entity.User;
+import ru.nesterov.web.controller.AbstractControllerTest;
 
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;

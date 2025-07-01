@@ -10,7 +10,12 @@ import org.junit.jupiter.api.Test;
 import org.reflections.Reflections;
 import org.reflections.scanners.Scanners;
 import org.reflections.util.ConfigurationBuilder;
-import org.springframework.web.bind.annotation.*;
+import org.springframework.web.bind.annotation.DeleteMapping;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.PutMapping;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RestController;
 
 import java.io.File;
 import java.io.IOException;
@@ -121,7 +126,7 @@ public class ControllerStandardsTest {
     private Set<Class<?>> getClassesAnnotatedWith(Class<? extends Annotation> annotation) {
         Reflections reflections = new Reflections(
                 new ConfigurationBuilder()
-                        .forPackages("ru.nesterov.controller")
+                        .forPackages("ru.nesterov.web.controller")
                         .addScanners(Scanners.TypesAnnotated, Scanners.MethodsAnnotated)
         );
 
