@@ -70,7 +70,7 @@ public class GetClientScheduleCommandHandler extends StatefulCommandHandler<Stat
     private BotApiMethod<?> handleSecondDate(Update update) {
         ButtonCallback buttonCallback = buttonCallbackService.buildButtonCallback(update.getCallbackQuery().getData());
 
-        getStateMachine(update).getMemory().setSecondDate(LocalDate.parse(buttonCallback.getValue()));
+        getStateMachine(update).getMemory().setSecondDate(LocalDate.parse(buttonCallback.getValue()).plusDays(1));
         return sendClientSchedule(update);
     }
 
@@ -109,7 +109,6 @@ public class GetClientScheduleCommandHandler extends StatefulCommandHandler<Stat
 
         return getReplyKeyboard(TelegramUpdateUtils.getChatId(update), "Выберите клиента для которого хотите получить расписание:", keyboardMarkup);
     }
-
 
     @SneakyThrows
     private BotApiMethod<?> sendClientSchedule(Update update) {
