@@ -38,6 +38,9 @@ public abstract class SendingMessageCommandHandler implements CommandHandler {
         return buildSendMessage(chatId, text, null);
     }
 
+    /**
+     * Метод для отправки текстового сообщения с клавиатурой в чат
+     */
     public BotApiMethod<?> getReplyKeyboard(long chatId, String text, ReplyKeyboard replyKeyboard) {
         return buildSendMessage(chatId, text, replyKeyboard);
     }

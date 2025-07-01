@@ -10,8 +10,8 @@ import org.springframework.stereotype.Service;
 import org.springframework.util.LinkedMultiValueMap;
 import org.springframework.util.MultiValueMap;
 import org.springframework.web.client.RestTemplate;
-import ru.nesterov.gigachat.GigaChatIntegrationProperties;
-import ru.nesterov.gigachat.GigaChatToken;
+import ru.nesterov.gigachat.config.GigaChatIntegrationProperties;
+import ru.nesterov.gigachat.dto.GigaChatToken;
 import ru.nesterov.gigachat.response.GigaChatTokenResponse;
 
 import java.util.List;
