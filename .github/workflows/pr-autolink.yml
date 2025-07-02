@@ -33,16 +33,14 @@ jobs:
             exit 0
           fi
 
-      - name: Check if 'closes #123' already exists in PR body
+      - name: Check if issue already linked in PR body
         id: check
         run: |
           PR_BODY="${{ github.event.pull_request.body }}"
           ISSUE_REF=${{ steps.extract.outputs.issue_ref }}
           
-          CLOSING_LINE="closes $ISSUE_REF"
-          
-          if [[ "$(echo "$PR_BODY" | grep -iF "$CLOSING_LINE")" ]]; then
-            echo "Issue reference already linked with 'closes'"
+          if [[ "$PR_BODY" == *"$ISSUE_REF"* ]]; then
+            echo "Issue already linked in PR body"
             exit 0
           else
             echo "issue_ref=$ISSUE_REF" >> $GITHUB_OUTPUT
@@ -55,6 +53,7 @@ jobs:
           ISSUE_REF=${{ steps.check.outputs.issue_ref }}
           PR_NUMBER=${{ github.event.pull_request.number }}
           CURRENT_BODY=$(gh pr view "$PR_NUMBER" --json body -q '.body')
-          NEW_BODY="${CURRENT_BODY} closes ${ISSUE_REF}"
-          
-          gh pr edit "$PR_NUMBER" --body "$NEW_BODY"
+          if [[ -n "$ISSUE_REF" ]]; then
+            NEW_BODY="${CURRENT_BODY} closes ${ISSUE_REF}"
+            gh pr edit "$PR_NUMBER" --body "$NEW_BODY"
+          fi
