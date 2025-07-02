@@ -18,6 +18,7 @@ jobs:
       - name: Setup GH CLI
         run: |
           echo "$HOME/.gh/bin" >> $GITHUB_PATH
+          gh config set git_protocol https
 
       - name: Extract issue number from PR title
         id: extract
@@ -32,27 +33,26 @@ jobs:
             exit 0
           fi
 
-      - name: Check if 'Closes: #123' already exists in PR body
+      - name: Check if issue already linked in PR body
         id: check
         run: |
           PR_BODY="${{ github.event.pull_request.body }}"
           ISSUE_REF=${{ steps.extract.outputs.issue_ref }}
           
-          if [[ "$PR_BODY" == *Closes:\ $ISSUE_REF* ]]; then
-            echo "Issue reference already exists in PR body"
+          if [[ "$PR_BODY" == *"$ISSUE_REF"* ]]; then
+            echo "Issue already linked in PR body"
             exit 0
           else
             echo "issue_ref=$ISSUE_REF" >> $GITHUB_OUTPUT
           fi
 
-      - name: Update PR body with 'Closes: #123'
+      - name: Update PR body with issue reference
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
           ISSUE_REF=${{ steps.check.outputs.issue_ref }}
           PR_NUMBER=${{ github.event.pull_request.number }}
-
-          NEW_LINE="Closes: $ISSUE_REF"
-          CURRENT_BODY=$(gh pr view "$PR_NUMBER" --json body | jq -r)
-
-          gh pr edit "$PR_NUMBER" --body "${CURRENT_BODY}\n\n${NEW_LINE}"
+          CURRENT_BODY=$(gh pr view "$PR_NUMBER" --json body -q '.body')
+          NEW_BODY="${CURRENT_BODY}\n${ISSUE_REF}"
+          
+          gh pr edit "$PR_NUMBER" --body "$NEW_BODY"
