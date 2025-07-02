@@ -53,6 +53,6 @@ jobs:
           ISSUE_REF=${{ steps.check.outputs.issue_ref }}
           PR_NUMBER=${{ github.event.pull_request.number }}
           CURRENT_BODY=$(gh pr view "$PR_NUMBER" --json body -q '.body')
-          NEW_BODY="${CURRENT_BODY} closes ${ISSUE_REF}"
+          NEW_BODY="${CURRENT_BODY}$'\n'closes ${ISSUE_REF}"
           
           gh pr edit "$PR_NUMBER" --body "$NEW_BODY"
