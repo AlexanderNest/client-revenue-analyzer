@@ -17,7 +17,6 @@ import ru.nesterov.bot.utils.TelegramUpdateUtils;
 
 import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
-import java.time.format.DateTimeParseException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Locale;
@@ -44,9 +43,16 @@ public class GetClientScheduleCommandHandler extends StatefulCommandHandler<Stat
     public void initTransitions() {
         stateMachineProvider
                 .addTransition(State.STARTED, Action.COMMAND_INPUT, State.SELECT_CLIENT, this::sendClientNamesKeyboard)
+
                 .addTransition(State.SELECT_CLIENT, Action.ANY_CALLBACK_INPUT, State.SELECT_FIRST_DATE, this::handleClientName)
-                .addTransition(State.SELECT_FIRST_DATE, Action.ANY_CALLBACK_INPUT, State.SELECT_SECOND_DATE, this::handleFirstDate)
-                .addTransition(State.SELECT_SECOND_DATE, Action.ANY_CALLBACK_INPUT, State.FINISH, this::handleSecondDate);
+
+                .addTransition(State.SELECT_FIRST_DATE, Action.CALLBACK_DATE, State.SELECT_SECOND_DATE, this::handleFirstDate)
+                .addTransition(State.SELECT_FIRST_DATE, Action.CALLBACK_PREV, State.SELECT_FIRST_DATE, this::handleCallbackPrev)
+                .addTransition(State.SELECT_FIRST_DATE, Action.CALLBACK_NEXT, State.SELECT_FIRST_DATE, this::handleCallbackNext)
+
+                .addTransition(State.SELECT_SECOND_DATE, Action.CALLBACK_DATE, State.FINISH, this::handleSecondDate)
+                .addTransition(State.SELECT_SECOND_DATE, Action.CALLBACK_PREV, State.SELECT_SECOND_DATE, this::handleCallbackPrev)
+                .addTransition(State.SELECT_SECOND_DATE, Action.CALLBACK_NEXT, State.SELECT_SECOND_DATE, this::handleCallbackNext);
     }
 
     private BotApiMethod<?> handleClientName(Update update) {
@@ -54,8 +60,8 @@ public class GetClientScheduleCommandHandler extends StatefulCommandHandler<Stat
             ButtonCallback buttonCallback = buttonCallbackService.buildButtonCallback(update.getCallbackQuery().getData());
             getStateMachine(update).getMemory().setClientName(buttonCallback.getValue());
         }
-
-        return sendCalendarKeyBoard(update, ENTER_FIRST_DATE, LocalDate.now());
+        getStateMachine(update).getMemory().setDisplayedMonth(LocalDate.now().withDayOfMonth(1));
+        return sendCalendarKeyBoard(update, ENTER_FIRST_DATE, getStateMachine(update).getMemory().getDisplayedMonth());
     }
 
     @SneakyThrows
@@ -107,7 +113,7 @@ public class GetClientScheduleCommandHandler extends StatefulCommandHandler<Stat
         }
         keyboardMarkup.setKeyboard(keyboard);
 
-        return getReplyKeyboard(TelegramUpdateUtils.getChatId(update), "Выберите клиента для которого хотите получить расписание:", keyboardMarkup);
+        return getReplyKeyboard(TelegramUpdateUtils.getChatId(update), "Выберите клиента, для которого хотите получить расписание:", keyboardMarkup);
     }
 
     @SneakyThrows
@@ -145,56 +151,28 @@ public class GetClientScheduleCommandHandler extends StatefulCommandHandler<Stat
     }
 
     @SneakyThrows
-    private BotApiMethod<?> handleCallbackQuery(Update update) {
-        //TODO добавить обработку кнопок влево вправо
-        ButtonCallback callback = buttonCallbackService.buildButtonCallback(update.getCallbackQuery().getData());
-
-        if (isValidDate(callback.getValue())) {
-            return handleFirstDate(update);
-        } else {
-            return switch (callback.getValue()) {
-                case "Next", "Prev" -> handleMonthSwitch(update);
-                default -> handleClientName(update);
-            };
-        }
-    }
-
-    private boolean isValidDate(String dateStr) {
-        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd");
-        try {
-            LocalDate.parse(dateStr, formatter);
-            return true;
-        } catch (DateTimeParseException e) {
-            return false;
-        }
+    private BotApiMethod<?> handleCallbackPrev(Update update) {
+        LocalDate displayedMonth = getStateMachine(update).getMemory().getDisplayedMonth().minusMonths(1);
+        getStateMachine(update).getMemory().setDisplayedMonth(displayedMonth);
+        return handleMonthSwitch(update);
     }
 
     @SneakyThrows
-    private BotApiMethod<?> handleMonthSwitch(Update update) {
-        if ("Next".equals(update.getCallbackQuery().getData())) {
-            getStateMachine(update)
-                    .getMemory()
-                    .setDisplayedMonth(getStateMachine(update)
-                            .getMemory()
-                            .getDisplayedMonth()
-                            .plusMonths(1));
-        } else if ("Prev".equals(update.getCallbackQuery().getData())) {
-            getStateMachine(update)
-                    .getMemory()
-                    .setDisplayedMonth(getStateMachine(update)
-                            .getMemory()
-                            .getDisplayedMonth()
-                            .minusMonths(1));
-        }
+    private BotApiMethod<?> handleCallbackNext(Update update) {
+        LocalDate displayedMonth = getStateMachine(update).getMemory().getDisplayedMonth().plusMonths(1);
+        getStateMachine(update).getMemory().setDisplayedMonth(displayedMonth);
+        return handleMonthSwitch(update);
+    }
 
+    private BotApiMethod<?> handleMonthSwitch(Update update) {
         String calendarMessage = "";
         if (getStateMachine(update).getMemory().getFirstDate() == null) {
             calendarMessage = ENTER_FIRST_DATE;
         } else if (getStateMachine(update).getMemory().getSecondDate() == null) {
             calendarMessage = ENTER_SECOND_DATE;
         }
-
-        return sendCalendarKeyBoard(update, calendarMessage, getStateMachine(update).getMemory().getDisplayedMonth());
+        LocalDate firstDayOfMonth = getStateMachine(update).getMemory().getDisplayedMonth().withDayOfMonth(1);
+        return sendCalendarKeyBoard(update, calendarMessage, firstDayOfMonth);
     }
 
     @Override
