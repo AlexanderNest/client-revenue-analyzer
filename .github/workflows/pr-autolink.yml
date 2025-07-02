@@ -12,6 +12,14 @@ jobs:
       contents: write
 
     steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Setup GH CLI
+        run: |
+          echo "$HOME/.gh/bin" >> $GITHUB_PATH
+          gh config set git_protocol https
+
       - name: Extract issue number from PR title
         id: extract
         run: |
