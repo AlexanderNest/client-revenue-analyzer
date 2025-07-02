@@ -1,11 +1,13 @@
 package ru.nesterov.bot.handlers.service;
 
 import jakarta.annotation.Nullable;
+import jakarta.annotation.PostConstruct;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.stereotype.Component;
 import org.telegram.telegrambots.meta.api.objects.Update;
 import ru.nesterov.bot.handlers.abstractions.CommandHandler;
+import ru.nesterov.bot.handlers.abstractions.InvocableCommandHandler;
 import ru.nesterov.bot.handlers.abstractions.Priority;
 import ru.nesterov.bot.handlers.abstractions.StatefulCommandHandler;
 import ru.nesterov.bot.handlers.implementation.UndefinedHandler;
@@ -27,12 +29,18 @@ public class HandlersService {
     private final CancelCommandHandler cancelCommandHandler;
 
     private final List<StatefulCommandHandler<?, ?>> statefulCommandHandlers;
+    private final List<InvocableCommandHandler> invocableCommandHandlers;
+
+    private final List<CommandHandler> commandHandlers;
 
     public HandlersService(List<CommandHandler> commandHandlers,
                            List<StatefulCommandHandler<?, ?>> statefulCommandHandlers,
                            UndefinedHandler undefinedHandler,
-                           CancelCommandHandler cancelCommandHandler) {
+                           CancelCommandHandler cancelCommandHandler,
+                           List<InvocableCommandHandler> invocableCommandHandlers) {
+        this.commandHandlers = commandHandlers;
         this.statefulCommandHandlers = statefulCommandHandlers;
+        this.invocableCommandHandlers = invocableCommandHandlers;
 
         highestPriorityCommandHandlers = commandHandlers.stream()
                 .filter(ch -> ch.getPriority() == Priority.HIGHEST)
@@ -56,6 +64,11 @@ public class HandlersService {
 
         if (cancelCommandHandler.isApplicable(update)) {
             return cancelCommandHandler;
+        }
+
+        if (isCommandUpdate(update)){
+            long userId = TelegramUpdateUtils.getUserId(update);
+            resetAllHandlers(userId);
         }
 
         commandHandler = getStartedHandler(update);
@@ -127,5 +140,50 @@ public class HandlersService {
             }
         }
         return null;
+    }
+
+    private boolean isCommandUpdate(Update update) {
+        return invocableCommandHandlers.stream()
+                .anyMatch(handler -> update.getMessage() != null && handler.getCommand().equals(update.getMessage().getText()));
+    }
+
+
+    @PostConstruct
+    private void logHandlersInfo() {
+        log.info("Зарегистрировано обработчиков: {}", commandHandlers.size());
+
+        log.info("Обработчики с высоким приоритетом (HIGHEST):");
+        logHandlerList(highestPriorityCommandHandlers);
+
+        log.info("Обработчики с нормальным приоритетом (NORMAL):");
+        logHandlerList(normalPriorityCommandHandlers);
+
+        log.info("Обработчики с низким приоритетом (LOWEST):");
+        logHandlerList(lowestPriorityCommandHandlers);
+
+        log.info("Stateful обработчики:");
+        logHandlerList(statefulCommandHandlers);
+
+        log.info("Invocable обработчики:");
+        logHandlerList(invocableCommandHandlers);
+    }
+
+    private void logHandlerList(List<? extends CommandHandler> handlers) {
+        if (handlers.isEmpty()) {
+            log.info("  - Нет обработчиков");
+        } else {
+            for (CommandHandler handler : handlers) {
+                String name = handler.getClass().getSimpleName();
+                String command = "";
+                if (handler instanceof InvocableCommandHandler invocableHandler) {
+                    command = " (" + invocableHandler.getCommand() + ")";
+                }
+                log.info("  - {}{}{}", name, command, isStateful(handler) ? " [stateful]" : "");
+            }
+        }
+    }
+
+    private boolean isStateful(CommandHandler handler) {
+        return handler instanceof StatefulCommandHandler;
     }
 }

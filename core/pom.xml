@@ -14,10 +14,6 @@
     <dependencies>
         <dependency>
             <groupId>ru.nesterov</groupId>
-            <artifactId>commons</artifactId>
-        </dependency>
-        <dependency>
-            <groupId>ru.nesterov</groupId>
             <artifactId>calendar-integration</artifactId>
         </dependency>
         <dependency>

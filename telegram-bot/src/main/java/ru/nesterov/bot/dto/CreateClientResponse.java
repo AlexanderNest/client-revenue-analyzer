@@ -16,4 +16,5 @@ public class CreateClientResponse {
     private Date startDate;
     private String phone;
     private int responseCode;
+    private String errorMessage;
 }

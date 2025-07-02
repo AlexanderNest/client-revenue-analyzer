@@ -76,7 +76,7 @@ public class GetClientScheduleCommandHandler extends StatefulCommandHandler<Stat
     private BotApiMethod<?> handleSecondDate(Update update) {
         ButtonCallback buttonCallback = buttonCallbackService.buildButtonCallback(update.getCallbackQuery().getData());
 
-        getStateMachine(update).getMemory().setSecondDate(LocalDate.parse(buttonCallback.getValue()));
+        getStateMachine(update).getMemory().setSecondDate(LocalDate.parse(buttonCallback.getValue()).plusDays(1));
         return sendClientSchedule(update);
     }
 
