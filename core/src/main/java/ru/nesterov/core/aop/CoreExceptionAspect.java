@@ -5,8 +5,8 @@ import org.aspectj.lang.ProceedingJoinPoint;
 import org.aspectj.lang.annotation.Around;
 import org.aspectj.lang.annotation.Aspect;
 import org.springframework.stereotype.Component;
+import ru.nesterov.ai.exception.AiException;
 import ru.nesterov.core.exception.CoreException;
-import ru.nesterov.gigachat.exception.GigachatException;
 
 @Aspect
 @Component
@@ -21,7 +21,7 @@ public class CoreExceptionAspect {
             throw coreException;
         } catch (Exception e) {
             log.error("Внезапное исключение в модуле core", e);
-            throw new GigachatException("Ошибка при обработке данных", e);
+            throw new AiException("Ошибка при обработке данных", e);
         }
     }
 }
