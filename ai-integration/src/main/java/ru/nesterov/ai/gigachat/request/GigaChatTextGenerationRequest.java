@@ -12,5 +12,5 @@ public class GigaChatTextGenerationRequest {
     private boolean stream;
     @JsonProperty("update_interval")
     private Long updateInterval;
-    private List<GigaChatMessageImp> gigaChatMessageImps;
+    private List<GigaChatMessageImp> messages;
 }
