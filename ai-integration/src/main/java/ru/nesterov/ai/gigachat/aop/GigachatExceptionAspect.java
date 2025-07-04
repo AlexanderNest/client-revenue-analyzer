@@ -1,4 +1,4 @@
-package ru.nesterov.ai.core.aop;
+package ru.nesterov.ai.gigachat.aop;
 
 import lombok.extern.slf4j.Slf4j;
 import org.aspectj.lang.ProceedingJoinPoint;

@@ -12,5 +12,5 @@ public class GigaChatTextGenerationResponse {
     private Long created;
     private String model;
     private String object;
-    private GigaChatUsageImp usage;
+    private GigaChatUsageImp gigaChatUsageImp;
 }

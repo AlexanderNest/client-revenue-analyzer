@@ -31,7 +31,7 @@ public class GigachatIntegrationService implements AIIntegrationService {
     public GigachatIntegrationService(GigaChatIntegrationProperties properties,
                                       TokenService tokenService,
                                       @Qualifier("gigachatRestTemplate") RestTemplate restTemplate) {
-       this.properties = properties;
+        this.properties = properties;
         this.tokenService = tokenService;
         this.restTemplate = restTemplate;
     }
@@ -73,7 +73,7 @@ public class GigachatIntegrationService implements AIIntegrationService {
         request.setModel("GigaChat");
         request.setStream(false);
         request.setUpdateInterval(0L);
-        request.setMessages(List.of(gigaChatMessageImp1, gigaChatMessageImp2));
+        request.setGigaChatMessageImps(List.of(gigaChatMessageImp1, gigaChatMessageImp2));
 
         return request;
     }
