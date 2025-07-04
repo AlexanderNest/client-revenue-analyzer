@@ -6,7 +6,7 @@ import org.aspectj.lang.annotation.Around;
 import org.aspectj.lang.annotation.Aspect;
 import org.springframework.stereotype.Component;
 import ru.nesterov.core.exception.CoreException;
-import ru.nesterov.gigachat.exception.GigachatException;
+import ru.nesterov.ai.gigachat.exception.GigachatException;
 
 @Aspect
 @Component

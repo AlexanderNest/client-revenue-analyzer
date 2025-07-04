@@ -1,4 +1,4 @@
-package ru.nesterov.gigachat.config;
+package ru.nesterov.ai.gigachat.config;
 
 import org.springframework.boot.web.client.RestTemplateBuilder;
 import org.springframework.context.annotation.Bean;

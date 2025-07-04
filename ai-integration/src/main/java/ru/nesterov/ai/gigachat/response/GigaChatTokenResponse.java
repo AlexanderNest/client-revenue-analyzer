@@ -1,4 +1,4 @@
-package ru.nesterov.gigachat.response;
+package ru.nesterov.ai.gigachat.response;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
 import lombok.Data;

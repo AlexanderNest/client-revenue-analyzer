@@ -8,7 +8,7 @@ import ru.nesterov.core.formatter.ClientAnalyticsFormatter;
 import ru.nesterov.core.service.dto.ClientMeetingsStatistic;
 import ru.nesterov.core.service.dto.UserDto;
 import ru.nesterov.core.service.event.EventsAnalyzerService;
-import ru.nesterov.gigachat.service.AIIntegrationService;
+import ru.nesterov.ai.core.api.AIIntegrationService;
 
 import java.nio.charset.StandardCharsets;
 import java.util.Map;
