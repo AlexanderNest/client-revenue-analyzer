@@ -9,7 +9,7 @@
         <version>0.0.1-SNAPSHOT</version>
     </parent>
 
-    <artifactId>ai-integration</artifactId>
+    <artifactId>gigachat-integration</artifactId>
 
     <dependencies>
         <dependency>
