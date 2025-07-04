@@ -11,6 +11,7 @@ import java.util.Date;
 @Getter
 @Setter
 public class ClientMeetingsStatistic {
+    private String name;
     private long id;
     private String description;
     private Date startDate;
@@ -75,6 +76,7 @@ public class ClientMeetingsStatistic {
     @Override
     public String toString() {
         return "ClientMeetingsStatistic{" +
+                "name=" + name +
                 "id=" + id +
                 "description=" + description +
                 "startDate=" + startDate +

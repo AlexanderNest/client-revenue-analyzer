@@ -11,6 +11,7 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestHeader;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 import ru.nesterov.calendar.integration.dto.EventStatus;
 import ru.nesterov.core.service.dto.ClientMeetingsStatistic;
 import ru.nesterov.core.service.dto.IncomeAnalysisResult;
@@ -56,8 +57,8 @@ public interface EventsAnalyzerController {
             }
     )
 
-    @PostMapping("/getStatisticsByOneClient")
-    Map<String, ClientMeetingsStatistic> getStatisticsByOneClientMeetings(@RequestHeader(name = "X-username") String username, @RequestBody String clientName);
+    @GetMapping("/getStatisticsByOneClient")
+    ClientMeetingsStatistic getStatisticsByOneClientMeetings(@RequestHeader(name = "X-username") String username, @RequestParam("clientName") String clientName);
 
     @PostMapping("/getEventsStatusesForMonth")
     Map<EventStatus, Integer> getEventsStatusesForMonth(@RequestHeader(name = "X-username") String username, @RequestBody GetForMonthRequest request);

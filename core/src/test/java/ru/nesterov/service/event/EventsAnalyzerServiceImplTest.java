@@ -6,18 +6,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.test.context.ContextConfiguration;
-import ru.nesterov.dto.EventDto;
-import ru.nesterov.dto.EventExtensionDto;
-import ru.nesterov.dto.EventStatus;
-import ru.nesterov.entity.Client;
-import ru.nesterov.entity.User;
-import ru.nesterov.google.EventStatusServiceImpl;
-import ru.nesterov.google.GoogleCalendarService;
-import ru.nesterov.repository.ClientRepository;
-import ru.nesterov.repository.UserRepository;
-import ru.nesterov.service.dto.ClientMeetingsStatistic;
-import ru.nesterov.service.dto.IncomeAnalysisResult;
-import ru.nesterov.service.dto.UserDto;
 import ru.nesterov.calendar.integration.dto.EventDto;
 import ru.nesterov.calendar.integration.dto.EventExtensionDto;
 import ru.nesterov.calendar.integration.dto.EventStatus;
@@ -27,6 +15,7 @@ import ru.nesterov.core.entity.Client;
 import ru.nesterov.core.entity.User;
 import ru.nesterov.core.repository.ClientRepository;
 import ru.nesterov.core.repository.UserRepository;
+import ru.nesterov.core.service.dto.ClientMeetingsStatistic;
 import ru.nesterov.core.service.dto.IncomeAnalysisResult;
 import ru.nesterov.core.service.dto.UserDto;
 import ru.nesterov.core.service.event.EventService;
@@ -203,20 +192,21 @@ class EventsAnalyzerServiceImplTest {
 
         Date date = new Date(2025, Calendar.JUNE, 1);
 
-        Map<String, ClientMeetingsStatistic> meetingsStatistics = eventsAnalyzerService.getStatisticsByOneClientMeetings(userDto, "testName");
-        assertEquals(1, meetingsStatistics.get("testName").getId());
-        assertEquals("description", meetingsStatistics.get("testName").getDescription());
-        assertEquals(date, meetingsStatistics.get("testName").getStartDate());
-        assertEquals("phone", meetingsStatistics.get("testName").getPhone());
-        assertEquals(3, meetingsStatistics.get("testName").getSuccessfulMeetingsHours());
-        assertEquals(3, meetingsStatistics.get("testName").getCancelledMeetingsHours());
-        assertEquals(50, meetingsStatistics.get("testName").getSuccessfulMeetingsPercentage());
-        assertEquals(3000, meetingsStatistics.get("testName").getLostIncome());
-        assertEquals(3000, meetingsStatistics.get("testName").getActualIncome());
-        assertEquals(1000, meetingsStatistics.get("testName").getIncomePerHour());
-        assertEquals(3, meetingsStatistics.get("testName").getSuccessfulEventsCount());
-        assertEquals(2, meetingsStatistics.get("testName").getPlannedCancelledEventsCount());
-        assertEquals(1, meetingsStatistics.get("testName").getNotPlannedCancelledEventsCount());
+        ClientMeetingsStatistic meetingsStatistics = eventsAnalyzerService.getStatisticsByOneClientMeetings(userDto, "testName");
+        assertEquals("testName", meetingsStatistics.getName());
+        assertEquals(1, meetingsStatistics.getId());
+        assertEquals("description", meetingsStatistics.getDescription());
+        assertEquals(date, meetingsStatistics.getStartDate());
+        assertEquals("phone", meetingsStatistics.getPhone());
+        assertEquals(3, meetingsStatistics.getSuccessfulMeetingsHours());
+        assertEquals(3, meetingsStatistics.getCancelledMeetingsHours());
+        assertEquals(50, meetingsStatistics.getSuccessfulMeetingsPercentage());
+        assertEquals(3000, meetingsStatistics.getLostIncome());
+        assertEquals(3000, meetingsStatistics.getActualIncome());
+        assertEquals(1000, meetingsStatistics.getIncomePerHour());
+        assertEquals(3, meetingsStatistics.getSuccessfulEventsCount());
+        assertEquals(2, meetingsStatistics.getPlannedCancelledEventsCount());
+        assertEquals(1, meetingsStatistics.getNotPlannedCancelledEventsCount());
 
     }
 

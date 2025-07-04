@@ -19,21 +19,6 @@ import ru.nesterov.core.service.dto.BusynessAnalysisResult;
 import ru.nesterov.core.service.dto.ClientMeetingsStatistic;
 import ru.nesterov.core.service.dto.IncomeAnalysisResult;
 import ru.nesterov.core.service.dto.UserDto;
-import ru.nesterov.dto.EventDto;
-import ru.nesterov.dto.EventStatus;
-import ru.nesterov.dto.EventsFilter;
-import ru.nesterov.entity.Client;
-import ru.nesterov.exception.ClientNotFoundException;
-import ru.nesterov.exception.UnknownEventStatusException;
-import ru.nesterov.repository.ClientRepository;
-import ru.nesterov.service.CalendarService;
-import ru.nesterov.service.date.helper.MonthDatesPair;
-import ru.nesterov.service.date.helper.MonthHelper;
-import ru.nesterov.service.date.helper.WeekHelper;
-import ru.nesterov.service.dto.BusynessAnalysisResult;
-import ru.nesterov.service.dto.ClientMeetingsStatistic;
-import ru.nesterov.service.dto.IncomeAnalysisResult;
-import ru.nesterov.service.dto.UserDto;
 
 import java.time.LocalDateTime;
 import java.util.HashMap;
@@ -50,7 +35,7 @@ public class EventsAnalyzerServiceImpl implements EventsAnalyzerService {
     private final EventsAnalyzerProperties eventsAnalyzerProperties;
     private final EventService eventService;
 
-    public Map<String, ClientMeetingsStatistic> getStatisticsByOneClientMeetings(UserDto userDto, String clientName) {
+    public ClientMeetingsStatistic getStatisticsByOneClientMeetings(UserDto userDto, String clientName) {
         EventsFilter eventsFilter = EventsFilter.builder()
                 .mainCalendar(userDto.getMainCalendar())
                 .cancelledCalendar(userDto.getCancelledCalendar())
@@ -62,7 +47,7 @@ public class EventsAnalyzerServiceImpl implements EventsAnalyzerService {
 
         List<EventDto> eventDtos = calendarService.getEventsBetweenDates(eventsFilter);
 
-        return getStatisticsOfClientMeetings(userDto, eventDtos);
+        return getStatisticsOfClientMeetings(userDto, eventDtos).get(clientName);
     }
 
     public Map<String, ClientMeetingsStatistic> getStatisticsOfEachClientMeetingsForMonth(UserDto userDto, String monthName) {
@@ -97,6 +82,7 @@ public class EventsAnalyzerServiceImpl implements EventsAnalyzerService {
 
     private void handleSuccessfulEvent(ClientMeetingsStatistic clientMeetingsStatistic, EventDto eventDto, Client client){
         double eventDuration = eventService.getEventDuration(eventDto);
+        clientMeetingsStatistic.setName(client.getName());
         clientMeetingsStatistic.setId(client.getId());
         clientMeetingsStatistic.setDescription(client.getDescription());
         clientMeetingsStatistic.setStartDate(client.getStartDate());
