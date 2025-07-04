@@ -10,6 +10,7 @@ import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 import org.springframework.web.client.RestTemplate;
+import ru.nesterov.core.AIIntegrationService;
 import ru.nesterov.gigachat.config.GigaChatIntegrationProperties;
 import ru.nesterov.gigachat.request.GigaChatTextGenerationRequest;
 import ru.nesterov.gigachat.request.Message;
