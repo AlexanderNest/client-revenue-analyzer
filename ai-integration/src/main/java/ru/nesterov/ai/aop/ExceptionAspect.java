@@ -10,7 +10,7 @@ import ru.nesterov.ai.exception.AiException;
 @Aspect
 @Component
 @Slf4j
-public class GigachatExceptionAspect {
+public class ExceptionAspect {
     @Around("execution(* ru.nesterov.core.AIIntegrationService.*(..))")
     public Object wrapGigachatExceptions(ProceedingJoinPoint joinPoint) throws Throwable {
         try {
