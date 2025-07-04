@@ -1,4 +1,4 @@
-package ru.nesterov.ai.gigachat.config;
+package ru.nesterov.gigachat.config;
 
 import org.springframework.stereotype.Component;
 

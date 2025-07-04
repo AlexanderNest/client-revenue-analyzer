@@ -1,4 +1,4 @@
-package ru.nesterov.ai.core.api;
+package ru.nesterov.gigachat.service;
 
 public interface AIIntegrationService {
     String generateText(String text);

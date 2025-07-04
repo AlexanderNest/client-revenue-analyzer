@@ -1,10 +1,9 @@
-package ru.nesterov.ai.gigachat.dto;
+package ru.nesterov.gigachat.response;
 
 import lombok.Data;
-import ru.nesterov.ai.core.api.Usage;
 
 @Data
-public class GigaChatUsageImp implements Usage {
+public class Usage {
     private Long promptTokens;
     private Long completionTokens;
     private Long totalTokens;

@@ -1,4 +1,4 @@
-package ru.nesterov.ai.gigachat.config;
+package ru.nesterov.gigachat.config;
 
 import lombok.Data;
 import org.springframework.boot.context.properties.ConfigurationProperties;

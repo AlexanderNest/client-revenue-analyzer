@@ -1,8 +1,7 @@
-package ru.nesterov.ai.gigachat.request;
+package ru.nesterov.gigachat.request;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
 import lombok.Data;
-import ru.nesterov.ai.gigachat.dto.GigaChatMessageImp;
 
 import java.util.List;
 
@@ -12,5 +11,5 @@ public class GigaChatTextGenerationRequest {
     private boolean stream;
     @JsonProperty("update_interval")
     private Long updateInterval;
-    private List<GigaChatMessageImp> gigaChatMessageImps;
+    private List<Message> messages;
 }
