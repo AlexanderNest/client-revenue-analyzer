@@ -12,12 +12,14 @@ import java.util.List;
 @Service
 public class EventStatusServiceImpl implements EventStatusService {
     private final List<String> successColorCodes;
-    private final List<String> cancelledColorCodes;
+    private final List<String> plannedCancelledColorCodes;
     private final List<String> requiresShiftColorCodes;
     private final List<String> plannedColorCodes;
+    private final List<String> unplannedCancelledColorCodes;
 
     public EventStatusServiceImpl(@Value("${app.calendar.color.successful}") List<String> successColorCodes,
-                                  @Value("${app.calendar.color.cancelled}") List<String> cancelledColorCodes,
+                                  @Value("${app.calendar.color.cancelled.planned}") List<String> plannedCancelledColorCodes,
+                                  @Value("${app.calendar.color.cancelled.unplanned}") List<String> unplannedCancelledColorCodes,
                                   @Value("${app.calendar.color.requires.shift}") List<String> requiresShiftColorCodes,
                                   @Value("${app.calendar.color.planned}") List<String> plannedColorCodes) {
 
@@ -25,14 +27,18 @@ public class EventStatusServiceImpl implements EventStatusService {
         this.successColorCodes = successColorCodes;
         nullWasUsed = addNullCode(successColorCodes, nullWasUsed);
         
-        this.cancelledColorCodes = cancelledColorCodes;
-        nullWasUsed = addNullCode(cancelledColorCodes, nullWasUsed);
+        this.plannedCancelledColorCodes = plannedCancelledColorCodes;
+        nullWasUsed = addNullCode(plannedCancelledColorCodes, nullWasUsed);
         
         this.requiresShiftColorCodes = requiresShiftColorCodes;
         nullWasUsed = addNullCode(requiresShiftColorCodes, nullWasUsed);
-        
+
         this.plannedColorCodes = plannedColorCodes;
         nullWasUsed = addNullCode(plannedColorCodes, nullWasUsed);
+
+        this.unplannedCancelledColorCodes = unplannedCancelledColorCodes;
+        nullWasUsed = addNullCode(unplannedCancelledColorCodes, nullWasUsed);
+
     }
 
     public EventStatus getEventStatus(PrimaryEventData primaryEventData) {
@@ -40,10 +46,12 @@ public class EventStatusServiceImpl implements EventStatusService {
             return EventStatus.SUCCESS;
         } else if (plannedColorCodes.contains(primaryEventData.getColorId())) {
             return EventStatus.PLANNED;
-        } else if (cancelledColorCodes.contains(primaryEventData.getColorId())) {
-            return EventStatus.CANCELLED;
+        } else if (plannedCancelledColorCodes.contains(primaryEventData.getColorId())) {
+            return EventStatus.PLANNED_CANCELLED;
         } else if (requiresShiftColorCodes.contains(primaryEventData.getColorId())) {
             return EventStatus.REQUIRES_SHIFT;
+        } else if (unplannedCancelledColorCodes.contains(primaryEventData.getColorId())) {
+            return EventStatus.UNPLANNED_CANCELLED;
         }
 
         throw new UnknownEventColorIdIntegrationException(primaryEventData.getColorId(), primaryEventData.getName(), primaryEventData.getEventStart());

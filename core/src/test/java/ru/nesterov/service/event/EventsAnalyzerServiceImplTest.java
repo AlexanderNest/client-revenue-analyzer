@@ -96,7 +96,7 @@ class EventsAnalyzerServiceImplTest {
 
         EventDto eventDto5 = EventDto.builder()
                 .summary("testName")
-                .status(EventStatus.CANCELLED)
+                .status(EventStatus.PLANNED_CANCELLED)
                 .start(start)
                 .end(end)
                 .build();
@@ -150,7 +150,7 @@ class EventsAnalyzerServiceImplTest {
         Map<EventStatus, Integer> statuses = eventsAnalyzerService.getEventStatusesByMonthName(userDto, "august");
         assertEquals(4, statuses.size());
         assertEquals(3, statuses.get(EventStatus.SUCCESS));
-        assertEquals(1, statuses.get(EventStatus.CANCELLED));
+        assertEquals(1, statuses.get(EventStatus.PLANNED_CANCELLED));
         assertEquals(1, statuses.get(EventStatus.PLANNED));
         assertEquals(1, statuses.get(EventStatus.REQUIRES_SHIFT));
     }
