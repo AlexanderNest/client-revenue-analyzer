@@ -30,7 +30,7 @@ public class AiAnalyzerServiceImpl implements AiAnalyzerService {
     }
 
     public String analyzeClients(UserDto userDto, String month) {
-        Map<String, ClientMeetingsStatistic> meetingsStatistic = eventsAnalyzerService.getStatisticsOfEachClientMeetings(userDto, month);
+        Map<String, ClientMeetingsStatistic> meetingsStatistic = eventsAnalyzerService.getStatisticsOfEachClientMeetingsForMonth(userDto, month);
         Set<Map.Entry<String, ClientMeetingsStatistic>> entries = meetingsStatistic.entrySet()
                 .stream()
                 .filter(entry -> entry.getValue().isFilledStatistic())
