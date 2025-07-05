@@ -43,6 +43,23 @@ public interface EventsAnalyzerController {
     Map<String, ClientMeetingsStatistic> getClientsStatistics(@RequestHeader(name = "X-username") String username, @RequestBody GetForMonthRequest request);
 
     @Operation(
+            summary = "Получить статистику клиента",
+            description = "Возвращает статистику встреч клиента за два года",
+            requestBody = @RequestBody(
+                    description = "Запрос для получения статистики за два года",
+                    required = true,
+                    content = @Content(schema = @Schema(implementation = String.class))
+            ),
+            responses = {
+                    @ApiResponse(responseCode = "200", description = "Успешный ответ"),
+                    @ApiResponse(responseCode = "400", description = "Некорректный запрос"),
+                    @ApiResponse(responseCode = "500", description = "Внутренняя ошибка сервера")
+            }
+    )
+    @GetMapping("/getStatisticsByOneClient")
+    ClientMeetingsStatistic getStatisticsByOneClientMeetings(@RequestHeader(name = "X-username") String username, @RequestParam("clientName") String clientName);
+
+    @Operation(
             summary = "Получить статусы событий за месяц",
             description = "Возвращает количество событий по их статусам за указанный месяц",
             requestBody = @RequestBody(
@@ -56,10 +73,6 @@ public interface EventsAnalyzerController {
                     @ApiResponse(responseCode = "500", description = "Внутренняя ошибка сервера")
             }
     )
-
-    @GetMapping("/getStatisticsByOneClient")
-    ClientMeetingsStatistic getStatisticsByOneClientMeetings(@RequestHeader(name = "X-username") String username, @RequestParam("clientName") String clientName);
-
     @PostMapping("/getEventsStatusesForMonth")
     Map<EventStatus, Integer> getEventsStatusesForMonth(@RequestHeader(name = "X-username") String username, @RequestBody GetForMonthRequest request);
 

@@ -192,7 +192,7 @@ class EventsAnalyzerServiceImplTest {
 
         Date date = new Date(2025, Calendar.JUNE, 1);
 
-        ClientMeetingsStatistic meetingsStatistics = eventsAnalyzerService.getStatisticsByOneClientMeetings(userDto, "testName");
+        ClientMeetingsStatistic meetingsStatistics = eventsAnalyzerService.getStatisticsByClientMeetings(userDto, "testName");
         assertEquals("testName", meetingsStatistics.getName());
         assertEquals(1, meetingsStatistics.getId());
         assertEquals("description", meetingsStatistics.getDescription());
