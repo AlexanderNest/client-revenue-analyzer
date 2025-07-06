@@ -57,6 +57,8 @@ public class EventsBackupControllerTest extends AbstractControllerTest {
         
         when(googleCalendarClient.getEventsBetweenDates(anyString(), eq(CalendarType.MAIN), any(), any(), any()))
                 .thenReturn(List.of(eventDto1, eventDto2));
+        when(googleCalendarClient.getEventsBetweenDates(anyString(), eq(CalendarType.MAIN), any(), any()))
+                .thenReturn(List.of(eventDto1, eventDto2));
     }
     
     @Test

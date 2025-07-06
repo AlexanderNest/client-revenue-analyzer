@@ -49,6 +49,7 @@ class UserAnalyzerControllerTest extends AbstractControllerTest {
                 .build();
 
         when(googleCalendarClient.getEventsBetweenDates(eq("someCalendar1"), any(), any(), any(), any())).thenReturn(List.of(eventDto1, eventDto2));
+        when(googleCalendarClient.getEventsBetweenDates(eq("someCalendar1"), any(), any(), any())).thenReturn(List.of(eventDto1, eventDto2));
 
         GetForYearRequest getForYearRequest = new GetForYearRequest();
         getForYearRequest.setYear(2024);
