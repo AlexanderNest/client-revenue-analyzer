@@ -1,6 +1,7 @@
 package ru.nesterov.bot.handlers.service;
 
 import jakarta.annotation.Nullable;
+import jakarta.annotation.PostConstruct;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.stereotype.Component;
@@ -30,11 +31,14 @@ public class HandlersService {
     private final List<StatefulCommandHandler<?, ?>> statefulCommandHandlers;
     private final List<InvocableCommandHandler> invocableCommandHandlers;
 
+    private final List<CommandHandler> commandHandlers;
+
     public HandlersService(List<CommandHandler> commandHandlers,
                            List<StatefulCommandHandler<?, ?>> statefulCommandHandlers,
                            UndefinedHandler undefinedHandler,
                            CancelCommandHandler cancelCommandHandler,
                            List<InvocableCommandHandler> invocableCommandHandlers) {
+        this.commandHandlers = commandHandlers;
         this.statefulCommandHandlers = statefulCommandHandlers;
         this.invocableCommandHandlers = invocableCommandHandlers;
 
@@ -143,4 +147,43 @@ public class HandlersService {
                 .anyMatch(handler -> update.getMessage() != null && handler.getCommand().equals(update.getMessage().getText()));
     }
 
+
+    @PostConstruct
+    private void logHandlersInfo() {
+        log.info("Зарегистрировано обработчиков: {}", commandHandlers.size());
+
+        log.info("Обработчики с высоким приоритетом (HIGHEST):");
+        logHandlerList(highestPriorityCommandHandlers);
+
+        log.info("Обработчики с нормальным приоритетом (NORMAL):");
+        logHandlerList(normalPriorityCommandHandlers);
+
+        log.info("Обработчики с низким приоритетом (LOWEST):");
+        logHandlerList(lowestPriorityCommandHandlers);
+
+        log.info("Stateful обработчики:");
+        logHandlerList(statefulCommandHandlers);
+
+        log.info("Invocable обработчики:");
+        logHandlerList(invocableCommandHandlers);
+    }
+
+    private void logHandlerList(List<? extends CommandHandler> handlers) {
+        if (handlers.isEmpty()) {
+            log.info("  - Нет обработчиков");
+        } else {
+            for (CommandHandler handler : handlers) {
+                String name = handler.getClass().getSimpleName();
+                String command = "";
+                if (handler instanceof InvocableCommandHandler invocableHandler) {
+                    command = " (" + invocableHandler.getCommand() + ")";
+                }
+                log.info("  - {}{}{}", name, command, isStateful(handler) ? " [stateful]" : "");
+            }
+        }
+    }
+
+    private boolean isStateful(CommandHandler handler) {
+        return handler instanceof StatefulCommandHandler;
+    }
 }

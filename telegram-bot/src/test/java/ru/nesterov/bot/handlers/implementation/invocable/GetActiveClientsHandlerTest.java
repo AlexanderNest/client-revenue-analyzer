@@ -40,13 +40,13 @@ class GetActiveClientsHandlerTest extends RegisteredUserHandlerTest {
 
         SendMessage result = (SendMessage) getActiveClientsHandler.handle(update);
 
-        String expectedMessage = (
+        String expectedMessage =
                 "1. Макс" + System.lineSeparator() +
                 "     Тариф: 999 руб/час" + System.lineSeparator() +
-                "     Описание: SSS" + System.lineSeparator() +
+                "     Описание: SSS" + System.lineSeparator() + System.lineSeparator() +
                 "2. Анна" + System.lineSeparator() +
                 "     Тариф: 100 руб/час" + System.lineSeparator() +
-                "     Описание: Zzz"+ System.lineSeparator());
+                "     Описание: Zzz" + System.lineSeparator() + System.lineSeparator();
 
         assertEquals(expectedMessage, result.getText());
     }

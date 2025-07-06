@@ -37,7 +37,7 @@ public class GetActiveClientsHandler extends DisplayedCommandHandler {
         for (int i = 0;  i < activeClientResponseList.size(); i++ ){
             GetActiveClientResponse clientResponse = activeClientResponseList.get(i);
             String clientDescription = String.format(
-                    "%d. %s%n     Тариф: %d руб/час%n     Описание: %s%n",
+                    "%d. %s%n     Тариф: %d руб/час%n     Описание: %s%n%n",
                     i + 1,
                     clientResponse.getName(),
                     clientResponse.getPricePerHour(),
