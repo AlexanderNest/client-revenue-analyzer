@@ -11,7 +11,6 @@ import ru.nesterov.core.entity.Client;
 import ru.nesterov.core.exception.ClientNotFoundException;
 import ru.nesterov.core.exception.UnknownEventStatusException;
 import ru.nesterov.core.repository.ClientRepository;
-import ru.nesterov.core.repository.UserRepository;
 import ru.nesterov.core.service.date.helper.MonthDatesPair;
 import ru.nesterov.core.service.date.helper.MonthHelper;
 import ru.nesterov.core.service.date.helper.WeekHelper;
@@ -35,7 +34,7 @@ public class EventsAnalyzerServiceImpl implements EventsAnalyzerService {
     private final EventsAnalyzerProperties eventsAnalyzerProperties;
     private final EventService eventService;
 
-    public Map<String, ClientMeetingsStatistic> getStatisticsByOneClientMeetings(UserDto userDto, String clientName) {
+    public ClientMeetingsStatistic getStatisticsByClientMeetings(UserDto userDto, String clientName) {
         EventsFilter eventsFilter = EventsFilter.builder()
                 .mainCalendar(userDto.getMainCalendar())
                 .cancelledCalendar(userDto.getCancelledCalendar())
@@ -47,7 +46,7 @@ public class EventsAnalyzerServiceImpl implements EventsAnalyzerService {
 
         List<EventDto> eventDtos = calendarService.getEventsBetweenDates(eventsFilter);
 
-        return getStatisticsOfClientMeetings(userDto, eventDtos);
+        return getStatisticsOfClientMeetings(userDto, eventDtos).get(clientName);
     }
 
     public Map<String, ClientMeetingsStatistic> getStatisticsOfEachClientMeetingsForMonth(UserDto userDto, String monthName) {
@@ -82,6 +81,7 @@ public class EventsAnalyzerServiceImpl implements EventsAnalyzerService {
 
     private void handleSuccessfulEvent(ClientMeetingsStatistic clientMeetingsStatistic, EventDto eventDto, Client client){
         double eventDuration = eventService.getEventDuration(eventDto);
+        clientMeetingsStatistic.setName(client.getName());
         clientMeetingsStatistic.setId(client.getId());
         clientMeetingsStatistic.setDescription(client.getDescription());
         clientMeetingsStatistic.setStartDate(client.getStartDate());

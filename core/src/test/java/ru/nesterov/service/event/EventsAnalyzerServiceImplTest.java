@@ -15,7 +15,7 @@ import ru.nesterov.core.entity.Client;
 import ru.nesterov.core.entity.User;
 import ru.nesterov.core.repository.ClientRepository;
 import ru.nesterov.core.repository.UserRepository;
-import ru.nesterov.service.dto.ClientMeetingsStatistic;
+import ru.nesterov.core.service.dto.ClientMeetingsStatistic;
 import ru.nesterov.core.service.dto.IncomeAnalysisResult;
 import ru.nesterov.core.service.dto.UserDto;
 import ru.nesterov.core.service.event.EventService;
