@@ -57,11 +57,9 @@ public class InlineCalendarBuilder {
         prevCallback.setCommand(command);
         prevCallback.setValue("Prev");
 
-        /// /////////////////////////////////////
         ButtonCallback todayCallback = new ButtonCallback();
         todayCallback.setCommand(command);
         todayCallback.setValue("Today");
-        /// /////////////////////////////////////
 
         ButtonCallback nextCallback = new ButtonCallback();
         nextCallback.setCommand(command);
@@ -71,17 +69,11 @@ public class InlineCalendarBuilder {
                 .text("◀")
                 .callbackData(buttonCallbackService.getTelegramButtonCallbackString(prevCallback))
                 .build());
-        /// /////////////////////////////////
+
         headerRow.add(InlineKeyboardButton.builder()
                 .text(text)
                 .callbackData(buttonCallbackService.getTelegramButtonCallbackString(todayCallback))
                 .build());
-
-        /// /////////////////////////////////
-//        headerRow.add(InlineKeyboardButton.builder()
-//                .text(text)
-//                .callbackData("ignore")
-//                .build());
 
         headerRow.add(InlineKeyboardButton.builder()
                 .text("▶")

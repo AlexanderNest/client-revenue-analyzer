@@ -161,14 +161,14 @@ public class GetClientScheduleCommandHandler extends StatefulCommandHandler<Stat
         getStateMachine(update).getMemory().setDisplayedMonth(displayedMonth);
         return handleMonthSwitch(update);
     }
-    /// //////////////////////////////////////
+
     @SneakyThrows
     private BotApiMethod<?> handleCallbackToday(Update update){
         LocalDate today = LocalDate.now();
         getStateMachine(update).getMemory().setDisplayedMonth(today.withDayOfMonth(1));
         return handleMonthSwitch (update);
     }
-    /// //////////////////////////////////////
+
 
     @SneakyThrows
     private BotApiMethod<?> handleCallbackNext(Update update) {

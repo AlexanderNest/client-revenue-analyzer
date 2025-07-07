@@ -99,11 +99,11 @@ public class ActionService {
         if (value.equals("Next") && expectedActions.contains(Action.CALLBACK_NEXT)) {
             return Action.CALLBACK_NEXT;
         }
-///////////////////////////////////////////////////////////////////////////
+
         if (value.equals("Today") && expectedActions.contains(Action.CALLBACK_TODAY)) {
             return Action.CALLBACK_TODAY;
         }
-/////////////////////////////////////////////////////////////////
+
         if (isValidDate(value)) {
             if (expectedActions.contains(Action.CALLBACK_DATE)) {
                 return Action.CALLBACK_DATE;
