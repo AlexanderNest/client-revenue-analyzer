@@ -74,7 +74,6 @@ public class GetClientScheduleCommandHandler extends StatefulCommandHandler<Stat
         return sendCalendarKeyBoard(update, ENTER_SECOND_DATE, getStateMachine(update).getMemory().getFirstDate());
     }
 
-
     @SneakyThrows
     private BotApiMethod<?> handleSecondDate(Update update) {
         ButtonCallback buttonCallback = buttonCallbackService.buildButtonCallback(update.getCallbackQuery().getData());
@@ -166,7 +165,6 @@ public class GetClientScheduleCommandHandler extends StatefulCommandHandler<Stat
         getStateMachine(update).getMemory().setDisplayedMonth(today.withDayOfMonth(1));
         return handleMonthSwitch (update);
     }
-
 
     @SneakyThrows
     private BotApiMethod<?> handleCallbackNext(Update update) {
