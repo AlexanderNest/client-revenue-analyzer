@@ -13,5 +13,7 @@ public enum Action {
     ANY_CALLBACK_INPUT,
     CALLBACK_DATE,
     CALLBACK_PREV,
-    CALLBACK_NEXT
+    CALLBACK_NEXT,
+    /// /////////////
+    CALLBACK_TODAY
 }
