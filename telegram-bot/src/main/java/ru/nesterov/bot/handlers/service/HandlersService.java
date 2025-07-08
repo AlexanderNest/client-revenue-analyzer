@@ -15,7 +15,9 @@ import ru.nesterov.bot.handlers.implementation.invocable.CancelCommandHandler;
 import ru.nesterov.bot.utils.TelegramUpdateUtils;
 
 import java.util.List;
+import java.util.Set;
 import java.util.function.Predicate;
+import java.util.stream.Collectors;
 
 @Component
 @Slf4j
@@ -29,7 +31,7 @@ public class HandlersService {
     private final CancelCommandHandler cancelCommandHandler;
 
     private final List<StatefulCommandHandler<?, ?>> statefulCommandHandlers;
-    private final List<InvocableCommandHandler> invocableCommandHandlers;
+    private final Set<String> invocableCommandsSet;
 
     private final List<CommandHandler> commandHandlers;
 
@@ -40,7 +42,7 @@ public class HandlersService {
                            List<InvocableCommandHandler> invocableCommandHandlers) {
         this.commandHandlers = commandHandlers;
         this.statefulCommandHandlers = statefulCommandHandlers;
-        this.invocableCommandHandlers = invocableCommandHandlers;
+        this.invocableCommandsSet = invocableCommandHandlers.stream().map(InvocableCommandHandler::getCommand).collect(Collectors.toSet());
 
         highestPriorityCommandHandlers = commandHandlers.stream()
                 .filter(ch -> ch.getPriority() == Priority.HIGHEST)
@@ -118,6 +120,7 @@ public class HandlersService {
     private CommandHandler getStartedHandler(Update update) {
         long userId = TelegramUpdateUtils.getUserId(update);
 
+        //TODO посмотреть в сторону многопоточки (parallelStream??)
         CommandHandler commandHandler = statefulCommandHandlers.stream()
                 .filter(handler -> !handler.isFinishedOrNotStarted(userId))
                 .findFirst()
@@ -143,8 +146,8 @@ public class HandlersService {
     }
 
     private boolean isCommandUpdate(Update update) {
-        return invocableCommandHandlers.stream()
-                .anyMatch(handler -> update.getMessage() != null && handler.getCommand().equals(update.getMessage().getText()));
+        //TODO тут надо использовать hashset
+        return update.getMessage().getText() != null && invocableCommandsSet.contains(update.getMessage().getText());
     }
 
 
@@ -165,7 +168,7 @@ public class HandlersService {
         logHandlerList(statefulCommandHandlers);
 
         log.info("Invocable обработчики:");
-        logHandlerList(invocableCommandHandlers);
+//        logHandlerList(invocableCommandHandlers);
     }
 
     private void logHandlerList(List<? extends CommandHandler> handlers) {

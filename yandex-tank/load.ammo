@@ -1,0 +1,85 @@
+
+POST /ai/generateRecommendation HTTP/1.1
+Host: localhost:8080
+Content-Type: application/json
+X-username: testuser
+
+{"monthName":"June"}
+
+POST /client/getSchedule HTTP/1.1
+Host: localhost:8080
+Content-Type: application/json
+X-username: testuser
+
+{"clientName": "Иван Иванов",
+"leftDate": "2025-06-01T00:00:00",
+"rightDate": "2025-06-30T23:59:59"}
+
+POST /client/create HTTP/1.1
+Host: localhost:8080
+Content-Type: application/json
+X-username: testuser
+
+{"name":"Новый клиент",
+"pricePerHour": 1500,
+"description": "Описание услуги",
+"idGenerationNeeded": true,
+"phone": "+7-999-123-45-67"}
+
+POST /client/getActiveClients HTTP/1.1
+Host: localhost:8080
+Content-Type: application/json
+X-username: testuser
+
+{}
+
+POST /events/analyzer/getClientsStatistics HTTP/1.1
+Host: localhost:8080
+Content-Type: application/json
+X-username: testuser
+
+{"monthName":"Июнь"}
+
+POST /events/analyzer/getEventsStatusesForMonth HTTP/1.1
+Host: localhost:8080
+Content-Type: application/json
+X-username: testuser
+
+{"monthName":"Июнь"}
+
+POST /events/analyzer/getIncomeAnalysisForMonth HTTP/1.1
+Host: localhost:8080
+Content-Type: application/json
+X-username: testuser
+
+{"monthName":"Июнь"}
+
+GET /events/analyzer/getUnpaidEvents HTTP/1.1
+Host: localhost:8080
+X-username: testuser
+
+GET /events/backup HTTP/1.1
+Host: localhost:8080
+X-username: testuser
+
+POST /user/analyzer/getYearBusynessStatistics HTTP/1.1
+Host: localhost:8080
+Content-Type: application/json
+X-username: testuser
+
+{"year":2025}
+
+POST /user/createUser HTTP/1.1
+Host: localhost:8080
+Content-Type: application/json
+
+{"mainCalendarId": "calendar-123",
+"cancelledCalendarId": "calendar-cancel-456",
+"userIdentifier": "user_789",
+"isCancelledCalendarEnabled": true}
+
+POST /user/getUserByUsername HTTP/1.1
+Host: localhost:8080
+Content-Type: application/json
+
+{"username":"testuser"}
