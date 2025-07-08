@@ -37,7 +37,7 @@
         </dependency>
         <dependency>
             <groupId>ru.nesterov</groupId>
-            <artifactId>gigachat-integration</artifactId>
+            <artifactId>ai-integration</artifactId>
         </dependency>
         <dependency>
             <groupId>ru.nesterov</groupId>
