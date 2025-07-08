@@ -1,9 +1,9 @@
-package ru.nesterov.gigachat.request;
+package ru.nesterov.ai.gigachat.response;
 
 import lombok.Data;
 
 @Data
 public class Message {
-    private String role;
     private String content;
+    private String role;
 }

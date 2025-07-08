@@ -1,4 +1,4 @@
-package ru.nesterov.gigachat.service;
+package ru.nesterov.ai.gigachat.service;
 
 import lombok.SneakyThrows;
 import org.springframework.beans.factory.annotation.Qualifier;
@@ -10,12 +10,12 @@ import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 import org.springframework.web.client.RestTemplate;
-import ru.nesterov.core.AIIntegrationService;
-import ru.nesterov.gigachat.config.GigaChatIntegrationProperties;
-import ru.nesterov.gigachat.request.GigaChatTextGenerationRequest;
-import ru.nesterov.gigachat.request.Message;
-import ru.nesterov.gigachat.response.Choice;
-import ru.nesterov.gigachat.response.GigaChatTextGenerationResponse;
+import ru.nesterov.ai.gigachat.response.Message;
+import ru.nesterov.ai.AIIntegrationService;
+import ru.nesterov.ai.gigachat.config.GigaChatIntegrationProperties;
+import ru.nesterov.ai.gigachat.request.GigaChatTextGenerationRequest;
+import ru.nesterov.ai.gigachat.response.Choice;
+import ru.nesterov.ai.gigachat.response.GigaChatTextGenerationResponse;
 
 import java.util.List;
 import java.util.Optional;
@@ -23,11 +23,11 @@ import java.util.Optional;
 @Service
 public class GigachatIntegrationService implements AIIntegrationService {
     private final GigaChatIntegrationProperties properties;
-    private final GigaChatTokenServiceImpl tokenService;
+    private final GigaChatTokenService tokenService;
     private final RestTemplate restTemplate;
 
     public GigachatIntegrationService(GigaChatIntegrationProperties properties,
-                                      GigaChatTokenServiceImpl tokenService,
+                                      GigaChatTokenService tokenService,
                                       @Qualifier("gigachatRestTemplate") RestTemplate restTemplate) {
         this.properties = properties;
         this.tokenService = tokenService;
@@ -53,18 +53,18 @@ public class GigachatIntegrationService implements AIIntegrationService {
                     .map(GigaChatTextGenerationResponse::getChoices)
                     .flatMap(choices -> choices.stream().findFirst())
                     .map(Choice::getMessage)
-                    .map(ru.nesterov.gigachat.response.Message::getContent)
+                    .map(Message::getContent)
                     .orElse(null);
     }
 
     private GigaChatTextGenerationRequest getGigaChatTextGenerationRequest(String prompt) {
         GigaChatTextGenerationRequest request = new GigaChatTextGenerationRequest();
 
-        Message message1 = new Message();
+        ru.nesterov.ai.gigachat.request.Message message1 = new ru.nesterov.ai.gigachat.request.Message();
         message1.setRole("system");
         message1.setContent("Отвечай как научный сотрудник");
 
-        Message message2 = new Message();
+        ru.nesterov.ai.gigachat.request.Message message2 = new ru.nesterov.ai.gigachat.request.Message();
         message2.setRole("user");
         message2.setContent(prompt);
 
