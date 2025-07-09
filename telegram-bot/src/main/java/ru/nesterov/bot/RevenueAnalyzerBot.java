@@ -10,7 +10,6 @@ import org.telegram.telegrambots.meta.api.objects.Update;
 import org.telegram.telegrambots.meta.exceptions.TelegramApiException;
 import ru.nesterov.bot.config.BotProperties;
 import ru.nesterov.bot.handlers.abstractions.CommandHandler;
-import ru.nesterov.bot.handlers.service.AsyncUpdateHandler;
 import ru.nesterov.bot.handlers.service.HandlersService;
 import ru.nesterov.bot.utils.TelegramUpdateUtils;
 
@@ -20,18 +19,37 @@ import ru.nesterov.bot.utils.TelegramUpdateUtils;
 public class RevenueAnalyzerBot extends TelegramLongPollingBot {
     private final HandlersService handlersService;
     private final BotProperties botProperties;
-    private final AsyncUpdateHandler asyncUpdateHandler;
 
-    public RevenueAnalyzerBot(BotProperties botProperties, HandlersService handlersService, AsyncUpdateHandler asyncUpdateHandler) {
+    public RevenueAnalyzerBot(BotProperties botProperties, HandlersService handlersService) {
         super(botProperties.getApiToken());
         this.handlersService = handlersService;
         this.botProperties = botProperties;
-        this.asyncUpdateHandler = asyncUpdateHandler;
     }
 
     @Override
     public void onUpdateReceived(Update update) {
-        asyncUpdateHandler.handle(update); // 👈 передаём асинхронно
+        long userId = TelegramUpdateUtils.getUserId(update);
+
+        CommandHandler commandHandler = handlersService.getHandler(update);
+        if (commandHandler == null) {
+            log.error("Не удалось обработать сообщение");
+            return;
+        }
+
+        log.debug("Выбранный CommandHandler = {}", commandHandler.getClass().getSimpleName());
+
+        BotApiMethod<?> sendMessage;
+
+        try {
+            sendMessage = commandHandler.handle(update);
+        } catch (Exception exception) {
+            handlersService.resetBrokeHandler(commandHandler, userId);
+            sendMessage = buildTextMessage(update, exception.getMessage());
+        } finally {
+            handlersService.resetFinishedHandlers(userId);
+        }
+
+        sendMessage(sendMessage);
     }
 
     @Override
@@ -39,4 +57,19 @@ public class RevenueAnalyzerBot extends TelegramLongPollingBot {
         return botProperties.getUsername();
     }
 
+    private SendMessage buildTextMessage(Update update, String text) {
+        SendMessage message = new SendMessage();
+        message.setChatId(TelegramUpdateUtils.getChatId(update));
+        message.setText(text);
+
+        return message;
+    }
+
+    private void sendMessage(BotApiMethod<?> message) {
+        try {
+            execute(message);
+        } catch (TelegramApiException e) {
+            log.error("Ошибка отправки сообщения", e);
+        }
+    }
 }
