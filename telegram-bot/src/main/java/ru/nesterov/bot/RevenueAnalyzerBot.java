@@ -1,7 +1,9 @@
 package ru.nesterov.bot;
 
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
+import org.springframework.core.task.TaskExecutor;
 import org.springframework.stereotype.Service;
 import org.telegram.telegrambots.bots.TelegramLongPollingBot;
 import org.telegram.telegrambots.meta.api.methods.BotApiMethod;
@@ -19,15 +21,24 @@ import ru.nesterov.bot.utils.TelegramUpdateUtils;
 public class RevenueAnalyzerBot extends TelegramLongPollingBot {
     private final HandlersService handlersService;
     private final BotProperties botProperties;
+    private final TaskExecutor taskExecutor;
 
-    public RevenueAnalyzerBot(BotProperties botProperties, HandlersService handlersService) {
+
+    public RevenueAnalyzerBot(BotProperties botProperties, HandlersService handlersService,
+                              @Qualifier("applicationTaskExecutor") TaskExecutor taskExecutor) {
         super(botProperties.getApiToken());
         this.handlersService = handlersService;
         this.botProperties = botProperties;
+        this.taskExecutor = taskExecutor;
     }
 
     @Override
     public void onUpdateReceived(Update update) {
+        taskExecutor.execute(() -> handleUpdate(update));
+    }
+
+    public void handleUpdate(Update update) {
+
         long userId = TelegramUpdateUtils.getUserId(update);
 
         CommandHandler commandHandler = handlersService.getHandler(update);
@@ -48,7 +59,6 @@ public class RevenueAnalyzerBot extends TelegramLongPollingBot {
         } finally {
             handlersService.resetFinishedHandlers(userId);
         }
-
         sendMessage(sendMessage);
     }
 
