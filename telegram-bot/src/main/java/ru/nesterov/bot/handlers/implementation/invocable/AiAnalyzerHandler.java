@@ -18,6 +18,7 @@ public class AiAnalyzerHandler extends DisplayedCommandHandler {
 
     @Override
     public BotApiMethod<?> handle(Update update) {
+
         long userId = TelegramUpdateUtils.getUserId(update);
         AiAnalyzerResponse response = client.getAiStatistics(userId);
 
