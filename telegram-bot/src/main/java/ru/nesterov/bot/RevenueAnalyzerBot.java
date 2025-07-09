@@ -59,12 +59,7 @@ public class RevenueAnalyzerBot extends TelegramLongPollingBot {
         } finally {
             handlersService.resetFinishedHandlers(userId);
         }
-
-        try {
-            execute(sendMessage);
-        } catch (TelegramApiException e) {
-            log.error("Ошибка отправки сообщения", e);
-        }
+        sendMessage(sendMessage);
     }
 
     @Override
@@ -80,4 +75,11 @@ public class RevenueAnalyzerBot extends TelegramLongPollingBot {
         return message;
     }
 
+    private void sendMessage(BotApiMethod<?> message) {
+        try {
+            execute(message);
+        } catch (TelegramApiException e) {
+            log.error("Ошибка отправки сообщения", e);
+        }
+    }
 }
