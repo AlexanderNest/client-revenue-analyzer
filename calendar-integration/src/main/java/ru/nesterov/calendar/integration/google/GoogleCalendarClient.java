@@ -79,7 +79,8 @@ public class GoogleCalendarClient implements CalendarClient {
     private final ObjectMapper objectMapper;
     private final EventStatusService eventStatusService;
 
-    public GoogleCalendarClient(GoogleCalendarProperties properties, ObjectMapper objectMapper, EventStatusService eventStatusService) {
+    public GoogleCalendarClient(GoogleCalendarProperties properties, ObjectMapper objectMapper,
+                                EventStatusService eventStatusService) {
         this.properties = properties;
         this.objectMapper = objectMapper;
         this.eventStatusService = eventStatusService;

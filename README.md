@@ -24,9 +24,8 @@
 6. Добавить в google calendar сервисный аккаунт в список тех, кому доступен выбранный календарь, выдав полные права доступа. Делается это в настройках календаря. E-mail сервисного аккаунта взять из Cloud Console.
 
 ### Обязательные (минимальные) настройки для базовой работы приложения
-1. В настройке `app.google.calendar.mainCalendarId` указать ID календаря, к которому требуется получить доступ.
-2. Включить интеграцию календаря `app.google.calendar.integration.enabled`
-3. Задать цвета для запланированных мероприятий `app.calendar.color.planned`. <br>
+1. Включить интеграцию календаря `app.google.calendar.integration.enabled`
+2. Задать цвета для запланированных мероприятий `app.calendar.color.planned`. <br>
 Цвета указаны в файле `calendar-integration/src/main/resources/GoogleEventColors.txt` <br>
 Базовые цвета:
    1. Стандартный цвет - запланированное мероприятие
