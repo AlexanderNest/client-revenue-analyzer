@@ -5,6 +5,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestHeader;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 import ru.nesterov.calendar.integration.dto.EventStatus;
 import ru.nesterov.core.service.dto.ClientMeetingsStatistic;
@@ -23,8 +24,12 @@ public class EventsAnalyzerControllerImpl implements EventsAnalyzerController {
     private final EventsAnalyzerService eventsAnalyzerService;
     private final UserService userService;
 
-    public Map<String, ClientMeetingsStatistic> getClientStatistics(@RequestHeader(name = "X-username") String username, @RequestBody GetForMonthRequest request) {
-        return eventsAnalyzerService.getStatisticsOfEachClientMeetings(userService.getUserByUsername(username), request.getMonthName());
+    public Map<String, ClientMeetingsStatistic> getClientsStatistics(@RequestHeader(name = "X-username") String username, @RequestBody GetForMonthRequest request) {
+        return eventsAnalyzerService.getStatisticsOfEachClientMeetingsForMonth(userService.getUserByUsername(username), request.getMonthName());
+    }
+
+    public ClientMeetingsStatistic getStatisticsByClientMeetings(@RequestHeader(name = "X-username") String username, @RequestParam("clientName") String clientName) {
+        return eventsAnalyzerService.getStatisticsByClientMeetings(userService.getUserByUsername(username), clientName);
     }
 
     public Map<EventStatus, Integer> getEventsStatusesForMonth(@RequestHeader(name = "X-username") String username, @RequestBody GetForMonthRequest request) {

@@ -3,9 +3,20 @@ package ru.nesterov.core.service.dto;
 import lombok.Getter;
 import lombok.Setter;
 
+import java.time.LocalDateTime;
+import java.time.ZoneId;
+import java.time.temporal.ChronoUnit;
+import java.util.Date;
+
 @Getter
 @Setter
 public class ClientMeetingsStatistic {
+    private String name;
+    private long id;
+    private String description;
+    private Date startDate;
+    private long serviceDuration;
+    private String phone;
     private double successfulMeetingsHours;
     private double cancelledMeetingsHours;
     private double incomePerHour;
@@ -27,6 +38,10 @@ public class ClientMeetingsStatistic {
 
     public double getSuccessfulMeetingsPercentage() {
         return 100.0 * successfulMeetingsHours / (successfulMeetingsHours + cancelledMeetingsHours);
+    }
+
+    public long getServiceDuration() {
+        return ChronoUnit.MONTHS.between(LocalDateTime.ofInstant(getStartDate().toInstant(), ZoneId.systemDefault()), LocalDateTime.now());
     }
 
     public double getLostIncome() {
@@ -61,6 +76,12 @@ public class ClientMeetingsStatistic {
     @Override
     public String toString() {
         return "ClientMeetingsStatistic{" +
+                "name=" + name +
+                "id=" + id +
+                "description=" + description +
+                "startDate=" + startDate +
+                "serviceDuration=" + getServiceDuration() +
+                "phone=" + phone +
                 "successfulMeetingsHours=" + successfulMeetingsHours +
                 ", cancelledMeetingsHours=" + cancelledMeetingsHours +
                 ", successfulMeetingsPercentage=" + getSuccessfulMeetingsPercentage() +
