@@ -16,6 +16,7 @@ import ru.nesterov.calendar.integration.dto.EventStatus;
 import ru.nesterov.core.service.dto.ClientMeetingsStatistic;
 import ru.nesterov.core.service.dto.IncomeAnalysisResult;
 import ru.nesterov.web.controller.request.GetForMonthRequest;
+import ru.nesterov.web.controller.response.ClientMeetingsStatisticResponse;
 import ru.nesterov.web.controller.response.EventResponse;
 
 import java.util.List;
@@ -57,7 +58,7 @@ public interface EventsAnalyzerController {
             }
     )
     @GetMapping("/getStatisticsByClientMeetings")
-    ClientMeetingsStatistic getStatisticsByClientMeetings(@RequestHeader(name = "X-username") String username, @RequestParam("clientName") String clientName);
+    ClientMeetingsStatisticResponse getStatisticsByClientMeetings(@RequestHeader(name = "X-username") String username, @RequestParam("clientName") String clientName);
 
     @Operation(
             summary = "Получить статусы событий за месяц",

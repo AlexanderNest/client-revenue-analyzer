@@ -13,7 +13,9 @@ import ru.nesterov.core.service.dto.IncomeAnalysisResult;
 import ru.nesterov.core.service.event.EventsAnalyzerService;
 import ru.nesterov.core.service.user.UserService;
 import ru.nesterov.web.controller.request.GetForMonthRequest;
+import ru.nesterov.web.controller.response.ClientMeetingsStatisticResponse;
 import ru.nesterov.web.controller.response.EventResponse;
+import ru.nesterov.web.mapper.ClientMapper;
 
 import java.util.List;
 import java.util.Map;
@@ -28,8 +30,8 @@ public class EventsAnalyzerControllerImpl implements EventsAnalyzerController {
         return eventsAnalyzerService.getStatisticsOfEachClientMeetingsForMonth(userService.getUserByUsername(username), request.getMonthName());
     }
 
-    public ClientMeetingsStatistic getStatisticsByClientMeetings(@RequestHeader(name = "X-username") String username, @RequestParam("clientName") String clientName) {
-        return eventsAnalyzerService.getStatisticsByClientMeetings(userService.getUserByUsername(username), clientName);
+    public ClientMeetingsStatisticResponse getStatisticsByClientMeetings(@RequestHeader(name = "X-username") String username, @RequestParam("clientName") String clientName) {
+        return ClientMapper.mapToClientMeetingsStatisticResponse(eventsAnalyzerService.getStatisticsByClientMeetings(userService.getUserByUsername(username), clientName)) ;
     }
 
     public Map<EventStatus, Integer> getEventsStatusesForMonth(@RequestHeader(name = "X-username") String username, @RequestBody GetForMonthRequest request) {
