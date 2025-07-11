@@ -187,4 +187,3 @@ public class HandlersService {
         return handler instanceof StatefulCommandHandler;
     }
 }
-
