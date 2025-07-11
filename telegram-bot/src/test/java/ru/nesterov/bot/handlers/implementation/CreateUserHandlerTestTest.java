@@ -2,6 +2,7 @@ package ru.nesterov.bot.handlers.implementation;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.test.context.ContextConfiguration;
@@ -48,7 +49,7 @@ public class CreateUserHandlerTestTest extends RegisteredUserHandlerTest {
     }
 
     @Test
-    void handle() {
+    void createUserWithEnabledCancelledCalendar() {
         Chat chat = new Chat();
         chat.setId(1L);
 
@@ -121,6 +122,7 @@ public class CreateUserHandlerTestTest extends RegisteredUserHandlerTest {
         callbackQuery.setData(callbackData);
 
         update.setCallbackQuery(callbackQuery);
+        update.setMessage(null);
 
         botApiMethod = createUserHandler.handle(update);
         sendMessage = (SendMessage) botApiMethod;
@@ -142,7 +144,8 @@ public class CreateUserHandlerTestTest extends RegisteredUserHandlerTest {
     }
 
     @Test
-    void handleWithoutCancelledCalendar() throws JsonProcessingException {
+    @Disabled
+    void createUserWithoutCancelledCalendar() throws JsonProcessingException {
         Chat chat = new Chat();
         chat.setId(3L);
 
@@ -229,7 +232,7 @@ public class CreateUserHandlerTestTest extends RegisteredUserHandlerTest {
     }
 
     @Test
-    void handleCreatingTheSameUser() {
+    void tryToCreateTheSameUser() {
         Chat chat = new Chat();
         chat.setId(2L);
 

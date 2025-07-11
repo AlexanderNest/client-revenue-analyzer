@@ -13,6 +13,7 @@ import ru.nesterov.bot.utils.TelegramUpdateUtils;
 
 import java.lang.reflect.InvocationTargetException;
 import java.util.List;
+import java.util.function.Function;
 
 public abstract class StatefulCommandHandler<STATE extends Enum<STATE>, MEMORY> extends DisplayedCommandHandler {
     @Autowired
@@ -77,6 +78,14 @@ public abstract class StatefulCommandHandler<STATE extends Enum<STATE>, MEMORY> 
         Action action = actionService.defineTheAction(getCommand(), update, expectedActions);
 
         NextStateFunction<STATE> nextStateFunction = stateMachine.getNextStateFunction(action);
+
+        if (nextStateFunction == null) {
+            throw new RuntimeException(
+                    "Не найдена функция для перехода из состояния '%s' через action = '%s', из данных update = %s"
+                            .formatted(stateMachine.getCurrentState(), action, update)
+            );
+        }
+
         BotApiMethod<?> botApiMethod = nextStateFunction.getFunctionForTransition().apply(update);
         stateMachine.applyNextState(action);
 
