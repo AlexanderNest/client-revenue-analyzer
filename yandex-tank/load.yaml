@@ -1,0 +1,18 @@
+phantom:
+  enabled: false
+
+http:
+  enabled: true
+  package: http
+  address: host.docker.internal:8080
+  ammofile: /tank/load.ammo
+
+load_profile:
+  enabled: true
+  package: http.load_profile
+  load_type: rps
+  schedule: line(1, 10, 1m)
+
+console:
+  enabled: true
+
