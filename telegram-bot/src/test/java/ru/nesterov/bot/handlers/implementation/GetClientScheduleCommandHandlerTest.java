@@ -49,67 +49,45 @@ public class GetClientScheduleCommandHandlerTest extends RegisteredUserHandlerTe
     private static final String ENTER_FIRST_DATE = "Введите первую дату";
     private static final String ENTER_SECOND_DATE = "Введите вторую дату";
 
-@Test
-void handleTodayButtonInput() {
+    @Test
+    void handleTodayButtonInput() {
 
-    Update updateWithCommand = createUpdateWithMessage();
-    handler.handle(updateWithCommand);
+        Update updateWithCommand = createUpdateWithMessage();
+        handler.handle(updateWithCommand);
 
-    ButtonCallback clientCallback = new ButtonCallback();
-    clientCallback.setCommand("Узнать расписание клиента");
-    clientCallback.setValue("Клиент 1");
-    String clientCallbackData = buttonCallbackService.getTelegramButtonCallbackString(clientCallback);
-    Update updateWithClientName = createUpdateWithCallbackQuery(clientCallbackData);
-    handler.handle(updateWithClientName);
+        ButtonCallback clientCallback = new ButtonCallback();
+        clientCallback.setCommand("Узнать расписание клиента");
+        clientCallback.setValue("Клиент 1");
+        Update updateWithClientName = createUpdateWithCallbackQuery(clientCallback.getValue());
+        handler.handle(updateWithClientName);
 
-    ButtonCallback nextCallback = new ButtonCallback();
-    nextCallback.setCommand("Узнать расписание клиента");
-    nextCallback.setValue("Next");
-    String nextCallbackData = buttonCallbackService.getTelegramButtonCallbackString(nextCallback);
-    Update updateNext = createUpdateWithCallbackQueryRaw(nextCallbackData); // <<< смотри ниже
+        ButtonCallback nextCallback = new ButtonCallback();
+        nextCallback.setCommand("Узнать расписание клиента");
+        nextCallback.setValue("Next");
 
-    BotApiMethod<?> botApiMethod = handler.handle(updateNext);
-    assertInstanceOf(EditMessageText.class, botApiMethod);
+        Update updateNext = createUpdateWithCallbackQuery(nextCallback.getValue());
 
-    InlineKeyboardMarkup markupNext = ((EditMessageText) botApiMethod).getReplyMarkup();
-    assertNotNull(markupNext);
-    LocalDate expectedNextDate = LocalDate.now().plusMonths(1);
-    assertCalendar(markupNext.getKeyboard(), expectedNextDate);
+        BotApiMethod<?> botApiMethod = handler.handle(updateNext);
+        assertInstanceOf(EditMessageText.class, botApiMethod);
 
-    ButtonCallback todayCallback = new ButtonCallback();
-    todayCallback.setCommand("Узнать расписание клиента");
-    todayCallback.setValue("Today");
-    String todayCallbackData = buttonCallbackService.getTelegramButtonCallbackString(todayCallback);
-    Update updateToday = createUpdateWithCallbackQueryRaw(todayCallbackData);
+        InlineKeyboardMarkup markupNext = ((EditMessageText) botApiMethod).getReplyMarkup();
+        assertNotNull(markupNext);
+        LocalDate expectedNextDate = LocalDate.now().plusMonths(1);
+        assertCalendar(markupNext.getKeyboard(), expectedNextDate);
 
-    BotApiMethod<?> botApiMethodToday = handler.handle(updateToday);
-    assertInstanceOf(EditMessageText.class, botApiMethodToday);
-    InlineKeyboardMarkup markupToday = ((EditMessageText) botApiMethodToday).getReplyMarkup();
-    assertNotNull(markupToday);
-    LocalDate expectedTodayDate = LocalDate.now();
-    assertCalendar(markupToday.getKeyboard(), expectedTodayDate);
+        ButtonCallback todayCallback = new ButtonCallback();
+        todayCallback.setCommand("Узнать расписание клиента");
+        todayCallback.setValue("Today");
+
+        Update updateToday = createUpdateWithCallbackQuery(todayCallback.getValue());
+
+        BotApiMethod<?> botApiMethodToday = handler.handle(updateToday);
+        assertInstanceOf(EditMessageText.class, botApiMethodToday);
+        InlineKeyboardMarkup markupToday = ((EditMessageText) botApiMethodToday).getReplyMarkup();
+        assertNotNull(markupToday);
+        LocalDate expectedTodayDate = LocalDate.now();
+        assertCalendar(markupToday.getKeyboard(), expectedTodayDate);
 }
-
-    private Update createUpdateWithCallbackQueryRaw(String callbackData) {
-        Update update = new Update();
-        CallbackQuery callbackQuery = new CallbackQuery();
-        callbackQuery.setData(callbackData);
-
-        org.telegram.telegrambots.meta.api.objects.User user = new org.telegram.telegrambots.meta.api.objects.User();
-        user.setId(1L);
-        user.setUserName("UserName");
-        callbackQuery.setFrom(user);
-
-        org.telegram.telegrambots.meta.api.objects.Message message = new org.telegram.telegrambots.meta.api.objects.Message();
-        message.setMessageId(123);
-        org.telegram.telegrambots.meta.api.objects.Chat chat = new org.telegram.telegrambots.meta.api.objects.Chat();
-        chat.setId(456L);
-        message.setChat(chat);
-        callbackQuery.setMessage(message);
-
-        update.setCallbackQuery(callbackQuery);
-        return update;
-    }
 
     @Test
     void handleCommandWhenMessageContainsText() {
@@ -408,7 +386,7 @@ void handleTodayButtonInput() {
         ButtonCallback buttonCallback = new ButtonCallback();
         buttonCallback.setCommand(COMMAND);
         buttonCallback.setValue(callbackValue);
-        callbackQuery.setData(objectMapper.writeValueAsString(buttonCallback));
+        callbackQuery.setData(buttonCallbackService.getTelegramButtonCallbackString(buttonCallback));
 
         Update update = new Update();
         update.setCallbackQuery(callbackQuery);
