@@ -100,6 +100,10 @@ public class ActionService {
             return Action.CALLBACK_NEXT;
         }
 
+        if (value.equals("Today") && expectedActions.contains(Action.CALLBACK_TODAY)) {
+            return Action.CALLBACK_TODAY;
+        }
+
         if (isValidDate(value)) {
             if (expectedActions.contains(Action.CALLBACK_DATE)) {
                 return Action.CALLBACK_DATE;

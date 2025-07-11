@@ -1,7 +1,7 @@
 package ru.nesterov.bot.handlers.implementation;
 
 import lombok.SneakyThrows;
-import org.junit.jupiter.api.Disabled;
+import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.test.context.ContextConfiguration;
@@ -49,19 +49,63 @@ public class GetClientScheduleCommandHandlerTest extends RegisteredUserHandlerTe
     private static final String ENTER_FIRST_DATE = "Введите первую дату";
     private static final String ENTER_SECOND_DATE = "Введите вторую дату";
 
+    @AfterEach
+    public void resetHandler() {
+        handler.resetState(1);
+    }
+
     @Test
-    @Disabled
+    void handleTodayButtonInput() {
+
+        Update updateWithCommand = createUpdateWithCommand();
+        handler.handle(updateWithCommand);
+
+        ButtonCallback clientCallback = new ButtonCallback();
+        clientCallback.setCommand("Узнать расписание клиента");
+        clientCallback.setValue("Клиент 1");
+        Update updateWithClientName = createUpdateWithCallbackQuery(clientCallback.getValue());
+        handler.handle(updateWithClientName);
+
+        ButtonCallback nextCallback = new ButtonCallback();
+        nextCallback.setCommand("Узнать расписание клиента");
+        nextCallback.setValue("Next");
+
+        Update updateNext = createUpdateWithCallbackQuery(nextCallback.getValue());
+
+        BotApiMethod<?> botApiMethod = handler.handle(updateNext);
+        assertInstanceOf(EditMessageText.class, botApiMethod);
+
+        InlineKeyboardMarkup markupNext = ((EditMessageText) botApiMethod).getReplyMarkup();
+        assertNotNull(markupNext);
+        LocalDate expectedNextDate = LocalDate.now().plusMonths(1);
+        assertCalendar(markupNext.getKeyboard(), expectedNextDate);
+
+        ButtonCallback todayCallback = new ButtonCallback();
+        todayCallback.setCommand("Узнать расписание клиента");
+        todayCallback.setValue("Today");
+
+        Update updateToday = createUpdateWithCallbackQuery(todayCallback.getValue());
+
+        BotApiMethod<?> botApiMethodToday = handler.handle(updateToday);
+        assertInstanceOf(EditMessageText.class, botApiMethodToday);
+        InlineKeyboardMarkup markupToday = ((EditMessageText) botApiMethodToday).getReplyMarkup();
+        assertNotNull(markupToday);
+        LocalDate expectedTodayDate = LocalDate.now();
+        assertCalendar(markupToday.getKeyboard(), expectedTodayDate);
+    }
+
+    @Test
     void handleCommandWhenMessageContainsText() {
         List<GetActiveClientResponse> clients = createActiveClients();
         when(client.getActiveClients(anyLong())).thenReturn(clients);
 
-        Update update = createUpdateWithMessage();
+        Update update = createUpdateWithCommand();
 
         BotApiMethod<?> botApiMethod = handler.handle(update);
         assertInstanceOf(SendMessage.class, botApiMethod);
 
         SendMessage sendMessage = (SendMessage) botApiMethod;
-        assertEquals("Выберите клиента для которого хотите получить расписание:", sendMessage.getText());
+        assertEquals("Выберите клиента, для которого хотите получить расписание:", sendMessage.getText());
 
         ReplyKeyboard markup = sendMessage.getReplyMarkup();
         assertInstanceOf(InlineKeyboardMarkup.class, markup);
@@ -79,9 +123,8 @@ public class GetClientScheduleCommandHandlerTest extends RegisteredUserHandlerTe
 
     @SneakyThrows
     @Test
-    @Disabled
     void handleClientNameShouldReturnCalendarKeyboard() {
-        Update updateWithCommand = createUpdateWithMessage();
+        Update updateWithCommand = createUpdateWithCommand();
         handler.handle(updateWithCommand);
         Update updateWithClientName = createUpdateWithCallbackQuery("Клиент 1");
 
@@ -102,9 +145,8 @@ public class GetClientScheduleCommandHandlerTest extends RegisteredUserHandlerTe
 
     @SneakyThrows
     @Test
-    @Disabled
     void handleFirstDateShouldReturnCalendarKeyboard() {
-        Update updateWithCommand = createUpdateWithMessage();
+        Update updateWithCommand = createUpdateWithCommand();
         handler.handle(updateWithCommand);
         Update updateWithClientName = createUpdateWithCallbackQuery("Клиент 1");
         handler.handle(updateWithClientName);
@@ -126,16 +168,7 @@ public class GetClientScheduleCommandHandlerTest extends RegisteredUserHandlerTe
     }
 
     @Test
-    @Disabled
     void handleSecondDateShouldReturnClientSchedule() {
-        Update updateWithCommand = createUpdateWithMessage();
-        handler.handle(updateWithCommand);
-        Update updateWithClientName = createUpdateWithCallbackQuery("Клиент 1");
-        handler.handle(updateWithClientName);
-        LocalDate firstDate = LocalDate.now();
-        Update updateWithFirstDate = createUpdateWithCallbackQuery(String.valueOf(firstDate));
-        handler.handle(updateWithFirstDate);
-
         List<GetClientScheduleResponse> clientSchedule = new ArrayList<>();
 
         GetClientScheduleResponse schedule1 = new GetClientScheduleResponse();
@@ -156,17 +189,29 @@ public class GetClientScheduleCommandHandlerTest extends RegisteredUserHandlerTe
         schedule3.setEventEnd(eventStart3.plusHours(1L));
         clientSchedule.add(schedule3);
 
+        LocalDate firstDate = LocalDate.now();
         LocalDate secondDate = firstDate.plusMonths(1L);
 
         when(client.getClientSchedule(
                 1L,
                 "Клиент 1",
                 firstDate.atStartOfDay(),
-                secondDate.atStartOfDay()
+                secondDate.atStartOfDay().plusDays(1)
         )).thenReturn(clientSchedule);
+
+        Update updateWithCommand = createUpdateWithCommand();
+        handler.handle(updateWithCommand);
+
+        Update updateWithClientName = createUpdateWithCallbackQuery("Клиент 1");
+        handler.handle(updateWithClientName);
+
+        Update updateWithFirstDate = createUpdateWithCallbackQuery(String.valueOf(firstDate));
+        handler.handle(updateWithFirstDate);
+
 
         Update updateWithSecondDate = createUpdateWithCallbackQuery(String.valueOf(secondDate));
         BotApiMethod<?> botApiMethod = handler.handle(updateWithSecondDate);
+
         assertInstanceOf(EditMessageText.class, botApiMethod);
         EditMessageText editMessage = (EditMessageText) botApiMethod;
 
@@ -197,9 +242,8 @@ public class GetClientScheduleCommandHandlerTest extends RegisteredUserHandlerTe
     }
 
     @Test
-    @Disabled
     void handleSwitchMonthWhenSelectedFirstDate1() {
-        Update updateWithCommand = createUpdateWithMessage();
+        Update updateWithCommand = createUpdateWithCommand();
         handler.handle(updateWithCommand);
         Update updateWithClientName = createUpdateWithCallbackQuery("Клиент 1");
         handler.handle(updateWithClientName);
@@ -222,9 +266,8 @@ public class GetClientScheduleCommandHandlerTest extends RegisteredUserHandlerTe
     }
 
     @Test
-    @Disabled
     void handleSwitchMonthWhenSelectedFirstDate2() {
-        Update updateWithCommand = createUpdateWithMessage();
+        Update updateWithCommand = createUpdateWithCommand();
         handler.handle(updateWithCommand);
         Update updateWithClientName = createUpdateWithCallbackQuery("Клиент 1");
         handler.handle(updateWithClientName);
@@ -272,9 +315,8 @@ public class GetClientScheduleCommandHandlerTest extends RegisteredUserHandlerTe
     }
 
     @Test
-    @Disabled
     void handleCommandWhenNoClientsFound() {
-        Update update = createUpdateWithMessage();
+        Update update = createUpdateWithCommand();
 
         BotApiMethod<?> botApiMethod = handler.handle(update);
         assertInstanceOf(SendMessage.class, botApiMethod);
@@ -282,6 +324,7 @@ public class GetClientScheduleCommandHandlerTest extends RegisteredUserHandlerTe
 
         assertEquals("Нет доступных клиентов", sendMessage.getText());
     }
+
     private List<GetActiveClientResponse> createActiveClients() {
         GetActiveClientResponse client1 = new GetActiveClientResponse();
         client1.setId(1);
@@ -313,7 +356,7 @@ public class GetClientScheduleCommandHandlerTest extends RegisteredUserHandlerTe
         assertEquals("ВС", daysOfWeekRow.get(6).getText());
     }
 
-    private Update createUpdateWithMessage() {
+    private Update createUpdateWithCommand() {
         Chat chat = new Chat();
         chat.setId(1L);
         User user = new User();
@@ -349,7 +392,7 @@ public class GetClientScheduleCommandHandlerTest extends RegisteredUserHandlerTe
         ButtonCallback buttonCallback = new ButtonCallback();
         buttonCallback.setCommand(COMMAND);
         buttonCallback.setValue(callbackValue);
-        callbackQuery.setData(objectMapper.writeValueAsString(buttonCallback));
+        callbackQuery.setData(buttonCallbackService.getTelegramButtonCallbackString(buttonCallback));
 
         Update update = new Update();
         update.setCallbackQuery(callbackQuery);
