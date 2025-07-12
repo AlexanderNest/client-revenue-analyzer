@@ -61,6 +61,22 @@ public class EventsBackupService {
         saveBackups(users, BackupType.AUTOMATIC);
         log.debug("Выполнено автоматическое резервное копирование встреч для {} пользователей(я)", users.size());
     }
+
+    @Schedules({
+            @Scheduled(
+                    initialDelayString = "#{eventsBackupProperties.delayForBackupAfterAppStarting}",
+                    timeUnit = TimeUnit.SECONDS
+            ),
+            @Scheduled(cron = "#{eventsBackupProperties.backupRetentionDays}")
+    })
+    @Transactional
+    public void deleteOldBackups() {
+
+        LocalDateTime cutoffDate = LocalDateTime.now()
+                .minusDays(eventsBackupProperties.getBackupRetentionDays());
+
+        int deletedCount = eventsBackupRepository.deleteByBackupTimeBefore(cutoffDate);
+    }
     
     @Transactional
     public EventBackupDto backupCurrentUserEvents(String username) {

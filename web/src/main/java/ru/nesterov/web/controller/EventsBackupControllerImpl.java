@@ -22,4 +22,8 @@ public class EventsBackupControllerImpl implements EventsBackupController {
         EventBackupResponse response = EventBackupMapper.mapToEventBackupResponse(result);
         return new ResponseEntity<>(response, HttpStatus.OK);
     }
+
+    public void deleteBackup(@RequestHeader(name = "X-username") String username) {
+        eventsBackupService.deleteOldBackups();
+    }
 }

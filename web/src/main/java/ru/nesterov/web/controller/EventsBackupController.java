@@ -23,4 +23,14 @@ public interface EventsBackupController {
     )
     @GetMapping
     ResponseEntity<EventBackupResponse> makeBackup(@RequestHeader(name = "X-username") String username);
+
+    @Operation(
+            summary = "Удаление устаревших бэкапов",
+            responses = {
+                    @ApiResponse(responseCode = "200", description = "Успешный ответ"),
+                    @ApiResponse(responseCode = "500", description = "Внутренняя ошибка сервера")
+            }
+    )
+    @GetMapping
+    void deleteBackup(@RequestHeader(name = "X-username") String username);
 }
