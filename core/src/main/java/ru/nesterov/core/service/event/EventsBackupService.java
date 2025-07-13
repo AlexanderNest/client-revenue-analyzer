@@ -1,6 +1,7 @@
 package ru.nesterov.core.service.event;
 
 import lombok.RequiredArgsConstructor;
+import lombok.Value;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.scheduling.annotation.Scheduled;
@@ -71,11 +72,7 @@ public class EventsBackupService {
     })
     @Transactional
     public void deleteOldBackups() {
-
-        LocalDateTime cutoffDate = LocalDateTime.now()
-                .minusDays(eventsBackupProperties.getBackupRetentionDays());
-
-        int deletedCount = eventsBackupRepository.deleteByBackupTimeBefore(cutoffDate);
+        int deletedCount = eventsBackupRepository.deleteByBackupTimeBefore(eventsBackupProperties.getRetentionDays());
     }
     
     @Transactional

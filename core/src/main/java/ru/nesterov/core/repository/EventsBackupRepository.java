@@ -18,6 +18,6 @@ public interface EventsBackupRepository extends JpaRepository<EventBackup, Long>
 
     @Modifying
     @Transactional
-    @Query("DELETE FROM EventBackup eb WHERE eb.backupTime < :cutoffDate")
-    int deleteByBackupTimeBefore(LocalDateTime cutoffDate);
+    @Query("DELETE FROM EventBackup eb WHERE eb.backupTime < retentionDays")
+    int deleteByBackupTimeBefore(int retentionDays);
 }
