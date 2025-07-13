@@ -184,7 +184,7 @@
 							}
 						],
 						"url": {
-							"raw": "localhost:8080/revenue-analyzer/events/analyzer/getStatisticsByClientMeetings?clientName=Гриша",
+							"raw": "localhost:8080/revenue-analyzer/events/analyzer/getClientStatistic?clientName=Гриша",
 							"host": [
 								"localhost"
 							],

@@ -62,15 +62,20 @@ public class EventsAnalyzerServiceImpl implements EventsAnalyzerService {
             Client client = clientRepository.findClientByNameAndUserId(eventDto.getSummary(), userDto.getId());
             ClientMeetingsStatistic clientMeetingsStatistic = meetingsStatistics.get(eventDto.getSummary());
             if (clientMeetingsStatistic == null) {
-
                 if (client == null) {
                     throw new ClientNotFoundException(eventDto.getSummary());
                 }
+
                 clientMeetingsStatistic = new ClientMeetingsStatistic(client.getPricePerHour());
+                clientMeetingsStatistic.setName(client.getName());
+                clientMeetingsStatistic.setId(client.getId());
+                clientMeetingsStatistic.setDescription(client.getDescription());
+                clientMeetingsStatistic.setStartDate(client.getStartDate());
+                clientMeetingsStatistic.setPhone(client.getPhone());
             }
 
             if (eventStatus == EventStatus.SUCCESS) {
-                handleSuccessfulEvent(clientMeetingsStatistic, eventDto, client);
+                handleSuccessfulEvent(clientMeetingsStatistic, eventDto);
             } else if (eventStatus == EventStatus.CANCELLED) {
                 handleCancelledEvent(clientMeetingsStatistic, eventDto);
             }
@@ -79,13 +84,8 @@ public class EventsAnalyzerServiceImpl implements EventsAnalyzerService {
         return meetingsStatistics;
     }
 
-    private void handleSuccessfulEvent(ClientMeetingsStatistic clientMeetingsStatistic, EventDto eventDto, Client client){
+    private void handleSuccessfulEvent(ClientMeetingsStatistic clientMeetingsStatistic, EventDto eventDto){
         double eventDuration = eventService.getEventDuration(eventDto);
-        clientMeetingsStatistic.setName(client.getName());
-        clientMeetingsStatistic.setId(client.getId());
-        clientMeetingsStatistic.setDescription(client.getDescription());
-        clientMeetingsStatistic.setStartDate(client.getStartDate());
-        clientMeetingsStatistic.setPhone(client.getPhone());
         clientMeetingsStatistic.increaseSuccessfulHours(eventDuration);
         clientMeetingsStatistic.increaseSuccessfulEvents(1);
     }
@@ -111,7 +111,6 @@ public class EventsAnalyzerServiceImpl implements EventsAnalyzerService {
 
         MonthDatesPair monthDatesPair = MonthHelper.getFirstAndLastDayOfMonth(monthName);
         List<EventDto> holidayDtos = calendarService.getHolidays(monthDatesPair.getFirstDate(), monthDatesPair.getLastDate());
-
 
         for (EventDto eventDto : eventDtos) {
             EventStatus eventStatus = eventDto.getStatus();

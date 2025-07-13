@@ -30,7 +30,7 @@ public class EventsAnalyzerControllerImpl implements EventsAnalyzerController {
         return eventsAnalyzerService.getStatisticsOfEachClientMeetingsForMonth(userService.getUserByUsername(username), request.getMonthName());
     }
 
-    public ClientMeetingsStatisticResponse getStatisticsByClientMeetings(@RequestHeader(name = "X-username") String username, @RequestParam("clientName") String clientName) {
+    public ClientMeetingsStatisticResponse getClientStatistic(@RequestHeader(name = "X-username") String username, @RequestParam("clientName") String clientName) {
         return ClientMapper.mapToClientMeetingsStatisticResponse(eventsAnalyzerService.getStatisticsByClientMeetings(userService.getUserByUsername(username), clientName)) ;
     }
 
