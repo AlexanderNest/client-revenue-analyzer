@@ -93,7 +93,7 @@ public class ClientServiceImplTest {
 
         EventDto eventDto5 = EventDto.builder()
                 .summary("testClient2")
-                .status(EventStatus.CANCELLED)
+                .status(EventStatus.PLANNED_CANCELLED)
                 .start(LocalDateTime.of(2024, 8, 13, 11, 30))
                 .end(LocalDateTime.of(2024, 8, 13, 12, 30))
                 .build();
