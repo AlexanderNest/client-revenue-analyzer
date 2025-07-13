@@ -137,6 +137,7 @@ class EventsAnalyzerServiceImplTest {
                 .status(EventStatus.CANCELLED)
                 .build();
 
+
         EventDto holidayEvent = EventDto.builder()
                 .summary("testName")
                 .start(start)
