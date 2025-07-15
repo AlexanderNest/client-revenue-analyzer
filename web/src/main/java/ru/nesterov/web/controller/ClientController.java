@@ -54,7 +54,7 @@ public interface ClientController {
 
     @Operation(
             summary = "Вывод информации об активных клиентах",
-            description = "Возвращает всю информацию об активных клиентах в порядке в порядке убывания стоимости",
+            description = "Возвращает всю информацию об активных клиентах в порядке убывания стоимости",
             responses = {
                     @ApiResponse(responseCode = "200", description = "Успешный ответ"),
                     @ApiResponse(responseCode = "500", description = "Внутренняя ошибка сервера")

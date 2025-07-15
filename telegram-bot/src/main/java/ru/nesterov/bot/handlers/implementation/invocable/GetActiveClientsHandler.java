@@ -27,6 +27,7 @@ public class GetActiveClientsHandler extends DisplayedCommandHandler {
             return getPlainSendMessage(TelegramUpdateUtils.getChatId(update),
                     "У вас пока нет клиентов.");
         }
+
         String activeClientsMessage = getActiveClientsMessage(activeClientResponseList);
         return getPlainSendMessage(TelegramUpdateUtils.getChatId(update), activeClientsMessage);
     }
