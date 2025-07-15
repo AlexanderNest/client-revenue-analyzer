@@ -25,7 +25,6 @@ import java.util.stream.Collectors;
 /**
  * Получение информации о расписании указанного клиента
  */
-
 @Component
 public class GetClientScheduleCommandHandler extends StatefulCommandHandler<State, GetClientScheduleRequest> {
 
