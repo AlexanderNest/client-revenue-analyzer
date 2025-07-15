@@ -56,7 +56,6 @@ public class GetClientScheduleCommandHandlerTest extends RegisteredUserHandlerTe
 
     @Test
     void handleTodayButtonInput() {
-
         Update updateWithCommand = createUpdateWithCommand();
         handler.handle(updateWithCommand);
 
