@@ -8,7 +8,6 @@ import ru.nesterov.bot.dto.GetActiveClientResponse;
 import ru.nesterov.bot.handlers.abstractions.DisplayedCommandHandler;
 import ru.nesterov.bot.utils.TelegramUpdateUtils;
 
-import java.util.Comparator;
 import java.util.List;
 
 @Component
@@ -24,15 +23,11 @@ public class GetActiveClientsHandler extends DisplayedCommandHandler {
         long userId = TelegramUpdateUtils.getUserId(update);
         List<GetActiveClientResponse> activeClientResponseList = client.getActiveClients(userId);
 
-        List<GetActiveClientResponse> sortedClients = activeClientResponseList.stream()
-                .sorted(Comparator.comparing(GetActiveClientResponse::getName, String.CASE_INSENSITIVE_ORDER))
-                .toList();
-
-        if (sortedClients.isEmpty()) {
+        if (activeClientResponseList.isEmpty()) {
             return getPlainSendMessage(TelegramUpdateUtils.getChatId(update),
                     "У вас пока нет клиентов.");
         }
-        String activeClientsMessage = getActiveClientsMessage(sortedClients);
+        String activeClientsMessage = getActiveClientsMessage(activeClientResponseList);
         return getPlainSendMessage(TelegramUpdateUtils.getChatId(update), activeClientsMessage);
     }
 

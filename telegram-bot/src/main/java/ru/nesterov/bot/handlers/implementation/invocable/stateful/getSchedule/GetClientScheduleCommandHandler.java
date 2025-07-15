@@ -18,6 +18,7 @@ import ru.nesterov.bot.utils.TelegramUpdateUtils;
 import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
+import java.util.Comparator;
 import java.util.List;
 import java.util.Locale;
 import java.util.stream.Collectors;
@@ -25,6 +26,7 @@ import java.util.stream.Collectors;
 /**
  * Получение информации о расписании указанного клиента
  */
+
 @Component
 public class GetClientScheduleCommandHandler extends StatefulCommandHandler<State, GetClientScheduleRequest> {
 
@@ -94,6 +96,12 @@ public class GetClientScheduleCommandHandler extends StatefulCommandHandler<Stat
         List<List<InlineKeyboardButton>> keyboard = new ArrayList<>();
         List<GetActiveClientResponse> clients = client.getActiveClients(TelegramUpdateUtils.getUserId(update));
 
+
+
+//        List<GetActiveClientResponse> sortedClients = alientResponseList.stream()
+//                .sorted(Comparator.comparing(GetActiveClientResponse::getName, String.CASE_INSENSITIVE_ORDER))
+//                .toList();
+
         if (clients.isEmpty()) {
             return getPlainSendMessage(TelegramUpdateUtils.getChatId(update), "Нет доступных клиентов");
         }
@@ -110,6 +118,7 @@ public class GetClientScheduleCommandHandler extends StatefulCommandHandler<Stat
             rowInline.add(button);
             keyboard.add(rowInline);
         }
+        keyboard.sort(Comparator.comparing());
         keyboardMarkup.setKeyboard(keyboard);
 
         return getReplyKeyboard(TelegramUpdateUtils.getChatId(update), "Выберите клиента, для которого хотите получить расписание:", keyboardMarkup);

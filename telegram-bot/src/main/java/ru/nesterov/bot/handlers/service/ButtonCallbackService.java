@@ -33,6 +33,7 @@ public class ButtonCallbackService {
         ButtonCallback buttonCallback = new ButtonCallback();
         buttonCallback.setCommand(idToCommandMapping.get(parts[0]));
         buttonCallback.setValue(parts[1]);
+
         return buttonCallback;
     }
 }

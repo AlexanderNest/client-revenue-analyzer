@@ -45,7 +45,7 @@ public class ClientControllerImpl implements ClientController {
 
     @Override
     public List<ClientResponse> getActiveClients(@RequestHeader(name = "X-username") String username) {
-        List<ClientDto> activeClients = clientService.getActiveClients(userService.getUserByUsername(username));
+        List<ClientDto> activeClients = clientService.getActiveClientsOrderByPrice(userService.getUserByUsername(username));
 
         return activeClients.stream()
                 .map(ClientMapper::mapToClientResponse)
