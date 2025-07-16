@@ -306,7 +306,6 @@ public class GetClientScheduleCommandHandlerTest extends RegisteredUserHandlerTe
         when(client.getActiveClients(anyLong())).thenReturn(unsortedClients);
 
         Update update = createUpdateWithMessage();
-
         BotApiMethod<?> result = handler.handle(update);
 
         assertInstanceOf(SendMessage.class, result);
@@ -322,7 +321,6 @@ public class GetClientScheduleCommandHandlerTest extends RegisteredUserHandlerTe
         assertEquals("борис", keyboard.get(2).get(0).getText());
         assertEquals("Борис", keyboard.get(3).get(0).getText());
         assertEquals("Яна", keyboard.get(4).get(0).getText());
-
 
     }
 
