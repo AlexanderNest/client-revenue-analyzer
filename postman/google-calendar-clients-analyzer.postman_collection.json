@@ -193,7 +193,7 @@
 								"revenue-analyzer",
 								"events",
 								"analyzer",
-								"getStatisticsByClientMeetings"
+								"getClientStatistic"
 							],
 							"query": [
 								{
