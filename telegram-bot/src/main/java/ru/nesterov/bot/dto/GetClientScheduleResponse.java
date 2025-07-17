@@ -8,4 +8,5 @@ import java.time.LocalDateTime;
 public class GetClientScheduleResponse {
     private LocalDateTime eventStart;
     private LocalDateTime eventEnd;
+
 }
