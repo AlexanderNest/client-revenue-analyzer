@@ -100,7 +100,7 @@ public class GetClientScheduleCommandHandler extends StatefulCommandHandler<Stat
             return getPlainSendMessage(TelegramUpdateUtils.getChatId(update), "Нет доступных клиентов");
         }
 
-        clients.sort(Comparator.comparing(GetActiveClientResponse::getName, String.CASE_INSENSITIVE_ORDER)); // Сначала сортируем клиентов(изначально по стоимости) по имени, а потом назначаем кнопки по порядку
+        clients.sort(Comparator.comparing(GetActiveClientResponse::getName, String.CASE_INSENSITIVE_ORDER));
 
         for (GetActiveClientResponse response : clients) {
             InlineKeyboardButton button = new InlineKeyboardButton();
@@ -114,7 +114,6 @@ public class GetClientScheduleCommandHandler extends StatefulCommandHandler<Stat
             rowInline.add(button);
             keyboard.add(rowInline);
         }
-      //  keyboard.sort(Comparator.comparing(row -> row.get(0).getText())); // Сортировка кнопок после их создания
         keyboardMarkup.setKeyboard(keyboard);
 
         return getReplyKeyboard(TelegramUpdateUtils.getChatId(update), "Выберите клиента, для которого хотите получить расписание:", keyboardMarkup);

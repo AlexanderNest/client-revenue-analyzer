@@ -79,7 +79,7 @@ public class ClientServiceImpl implements ClientService {
     }
 
     @Override
-    public List<ClientDto> getActiveClientsOrderByPrice(UserDto userDto) {
+    public List<ClientDto> getActiveClientsOrderedByPrice(UserDto userDto) {
         return clientRepository.findClientByUserIdAndActiveOrderByPricePerHourDesc(userDto.getId(), true).stream()
                 .map(ClientMapper::mapToClientDto)
                 .toList();
