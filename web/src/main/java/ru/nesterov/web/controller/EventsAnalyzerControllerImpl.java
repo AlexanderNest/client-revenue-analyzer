@@ -1,6 +1,7 @@
 package ru.nesterov.web.controller;
 
 import lombok.RequiredArgsConstructor;
+import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.RequestBody;
@@ -30,8 +31,16 @@ public class EventsAnalyzerControllerImpl implements EventsAnalyzerController {
         return eventsAnalyzerService.getStatisticsOfEachClientMeetingsForMonth(userService.getUserByUsername(username), request.getMonthName());
     }
 
-    public ClientMeetingsStatisticResponse getClientStatistic(@RequestHeader(name = "X-username") String username, @RequestParam("clientName") String clientName) {
-        return ClientMapper.mapToClientMeetingsStatisticResponse(eventsAnalyzerService.getStatisticsByClientMeetings(userService.getUserByUsername(username), clientName)) ;
+    public ResponseEntity<ClientMeetingsStatisticResponse> getClientStatistic(@RequestHeader(name = "X-username") String username, @RequestParam("clientName") String clientName) {
+        ClientMeetingsStatistic clientMeetingsStatistic = eventsAnalyzerService.getStatisticsByClientMeetings(userService.getUserByUsername(username), clientName);
+
+        if (clientMeetingsStatistic == null) {
+            return new ResponseEntity<>(HttpStatus.NOT_FOUND);
+        }
+
+        return ResponseEntity.ok(
+                ClientMapper.mapToClientMeetingsStatisticResponse(clientMeetingsStatistic)
+        );
     }
 
     public Map<EventStatus, Integer> getEventsStatusesForMonth(@RequestHeader(name = "X-username") String username, @RequestBody GetForMonthRequest request) {

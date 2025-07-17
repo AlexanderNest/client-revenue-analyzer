@@ -54,11 +54,12 @@ public interface EventsAnalyzerController {
             responses = {
                     @ApiResponse(responseCode = "200", description = "Успешный ответ"),
                     @ApiResponse(responseCode = "400", description = "Некорректный запрос"),
+                    @ApiResponse(responseCode = "404", description = "Указанный клиент не найдет"),
                     @ApiResponse(responseCode = "500", description = "Внутренняя ошибка сервера")
             }
     )
     @GetMapping("/getClientStatistic")
-    ClientMeetingsStatisticResponse getClientStatistic(@RequestHeader(name = "X-username") String username, @RequestParam("clientName") String clientName);
+    ResponseEntity<ClientMeetingsStatisticResponse> getClientStatistic(@RequestHeader(name = "X-username") String username, @RequestParam("clientName") String clientName);
 
     @Operation(
             summary = "Получить статусы событий за месяц",

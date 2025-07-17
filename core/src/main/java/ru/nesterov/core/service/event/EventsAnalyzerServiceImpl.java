@@ -19,6 +19,7 @@ import ru.nesterov.core.service.dto.ClientMeetingsStatistic;
 import ru.nesterov.core.service.dto.IncomeAnalysisResult;
 import ru.nesterov.core.service.dto.UserDto;
 
+import javax.annotation.Nullable;
 import java.time.LocalDateTime;
 import java.util.HashMap;
 import java.util.LinkedHashMap;
@@ -34,6 +35,7 @@ public class EventsAnalyzerServiceImpl implements EventsAnalyzerService {
     private final EventsAnalyzerProperties eventsAnalyzerProperties;
     private final EventService eventService;
 
+    @Nullable
     public ClientMeetingsStatistic getStatisticsByClientMeetings(UserDto userDto, String clientName) {
         EventsFilter eventsFilter = EventsFilter.builder()
                 .mainCalendar(userDto.getMainCalendar())
@@ -75,19 +77,22 @@ public class EventsAnalyzerServiceImpl implements EventsAnalyzerService {
             }
 
             if (eventStatus == EventStatus.SUCCESS) {
-                handleSuccessfulEvent(clientMeetingsStatistic, eventDto);
+                handleSuccessfulEvent(clientMeetingsStatistic, eventDto, client);
             } else if (eventStatus == EventStatus.CANCELLED) {
                 handleCancelledEvent(clientMeetingsStatistic, eventDto);
             }
             meetingsStatistics.put(eventDto.getSummary(), clientMeetingsStatistic);
         }
+
+
         return meetingsStatistics;
     }
 
-    private void handleSuccessfulEvent(ClientMeetingsStatistic clientMeetingsStatistic, EventDto eventDto){
+    private void handleSuccessfulEvent(ClientMeetingsStatistic clientMeetingsStatistic, EventDto eventDto, Client client){
         double eventDuration = eventService.getEventDuration(eventDto);
         clientMeetingsStatistic.increaseSuccessfulHours(eventDuration);
         clientMeetingsStatistic.increaseSuccessfulEvents(1);
+        clientMeetingsStatistic.increaseIncome(client.getPricePerHour() * eventDuration);
     }
 
     private void handleCancelledEvent(ClientMeetingsStatistic clientMeetingsStatistic, EventDto eventDto){

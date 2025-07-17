@@ -15,7 +15,6 @@ public class ClientMeetingsStatistic {
     private long id;
     private String description;
     private Date startDate;
-    private long serviceDuration;
     private String phone;
     private double successfulMeetingsHours;
     private double cancelledMeetingsHours;
@@ -23,9 +22,14 @@ public class ClientMeetingsStatistic {
     private int successfulEventsCount;
     private int plannedCancelledEventsCount;
     private int notPlannedCancelledEventsCount;
+    private double totalIncome;
 
     public ClientMeetingsStatistic(double incomePerHour) {
         this.incomePerHour = incomePerHour;
+    }
+
+    public void increaseIncome(double income) {
+        this.totalIncome += income;
     }
 
     public void increaseSuccessfulHours(double hours) {

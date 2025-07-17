@@ -44,6 +44,7 @@ public class ClientMapper {
                 .successfulEventsCount(clientMeetingsStatistic.getSuccessfulEventsCount())
                 .plannedCancelledEventsCount(clientMeetingsStatistic.getPlannedCancelledEventsCount())
                 .notPlannedCancelledEventsCount(clientMeetingsStatistic.getNotPlannedCancelledEventsCount())
+                .totalIncome(clientMeetingsStatistic.getTotalIncome())
                 .build();
     }
 }
