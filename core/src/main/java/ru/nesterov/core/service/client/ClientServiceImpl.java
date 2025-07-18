@@ -13,8 +13,8 @@ import ru.nesterov.core.exception.ClientDataIntegrityException;
 import ru.nesterov.core.exception.ClientNotFoundException;
 import ru.nesterov.core.repository.ClientRepository;
 import ru.nesterov.core.repository.UserRepository;
-import ru.nesterov.core.service.date.helper.MonthDatesPair;
 import ru.nesterov.core.service.dto.ClientDto;
+import ru.nesterov.core.service.dto.ClientScheduleDto;
 import ru.nesterov.core.service.dto.UserDto;
 import ru.nesterov.core.service.mapper.ClientMapper;
 
@@ -29,7 +29,7 @@ public class ClientServiceImpl implements ClientService {
     private final ClientRepository clientRepository;
     private final UserRepository userRepository;
 
-    public List<MonthDatesPair> getClientSchedule(UserDto userDto, String clientName, LocalDateTime leftDate, LocalDateTime rightDate) {
+    public List<ClientScheduleDto> getClientSchedule(UserDto userDto, String clientName, LocalDateTime leftDate, LocalDateTime rightDate) {
         Client client = clientRepository.findClientByNameAndUserId(clientName, userDto.getId());
         if (client == null) {
             throw new ClientNotFoundException(clientName);
@@ -47,7 +47,17 @@ public class ClientServiceImpl implements ClientService {
 
         return eventDtos.stream()
                 .filter(event -> event.getSummary().equals(client.getName()))
-                .map(event -> new MonthDatesPair(event.getStart(), event.getEnd()))
+                .map(event -> {
+                    boolean approveRequired = false;
+                    if (event.getEventExtensionDto() != null && event.getEventExtensionDto().getIsPlanned() != null){
+                        approveRequired = event.getEventExtensionDto().getIsPlanned();
+                    }
+                    return ClientScheduleDto.builder()
+                            .eventStart(event.getStart())
+                            .eventEnd(event.getEnd())
+                            .approveRequires(approveRequired)
+                            .build();
+                })
                 .toList();
     }
 
