@@ -21,6 +21,7 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.ArgumentMatchers.eq;
+import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
@@ -112,5 +113,18 @@ public class EventsBackupControllerTest extends AbstractControllerTest {
         user.setMainCalendar("testCalendar" + suffix);
         user.setEventsBackupEnabled(true);
         return userRepository.save(user);
+    }
+
+    @Test
+    void deleteOldBackups_ShouldCallRepositoryWithCorrectDate() {
+        int backupLimitDays = 30;
+        LocalDateTime now = LocalDateTime.now();
+        LocalDateTime expectedThreshold = now.minusDays(backupLimitDays);
+
+        when(eventsBackupProperties.getBackupLimit()).thenReturn(backupLimitDays);
+
+        eventsBackupRepository.deleteByBackupTimeBefore(expectedThreshold);
+
+        verify(eventsBackupRepository).deleteByBackupTimeBefore(expectedThreshold);
     }
 }

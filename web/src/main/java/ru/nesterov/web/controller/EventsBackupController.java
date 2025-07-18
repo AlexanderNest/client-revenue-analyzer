@@ -5,6 +5,7 @@ import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestHeader;
 import org.springframework.web.bind.annotation.RequestMapping;
 import ru.nesterov.web.controller.response.EventBackupResponse;
@@ -31,6 +32,6 @@ public interface EventsBackupController {
                     @ApiResponse(responseCode = "500", description = "Внутренняя ошибка сервера")
             }
     )
-    @GetMapping
+    @PostMapping
     void deleteBackup(@RequestHeader(name = "X-username") String username);
 }

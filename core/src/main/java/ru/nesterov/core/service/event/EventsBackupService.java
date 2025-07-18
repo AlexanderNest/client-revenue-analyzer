@@ -72,7 +72,8 @@ public class EventsBackupService {
     })
     @Transactional
     public void deleteOldBackups() {
-        int deletedCount = eventsBackupRepository.deleteByBackupTimeBefore(eventsBackupProperties.getRetentionDays());
+        LocalDateTime backupTimer = LocalDateTime.now().minusDays(eventsBackupProperties.getBackupLimit());
+        eventsBackupRepository.deleteByBackupTimeBefore(backupTimer);
     }
     
     @Transactional

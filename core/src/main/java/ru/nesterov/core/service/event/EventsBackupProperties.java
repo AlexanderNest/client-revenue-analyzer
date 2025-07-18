@@ -4,6 +4,8 @@ import lombok.Data;
 import org.springframework.boot.context.properties.ConfigurationProperties;
 import org.springframework.stereotype.Component;
 
+import java.time.LocalDateTime;
+
 @Component
 @ConfigurationProperties("app.calendar.events.backup")
 @Data
@@ -13,5 +15,5 @@ public class EventsBackupProperties {
     private int delayBetweenManualBackups;
     private int datesRangeForBackup;
     private String backupRetentionDays;
-    private int retentionDays;
+    private int backupLimit;
 }
