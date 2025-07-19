@@ -301,7 +301,7 @@ public class GetClientScheduleCommandHandlerTest extends RegisteredUserHandlerTe
         GetActiveClientResponse client5 = new GetActiveClientResponse();
         client5.setName("Борис");
 
-        List<GetActiveClientResponse> unsortedClients = List.of(client1, client2, client3, client4, client5);
+        List<GetActiveClientResponse> unsortedClients = new ArrayList<>(List.of(client1, client2, client3, client4, client5));
 
         when(client.getActiveClients(anyLong())).thenReturn(unsortedClients);
 
