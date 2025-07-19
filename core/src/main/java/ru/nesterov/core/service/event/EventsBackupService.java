@@ -71,10 +71,10 @@ public class EventsBackupService {
             @Scheduled(cron = "#{eventsBackupProperties.backupRetentionDays}")
     })
     @Transactional
-    public void deleteOldBackups() {
+    public int deleteOldBackups() {
         LocalDateTime backupTimer = LocalDateTime.now().minusDays(eventsBackupProperties.getBackupLimit());
-        eventsBackupRepository.deleteByBackupTimeBefore(backupTimer);
         log.debug("Удалены бэкапы сроком давности более {} дней", eventsBackupProperties.getBackupLimit());
+        return eventsBackupRepository.deleteByBackupTimeBefore(backupTimer);
     }
     
     @Transactional
@@ -92,7 +92,8 @@ public class EventsBackupService {
         
         List<EventBackup> saved = saveBackups(List.of(user), BackupType.MANUAL);
         log.debug("{} выполнил резервное копирование записей", username);
-        
+
+        result.setBackupId(saved.get(0).getId());
         result.setIsBackupMade(true);
         result.setSavedEventsCount(saved.get(0).getEvents().size());
         result.setFrom(LocalDateTime.now().minusDays(eventsBackupProperties.getDatesRangeForBackup()));

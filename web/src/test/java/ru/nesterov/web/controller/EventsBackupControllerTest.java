@@ -12,7 +12,9 @@ import ru.nesterov.core.entity.BackupType;
 import ru.nesterov.core.entity.EventBackup;
 import ru.nesterov.core.entity.User;
 import ru.nesterov.core.repository.EventsBackupRepository;
+import ru.nesterov.core.service.dto.EventBackupDto;
 import ru.nesterov.core.service.event.EventsBackupProperties;
+import ru.nesterov.core.service.event.EventsBackupService;
 
 import java.time.LocalDateTime;
 import java.util.List;
@@ -21,7 +23,6 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.ArgumentMatchers.eq;
-import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
@@ -33,6 +34,8 @@ public class EventsBackupControllerTest extends AbstractControllerTest {
     private EventsBackupProperties eventsBackupProperties;
     @Autowired
     private EventsBackupRepository eventsBackupRepository;
+    @Autowired
+    private EventsBackupService eventsBackupService;
 
     private static final String URL = "/events/backup";
     private static final String HEADER_X_USERNAME = "X-username";
@@ -118,20 +121,12 @@ public class EventsBackupControllerTest extends AbstractControllerTest {
     @Test
     void deleteOldBackupsTest() {
         User user = createUser(3);
-        User savedUser = userRepository.findByUsername(user.getUsername());
-        int backupLimitDays = 30;
-        LocalDateTime now = LocalDateTime.now();
-        LocalDateTime expectedThreshold = now.minusDays(backupLimitDays);
 
-        when(eventsBackupProperties.getBackupLimit()).thenReturn(backupLimitDays);
+        EventBackupDto eventBackupDto = eventsBackupService.backupCurrentUserEvents(user.getUsername());
+        EventBackup eventBackup = eventsBackupRepository.findById(eventBackupDto.getBackupId()).orElseThrow();
+        eventBackup.setBackupTime(LocalDateTime.now().minusDays(35));
+        eventsBackupRepository.save(eventBackup);
 
-        LocalDateTime checkedTime = LocalDateTime
-                .now().minusMinutes(eventsBackupProperties.getDelayBetweenManualBackups() - 1);
-        EventBackup savedBackup = eventsBackupRepository
-                .findByTypeAndUserIdAndBackupTimeAfter(BackupType.MANUAL, savedUser.getId(), checkedTime);
-
-
-        eventsBackupRepository.deleteByBackupTimeBefore(expectedThreshold);
-
+        assertEquals(1, eventsBackupService.deleteOldBackups());
     }
 }

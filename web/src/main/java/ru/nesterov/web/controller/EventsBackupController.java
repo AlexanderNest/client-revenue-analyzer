@@ -33,5 +33,5 @@ public interface EventsBackupController {
             }
     )
     @PostMapping
-    void deleteBackup(@RequestHeader(name = "X-username") String username);
+    int deleteBackup(@RequestHeader(name = "X-username") String username);
 }

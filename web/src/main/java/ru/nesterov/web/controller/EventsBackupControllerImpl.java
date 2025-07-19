@@ -23,7 +23,7 @@ public class EventsBackupControllerImpl implements EventsBackupController {
         return new ResponseEntity<>(response, HttpStatus.OK);
     }
 
-    public void deleteBackup(@RequestHeader(name = "X-username") String username) {
-        eventsBackupService.deleteOldBackups();
+    public int deleteBackup(@RequestHeader(name = "X-username") String username) {
+        return eventsBackupService.deleteOldBackups();
     }
 }
