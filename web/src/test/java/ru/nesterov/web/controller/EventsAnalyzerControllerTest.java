@@ -165,7 +165,7 @@ public class EventsAnalyzerControllerTest extends AbstractControllerTest {
     }
 
     @Test
-    public void getClientStatistic_ShouldReturnStatisticForOneClient() throws Exception {
+    public void getClientStatisticShouldReturnStatisticForOneClient() throws Exception {
         User user = createUser("myUser");
 
         Client client = createClient("oneStat", user);
