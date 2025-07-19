@@ -8,7 +8,7 @@ import ru.nesterov.core.formatter.ClientAnalyticsFormatter;
 import ru.nesterov.core.service.dto.ClientMeetingsStatistic;
 import ru.nesterov.core.service.dto.UserDto;
 import ru.nesterov.core.service.event.EventsAnalyzerService;
-import ru.nesterov.gigachat.service.AIIntegrationService;
+import ru.nesterov.ai.AIIntegrationService;
 
 import java.nio.charset.StandardCharsets;
 import java.util.Map;
@@ -30,7 +30,7 @@ public class AiAnalyzerServiceImpl implements AiAnalyzerService {
     }
 
     public String analyzeClients(UserDto userDto, String month) {
-        Map<String, ClientMeetingsStatistic> meetingsStatistic = eventsAnalyzerService.getStatisticsOfEachClientMeetings(userDto, month);
+        Map<String, ClientMeetingsStatistic> meetingsStatistic = eventsAnalyzerService.getStatisticsOfEachClientMeetingsForMonth(userDto, month);
         Set<Map.Entry<String, ClientMeetingsStatistic>> entries = meetingsStatistic.entrySet()
                 .stream()
                 .filter(entry -> entry.getValue().isFilledStatistic())

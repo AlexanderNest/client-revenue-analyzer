@@ -168,6 +168,14 @@ public class GetClientScheduleCommandHandlerTest extends RegisteredUserHandlerTe
 
     @Test
     void handleSecondDateShouldReturnClientSchedule() {
+        Update updateWithCommand = createUpdateWithCommand();
+        handler.handle(updateWithCommand);
+        Update updateWithClientName = createUpdateWithCallbackQuery("Клиент 1");
+        handler.handle(updateWithClientName);
+        LocalDate firstDate = LocalDate.now();
+        Update updateWithFirstDate = createUpdateWithCallbackQuery(String.valueOf(firstDate));
+        handler.handle(updateWithFirstDate);
+
         List<GetClientScheduleResponse> clientSchedule = new ArrayList<>();
 
         GetClientScheduleResponse schedule1 = new GetClientScheduleResponse();
@@ -322,6 +330,46 @@ public class GetClientScheduleCommandHandlerTest extends RegisteredUserHandlerTe
         SendMessage sendMessage = (SendMessage) botApiMethod;
 
         assertEquals("Нет доступных клиентов", sendMessage.getText());
+    }
+
+    @Test
+    void sendClientNamesKeyboardShouldReturnSortedClients() {
+
+        GetActiveClientResponse client1 = new GetActiveClientResponse();
+        client1.setName("алексей");
+
+        GetActiveClientResponse client2 = new GetActiveClientResponse();
+        client2.setName("Яна");
+
+        GetActiveClientResponse client3 = new GetActiveClientResponse();
+        client3.setName("Андрей");
+
+        GetActiveClientResponse client4 = new GetActiveClientResponse();
+        client4.setName("борис");
+
+        GetActiveClientResponse client5 = new GetActiveClientResponse();
+        client5.setName("Борис");
+
+        List<GetActiveClientResponse> unsortedClients = new ArrayList<>(List.of(client1, client2, client3, client4, client5));
+
+        when(client.getActiveClients(anyLong())).thenReturn(unsortedClients);
+
+        Update update = createUpdateWithCommand();
+        BotApiMethod<?> result = handler.handle(update);
+
+        assertInstanceOf(SendMessage.class, result);
+        SendMessage sendMessage = (SendMessage) result;
+
+        InlineKeyboardMarkup markup = (InlineKeyboardMarkup) sendMessage.getReplyMarkup();
+        List<List<InlineKeyboardButton>> keyboard = markup.getKeyboard();
+
+        assertEquals(5, keyboard.size());
+
+        assertEquals("алексей", keyboard.get(0).get(0).getText());
+        assertEquals("Андрей", keyboard.get(1).get(0).getText());
+        assertEquals("борис", keyboard.get(2).get(0).getText());
+        assertEquals("Борис", keyboard.get(3).get(0).getText());
+        assertEquals("Яна", keyboard.get(4).get(0).getText());
     }
 
     private List<GetActiveClientResponse> createActiveClients() {

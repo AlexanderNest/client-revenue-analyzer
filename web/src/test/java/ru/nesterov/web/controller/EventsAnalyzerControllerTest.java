@@ -3,6 +3,7 @@ package ru.nesterov.web.controller;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import org.mockito.ArgumentMatchers;
 import org.springframework.http.MediaType;
 import ru.nesterov.bot.dto.GetForMonthRequest;
 import ru.nesterov.calendar.integration.dto.CalendarType;
@@ -17,8 +18,7 @@ import java.time.format.DateTimeFormatter;
 import java.util.List;
 
 import static org.hamcrest.Matchers.hasSize;
-import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.ArgumentMatchers.eq;
+import static org.mockito.ArgumentMatchers.*;
 import static org.mockito.Mockito.when;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
@@ -27,11 +27,12 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 
 public class EventsAnalyzerControllerTest extends AbstractControllerTest {
     private final static String USERNAME = "testUser1";
+
     @BeforeEach
     void init() {
         User user = createUser(USERNAME);
-        Client client1 = createClient("testName1", user);
-        Client client2 = createClient("testName2", user);
+        createClient("testName1", user);
+        createClient("testName2", user);
 
         EventExtensionDto eventExtensionDto5 = new EventExtensionDto();
         eventExtensionDto5.setIsPlanned(true);
@@ -100,7 +101,7 @@ public class EventsAnalyzerControllerTest extends AbstractControllerTest {
                 .eventExtensionDto(eventExtensionDto6)
                 .build();
 
-        when(googleCalendarClient.getEventsBetweenDates(eq("someCalendar1"), eq(CalendarType.MAIN), any(), any())).thenReturn(List.of(eventDto1, eventDto2, eventDto3, eventDto4, eventDto5, eventDto6, eventDto7, eventDto8));
+        when(googleCalendarClient.getEventsBetweenDates(eq("someCalendar1"), eq(CalendarType.MAIN), any(), any(), isNull())).thenReturn(List.of(eventDto1, eventDto2, eventDto3, eventDto4, eventDto5, eventDto6, eventDto7, eventDto8));
     }
 
     @AfterEach
@@ -136,7 +137,7 @@ public class EventsAnalyzerControllerTest extends AbstractControllerTest {
     }
 
     @Test
-    public void getClientStatistics() throws Exception {
+    public void getClientsStatistics() throws Exception {
         GetForMonthRequest request = new GetForMonthRequest();
         request.setMonthName("august");
         mockMvc.perform(post("/events/analyzer/getClientsStatistics")
@@ -161,5 +162,57 @@ public class EventsAnalyzerControllerTest extends AbstractControllerTest {
                 .andExpect(jsonPath("$.testName2.incomePerHour").value(1000))
                 .andExpect(jsonPath("$.testName2.actualIncome").value(1000))
                 .andExpect(jsonPath("$.testName2.lostIncome").value(1000));
+    }
+
+    @Test
+    public void getClientStatisticShouldReturnStatisticForOneClient() throws Exception {
+        User user = createUser("myUser");
+
+        Client client = createClient("oneStat", user);
+
+        EventDto eventDto1 = EventDto.builder()
+                .summary(client.getName())
+                .status(EventStatus.PLANNED)
+                .start(LocalDateTime.of(2024, 8, 9, 11, 30))
+                .end(LocalDateTime.of(2024, 8, 9, 12, 30))
+                .build();
+
+        EventDto eventDto2 = EventDto.builder()
+                .summary(client.getName())
+                .status(EventStatus.CANCELLED)
+                .start(LocalDateTime.of(2024, 8, 10, 11, 30))
+                .end(LocalDateTime.of(2024, 8, 10, 12, 30))
+                .build();
+
+        EventDto eventDto3 = EventDto.builder()
+                .summary(client.getName())
+                .status(EventStatus.SUCCESS)
+                .start(LocalDateTime.of(2024, 8, 10, 11, 30))
+                .end(LocalDateTime.of(2024, 8, 10, 12, 30))
+                .build();
+
+        when(googleCalendarClient.getEventsBetweenDates(eq("someCalendar1"), eq(CalendarType.MAIN), any(), any(), eq(client.getName()))).thenReturn(List.of(eventDto1, eventDto2, eventDto3));
+
+        mockMvc.perform(get("/events/analyzer/getClientStatistic")
+                        .header("X-username", "myUser")
+                        .param("clientName", "oneStat")
+                        .contentType(MediaType.APPLICATION_JSON)
+                )
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.name").value(client.getName()))
+                .andExpect(jsonPath("$.id").value(client.getId()))
+                .andExpect(jsonPath("$.description").value(client.getDescription()))
+                .andExpect(jsonPath("$.startDate").isNotEmpty())
+                .andExpect(jsonPath("$.serviceDuration").value(0))
+                .andExpect(jsonPath("$.phone").isEmpty())
+                .andExpect(jsonPath("$.successfulMeetingsHours").value(1.0))
+                .andExpect(jsonPath("$.cancelledMeetingsHours").value(1.0))
+                .andExpect(jsonPath("$.incomePerHour").value(1000))
+                .andExpect(jsonPath("$.successfulEventsCount").value(1))
+                .andExpect(jsonPath("$.plannedCancelledEventsCount").value(1))
+                .andExpect(jsonPath("$.notPlannedCancelledEventsCount").value(0));
+
+        clientRepository.delete(client);
+        userRepository.delete(user);
     }
 }

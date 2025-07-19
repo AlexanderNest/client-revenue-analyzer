@@ -18,6 +18,7 @@ import ru.nesterov.bot.utils.TelegramUpdateUtils;
 import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
+import java.util.Comparator;
 import java.util.List;
 import java.util.Locale;
 import java.util.stream.Collectors;
@@ -100,6 +101,8 @@ public class GetClientScheduleCommandHandler extends StatefulCommandHandler<Stat
         if (clients.isEmpty()) {
             return getPlainSendMessage(TelegramUpdateUtils.getChatId(update), "Нет доступных клиентов");
         }
+
+        clients.sort(Comparator.comparing(GetActiveClientResponse::getName, String.CASE_INSENSITIVE_ORDER));
 
         for (GetActiveClientResponse response : clients) {
             InlineKeyboardButton button = new InlineKeyboardButton();
