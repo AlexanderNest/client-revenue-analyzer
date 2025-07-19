@@ -196,7 +196,6 @@ public class GetClientScheduleCommandHandlerTest extends RegisteredUserHandlerTe
         schedule3.setEventEnd(eventStart3.plusHours(1L));
         clientSchedule.add(schedule3);
 
-        LocalDate firstDate = LocalDate.now();
         LocalDate secondDate = firstDate.plusMonths(1L);
 
         when(client.getClientSchedule(
@@ -205,16 +204,6 @@ public class GetClientScheduleCommandHandlerTest extends RegisteredUserHandlerTe
                 firstDate.atStartOfDay(),
                 secondDate.atStartOfDay().plusDays(1)
         )).thenReturn(clientSchedule);
-
-        Update updateWithCommand = createUpdateWithCommand();
-        handler.handle(updateWithCommand);
-
-        Update updateWithClientName = createUpdateWithCallbackQuery("Клиент 1");
-        handler.handle(updateWithClientName);
-
-        Update updateWithFirstDate = createUpdateWithCallbackQuery(String.valueOf(firstDate));
-        handler.handle(updateWithFirstDate);
-
 
         Update updateWithSecondDate = createUpdateWithCallbackQuery(String.valueOf(secondDate));
         BotApiMethod<?> botApiMethod = handler.handle(updateWithSecondDate);
