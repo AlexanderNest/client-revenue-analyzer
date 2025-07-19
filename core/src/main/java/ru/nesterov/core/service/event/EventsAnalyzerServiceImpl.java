@@ -74,6 +74,7 @@ public class EventsAnalyzerServiceImpl implements EventsAnalyzerService {
                 clientMeetingsStatistic.setDescription(client.getDescription());
                 clientMeetingsStatistic.setStartDate(client.getStartDate());
                 clientMeetingsStatistic.setPhone(client.getPhone());
+                meetingsStatistics.put(eventDto.getSummary(), clientMeetingsStatistic);
             }
 
             if (eventStatus == EventStatus.SUCCESS) {
@@ -81,7 +82,7 @@ public class EventsAnalyzerServiceImpl implements EventsAnalyzerService {
             } else if (eventStatus == EventStatus.CANCELLED) {
                 handleCancelledEvent(clientMeetingsStatistic, eventDto);
             }
-            meetingsStatistics.put(eventDto.getSummary(), clientMeetingsStatistic);
+
         }
 
 

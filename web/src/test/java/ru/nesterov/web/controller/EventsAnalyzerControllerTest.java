@@ -31,8 +31,8 @@ public class EventsAnalyzerControllerTest extends AbstractControllerTest {
     @BeforeEach
     void init() {
         User user = createUser(USERNAME);
-        Client client1 = createClient("testName1", user);
-        Client client2 = createClient("testName2", user);
+        createClient("testName1", user);
+        createClient("testName2", user);
 
         EventExtensionDto eventExtensionDto5 = new EventExtensionDto();
         eventExtensionDto5.setIsPlanned(true);
@@ -166,38 +166,53 @@ public class EventsAnalyzerControllerTest extends AbstractControllerTest {
 
     @Test
     public void getClientStatistic_ShouldReturnStatisticForOneClient() throws Exception {
-        User user =  userRepository.findByUsername(USERNAME);
-        Client client = new Client();
-        client.setName("oneStat");
-        client.setPricePerHour(100);
-        client.setDescription("desc");
-        client.setActive(true);
-        client.setUser(user);
-        client.setPhone("phone");
+        User user = createUser("myUser");
 
-        Client savedClient = clientRepository.save(client);
+        Client client = createClient("oneStat", user);
 
-        mockMvc.perform(get("/events/analyzer/getClientStatistics")
-                        .header("X-username", "testUser1")
+        EventDto eventDto1 = EventDto.builder()
+                .summary(client.getName())
+                .status(EventStatus.PLANNED)
+                .start(LocalDateTime.of(2024, 8, 9, 11, 30))
+                .end(LocalDateTime.of(2024, 8, 9, 12, 30))
+                .build();
+
+        EventDto eventDto2 = EventDto.builder()
+                .summary(client.getName())
+                .status(EventStatus.CANCELLED)
+                .start(LocalDateTime.of(2024, 8, 10, 11, 30))
+                .end(LocalDateTime.of(2024, 8, 10, 12, 30))
+                .build();
+
+        EventDto eventDto3 = EventDto.builder()
+                .summary(client.getName())
+                .status(EventStatus.SUCCESS)
+                .start(LocalDateTime.of(2024, 8, 10, 11, 30))
+                .end(LocalDateTime.of(2024, 8, 10, 12, 30))
+                .build();
+
+        when(googleCalendarClient.getEventsBetweenDates(eq("someCalendar1"), eq(CalendarType.MAIN), any(), any(), eq(client.getName()))).thenReturn(List.of(eventDto1, eventDto2, eventDto3));
+
+        mockMvc.perform(get("/events/analyzer/getClientStatistic")
+                        .header("X-username", "myUser")
                         .param("clientName", "oneStat")
                         .contentType(MediaType.APPLICATION_JSON)
                 )
                 .andExpect(status().isOk())
-                .andExpect(jsonPath("$.name").value(1))
-                .andExpect(jsonPath("$.id").value(2))
-                .andExpect(jsonPath("$.description").value(1))
-                .andExpect(jsonPath("$.startDate").value(1))
-                .andExpect(jsonPath("$.serviceDuration").value(1))
-                .andExpect(jsonPath("$.phone").value(1000))
-                .andExpect(jsonPath("$.successfulMeetingsHours").value(1000))
-                .andExpect(jsonPath("$.cancelledMeetingsHours").value(2000))
-                .andExpect(jsonPath("$.incomePerHour").value(1))
+                .andExpect(jsonPath("$.name").value(client.getName()))
+                .andExpect(jsonPath("$.id").value(client.getId()))
+                .andExpect(jsonPath("$.description").value(client.getDescription()))
+                .andExpect(jsonPath("$.startDate").isNotEmpty())
+                .andExpect(jsonPath("$.serviceDuration").value(0))
+                .andExpect(jsonPath("$.phone").isEmpty())
+                .andExpect(jsonPath("$.successfulMeetingsHours").value(1.0))
+                .andExpect(jsonPath("$.cancelledMeetingsHours").value(1.0))
+                .andExpect(jsonPath("$.incomePerHour").value(1000))
                 .andExpect(jsonPath("$.successfulEventsCount").value(1))
                 .andExpect(jsonPath("$.plannedCancelledEventsCount").value(1))
-                .andExpect(jsonPath("$.notPlannedCancelledEventsCount").value(0))
-                .andExpect(jsonPath("$.notPlannedCancelledEventsCount").value(1));
+                .andExpect(jsonPath("$.notPlannedCancelledEventsCount").value(0));
 
-        clientRepository.delete(savedClient);
-
+        clientRepository.delete(client);
+        userRepository.delete(user);
     }
 }
