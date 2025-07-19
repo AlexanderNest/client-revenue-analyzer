@@ -378,7 +378,7 @@ public class GetClientScheduleCommandHandlerTest extends RegisteredUserHandlerTe
         client4.setId(4);
         client4.setName("Клиент 4");
 
-        return List.of(client1, client2, client3, client4);
+        return new ArrayList<>(List.of(client1, client2, client3, client4));
     }
 
     private void assertDaysOfWeek(List<InlineKeyboardButton> daysOfWeekRow) {
