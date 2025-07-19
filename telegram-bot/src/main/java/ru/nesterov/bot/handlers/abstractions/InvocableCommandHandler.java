@@ -18,8 +18,7 @@ public abstract class InvocableCommandHandler extends SendingMessageCommandHandl
     public boolean isApplicable(Update update) {
         Message message = update.getMessage();
 
-        boolean isCurrentHandlerCommand = message != null && getCommand().equals(message.getText());
-        if (isCurrentHandlerCommand) {
+        if (message != null && getCommand().equals(message.getText())) {
             return true;
         }
 
@@ -29,14 +28,18 @@ public abstract class InvocableCommandHandler extends SendingMessageCommandHandl
             return false;
         }
 
-        boolean isShortButtonCallback = getCommand().equals(buttonCallbackService.buildButtonCallback(callbackQuery.getData()).getCommand());
-        boolean isJsonButtonCallback = false;
-        try {
-            isJsonButtonCallback = getCommand().equals(objectMapper.readValue(callbackQuery.getData(), ButtonCallback.class).getCommand());
-        } catch (Exception ignored) {
+        String data = callbackQuery.getData();
 
+        boolean isShortButtonCallback = getCommand().equals(buttonCallbackService.buildButtonCallback(data).getCommand());
+        if (isShortButtonCallback) {
+            return true;
         }
 
-        return isShortButtonCallback || isJsonButtonCallback;
+        try {
+            ButtonCallback buttonCallback = objectMapper.readValue(data, ButtonCallback.class);
+            return getCommand().equals(buttonCallback.getCommand());
+        } catch (Exception ignored) {
+            return false;
+        }
     }
 }
