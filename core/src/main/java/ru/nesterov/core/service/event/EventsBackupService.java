@@ -74,6 +74,7 @@ public class EventsBackupService {
     public void deleteOldBackups() {
         LocalDateTime backupTimer = LocalDateTime.now().minusDays(eventsBackupProperties.getBackupLimit());
         eventsBackupRepository.deleteByBackupTimeBefore(backupTimer);
+        log.debug("Удалены бэкапы сроком давности более {} дней", eventsBackupProperties.getBackupLimit());
     }
     
     @Transactional

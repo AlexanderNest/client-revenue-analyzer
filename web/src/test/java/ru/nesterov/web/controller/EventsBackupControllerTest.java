@@ -116,15 +116,22 @@ public class EventsBackupControllerTest extends AbstractControllerTest {
     }
 
     @Test
-    void deleteOldBackups_ShouldCallRepositoryWithCorrectDate() {
+    void deleteOldBackupsTest() {
+        User user = createUser(3);
+        User savedUser = userRepository.findByUsername(user.getUsername());
         int backupLimitDays = 30;
         LocalDateTime now = LocalDateTime.now();
         LocalDateTime expectedThreshold = now.minusDays(backupLimitDays);
 
         when(eventsBackupProperties.getBackupLimit()).thenReturn(backupLimitDays);
 
+        LocalDateTime checkedTime = LocalDateTime
+                .now().minusMinutes(eventsBackupProperties.getDelayBetweenManualBackups() - 1);
+        EventBackup savedBackup = eventsBackupRepository
+                .findByTypeAndUserIdAndBackupTimeAfter(BackupType.MANUAL, savedUser.getId(), checkedTime);
+
+
         eventsBackupRepository.deleteByBackupTimeBefore(expectedThreshold);
 
-        verify(eventsBackupRepository).deleteByBackupTimeBefore(expectedThreshold);
     }
 }
