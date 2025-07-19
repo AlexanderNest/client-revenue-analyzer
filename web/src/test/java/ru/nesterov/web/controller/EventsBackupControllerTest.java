@@ -12,7 +12,9 @@ import ru.nesterov.core.entity.BackupType;
 import ru.nesterov.core.entity.EventBackup;
 import ru.nesterov.core.entity.User;
 import ru.nesterov.core.repository.EventsBackupRepository;
+import ru.nesterov.core.service.dto.EventBackupDto;
 import ru.nesterov.core.service.event.EventsBackupProperties;
+import ru.nesterov.core.service.event.EventsBackupService;
 
 import java.time.LocalDateTime;
 import java.util.List;
@@ -32,6 +34,8 @@ public class EventsBackupControllerTest extends AbstractControllerTest {
     private EventsBackupProperties eventsBackupProperties;
     @Autowired
     private EventsBackupRepository eventsBackupRepository;
+    @Autowired
+    private EventsBackupService eventsBackupService;
 
     private static final String URL = "/events/backup";
     private static final String HEADER_X_USERNAME = "X-username";
@@ -114,5 +118,17 @@ public class EventsBackupControllerTest extends AbstractControllerTest {
         user.setMainCalendar("testCalendar" + suffix);
         user.setEventsBackupEnabled(true);
         return userRepository.save(user);
+    }
+
+    @Test
+    void deleteOldBackupsTest() {
+        User user = createUser(3);
+
+        EventBackupDto eventBackupDto = eventsBackupService.backupCurrentUserEvents(user.getUsername());
+        EventBackup eventBackup = eventsBackupRepository.findById(eventBackupDto.getBackupId()).orElseThrow();
+        eventBackup.setBackupTime(LocalDateTime.now().minusDays(35));
+        eventsBackupRepository.save(eventBackup);
+
+        assertEquals(1, eventsBackupService.deleteOldBackups());
     }
 }

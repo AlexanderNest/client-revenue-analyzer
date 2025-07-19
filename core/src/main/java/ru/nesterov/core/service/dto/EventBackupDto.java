@@ -6,6 +6,7 @@ import java.time.LocalDateTime;
 
 @Data
 public class EventBackupDto {
+    private Long backupId;
     private Integer savedEventsCount;
     private Boolean isBackupMade;
     private LocalDateTime from;
