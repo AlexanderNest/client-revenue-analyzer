@@ -3,6 +3,7 @@ package ru.nesterov.web.controller;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import org.mockito.ArgumentMatchers;
 import org.springframework.http.MediaType;
 import ru.nesterov.bot.dto.GetForMonthRequest;
 import ru.nesterov.calendar.integration.dto.CalendarType;
@@ -17,8 +18,7 @@ import java.time.format.DateTimeFormatter;
 import java.util.List;
 
 import static org.hamcrest.Matchers.hasSize;
-import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.ArgumentMatchers.eq;
+import static org.mockito.ArgumentMatchers.*;
 import static org.mockito.Mockito.when;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
@@ -27,6 +27,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 
 public class EventsAnalyzerControllerTest extends AbstractControllerTest {
     private final static String USERNAME = "testUser1";
+
     @BeforeEach
     void init() {
         User user = createUser(USERNAME);
@@ -100,8 +101,7 @@ public class EventsAnalyzerControllerTest extends AbstractControllerTest {
                 .eventExtensionDto(eventExtensionDto6)
                 .build();
 
-        when(googleCalendarClient.getEventsBetweenDates(eq("someCalendar1"), eq(CalendarType.MAIN), any(), any(), any())).thenReturn(List.of(eventDto1, eventDto2, eventDto3, eventDto4, eventDto5, eventDto6, eventDto7, eventDto8));
-        when(googleCalendarClient.getEventsBetweenDates(eq("someCalendar1"), eq(CalendarType.MAIN), any(), any())).thenReturn(List.of(eventDto1, eventDto2, eventDto3, eventDto4, eventDto5, eventDto6, eventDto7, eventDto8));
+        when(googleCalendarClient.getEventsBetweenDates(eq("someCalendar1"), eq(CalendarType.MAIN), any(), any(), isNull())).thenReturn(List.of(eventDto1, eventDto2, eventDto3, eventDto4, eventDto5, eventDto6, eventDto7, eventDto8));
     }
 
     @AfterEach
@@ -137,7 +137,7 @@ public class EventsAnalyzerControllerTest extends AbstractControllerTest {
     }
 
     @Test
-    public void getClientStatistics() throws Exception {
+    public void getClientsStatistics() throws Exception {
         GetForMonthRequest request = new GetForMonthRequest();
         request.setMonthName("august");
         mockMvc.perform(post("/events/analyzer/getClientsStatistics")
@@ -162,5 +162,42 @@ public class EventsAnalyzerControllerTest extends AbstractControllerTest {
                 .andExpect(jsonPath("$.testName2.incomePerHour").value(1000))
                 .andExpect(jsonPath("$.testName2.actualIncome").value(1000))
                 .andExpect(jsonPath("$.testName2.lostIncome").value(1000));
+    }
+
+    @Test
+    public void getClientStatistic_ShouldReturnStatisticForOneClient() throws Exception {
+        User user =  userRepository.findByUsername(USERNAME);
+        Client client = new Client();
+        client.setName("oneStat");
+        client.setPricePerHour(100);
+        client.setDescription("desc");
+        client.setActive(true);
+        client.setUser(user);
+        client.setPhone("phone");
+
+        Client savedClient = clientRepository.save(client);
+
+        mockMvc.perform(get("/events/analyzer/getClientStatistics")
+                        .header("X-username", "testUser1")
+                        .param("clientName", "oneStat")
+                        .contentType(MediaType.APPLICATION_JSON)
+                )
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.name").value(1))
+                .andExpect(jsonPath("$.id").value(2))
+                .andExpect(jsonPath("$.description").value(1))
+                .andExpect(jsonPath("$.startDate").value(1))
+                .andExpect(jsonPath("$.serviceDuration").value(1))
+                .andExpect(jsonPath("$.phone").value(1000))
+                .andExpect(jsonPath("$.successfulMeetingsHours").value(1000))
+                .andExpect(jsonPath("$.cancelledMeetingsHours").value(2000))
+                .andExpect(jsonPath("$.incomePerHour").value(1))
+                .andExpect(jsonPath("$.successfulEventsCount").value(1))
+                .andExpect(jsonPath("$.plannedCancelledEventsCount").value(1))
+                .andExpect(jsonPath("$.notPlannedCancelledEventsCount").value(0))
+                .andExpect(jsonPath("$.notPlannedCancelledEventsCount").value(1));
+
+        clientRepository.delete(savedClient);
+
     }
 }
