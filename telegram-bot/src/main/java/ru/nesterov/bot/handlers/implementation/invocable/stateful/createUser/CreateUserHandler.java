@@ -34,8 +34,8 @@ public class CreateUserHandler extends StatefulCommandHandler<State, CreateUserR
         stateMachineProvider
                 .addTransition(State.STARTED, Action.COMMAND_INPUT, State.MAIN_CALENDAR_INPUT, this::handleRegisterCommand)
                 .addTransition(State.MAIN_CALENDAR_INPUT, Action.ANY_STRING, State.CANCELLED_CALENDAR_ENABLED_QUESTION, this::handleMainCalendarInput)
-                .addTransition(State.CANCELLED_CALENDAR_ENABLED_QUESTION, Action.TRUE, State.CANCELLED_CALENDAR_ID_INPUT, this::handleCancelledCalendarEnabledInput)
-                .addTransition(State.CANCELLED_CALENDAR_ENABLED_QUESTION, Action.FALSE, State.FINISH, this::registerUser)
+                .addTransition(State.CANCELLED_CALENDAR_ENABLED_QUESTION, Action.CALLBACK_TRUE, State.CANCELLED_CALENDAR_ID_INPUT, this::handleCancelledCalendarEnabledInput)
+                .addTransition(State.CANCELLED_CALENDAR_ENABLED_QUESTION, Action.CALLBACK_FALSE, State.FINISH, this::registerUser)
                 .addTransition(State.CANCELLED_CALENDAR_ID_INPUT, Action.ANY_STRING, State.FINISH, this::handleCancelledCalendarIdInput);
     }
 
