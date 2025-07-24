@@ -79,7 +79,7 @@ public class EventsAnalyzerServiceImpl implements EventsAnalyzerService {
 
             if (eventStatus == EventStatus.SUCCESS) {
                 handleSuccessfulEvent(clientMeetingsStatistic, eventDto, client);
-            } else if (eventStatus == EventStatus.PLANNED_CANCELLED || eventStatus == EventStatus.UNPLANNED_CANCELLED && EvenExtensionService.isPlannedStatus(eventDto)) {
+            } else if (eventStatus == EventStatus.PLANNED_CANCELLED || eventStatus == EventStatus.UNPLANNED_CANCELLED && EventExtensionService.isPlannedStatus(eventDto)) {
                 handlePlannedCancelledEvent(clientMeetingsStatistic, eventDto);
             } else if (eventStatus == EventStatus.UNPLANNED_CANCELLED ) {
                 handleUnplannedCancelledEvent(clientMeetingsStatistic, eventDto);
