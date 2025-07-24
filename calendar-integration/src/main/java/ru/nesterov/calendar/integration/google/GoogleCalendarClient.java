@@ -160,7 +160,7 @@ public class GoogleCalendarClient implements CalendarClient {
     private EventDto buildEvent(com.google.api.services.calendar.model.Event event, CalendarType calendarType) {
         EventStatus eventStatus;
         if (calendarType == CalendarType.CANCELLED) {
-            eventStatus = EventStatus.PLANNED_CANCELLED;
+            eventStatus = EventStatus.PLANNED_CANCELLED; // TODO что делать с отмененным календарем? как определять тип? может быть пока заморозить "отмененный" календарь?
         } else if (calendarType == CalendarType.PLAIN) {
             eventStatus = null;
         } else {

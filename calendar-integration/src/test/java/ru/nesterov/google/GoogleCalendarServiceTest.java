@@ -97,13 +97,13 @@ class GoogleCalendarServiceTest {
                 .getEventsBetweenDates(eq(CANCELLED_CALENDAR_ID), eq(CalendarType.CANCELLED), any(), any(), isNull()))
                 .thenReturn(List.of(
                                 EventDto.builder()
-                                        .status(EventStatus.CANCELLED)
+                                        .status(EventStatus.UNPLANNED_CANCELLED)
                                         .summary("event from cancelled calendar 1")
                                         .start(LocalDateTime.of(2023, 12, 01, 00, 00))
                                         .end(LocalDateTime.of(2023, 12, 01, 01, 00))
                                         .build(),
                                 EventDto.builder()
-                                        .status(EventStatus.CANCELLED)
+                                        .status(EventStatus.UNPLANNED_CANCELLED)
                                         .summary("event from cancelled calendar 2")
                                         .start(LocalDateTime.of(2023, 12, 01, 00, 00))
                                         .end(LocalDateTime.of(2023, 12, 01, 01, 00))
@@ -131,8 +131,8 @@ class GoogleCalendarServiceTest {
 
         assertEquals(EventStatus.SUCCESS, eventDtos.get(0).getStatus());
         assertEquals(EventStatus.SUCCESS, eventDtos.get(1).getStatus());
-        assertEquals(EventStatus.PLANNED_CANCELLED, eventDtos.get(2).getStatus());
-        assertEquals(EventStatus.PLANNED_CANCELLED, eventDtos.get(3).getStatus());
+        assertEquals(EventStatus.UNPLANNED_CANCELLED, eventDtos.get(2).getStatus());
+        assertEquals(EventStatus.UNPLANNED_CANCELLED, eventDtos.get(3).getStatus());
 
         assertEquals("event from main calendar 1", eventDtos.get(0).getSummary());
         assertEquals("event from main calendar 2", eventDtos.get(1).getSummary());

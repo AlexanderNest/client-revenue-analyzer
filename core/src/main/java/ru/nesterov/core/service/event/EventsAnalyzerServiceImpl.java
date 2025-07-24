@@ -79,17 +79,12 @@ public class EventsAnalyzerServiceImpl implements EventsAnalyzerService {
 
             if (eventStatus == EventStatus.SUCCESS) {
                 handleSuccessfulEvent(clientMeetingsStatistic, eventDto, client);
-            } else if (eventStatus == EventStatus.CANCELLED) {
-                handleCancelledEvent(clientMeetingsStatistic, eventDto);
-                handleSuccessfulEvent(clientMeetingsStatistic, eventDto);
-            } else if (eventStatus == EventStatus.PLANNED_CANCELLED) {
+            } else if (eventStatus == EventStatus.PLANNED_CANCELLED || eventStatus == EventStatus.UNPLANNED_CANCELLED && EvenExtensionService.isPlannedStatus(eventDto)) {
                 handlePlannedCancelledEvent(clientMeetingsStatistic, eventDto);
-            } else if (eventStatus == EventStatus.UNPLANNED_CANCELLED || EvenExtensionService.isPlannedStatus(eventDto)) {
+            } else if (eventStatus == EventStatus.UNPLANNED_CANCELLED ) {
                 handleUnplannedCancelledEvent(clientMeetingsStatistic, eventDto);
             }
-
         }
-
 
         return meetingsStatistics;
     }
@@ -103,13 +98,13 @@ public class EventsAnalyzerServiceImpl implements EventsAnalyzerService {
 
     private void handlePlannedCancelledEvent(ClientMeetingsStatistic clientMeetingsStatistic, EventDto eventDto){
         double eventDuration = eventService.getEventDuration(eventDto);
-        clientMeetingsStatistic.increaseCancelled(eventDuration);
+        clientMeetingsStatistic.increaseCancelledHours(eventDuration);
         clientMeetingsStatistic.increasePlannedCancelledEvents(1);
     }
 
     private void handleUnplannedCancelledEvent(ClientMeetingsStatistic clientMeetingsStatistic, EventDto eventDto){
         double eventDuration = eventService.getEventDuration(eventDto);
-        clientMeetingsStatistic.increaseCancelled(eventDuration);
+        clientMeetingsStatistic.increaseCancelledHours(eventDuration);
         clientMeetingsStatistic.increaseNotPlannedCancelledEvents(1);
     }
 
@@ -139,7 +134,7 @@ public class EventsAnalyzerServiceImpl implements EventsAnalyzerService {
             if (eventStatus == EventStatus.SUCCESS) {
                 actualIncome += eventPrice;
                 expectedIncome += eventPrice;
-            } else if (eventStatus == EventStatus.PLANNED_CANCELLED) {
+            } else if (eventStatus.isCancelledStatus()) {
                 lostIncome += eventPrice;
 
                 if(isHoliday(holidayDtos, eventDto)) {

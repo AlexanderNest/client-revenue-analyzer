@@ -179,7 +179,7 @@ public class EventsAnalyzerControllerTest extends AbstractControllerTest {
 
         EventDto eventDto2 = EventDto.builder()
                 .summary(client.getName())
-                .status(EventStatus.CANCELLED)
+                .status(EventStatus.UNPLANNED_CANCELLED)
                 .start(LocalDateTime.of(2024, 8, 10, 11, 30))
                 .end(LocalDateTime.of(2024, 8, 10, 12, 30))
                 .build();
