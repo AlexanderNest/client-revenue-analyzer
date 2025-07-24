@@ -36,7 +36,7 @@ public class ClientMeetingsStatistic {
         successfulMeetingsHours += hours;
     }
 
-    public void increaseCancelled(double hours) {
+    public void increaseCancelledHours(double hours) {
         cancelledMeetingsHours += hours;
     }
 

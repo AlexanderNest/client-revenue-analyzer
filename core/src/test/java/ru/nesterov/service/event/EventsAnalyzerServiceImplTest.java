@@ -102,7 +102,7 @@ class EventsAnalyzerServiceImplTest {
 
         EventDto eventDto5 = EventDto.builder()
                 .summary("testName")
-                .status(EventStatus.CANCELLED)
+                .status(EventStatus.PLANNED_CANCELLED)
                 .start(start)
                 .end(end)
                 .build();
@@ -124,7 +124,7 @@ class EventsAnalyzerServiceImplTest {
                 .start(start)
                 .end(end)
                 .eventExtensionDto(eventExtensionDto1)
-                .status(EventStatus.CANCELLED)
+                .status(EventStatus.PLANNED_CANCELLED)
                 .build();
 
         EventExtensionDto eventExtensionDto2 = new EventExtensionDto();
@@ -134,7 +134,7 @@ class EventsAnalyzerServiceImplTest {
                 .start(start)
                 .end(end)
                 .eventExtensionDto(eventExtensionDto2)
-                .status(EventStatus.CANCELLED)
+                .status(EventStatus.UNPLANNED_CANCELLED)
                 .build();
 
 
@@ -175,9 +175,10 @@ class EventsAnalyzerServiceImplTest {
                 .build();
 
         Map<EventStatus, Integer> statuses = eventsAnalyzerService.getEventStatusesByMonthName(userDto, "august");
-        assertEquals(4, statuses.size());
+        assertEquals(5, statuses.size());
         assertEquals(3, statuses.get(EventStatus.SUCCESS));
-        assertEquals(3, statuses.get(EventStatus.CANCELLED));
+        assertEquals(2, statuses.get(EventStatus.PLANNED_CANCELLED));
+        assertEquals(1, statuses.get(EventStatus.UNPLANNED_CANCELLED));
         assertEquals(1, statuses.get(EventStatus.PLANNED));
         assertEquals(1, statuses.get(EventStatus.REQUIRES_SHIFT));
     }

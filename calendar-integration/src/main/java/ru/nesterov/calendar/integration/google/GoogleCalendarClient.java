@@ -160,7 +160,7 @@ public class GoogleCalendarClient implements CalendarClient {
     private EventDto buildEvent(com.google.api.services.calendar.model.Event event, CalendarType calendarType) {
         EventStatus eventStatus;
         if (calendarType == CalendarType.CANCELLED) {
-            eventStatus = EventStatus.CANCELLED;
+            eventStatus = EventStatus.UNPLANNED_CANCELLED; // TODO если ивент пришел из отмененного календаря, то надо тоже высчитывать статус, они там не только незапланированные. поэтому сейчас учитываем этот календарь некорректно
         } else if (calendarType == CalendarType.PLAIN) {
             eventStatus = null;
         } else {
