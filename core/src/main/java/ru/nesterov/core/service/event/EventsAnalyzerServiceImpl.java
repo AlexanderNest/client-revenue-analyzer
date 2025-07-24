@@ -11,7 +11,6 @@ import ru.nesterov.core.entity.Client;
 import ru.nesterov.core.exception.ClientNotFoundException;
 import ru.nesterov.core.exception.UnknownEventStatusException;
 import ru.nesterov.core.repository.ClientRepository;
-import ru.nesterov.core.repository.UserRepository;
 import ru.nesterov.core.service.date.helper.MonthDatesPair;
 import ru.nesterov.core.service.date.helper.MonthHelper;
 import ru.nesterov.core.service.date.helper.WeekHelper;
@@ -20,6 +19,7 @@ import ru.nesterov.core.service.dto.ClientMeetingsStatistic;
 import ru.nesterov.core.service.dto.IncomeAnalysisResult;
 import ru.nesterov.core.service.dto.UserDto;
 
+import javax.annotation.Nullable;
 import java.time.LocalDateTime;
 import java.util.HashMap;
 import java.util.LinkedHashMap;
@@ -34,26 +34,53 @@ public class EventsAnalyzerServiceImpl implements EventsAnalyzerService {
     private final ClientRepository clientRepository;
     private final EventsAnalyzerProperties eventsAnalyzerProperties;
     private final EventService eventService;
-    private final UserRepository userRepository;
 
-    public Map<String, ClientMeetingsStatistic> getStatisticsOfEachClientMeetings(UserDto userDto, String monthName) {
+    @Nullable
+    public ClientMeetingsStatistic getStatisticsByClientMeetings(UserDto userDto, String clientName) {
+        EventsFilter eventsFilter = EventsFilter.builder()
+                .mainCalendar(userDto.getMainCalendar())
+                .cancelledCalendar(userDto.getCancelledCalendar())
+                .leftDate(LocalDateTime.now().minusYears(2))
+                .rightDate(LocalDateTime.now())
+                .isCancelledCalendarEnabled(userDto.isCancelledCalendarEnabled())
+                .clientName(clientName)
+                .build();
+
+        List<EventDto> eventDtos = calendarService.getEventsBetweenDates(eventsFilter);
+
+        return getStatisticsOfClientMeetings(userDto, eventDtos).get(clientName);
+    }
+
+    public Map<String, ClientMeetingsStatistic> getStatisticsOfEachClientMeetingsForMonth(UserDto userDto, String monthName) {
         List<EventDto> eventDtos = getEventsByMonth(userDto, monthName);
 
-        Map<String, ClientMeetingsStatistic> meetingsStatistics = new HashMap<>();
+        return getStatisticsOfClientMeetings(userDto, eventDtos);
+    }
 
+    private Map<String, ClientMeetingsStatistic> getStatisticsOfClientMeetings(UserDto userDto, List<EventDto> eventDtos) {
+        Map<String, ClientMeetingsStatistic> meetingsStatistics = new HashMap<>();
         for (EventDto eventDto : eventDtos) {
             EventStatus eventStatus = eventDto.getStatus();
-
+            Client client = clientRepository.findClientByNameAndUserId(eventDto.getSummary(), userDto.getId());
             ClientMeetingsStatistic clientMeetingsStatistic = meetingsStatistics.get(eventDto.getSummary());
             if (clientMeetingsStatistic == null) {
-                Client client = clientRepository.findClientByNameAndUserId(eventDto.getSummary(), userDto.getId());
                 if (client == null) {
                     throw new ClientNotFoundException(eventDto.getSummary());
                 }
+
                 clientMeetingsStatistic = new ClientMeetingsStatistic(client.getPricePerHour());
+                clientMeetingsStatistic.setName(client.getName());
+                clientMeetingsStatistic.setId(client.getId());
+                clientMeetingsStatistic.setDescription(client.getDescription());
+                clientMeetingsStatistic.setStartDate(client.getStartDate());
+                clientMeetingsStatistic.setPhone(client.getPhone());
+                meetingsStatistics.put(eventDto.getSummary(), clientMeetingsStatistic);
             }
 
             if (eventStatus == EventStatus.SUCCESS) {
+                handleSuccessfulEvent(clientMeetingsStatistic, eventDto, client);
+            } else if (eventStatus == EventStatus.CANCELLED) {
+                handleCancelledEvent(clientMeetingsStatistic, eventDto);
                 handleSuccessfulEvent(clientMeetingsStatistic, eventDto);
             } else if (eventStatus == EventStatus.PLANNED_CANCELLED) {
                 handlePlannedCancelledEvent(clientMeetingsStatistic, eventDto);
@@ -61,16 +88,17 @@ public class EventsAnalyzerServiceImpl implements EventsAnalyzerService {
                 handleUnplannedCancelledEvent(clientMeetingsStatistic, eventDto);
             }
 
-            meetingsStatistics.put(eventDto.getSummary(), clientMeetingsStatistic);
         }
+
 
         return meetingsStatistics;
     }
 
-    private void handleSuccessfulEvent(ClientMeetingsStatistic clientMeetingsStatistic, EventDto eventDto){
+    private void handleSuccessfulEvent(ClientMeetingsStatistic clientMeetingsStatistic, EventDto eventDto, Client client){
         double eventDuration = eventService.getEventDuration(eventDto);
         clientMeetingsStatistic.increaseSuccessfulHours(eventDuration);
         clientMeetingsStatistic.increaseSuccessfulEvents(1);
+        clientMeetingsStatistic.increaseIncome(client.getPricePerHour() * eventDuration);
     }
 
     private void handlePlannedCancelledEvent(ClientMeetingsStatistic clientMeetingsStatistic, EventDto eventDto){
@@ -96,7 +124,6 @@ public class EventsAnalyzerServiceImpl implements EventsAnalyzerService {
 
         MonthDatesPair monthDatesPair = MonthHelper.getFirstAndLastDayOfMonth(monthName);
         List<EventDto> holidayDtos = calendarService.getHolidays(monthDatesPair.getFirstDate(), monthDatesPair.getLastDate());
-
 
         for (EventDto eventDto : eventDtos) {
             EventStatus eventStatus = eventDto.getStatus();

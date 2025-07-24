@@ -10,6 +10,9 @@ import ru.nesterov.bot.handlers.callback.ButtonCallback;
 import ru.nesterov.bot.handlers.service.ButtonCallbackService;
 import ru.nesterov.bot.statemachine.dto.Action;
 
+import java.time.LocalDate;
+import java.time.format.DateTimeFormatter;
+import java.time.format.DateTimeParseException;
 import java.util.List;
 
 @RequiredArgsConstructor
@@ -89,11 +92,39 @@ public class ActionService {
             }
         }
 
+        if (value.equals("Prev") && expectedActions.contains(Action.CALLBACK_PREV)) {
+            return Action.CALLBACK_PREV;
+        }
+
+        if (value.equals("Next") && expectedActions.contains(Action.CALLBACK_NEXT)) {
+            return Action.CALLBACK_NEXT;
+        }
+
+        if (value.equals("Today") && expectedActions.contains(Action.CALLBACK_TODAY)) {
+            return Action.CALLBACK_TODAY;
+        }
+
+        if (isValidDate(value)) {
+            if (expectedActions.contains(Action.CALLBACK_DATE)) {
+                return Action.CALLBACK_DATE;
+            }
+        }
+
         if (expectedActions.contains(Action.ANY_CALLBACK_INPUT)) {
             return Action.ANY_CALLBACK_INPUT;
         }
 
         return null;
+    }
+
+    private boolean isValidDate(String dateStr) {
+        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd");
+        try {
+            LocalDate.parse(dateStr, formatter);
+            return true;
+        } catch (DateTimeParseException e) {
+            return false;
+        }
     }
 
     @Nullable
