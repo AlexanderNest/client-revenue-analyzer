@@ -5,8 +5,8 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestHeader;
 import org.springframework.web.bind.annotation.RestController;
 import ru.nesterov.core.service.client.ClientService;
-import ru.nesterov.core.service.date.helper.MonthDatesPair;
 import ru.nesterov.core.service.dto.ClientDto;
+import ru.nesterov.core.service.dto.ClientScheduleDto;
 import ru.nesterov.core.service.user.UserService;
 import ru.nesterov.web.controller.request.CreateClientRequest;
 import ru.nesterov.web.controller.request.GetClientScheduleRequest;
@@ -23,10 +23,10 @@ public class ClientControllerImpl implements ClientController {
     private final UserService userService;
 
     public List<EventScheduleResponse> getClientSchedule(@RequestHeader(name = "X-username") String username, @RequestBody GetClientScheduleRequest request) {
-        List<MonthDatesPair> clientSchedule = clientService.getClientSchedule(userService.getUserByUsername(username), request.getClientName(), request.getLeftDate(), request.getRightDate());
+        List<ClientScheduleDto> clientSchedule = clientService.getClientSchedule(userService.getUserByUsername(username), request.getClientName(), request.getLeftDate(), request.getRightDate());
 
         return clientSchedule.stream()
-                .map(monthDatesPair -> new EventScheduleResponse(monthDatesPair.getFirstDate(), monthDatesPair.getLastDate()))
+                .map(dto -> new EventScheduleResponse(dto.getEventStart(), dto.getEventEnd(), dto.isRequiresShift()))
                 .toList();
     }
 
