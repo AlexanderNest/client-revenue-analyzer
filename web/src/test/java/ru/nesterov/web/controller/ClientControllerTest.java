@@ -8,6 +8,7 @@ import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMock
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.http.MediaType;
+import ru.nesterov.calendar.integration.dto.CalendarType;
 import ru.nesterov.calendar.integration.dto.EventDto;
 import ru.nesterov.calendar.integration.dto.EventStatus;
 import ru.nesterov.calendar.integration.dto.EventsFilter;
@@ -27,6 +28,8 @@ import java.util.List;
 import static org.hamcrest.Matchers.hasSize;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.when;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
@@ -38,17 +41,6 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 @AutoConfigureMockMvc
 @Slf4j
 class ClientControllerTest extends AbstractControllerTest {
-    @Autowired
-    private ClientService clientService;
-    @Autowired
-    private ObjectMapper objectMapper;
-    @Autowired
-    private UserRepository userRepository;
-    @Autowired
-    private ClientRepository clientRepository;
-    @MockBean
-    private CalendarService calendarService;
-
     private static final String CREATE_CLIENT_URL = "/client/create";
     private static final String GET_ACTIVE_CLIENTS_URL = "/client/getActiveClients";
 
@@ -284,11 +276,7 @@ class ClientControllerTest extends AbstractControllerTest {
     @Test
     public  void shouldMarkApproveRequiredIfRequiresShift() throws Exception{
         User user = createUser(System.currentTimeMillis() + "user");
-        Client client = createClient("testClient2", user);
-
-        user.setCancelledCalendar("cancelledCalendar");
-        user.setMainCalendar("mainCalendar");
-        userRepository.save(user);
+        createClient("testClient2", user);
 
         EventDto eventWithShift = EventDto.builder()
                 .summary("testClient2")
@@ -304,24 +292,13 @@ class ClientControllerTest extends AbstractControllerTest {
                 .end(LocalDateTime.of(2024, 8, 12, 12, 30))
                 .build();
 
-        LocalDateTime from = LocalDateTime.of(2024, 8, 9, 11, 30);
-        LocalDateTime to = LocalDateTime.of(2024, 8, 13, 12, 30);
-
-        EventsFilter expectedFilter = EventsFilter.builder()
-                .mainCalendar(user.getMainCalendar())
-                .cancelledCalendar(user.getCancelledCalendar())
-                .leftDate(from)
-                .rightDate(to)
-                .isCancelledCalendarEnabled(user.isCancelledCalendarEnabled())
-                .build();
-
-        when(calendarService.getEventsBetweenDates(expectedFilter))
+        when(googleCalendarClient.getEventsBetweenDates(eq("someCalendar1"), eq(CalendarType.MAIN), any(), any()))
                 .thenReturn(List.of(eventWithShift, plannedEvent));
 
         GetClientScheduleRequest request = new GetClientScheduleRequest();
         request.setClientName("testClient2");
-        request.setLeftDate(from);
-        request.setRightDate(to);
+        request.setLeftDate(LocalDateTime.of(2024, 8, 9, 11, 30));
+        request.setRightDate(LocalDateTime.of(2024, 8, 13, 12, 30));
 
         String responseJson = mockMvc.perform(post("/client/getSchedule")
                         .header("X-username", user.getUsername())
@@ -331,6 +308,7 @@ class ClientControllerTest extends AbstractControllerTest {
                 .andReturn()
                 .getResponse()
                 .getContentAsString();
+        //TODO делаем через andExpect
 
         List<ClientScheduleDto> schedule = objectMapper.readValue(
                 responseJson,
