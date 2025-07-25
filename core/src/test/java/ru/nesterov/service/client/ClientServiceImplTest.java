@@ -17,10 +17,8 @@ import ru.nesterov.core.repository.ClientRepository;
 import ru.nesterov.core.repository.UserRepository;
 import ru.nesterov.core.service.client.ClientService;
 import ru.nesterov.core.service.client.ClientServiceImpl;
-import ru.nesterov.core.service.date.helper.MonthDatesPair;
 import ru.nesterov.core.service.dto.ClientScheduleDto;
 import ru.nesterov.core.service.dto.UserDto;
-import ru.nesterov.calendar.integration.dto.EventExtensionDto;
 
 import java.time.LocalDateTime;
 import java.util.List;
@@ -65,10 +63,6 @@ public class ClientServiceImplTest {
         client2.setUser(user);
         when(clientRepository.findClientByNameAndUserId(client2.getName(), user.getId())).thenReturn(client2);
 
-        EventExtensionDto plannedExtension = new EventExtensionDto();
-        plannedExtension.setIsPlanned(true);
-
-
         EventDto eventDto1 = EventDto.builder()
                 .summary("testClient1")
                 .status(EventStatus.SUCCESS)
@@ -88,7 +82,6 @@ public class ClientServiceImplTest {
                 .status(EventStatus.REQUIRES_SHIFT)
                 .start(LocalDateTime.of(2024, 8, 11, 11, 30))
                 .end(LocalDateTime.of(2024, 8, 11, 12, 30))
-                .eventExtensionDto(plannedExtension)
                 .build();
 
         EventDto eventDto4 = EventDto.builder()
@@ -133,12 +126,12 @@ public class ClientServiceImplTest {
                 ClientScheduleDto.builder()
                         .eventStart(LocalDateTime.of(2024, 8, 9, 11, 30))
                         .eventEnd(LocalDateTime.of(2024, 8, 9, 12, 30))
-                        .approveRequires(false)
+                        .requiresShift(false)
                         .build(),
                 ClientScheduleDto.builder()
                         .eventStart(LocalDateTime.of(2024, 8, 10, 11, 30))
                         .eventEnd(LocalDateTime.of(2024, 8, 10, 12, 30))
-                        .approveRequires(false)
+                        .requiresShift(false)
                         .build()
         );
 
@@ -156,17 +149,17 @@ public class ClientServiceImplTest {
                 ClientScheduleDto.builder()
                         .eventStart(LocalDateTime.of(2024, 8, 11, 11, 30))
                         .eventEnd(LocalDateTime.of(2024, 8, 11, 12, 30))
-                        .approveRequires(true)
+                        .requiresShift(true)
                         .build(),
                 ClientScheduleDto.builder()
                         .eventStart(LocalDateTime.of(2024, 8, 12, 11, 30))
                         .eventEnd(LocalDateTime.of(2024, 8, 12, 12, 30))
-                        .approveRequires(false)
+                        .requiresShift(false)
                         .build(),
                 ClientScheduleDto.builder()
                         .eventStart(LocalDateTime.of(2024, 8, 13, 11, 30))
                         .eventEnd(LocalDateTime.of(2024, 8, 13, 12, 30))
-                        .approveRequires(false)
+                        .requiresShift(false)
                         .build()
         );
 
@@ -196,23 +189,6 @@ public class ClientServiceImplTest {
         assertThrows(ClientNotFoundException.class, () -> {
             clientService.getClientSchedule(userDto,"Client", from, to);
         });
-    }
-
-    @Test
-    public  void shouldMarkApproveRequiredIfRequiresShiftPresent() {
-        UserDto userDto = createUserDto();
-        LocalDateTime from = LocalDateTime.of(2024, 8, 9, 11, 30);
-        LocalDateTime to = LocalDateTime.of(2024, 8, 13, 12, 30);
-
-        List<ClientScheduleDto> schedule = clientService.getClientSchedule(userDto, "testClient2", from, to);
-
-        assertEquals(3, schedule.size());
-
-        // Среди них должна быть хотя бы одна, у которой approveRequires == true (из-за REQUIRES_SHIFT)
-        boolean hasApproveRequired = schedule.stream()
-                .anyMatch(ClientScheduleDto::isApproveRequires);
-
-        assertTrue(hasApproveRequired, "Должно быть хотя бы одно занятие, требующее подтверждения (approveRequires = true)");
     }
 
     private void validateSchedule(List<ClientScheduleDto> actual, List<ClientScheduleDto> expected) {

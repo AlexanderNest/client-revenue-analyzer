@@ -5,6 +5,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.stereotype.Service;
 import ru.nesterov.calendar.integration.dto.EventDto;
+import ru.nesterov.calendar.integration.dto.EventStatus;
 import ru.nesterov.calendar.integration.dto.EventsFilter;
 import ru.nesterov.calendar.integration.service.CalendarService;
 import ru.nesterov.core.entity.Client;
@@ -47,17 +48,11 @@ public class ClientServiceImpl implements ClientService {
 
         return eventDtos.stream()
                 .filter(event -> event.getSummary().equals(client.getName()))
-                .map(event -> {
-                    boolean approveRequired = false;
-                    if (event.getEventExtensionDto() != null && event.getEventExtensionDto().getIsPlanned() != null){
-                        approveRequired = event.getEventExtensionDto().getIsPlanned();
-                    }
-                    return ClientScheduleDto.builder()
-                            .eventStart(event.getStart())
-                            .eventEnd(event.getEnd())
-                            .approveRequires(approveRequired)
-                            .build();
-                })
+                .map(event -> ClientScheduleDto.builder()
+                        .eventStart(event.getStart())
+                        .eventEnd(event.getEnd())
+                        .requiresShift(event.getStatus() == EventStatus.REQUIRES_SHIFT)
+                        .build())
                 .toList();
     }
 

@@ -1,19 +1,54 @@
 package ru.nesterov.web.controller;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.extern.slf4j.Slf4j;
 import org.junit.jupiter.api.Test;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
+import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.http.MediaType;
+import ru.nesterov.calendar.integration.dto.EventDto;
+import ru.nesterov.calendar.integration.dto.EventStatus;
+import ru.nesterov.calendar.integration.dto.EventsFilter;
+import ru.nesterov.calendar.integration.service.CalendarService;
 import ru.nesterov.core.entity.Client;
 import ru.nesterov.core.entity.User;
+import ru.nesterov.core.repository.ClientRepository;
+import ru.nesterov.core.repository.UserRepository;
+import ru.nesterov.core.service.client.ClientService;
+import ru.nesterov.core.service.dto.ClientScheduleDto;
 import ru.nesterov.web.controller.request.CreateClientRequest;
+import ru.nesterov.web.controller.request.GetClientScheduleRequest;
+
+import java.time.LocalDateTime;
+import java.util.List;
 
 import static org.hamcrest.Matchers.hasSize;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.mockito.Mockito.when;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
+@SpringBootTest(properties = {
+        "spring.autoconfigure.exclude=org.springframework.boot.autoconfigure.security.servlet.SecurityAutoConfiguration"
+})
+@AutoConfigureMockMvc
 @Slf4j
 class ClientControllerTest extends AbstractControllerTest {
+    @Autowired
+    private ClientService clientService;
+    @Autowired
+    private ObjectMapper objectMapper;
+    @Autowired
+    private UserRepository userRepository;
+    @Autowired
+    private ClientRepository clientRepository;
+    @MockBean
+    private CalendarService calendarService;
+
     private static final String CREATE_CLIENT_URL = "/client/create";
     private static final String GET_ACTIVE_CLIENTS_URL = "/client/getActiveClients";
 
@@ -244,5 +279,76 @@ class ClientControllerTest extends AbstractControllerTest {
                 .andExpect(jsonPath("$[1].description").value(client1.getDescription()))
                 .andExpect(jsonPath("$[1].pricePerHour").value(client1.getPricePerHour()))
                 .andExpect(jsonPath("$[1].active").value(client1.isActive()));
+    }
+
+    @Test
+    public  void shouldMarkApproveRequiredIfRequiresShift() throws Exception{
+        User user = createUser("testUser");
+        Client client = createClient("testClient2", user);
+
+        user.setCancelledCalendar("cancelledCalendar");
+        user.setMainCalendar("mainCalendar");
+        userRepository.save(user); // Обновляем пользователя
+
+        EventDto eventWithShift = EventDto.builder()
+                .summary("testClient2")
+                .status(EventStatus.REQUIRES_SHIFT)
+                .start(LocalDateTime.of(2024, 8, 11, 11, 30))
+                .end(LocalDateTime.of(2024, 8, 11, 12, 30))
+                .build();
+
+        EventDto plannedEvent = EventDto.builder()
+                .summary("testClient2")
+                .status(EventStatus.PLANNED)
+                .start(LocalDateTime.of(2024, 8, 12, 11, 30))
+                .end(LocalDateTime.of(2024, 8, 12, 12, 30))
+                .build();
+
+        LocalDateTime from = LocalDateTime.of(2024, 8, 9, 11, 30);
+        LocalDateTime to = LocalDateTime.of(2024, 8, 13, 12, 30);
+
+        EventsFilter expectedFilter = EventsFilter.builder()
+                .mainCalendar(user.getMainCalendar())
+                .cancelledCalendar(user.getCancelledCalendar())
+                .leftDate(from)
+                .rightDate(to)
+                .isCancelledCalendarEnabled(user.isCancelledCalendarEnabled())
+                .build();
+
+        when(calendarService.getEventsBetweenDates(expectedFilter))
+                .thenReturn(List.of(eventWithShift, plannedEvent));
+
+        GetClientScheduleRequest request = new GetClientScheduleRequest();
+        request.setClientName("testClient2");
+        request.setLeftDate(from);
+        request.setRightDate(to);
+
+        String responseJson = mockMvc.perform(post("/client/getSchedule")
+                        .header("X-username", user.getUsername())
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(objectMapper.writeValueAsString(request)))
+                .andExpect(status().isOk())
+                .andReturn()
+                .getResponse()
+                .getContentAsString();
+
+        List<ClientScheduleDto> schedule = objectMapper.readValue(
+                responseJson,
+                objectMapper.getTypeFactory().constructCollectionType(List.class, ClientScheduleDto.class)
+        );
+
+        assertEquals(2, schedule.size(), "Должно вернуться 2 события");
+
+        boolean hasRequiresShift = schedule.stream()
+                .anyMatch(ClientScheduleDto::isRequiresShift);
+        assertTrue(hasRequiresShift, "Должно быть хотя бы одно событие с requiresShift = true");
+
+        ClientScheduleDto shiftEvent = schedule.stream()
+                .filter(ClientScheduleDto::isRequiresShift)
+                .findFirst()
+                .orElseThrow();
+
+        assertEquals(LocalDateTime.of(2024, 8, 11, 11, 30), shiftEvent.getEventStart());
+        assertEquals(LocalDateTime.of(2024, 8, 11, 12, 30), shiftEvent.getEventEnd());
     }
 }

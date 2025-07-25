@@ -10,5 +10,5 @@ import java.time.LocalDateTime;
 public class ClientScheduleDto {
     private LocalDateTime eventStart;
     private LocalDateTime eventEnd;
-    private boolean approveRequires;
+    private boolean requiresShift;
 }
