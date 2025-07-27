@@ -1,24 +1,15 @@
 package ru.nesterov.web.controller;
 
-import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.extern.slf4j.Slf4j;
 import org.junit.jupiter.api.Test;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.context.SpringBootTest;
-import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.http.MediaType;
 import ru.nesterov.calendar.integration.dto.CalendarType;
 import ru.nesterov.calendar.integration.dto.EventDto;
 import ru.nesterov.calendar.integration.dto.EventStatus;
-import ru.nesterov.calendar.integration.dto.EventsFilter;
-import ru.nesterov.calendar.integration.service.CalendarService;
 import ru.nesterov.core.entity.Client;
 import ru.nesterov.core.entity.User;
-import ru.nesterov.core.repository.ClientRepository;
-import ru.nesterov.core.repository.UserRepository;
-import ru.nesterov.core.service.client.ClientService;
-import ru.nesterov.core.service.dto.ClientScheduleDto;
 import ru.nesterov.web.controller.request.CreateClientRequest;
 import ru.nesterov.web.controller.request.GetClientScheduleRequest;
 
@@ -26,8 +17,6 @@ import java.time.LocalDateTime;
 import java.util.List;
 
 import static org.hamcrest.Matchers.hasSize;
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.when;
@@ -300,33 +289,18 @@ class ClientControllerTest extends AbstractControllerTest {
         request.setLeftDate(LocalDateTime.of(2024, 8, 9, 11, 30));
         request.setRightDate(LocalDateTime.of(2024, 8, 13, 12, 30));
 
-        String responseJson = mockMvc.perform(post("/client/getSchedule")
-                        .header("X-username", user.getUsername())
-                        .contentType(MediaType.APPLICATION_JSON)
-                        .content(objectMapper.writeValueAsString(request)))
+        mockMvc.perform(post("/client/getSchedule")
+                .header("X-username", user.getUsername())
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(objectMapper.writeValueAsString(request)))
+
                 .andExpect(status().isOk())
-                .andReturn()
-                .getResponse()
-                .getContentAsString();
-        //TODO делаем через andExpect
-
-        List<ClientScheduleDto> schedule = objectMapper.readValue(
-                responseJson,
-                objectMapper.getTypeFactory().constructCollectionType(List.class, ClientScheduleDto.class)
-        );
-
-        assertEquals(2, schedule.size(), "Должно вернуться 2 события");
-
-        boolean hasRequiresShift = schedule.stream()
-                .anyMatch(ClientScheduleDto::isRequiresShift);
-        assertTrue(hasRequiresShift, "Должно быть хотя бы одно событие с requiresShift = true");
-
-        ClientScheduleDto shiftEvent = schedule.stream()
-                .filter(ClientScheduleDto::isRequiresShift)
-                .findFirst()
-                .orElseThrow();
-
-        assertEquals(LocalDateTime.of(2024, 8, 11, 11, 30), shiftEvent.getEventStart());
-        assertEquals(LocalDateTime.of(2024, 8, 11, 12, 30), shiftEvent.getEventEnd());
+                .andExpect(jsonPath("$", hasSize(2)))
+                .andExpect(jsonPath("$[0].eventStart").value("2024-08-11T11:30:00"))
+                .andExpect(jsonPath("$[0].eventEnd").value("2024-08-11T12:30:00"))
+                .andExpect(jsonPath("$[0].requiresShift").value(true))
+                .andExpect(jsonPath("$[1].eventStart").value("2024-08-12T11:30:00"))
+                .andExpect(jsonPath("$[1].eventEnd").value("2024-08-12T12:30:00"))
+                .andExpect(jsonPath("$[1].requiresShift").value(false));
     }
 }
