@@ -22,6 +22,7 @@ import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.when;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
+import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.print;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
@@ -296,6 +297,8 @@ class ClientControllerTest extends AbstractControllerTest {
                 .header("X-username", user.getUsername())
                 .contentType(MediaType.APPLICATION_JSON)
                 .content(objectMapper.writeValueAsString(request)))
+                .andDo(print()) // ← добавь сюда
+                .andExpect(status().isOk()) // ← упадёт на этом, но ты увидишь тело ответа
 
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$", hasSize(2)))
