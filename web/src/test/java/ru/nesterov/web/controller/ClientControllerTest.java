@@ -265,7 +265,9 @@ class ClientControllerTest extends AbstractControllerTest {
     @Test
     public  void shouldMarkApproveRequiredIfRequiresShift() throws Exception{
         User user = createUser(System.currentTimeMillis() + "user");
-        createClient("testClient2", user);
+        Client client = createClient("testClient2", user);
+        client.setActive(true);
+        clientRepository.save(client);
 
         EventDto eventWithShift = EventDto.builder()
                 .summary("testClient2")
