@@ -16,7 +16,6 @@ import java.util.Date;
 
 @Entity
 @Data
-@ToString(exclude = "user")
 @Table(name = "CLIENT")
 public class Client {
     @Id

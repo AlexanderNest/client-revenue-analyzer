@@ -14,7 +14,6 @@ import java.util.List;
 
 @Entity
 @Data
-@ToString(exclude = "clients")
 @Table(name = "\"user\"")
 public class User {
     @Id
