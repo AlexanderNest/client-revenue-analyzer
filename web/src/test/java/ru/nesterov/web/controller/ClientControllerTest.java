@@ -266,7 +266,7 @@ class ClientControllerTest extends AbstractControllerTest {
 
     @Test
     public  void shouldMarkApproveRequiredIfRequiresShift() throws Exception{
-        User user = createUser(System.currentTimeMillis() + "user" + UUID.randomUUID());
+        User user = createUser("user_" + UUID.randomUUID().toString().replace("-", "").substring(0, 15));
         Client client = createClient("testClient2"+ UUID.randomUUID(), user);
         client.setActive(true);
         clientRepository.save(client);
