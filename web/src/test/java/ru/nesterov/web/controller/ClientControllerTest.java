@@ -34,12 +34,6 @@ class ClientControllerTest extends AbstractControllerTest {
     private static final String CREATE_CLIENT_URL = "/client/create";
     private static final String GET_ACTIVE_CLIENTS_URL = "/client/getActiveClients";
 
-    @AfterEach
-    void cleanup() {
-        clientRepository.deleteAll();
-        userRepository.deleteAll();
-    }
-
     @Test
     void createClientWithoutIdGeneration() throws Exception {
         User user = new User();
