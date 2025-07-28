@@ -1,6 +1,7 @@
 package ru.nesterov.web.controller;
 
 import lombok.extern.slf4j.Slf4j;
+import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.context.SpringBootTest;
@@ -32,6 +33,12 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 class ClientControllerTest extends AbstractControllerTest {
     private static final String CREATE_CLIENT_URL = "/client/create";
     private static final String GET_ACTIVE_CLIENTS_URL = "/client/getActiveClients";
+
+    @AfterEach
+    void cleanup() {
+        clientRepository.deleteAll();
+        userRepository.deleteAll();
+    }
 
     @Test
     void createClientWithoutIdGeneration() throws Exception {
@@ -265,19 +272,19 @@ class ClientControllerTest extends AbstractControllerTest {
     @Test
     public  void shouldMarkApproveRequiredIfRequiresShift() throws Exception{
         User user = createUser(System.currentTimeMillis() + "user");
-        Client client = createClient("testClient28", user);
+        Client client = createClient("testClient2", user);
         client.setActive(true);
         clientRepository.save(client);
 
         EventDto eventWithShift = EventDto.builder()
-                .summary("testClient28")
+                .summary("testClient2")
                 .status(EventStatus.REQUIRES_SHIFT)
                 .start(LocalDateTime.of(2024, 8, 11, 11, 30))
                 .end(LocalDateTime.of(2024, 8, 11, 12, 30))
                 .build();
 
         EventDto plannedEvent = EventDto.builder()
-                .summary("testClient28")
+                .summary("testClient2")
                 .status(EventStatus.PLANNED)
                 .start(LocalDateTime.of(2024, 8, 12, 11, 30))
                 .end(LocalDateTime.of(2024, 8, 12, 12, 30))
@@ -287,7 +294,7 @@ class ClientControllerTest extends AbstractControllerTest {
                 .thenReturn(List.of(eventWithShift, plannedEvent));
 
         GetClientScheduleRequest request = new GetClientScheduleRequest();
-        request.setClientName("testClient28");
+        request.setClientName("testClient2");
         request.setLeftDate(LocalDateTime.of(2024, 8, 9, 11, 30));
         request.setRightDate(LocalDateTime.of(2024, 8, 13, 12, 30));
 
