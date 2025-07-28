@@ -1,7 +1,6 @@
 package ru.nesterov.web.controller;
 
 import lombok.extern.slf4j.Slf4j;
-import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.context.SpringBootTest;
@@ -16,6 +15,7 @@ import ru.nesterov.web.controller.request.GetClientScheduleRequest;
 
 import java.time.LocalDateTime;
 import java.util.List;
+import java.util.UUID;
 
 import static org.hamcrest.Matchers.hasSize;
 import static org.mockito.ArgumentMatchers.any;
@@ -266,8 +266,8 @@ class ClientControllerTest extends AbstractControllerTest {
 
     @Test
     public  void shouldMarkApproveRequiredIfRequiresShift() throws Exception{
-        User user = createUser(System.currentTimeMillis() + "user");
-        Client client = createClient("testClient2", user);
+        User user = createUser(System.currentTimeMillis() + "user" + UUID.randomUUID());
+        Client client = createClient("testClient2"+ UUID.randomUUID(), user);
         client.setActive(true);
         clientRepository.save(client);
 
