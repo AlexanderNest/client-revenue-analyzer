@@ -272,14 +272,14 @@ class ClientControllerTest extends AbstractControllerTest {
         clientRepository.save(client);
 
         EventDto eventWithShift = EventDto.builder()
-                .summary("testClient2")
+                .summary(client.getName())
                 .status(EventStatus.REQUIRES_SHIFT)
                 .start(LocalDateTime.of(2024, 8, 11, 11, 30))
                 .end(LocalDateTime.of(2024, 8, 11, 12, 30))
                 .build();
 
         EventDto plannedEvent = EventDto.builder()
-                .summary("testClient2")
+                .summary(client.getName())
                 .status(EventStatus.PLANNED)
                 .start(LocalDateTime.of(2024, 8, 12, 11, 30))
                 .end(LocalDateTime.of(2024, 8, 12, 12, 30))
@@ -289,7 +289,7 @@ class ClientControllerTest extends AbstractControllerTest {
                 .thenReturn(List.of(eventWithShift, plannedEvent));
 
         GetClientScheduleRequest request = new GetClientScheduleRequest();
-        request.setClientName("testClient2");
+        request.setClientName(client.getName());
         request.setLeftDate(LocalDateTime.of(2024, 8, 9, 11, 30));
         request.setRightDate(LocalDateTime.of(2024, 8, 13, 12, 30));
 
@@ -299,7 +299,9 @@ class ClientControllerTest extends AbstractControllerTest {
                 .header("X-username", user.getUsername())
                 .contentType(MediaType.APPLICATION_JSON)
                 .content(objectMapper.writeValueAsString(request)))
+
                 .andDo(print()) // ← это покажет всё: URI, headers, body, response
+
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$", hasSize(2)))
                 .andExpect(jsonPath("$[0].eventStart").value("2024-08-11T11:30:00"))
