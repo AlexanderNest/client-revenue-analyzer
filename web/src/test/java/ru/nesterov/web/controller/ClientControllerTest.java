@@ -265,19 +265,19 @@ class ClientControllerTest extends AbstractControllerTest {
     @Test
     public  void shouldMarkApproveRequiredIfRequiresShift() throws Exception{
         User user = createUser(System.currentTimeMillis() + "user");
-        Client client = createClient("testClient2", user);
+        Client client = createClient("testClient28", user);
         client.setActive(true);
         clientRepository.save(client);
 
         EventDto eventWithShift = EventDto.builder()
-                .summary("testClient2")
+                .summary("testClient28")
                 .status(EventStatus.REQUIRES_SHIFT)
                 .start(LocalDateTime.of(2024, 8, 11, 11, 30))
                 .end(LocalDateTime.of(2024, 8, 11, 12, 30))
                 .build();
 
         EventDto plannedEvent = EventDto.builder()
-                .summary("testClient2")
+                .summary("testClient28")
                 .status(EventStatus.PLANNED)
                 .start(LocalDateTime.of(2024, 8, 12, 11, 30))
                 .end(LocalDateTime.of(2024, 8, 12, 12, 30))
@@ -287,7 +287,7 @@ class ClientControllerTest extends AbstractControllerTest {
                 .thenReturn(List.of(eventWithShift, plannedEvent));
 
         GetClientScheduleRequest request = new GetClientScheduleRequest();
-        request.setClientName("testClient2");
+        request.setClientName("testClient28");
         request.setLeftDate(LocalDateTime.of(2024, 8, 9, 11, 30));
         request.setRightDate(LocalDateTime.of(2024, 8, 13, 12, 30));
 
