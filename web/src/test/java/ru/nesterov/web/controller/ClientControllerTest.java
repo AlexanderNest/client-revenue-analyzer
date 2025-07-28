@@ -293,13 +293,13 @@ class ClientControllerTest extends AbstractControllerTest {
         request.setLeftDate(LocalDateTime.of(2024, 8, 9, 11, 30));
         request.setRightDate(LocalDateTime.of(2024, 8, 13, 12, 30));
 
+        System.out.println("➡️ ОТПРАВКА ЗАПРОСА С ИМЕНЕМ ПОЛЬЗОВАТЕЛЯ: " + user.getUsername() + ", ИМЕНЕМ КЛИЕНТА: " + client.getName());
+
         mockMvc.perform(post("/client/getSchedule")
                 .header("X-username", user.getUsername())
                 .contentType(MediaType.APPLICATION_JSON)
                 .content(objectMapper.writeValueAsString(request)))
-                .andDo(print()) // ← добавь сюда
-                .andExpect(status().isOk()) // ← упадёт на этом, но ты увидишь тело ответа
-
+                .andDo(print()) // ← это покажет всё: URI, headers, body, response
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$", hasSize(2)))
                 .andExpect(jsonPath("$[0].eventStart").value("2024-08-11T11:30:00"))
