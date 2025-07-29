@@ -266,8 +266,8 @@ class ClientControllerTest extends AbstractControllerTest {
 
     @Test
     public  void shouldMarkApproveRequiredIfRequiresShift() throws Exception{
-        User user = createUser("user_" + UUID.randomUUID().toString().replace("-", "").substring(0, 15));
-        Client client = createClient("testClient2"+ UUID.randomUUID(), user);
+        User user = createUser(System.currentTimeMillis() + "_user");
+        Client client = createClient("testClient2" + System.currentTimeMillis(), user);
         client.setActive(true);
         clientRepository.save(client);
 
@@ -279,7 +279,7 @@ class ClientControllerTest extends AbstractControllerTest {
                 .build();
 
         EventDto plannedEvent = EventDto.builder()
-                .summary(client.getName())
+                .summary(client.getName()) // вместо "testClient2"
                 .status(EventStatus.PLANNED)
                 .start(LocalDateTime.of(2024, 8, 12, 11, 30))
                 .end(LocalDateTime.of(2024, 8, 12, 12, 30))
@@ -300,7 +300,7 @@ class ClientControllerTest extends AbstractControllerTest {
                 .contentType(MediaType.APPLICATION_JSON)
                 .content(objectMapper.writeValueAsString(request)))
 
-                .andDo(print()) // ← это покажет всё: URI, headers, body, response
+                .andDo(print())
 
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$", hasSize(2)))

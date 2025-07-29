@@ -35,11 +35,7 @@ public abstract class AbstractControllerTest {
         user1.setUsername(username);
         user1.setMainCalendar("someCalendar1");
 
-        User saved = userRepository.save(user1);
-        System.out.println("➡️ СОЗДАНИЕ user: " + saved.getUsername() + ", mainCalendar: " + saved.getMainCalendar());
-        return saved;
-
-    //    return userRepository.save(user1);
+        return userRepository.save(user1);
     }
 
     protected Client createClient(String name, User user) {
@@ -48,9 +44,6 @@ public abstract class AbstractControllerTest {
         client1.setName(name);
         client1.setPricePerHour(1000);
 
-        Client saved = clientRepository.save(client1);
-        System.out.println("➡️ СОЗДАНИЕ client: " + saved.getName() + " for user: " + user.getUsername());
-        return saved;
-      //  return clientRepository.save(client1);
+        return clientRepository.save(client1);
     }
 }
