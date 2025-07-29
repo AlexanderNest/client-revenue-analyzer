@@ -1,9 +1,9 @@
 {
 	"info": {
-		"_postman_id": "b5565ca5-ce86-4b2b-86d3-63271fcfa3ab",
+		"_postman_id": "3cee6dee-105a-4fab-9d9b-e2220b61db58",
 		"name": "google-calendar-clients-analyzer",
 		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
-		"_exporter_id": "31542889"
+		"_exporter_id": "35186334"
 	},
 	"item": [
 		{
@@ -162,6 +162,44 @@
 								"revenue-analyzer",
 								"client",
 								"getActiveClients"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Получить информацию о клиенте за два года",
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "X-username",
+								"value": "{{X-username}}",
+								"type": "text"
+							},
+							{
+								"key": "X-secret-token",
+								"value": "{{X-secret-token}}",
+								"type": "text"
+							}
+						],
+						"url": {
+							"raw": "localhost:8080/revenue-analyzer/events/analyzer/getClientStatistic?clientName=Гриша",
+							"host": [
+								"localhost"
+							],
+							"port": "8080",
+							"path": [
+								"revenue-analyzer",
+								"events",
+								"analyzer",
+								"getClientStatistic"
+							],
+							"query": [
+								{
+									"key": "clientName",
+									"value": "Гриша"
+								}
 							]
 						}
 					},

@@ -108,17 +108,17 @@ public class GoogleCalendarClient implements CalendarClient {
     }
 
     @SneakyThrows
-    private List<EventDto> getEventsBetweenDatesInternal(String calendarId, CalendarType calendarType, LocalDateTime leftDate, LocalDateTime rightDate, String clientName) {
+    private List<EventDto> getEventsBetweenDatesInternal(String calendarId, CalendarType calendarType, LocalDateTime leftDate, LocalDateTime rightDate, String eventName) {
         Date startTime = Date.from(leftDate.atZone(ZoneId.systemDefault()).toInstant());
         Date endTime = Date.from(rightDate.atZone(ZoneId.systemDefault()).toInstant());
 
-        List<Events> events = getEventsBetweenDates(calendarId, clientName, startTime, endTime);
+        List<Events> events = getEventsBetweenDates(calendarId, eventName, startTime, endTime);
         Stream<EventDto> eventDtoStream = events.stream()
                 .flatMap(e -> e.getItems().stream())
                 .map(event -> buildEvent(event, calendarType));
 
-        if (clientName != null) {
-            eventDtoStream = eventDtoStream.filter(eventDto -> eventDto.getSummary().equals(clientName));
+        if (eventName != null) {
+            eventDtoStream = eventDtoStream.filter(eventDto -> eventDto.getSummary().equals(eventName));
         }
 
         return eventDtoStream.toList();

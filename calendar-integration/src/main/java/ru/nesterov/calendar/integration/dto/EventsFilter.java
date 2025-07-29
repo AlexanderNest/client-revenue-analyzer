@@ -15,4 +15,5 @@ public class EventsFilter {
     private LocalDateTime leftDate;
     private LocalDateTime rightDate;
     private boolean isCancelledCalendarEnabled;
+    private String clientName;
 }
