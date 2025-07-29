@@ -68,5 +68,5 @@ public interface UserController {
             }
     )
     @PostMapping("/getAllByRoleAndSource")
-    List<String> getAllByRoleAndSource(GetAllUsersByRoleAndSourceRequest getAllUsersByRoleAndSourceRequest);
+    List<String> getUsersIdByRoleAndSource(GetAllUsersByRoleAndSourceRequest getAllUsersByRoleAndSourceRequest);
 }

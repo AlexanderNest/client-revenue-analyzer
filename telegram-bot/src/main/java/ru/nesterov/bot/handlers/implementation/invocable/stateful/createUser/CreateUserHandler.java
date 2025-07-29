@@ -13,7 +13,6 @@ import ru.nesterov.bot.handlers.abstractions.StatefulCommandHandler;
 import ru.nesterov.bot.handlers.callback.ButtonCallback;
 import ru.nesterov.bot.statemachine.dto.Action;
 import ru.nesterov.bot.utils.TelegramUpdateUtils;
-import ru.nesterov.core.entity.Role;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -28,11 +27,6 @@ public class CreateUserHandler extends StatefulCommandHandler<State, CreateUserR
 
     public CreateUserHandler() {
         super(State.STARTED, CreateUserRequest.class);
-    }
-
-    @Override
-    protected List<Role> getApplicableRoles() {
-        return super.getApplicableRoles();
     }
 
     @Override
@@ -126,5 +120,4 @@ public class CreateUserHandler extends StatefulCommandHandler<State, CreateUserR
     public boolean isDisplayedForRegistered() {
         return false;
     }
-
 }

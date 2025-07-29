@@ -7,7 +7,6 @@ import org.telegram.telegrambots.meta.api.objects.Update;
 import ru.nesterov.bot.dto.GetActiveClientResponse;
 import ru.nesterov.bot.handlers.abstractions.DisplayedCommandHandler;
 import ru.nesterov.bot.utils.TelegramUpdateUtils;
-import ru.nesterov.core.entity.Role;
 
 import java.util.List;
 
@@ -17,11 +16,6 @@ public class GetActiveClientsHandler extends DisplayedCommandHandler {
     @Override
     public String getCommand() {
         return "Вывести список клиентов";
-    }
-
-    @Override
-    protected List<Role> getApplicableRoles() {
-        return super.getApplicableRoles();
     }
 
     @Override

@@ -7,7 +7,6 @@ import org.telegram.telegrambots.meta.api.objects.Update;
 import ru.nesterov.bot.dto.GetUnpaidEventsResponse;
 import ru.nesterov.bot.handlers.abstractions.DisplayedCommandHandler;
 import ru.nesterov.bot.utils.TelegramUpdateUtils;
-import ru.nesterov.core.entity.Role;
 
 import java.time.format.DateTimeFormatter;
 import java.util.List;
@@ -19,11 +18,6 @@ public class GetUnpaidEventsHandler extends DisplayedCommandHandler {
     @Override
     public String getCommand() {
         return "Узнать неоплаченные события";
-    }
-
-    @Override
-    protected List<Role> getApplicableRoles() {
-        return super.getApplicableRoles();
     }
 
     @Override

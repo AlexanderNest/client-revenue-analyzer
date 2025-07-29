@@ -14,7 +14,6 @@ import ru.nesterov.bot.handlers.abstractions.StatefulCommandHandler;
 import ru.nesterov.bot.handlers.callback.ButtonCallback;
 import ru.nesterov.bot.statemachine.dto.Action;
 import ru.nesterov.bot.utils.TelegramUpdateUtils;
-import ru.nesterov.core.entity.Role;
 
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
@@ -35,11 +34,6 @@ public class CreateClientHandler extends StatefulCommandHandler<State, CreateCli
 
     public CreateClientHandler() {
         super(State.STARTED, CreateClientRequest.class);
-    }
-
-    @Override
-    protected List<Role> getApplicableRoles() {
-        return super.getApplicableRoles();
     }
 
     @Override

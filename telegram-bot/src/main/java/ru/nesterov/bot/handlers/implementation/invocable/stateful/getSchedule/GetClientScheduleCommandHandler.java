@@ -14,7 +14,6 @@ import ru.nesterov.bot.handlers.abstractions.StatefulCommandHandler;
 import ru.nesterov.bot.handlers.callback.ButtonCallback;
 import ru.nesterov.bot.statemachine.dto.Action;
 import ru.nesterov.bot.utils.TelegramUpdateUtils;
-import ru.nesterov.core.entity.Role;
 
 import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
@@ -38,11 +37,6 @@ public class GetClientScheduleCommandHandler extends StatefulCommandHandler<Stat
     public GetClientScheduleCommandHandler(InlineCalendarBuilder inlineCalendarBuilder) {
         super(State.STARTED, GetClientScheduleRequest.class);
         this.inlineCalendarBuilder = inlineCalendarBuilder;
-    }
-
-    @Override
-    protected List<Role> getApplicableRoles() {
-        return super.getApplicableRoles();
     }
 
     @Override

@@ -36,7 +36,7 @@ public class UserControllerImpl implements UserController{
         return ResponseEntity.ok(response);
     }
 
-    public List<String> getAllByRoleAndSource(@RequestBody GetAllUsersByRoleAndSourceRequest request) {
+    public List<String> getUsersIdByRoleAndSource(@RequestBody GetAllUsersByRoleAndSourceRequest request) {
         return userService.getUsersIdByRoleAndSource(request.getRole(), request.getSource());
     }
 }

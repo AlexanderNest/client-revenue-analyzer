@@ -7,9 +7,6 @@ import org.telegram.telegrambots.meta.api.objects.Update;
 import ru.nesterov.bot.dto.AiAnalyzerResponse;
 import ru.nesterov.bot.handlers.abstractions.DisplayedCommandHandler;
 import ru.nesterov.bot.utils.TelegramUpdateUtils;
-import ru.nesterov.core.entity.Role;
-
-import java.util.List;
 
 @Component
 @RequiredArgsConstructor
@@ -17,11 +14,6 @@ public class AiAnalyzerHandler extends DisplayedCommandHandler {
     @Override
     public String getCommand() {
         return "Анализ клиентов ИИ";
-    }
-
-    @Override
-    protected List<Role> getApplicableRoles() {
-        return super.getApplicableRoles();
     }
 
     @Override
