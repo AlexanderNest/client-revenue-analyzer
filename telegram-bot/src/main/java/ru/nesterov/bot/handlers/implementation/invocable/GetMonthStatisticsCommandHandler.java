@@ -12,6 +12,7 @@ import ru.nesterov.bot.dto.GetIncomeAnalysisForMonthResponse;
 import ru.nesterov.bot.handlers.abstractions.DisplayedCommandHandler;
 import ru.nesterov.bot.handlers.callback.ButtonCallback;
 import ru.nesterov.bot.utils.MonthUtil;
+import ru.nesterov.core.entity.Role;
 
 import java.text.NumberFormat;
 import java.util.ArrayList;
@@ -34,6 +35,11 @@ public class GetMonthStatisticsCommandHandler extends DisplayedCommandHandler {
     };
 
     private static final String markSymbol = "\u2B50";
+
+    @Override
+    protected List<Role> getApplicableRoles() {
+        return super.getApplicableRoles();
+    }
 
     private static String formatIncomeReport(GetIncomeAnalysisForMonthResponse response) {
         NumberFormat currencyFormat = NumberFormat.getNumberInstance(new Locale("ru", "RU"));
@@ -137,4 +143,5 @@ public class GetMonthStatisticsCommandHandler extends DisplayedCommandHandler {
     public int getOrder() {
         return 1;
     }
+
 }

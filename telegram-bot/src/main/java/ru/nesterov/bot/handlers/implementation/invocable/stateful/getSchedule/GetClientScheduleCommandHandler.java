@@ -14,6 +14,7 @@ import ru.nesterov.bot.handlers.abstractions.StatefulCommandHandler;
 import ru.nesterov.bot.handlers.callback.ButtonCallback;
 import ru.nesterov.bot.statemachine.dto.Action;
 import ru.nesterov.bot.utils.TelegramUpdateUtils;
+import ru.nesterov.core.entity.Role;
 
 import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
@@ -37,6 +38,11 @@ public class GetClientScheduleCommandHandler extends StatefulCommandHandler<Stat
     public GetClientScheduleCommandHandler(InlineCalendarBuilder inlineCalendarBuilder) {
         super(State.STARTED, GetClientScheduleRequest.class);
         this.inlineCalendarBuilder = inlineCalendarBuilder;
+    }
+
+    @Override
+    protected List<Role> getApplicableRoles() {
+        return super.getApplicableRoles();
     }
 
     @Override
@@ -93,7 +99,7 @@ public class GetClientScheduleCommandHandler extends StatefulCommandHandler<Stat
     private BotApiMethod<?> sendClientNamesKeyboard(Update update) {
         InlineKeyboardMarkup keyboardMarkup = new InlineKeyboardMarkup();
         List<List<InlineKeyboardButton>> keyboard = new ArrayList<>();
-        List<GetActiveClientResponse> clients = client.getActiveClients(TelegramUpdateUtils.getUserId(update));
+        List<GetActiveClientResponse> clients = client.getActiveClients(TelegramUpdateUtils.getChatId(update));
 
         if (clients.isEmpty()) {
             return getPlainSendMessage(TelegramUpdateUtils.getChatId(update), "Нет доступных клиентов");
@@ -119,7 +125,7 @@ public class GetClientScheduleCommandHandler extends StatefulCommandHandler<Stat
     @SneakyThrows
     private BotApiMethod<?> sendClientSchedule(Update update) {
         List<GetClientScheduleResponse> response = client.getClientSchedule(
-                TelegramUpdateUtils.getUserId(update),
+                TelegramUpdateUtils.getChatId(update),
                 getStateMachine(update).getMemory().getClientName(),
                 getStateMachine(update).getMemory().getFirstDate().atStartOfDay(),
                 getStateMachine(update).getMemory().getSecondDate().atStartOfDay());

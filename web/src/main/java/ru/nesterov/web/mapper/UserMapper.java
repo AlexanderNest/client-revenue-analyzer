@@ -44,6 +44,8 @@ public class UserMapper {
                 .mainCalendarId(userDto.getMainCalendar())
                 .username(userDto.getUsername())
                 .isCancelledCalendarEnabled(userDto.isCancelledCalendarEnabled())
+                .role(userDto.getRole())
+                .source(userDto.getSource())
                 .build();
     }
 }

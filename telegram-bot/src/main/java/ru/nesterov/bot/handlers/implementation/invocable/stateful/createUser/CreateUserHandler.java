@@ -13,6 +13,7 @@ import ru.nesterov.bot.handlers.abstractions.StatefulCommandHandler;
 import ru.nesterov.bot.handlers.callback.ButtonCallback;
 import ru.nesterov.bot.statemachine.dto.Action;
 import ru.nesterov.bot.utils.TelegramUpdateUtils;
+import ru.nesterov.core.entity.Role;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -30,6 +31,11 @@ public class CreateUserHandler extends StatefulCommandHandler<State, CreateUserR
     }
 
     @Override
+    protected List<Role> getApplicableRoles() {
+        return super.getApplicableRoles();
+    }
+
+    @Override
     public void initTransitions() {
         stateMachineProvider
                 .addTransition(State.STARTED, Action.COMMAND_INPUT, State.MAIN_CALENDAR_INPUT, this::handleRegisterCommand)
@@ -40,9 +46,8 @@ public class CreateUserHandler extends StatefulCommandHandler<State, CreateUserR
     }
 
     private BotApiMethod<?> handleRegisterCommand(Update update) {
-        long userId = TelegramUpdateUtils.getUserId(update);
         long chatId = TelegramUpdateUtils.getChatId(update);
-        if (isUserExists(String.valueOf(userId))) {
+        if (isUserExists(String.valueOf(chatId))) {
             return getPlainSendMessage(chatId, "Введите ID основного календаря:");
         } else {
             return getPlainSendMessage(chatId, "Вы уже зарегистрированы и можете пользоваться функциями бота");
@@ -50,7 +55,7 @@ public class CreateUserHandler extends StatefulCommandHandler<State, CreateUserR
     }
 
     private BotApiMethod<?> handleMainCalendarInput(Update update) {
-        getStateMachine(update).getMemory().setUserIdentifier(String.valueOf(TelegramUpdateUtils.getUserId(update)));
+        getStateMachine(update).getMemory().setUserIdentifier(String.valueOf(TelegramUpdateUtils.getChatId(update)));
         getStateMachine(update).getMemory().setMainCalendarId(update.getMessage().getText());
 
         InlineKeyboardMarkup keyboardMarkup = new InlineKeyboardMarkup();
@@ -121,4 +126,5 @@ public class CreateUserHandler extends StatefulCommandHandler<State, CreateUserR
     public boolean isDisplayedForRegistered() {
         return false;
     }
+
 }

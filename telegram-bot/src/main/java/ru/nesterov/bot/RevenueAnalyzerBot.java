@@ -39,7 +39,7 @@ public class RevenueAnalyzerBot extends TelegramLongPollingBot {
 
     public void handleUpdate(Update update) {
 
-        long userId = TelegramUpdateUtils.getUserId(update);
+        long chatId = TelegramUpdateUtils.getChatId(update);
 
         CommandHandler commandHandler = handlersService.getHandler(update);
         if (commandHandler == null) {
@@ -54,10 +54,10 @@ public class RevenueAnalyzerBot extends TelegramLongPollingBot {
         try {
             sendMessage = commandHandler.handle(update);
         } catch (Exception exception) {
-            handlersService.resetBrokeHandler(commandHandler, userId);
+            handlersService.resetBrokeHandler(commandHandler, chatId);
             sendMessage = buildTextMessage(update, exception.getMessage());
         } finally {
-            handlersService.resetFinishedHandlers(userId);
+            handlersService.resetFinishedHandlers(chatId);
         }
         sendMessage(sendMessage);
     }

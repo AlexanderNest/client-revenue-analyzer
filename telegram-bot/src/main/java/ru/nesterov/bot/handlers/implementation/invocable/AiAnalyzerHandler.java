@@ -7,6 +7,9 @@ import org.telegram.telegrambots.meta.api.objects.Update;
 import ru.nesterov.bot.dto.AiAnalyzerResponse;
 import ru.nesterov.bot.handlers.abstractions.DisplayedCommandHandler;
 import ru.nesterov.bot.utils.TelegramUpdateUtils;
+import ru.nesterov.core.entity.Role;
+
+import java.util.List;
 
 @Component
 @RequiredArgsConstructor
@@ -17,9 +20,14 @@ public class AiAnalyzerHandler extends DisplayedCommandHandler {
     }
 
     @Override
+    protected List<Role> getApplicableRoles() {
+        return super.getApplicableRoles();
+    }
+
+    @Override
     public BotApiMethod<?> handle(Update update) {
-        long userId = TelegramUpdateUtils.getUserId(update);
-        AiAnalyzerResponse response = client.getAiStatistics(userId);
+        long chatId = TelegramUpdateUtils.getChatId(update);
+        AiAnalyzerResponse response = client.getAiStatistics(chatId);
 
         return getPlainSendMessage(update.getMessage().getChatId(), response.getContent());
     }

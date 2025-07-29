@@ -7,6 +7,7 @@ import org.telegram.telegrambots.meta.api.objects.Update;
 import ru.nesterov.bot.dto.GetActiveClientResponse;
 import ru.nesterov.bot.handlers.abstractions.DisplayedCommandHandler;
 import ru.nesterov.bot.utils.TelegramUpdateUtils;
+import ru.nesterov.core.entity.Role;
 
 import java.util.List;
 
@@ -19,9 +20,14 @@ public class GetActiveClientsHandler extends DisplayedCommandHandler {
     }
 
     @Override
+    protected List<Role> getApplicableRoles() {
+        return super.getApplicableRoles();
+    }
+
+    @Override
     public BotApiMethod<?> handle(Update update) {
-        long userId = TelegramUpdateUtils.getUserId(update);
-        List<GetActiveClientResponse> activeClientResponseList = client.getActiveClients(userId);
+        long chatId = TelegramUpdateUtils.getChatId(update);
+        List<GetActiveClientResponse> activeClientResponseList = client.getActiveClients(chatId);
 
         if (activeClientResponseList.isEmpty()) {
             return getPlainSendMessage(TelegramUpdateUtils.getChatId(update),

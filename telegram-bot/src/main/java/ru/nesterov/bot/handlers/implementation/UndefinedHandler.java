@@ -10,7 +10,7 @@ import ru.nesterov.bot.utils.TelegramUpdateUtils;
 public class UndefinedHandler extends SendingMessageCommandHandler {
     @Override
     public BotApiMethod<?> handle(Update update) {
-        return getPlainSendMessage(TelegramUpdateUtils.getUserId(update), "Неизвестная команда");
+        return getPlainSendMessage(TelegramUpdateUtils.getChatId(update), "Неизвестная команда");
     }
 
     @Override

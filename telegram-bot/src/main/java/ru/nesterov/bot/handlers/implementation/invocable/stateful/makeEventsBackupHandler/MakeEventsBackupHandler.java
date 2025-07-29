@@ -11,6 +11,7 @@ import ru.nesterov.bot.dto.MakeEventsBackupResponse;
 import ru.nesterov.bot.handlers.abstractions.StatefulCommandHandler;
 import ru.nesterov.bot.statemachine.dto.Action;
 import ru.nesterov.bot.utils.TelegramUpdateUtils;
+import ru.nesterov.core.entity.Role;
 
 import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
@@ -22,6 +23,11 @@ public class MakeEventsBackupHandler extends StatefulCommandHandler<State, MakeE
 
     public MakeEventsBackupHandler() {
         super(State.STARTED, MakeEventsBackupRequest.class);
+    }
+
+    @Override
+    protected List<Role> getApplicableRoles() {
+        return super.getApplicableRoles();
     }
 
     @Override
@@ -58,7 +64,7 @@ public class MakeEventsBackupHandler extends StatefulCommandHandler<State, MakeE
 
     private BotApiMethod<?> makeEventsBackup(Update update) {
 
-        MakeEventsBackupResponse response = client.makeEventsBackup(TelegramUpdateUtils.getUserId(update));
+        MakeEventsBackupResponse response = client.makeEventsBackup(TelegramUpdateUtils.getChatId(update));
 
         String message;
 
@@ -89,6 +95,7 @@ public class MakeEventsBackupHandler extends StatefulCommandHandler<State, MakeE
     public String getCommand() {
         return "Создать бэкап событий";
     }
+
 }
 
 

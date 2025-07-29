@@ -24,6 +24,7 @@ import ru.nesterov.bot.dto.CreateClientResponse;
 import ru.nesterov.bot.dto.CreateUserRequest;
 import ru.nesterov.bot.dto.CreateUserResponse;
 import ru.nesterov.bot.dto.GetActiveClientResponse;
+import ru.nesterov.bot.dto.GetAllUsersByRoleAndSourceRequest;
 import ru.nesterov.bot.dto.GetClientScheduleResponse;
 import ru.nesterov.bot.dto.GetForClientScheduleRequest;
 import ru.nesterov.bot.dto.GetForMonthRequest;
@@ -36,6 +37,7 @@ import ru.nesterov.bot.dto.GetYearBusynessStatisticsResponse;
 import ru.nesterov.bot.dto.MakeEventsBackupResponse;
 import ru.nesterov.bot.exception.InternalException;
 import ru.nesterov.bot.exception.UserFriendlyException;
+import ru.nesterov.core.entity.Role;
 
 import java.time.LocalDate;
 import java.time.LocalDateTime;
@@ -49,6 +51,7 @@ public class ClientRevenueAnalyzerIntegrationClient {
     private final RevenueAnalyzerProperties revenueAnalyzerProperties;
     private final BotProperties botProperties;
     private final ObjectMapper objectMapper;
+
 
     public GetIncomeAnalysisForMonthResponse getIncomeAnalysisForMonth(long userId, String monthName) {
         GetForMonthRequest getForMonthRequest = new GetForMonthRequest();
@@ -159,6 +162,16 @@ public class ClientRevenueAnalyzerIntegrationClient {
         return getForList(String.valueOf(userId),
                 "/revenue-analyzer/events/analyzer/getUnpaidEvents",
                 new ParameterizedTypeReference<>() {}
+        );
+    }
+
+    public List<String> getAllBySourceAndRole(long chatId) {
+        GetAllUsersByRoleAndSourceRequest request = new GetAllUsersByRoleAndSourceRequest();
+        request.setRole(Role.USER);
+        request.setSource("Telegram");
+        return postForList(String.valueOf(chatId), request, "/revenue-analyzer/user/getAllByRoleAndSource",
+                new ParameterizedTypeReference<>() {
+                }
         );
     }
 

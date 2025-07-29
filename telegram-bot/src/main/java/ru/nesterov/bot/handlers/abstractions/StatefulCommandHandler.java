@@ -13,7 +13,6 @@ import ru.nesterov.bot.utils.TelegramUpdateUtils;
 
 import java.lang.reflect.InvocationTargetException;
 import java.util.List;
-import java.util.function.Function;
 
 public abstract class StatefulCommandHandler<STATE extends Enum<STATE>, MEMORY> extends DisplayedCommandHandler {
     @Autowired
@@ -54,12 +53,12 @@ public abstract class StatefulCommandHandler<STATE extends Enum<STATE>, MEMORY> 
      * Возвращает машину для указанного пользователя. Если машина для пользователя не существует, создает ее.
      */
     protected StateMachine<STATE, Action, MEMORY> getStateMachine(Update update) {
-        long userId = TelegramUpdateUtils.getUserId(update);
-        StateMachine<STATE, Action, MEMORY> stateMachine = stateMachineProvider.getMachine(userId);
+        long chatId = TelegramUpdateUtils.getChatId(update);
+        StateMachine<STATE, Action, MEMORY> stateMachine = stateMachineProvider.getMachine(chatId);
         if (stateMachine == null){
             try {
                 stateMachine = stateMachineProvider.createMachine(
-                        userId,
+                        chatId,
                         memoryType.getDeclaredConstructor().newInstance(),
                         stateMachineProvider.getTransitions()
                 );
@@ -96,7 +95,7 @@ public abstract class StatefulCommandHandler<STATE extends Enum<STATE>, MEMORY> 
     public boolean isApplicable(Update update) {
         Message message = update.getMessage();
         boolean isPlainText = message != null && message.getText() != null;
-        if (isPlainText && !isFinishedOrNotStarted(TelegramUpdateUtils.getUserId(update))) {
+        if (isPlainText && !isFinishedOrNotStarted(TelegramUpdateUtils.getChatId(update))) {
             return true;
         }
 

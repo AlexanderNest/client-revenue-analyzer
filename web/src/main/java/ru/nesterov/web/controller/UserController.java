@@ -11,8 +11,11 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import ru.nesterov.bot.dto.CreateUserRequest;
 import ru.nesterov.bot.dto.CreateUserResponse;
+import ru.nesterov.web.controller.request.GetAllUsersByRoleAndSourceRequest;
 import ru.nesterov.web.controller.request.GetUserRequest;
 import ru.nesterov.web.controller.response.GetUserResponse;
+
+import java.util.List;
 
 @Tag(name = "Управление пользователями", description = "API для управления пользователями")
 @RequestMapping("/user")
@@ -49,4 +52,21 @@ public interface UserController {
     )
     @PostMapping("/getUserByUsername")
     ResponseEntity<GetUserResponse> getUserByUsername(GetUserRequest request);
+
+
+    @Operation(
+            summary = "Получить всех пользователей",
+            description = "Возвращает список всех пользователей",
+            requestBody = @RequestBody(
+                    description = "Запрос с ролью и источником",
+                    required = true,
+                    content = @Content(schema = @Schema(implementation = GetAllUsersByRoleAndSourceRequest.class))
+            ),
+            responses = {
+                    @ApiResponse(responseCode = "200", description = "Успешный ответ"),
+                    @ApiResponse(responseCode = "500", description = "Внутренняя ошибка сервера")
+            }
+    )
+    @PostMapping("/getAllByRoleAndSource")
+    List<String> getAllByRoleAndSource(GetAllUsersByRoleAndSourceRequest getAllUsersByRoleAndSourceRequest);
 }

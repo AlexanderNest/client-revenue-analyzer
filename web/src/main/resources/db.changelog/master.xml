@@ -304,4 +304,38 @@
             ALTER TABLE event ADD event_extension VARCHAR(500);
         </sql>
     </changeSet>
+
+    <changeSet id="add-user-source-column" author="uliana2903">
+        <preConditions onFail="MARK_RAN">
+            <and>
+                <tableExists tableName="user"/>
+                <not>
+                    <columnExists tableName="user" columnName="source"/>
+                </not>
+            </and>
+        </preConditions>
+        <sql>ALTER TABLE "user"
+            ADD COLUMN source VARCHAR(255);</sql>
+    </changeSet>
+
+    <changeSet id="add-role-column" author="uliana2903">
+        <preConditions onFail="MARK_RAN">
+            <and>
+                <tableExists tableName="user"/>
+                <not>
+                    <columnExists tableName="user" columnName="role"/>
+                </not>
+            </and>
+        </preConditions>
+        <sql>ALTER TABLE "user"
+            ADD COLUMN role VARCHAR(255);</sql>
+    </changeSet>
+
+    <changeSet id="add-index-role-source" author="uliana2903">
+        <preConditions onFail="MARK_RAN">
+            <tableExists tableName="user"/>
+        </preConditions>
+        <sql>CREATE INDEX idx_user_role_source ON "user" (role, source);</sql>
+    </changeSet>
+
 </databaseChangeLog>
