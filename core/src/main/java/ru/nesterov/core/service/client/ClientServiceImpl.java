@@ -18,7 +18,6 @@ import ru.nesterov.core.service.dto.ClientDto;
 import ru.nesterov.core.service.dto.ClientScheduleDto;
 import ru.nesterov.core.service.dto.UserDto;
 import ru.nesterov.core.service.mapper.ClientMapper;
-
 import java.time.LocalDateTime;
 import java.util.List;
 
@@ -84,7 +83,7 @@ public class ClientServiceImpl implements ClientService {
     }
 
     @Override
-    public List<ClientDto> getActiveClients(UserDto userDto) {
+    public List<ClientDto> getActiveClientsOrderedByPrice(UserDto userDto) {
         return clientRepository.findClientByUserIdAndActiveOrderByPricePerHourDesc(userDto.getId(), true).stream()
                 .map(ClientMapper::mapToClientDto)
                 .toList();
