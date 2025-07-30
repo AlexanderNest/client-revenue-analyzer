@@ -24,10 +24,6 @@ import static org.springframework.test.web.servlet.request.MockMvcRequestBuilder
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
-@SpringBootTest(properties = {
-        "spring.autoconfigure.exclude=org.springframework.boot.autoconfigure.security.servlet.SecurityAutoConfiguration"
-})
-@AutoConfigureMockMvc
 @Slf4j
 class ClientControllerTest extends AbstractControllerTest {
     private static final String CREATE_CLIENT_URL = "/client/create";
@@ -281,7 +277,7 @@ class ClientControllerTest extends AbstractControllerTest {
                 .end(LocalDateTime.of(2024, 8, 12, 12, 30))
                 .build();
 
-        when(googleCalendarClient.getEventsBetweenDates(eq("someCalendar1"), eq(CalendarType.MAIN), any(), any(),any())) //eq(client.getName()
+        when(googleCalendarClient.getEventsBetweenDates(eq("someCalendar1"), eq(CalendarType.MAIN), any(), any(), any()))
                 .thenReturn(List.of(eventWithShift, plannedEvent));
 
         GetClientScheduleRequest request = new GetClientScheduleRequest();
