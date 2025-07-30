@@ -280,7 +280,7 @@ class ClientControllerTest extends AbstractControllerTest {
                 .build();
 
         EventDto plannedEvent = EventDto.builder()
-                .summary(client.getName()) // вместо "testClient2"
+                .summary(client.getName())
                 .status(EventStatus.PLANNED)
                 .start(LocalDateTime.of(2024, 8, 12, 11, 30))
                 .end(LocalDateTime.of(2024, 8, 12, 12, 30))
