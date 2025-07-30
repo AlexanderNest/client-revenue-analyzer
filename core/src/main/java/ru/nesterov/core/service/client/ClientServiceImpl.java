@@ -41,7 +41,7 @@ public class ClientServiceImpl implements ClientService {
                 .leftDate(leftDate)
                 .rightDate(rightDate)
                 .isCancelledCalendarEnabled(userDto.isCancelledCalendarEnabled())
-                .clientName(clientName)
+              //  .clientName(clientName)
                 .build();
 
         List<EventDto> eventDtos = calendarService.getEventsBetweenDates(eventsFilter);
