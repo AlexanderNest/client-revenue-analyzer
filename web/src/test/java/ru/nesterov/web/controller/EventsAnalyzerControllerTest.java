@@ -71,7 +71,7 @@ public class EventsAnalyzerControllerTest extends AbstractControllerTest {
 
         EventDto eventDto5 = EventDto.builder()
                 .summary("testName1")
-                .status(EventStatus.CANCELLED)
+                .status(EventStatus.PLANNED_CANCELLED)
                 .start(LocalDateTime.of(2024, 8, 13, 11, 30))
                 .end(LocalDateTime.of(2024, 8, 13, 12, 30))
                 .eventExtensionDto(eventExtensionDto5)
@@ -79,7 +79,7 @@ public class EventsAnalyzerControllerTest extends AbstractControllerTest {
 
         EventDto eventDto6 = EventDto.builder()
                 .summary("testName1")
-                .status(EventStatus.CANCELLED)
+                .status(EventStatus.UNPLANNED_CANCELLED)
                 .start(LocalDateTime.of(2024, 8, 14, 11, 30))
                 .end(LocalDateTime.of(2024, 8, 14, 12, 30))
                 .eventExtensionDto(eventExtensionDto6)
@@ -87,7 +87,7 @@ public class EventsAnalyzerControllerTest extends AbstractControllerTest {
 
         EventDto eventDto7 = EventDto.builder()
                 .summary("testName2")
-                .status(EventStatus.CANCELLED)
+                .status(EventStatus.PLANNED_CANCELLED)
                 .start(LocalDateTime.of(2024, 8, 14, 11, 30))
                 .end(LocalDateTime.of(2024, 8, 14, 12, 30))
                 .eventExtensionDto(eventExtensionDto6)
@@ -157,8 +157,8 @@ public class EventsAnalyzerControllerTest extends AbstractControllerTest {
                 .andExpect(jsonPath("$.testName2.successfulMeetingsHours").value(1))
                 .andExpect(jsonPath("$.testName2.cancelledMeetingsHours").value(1))
                 .andExpect(jsonPath("$.testName2.successfulEventsCount").value(1))
-                .andExpect(jsonPath("$.testName2.plannedCancelledEventsCount").value(0))
-                .andExpect(jsonPath("$.testName2.notPlannedCancelledEventsCount").value(1))
+                .andExpect(jsonPath("$.testName2.plannedCancelledEventsCount").value(1))
+                .andExpect(jsonPath("$.testName2.notPlannedCancelledEventsCount").value(0))
                 .andExpect(jsonPath("$.testName2.incomePerHour").value(1000))
                 .andExpect(jsonPath("$.testName2.actualIncome").value(1000))
                 .andExpect(jsonPath("$.testName2.lostIncome").value(1000));
@@ -179,7 +179,7 @@ public class EventsAnalyzerControllerTest extends AbstractControllerTest {
 
         EventDto eventDto2 = EventDto.builder()
                 .summary(client.getName())
-                .status(EventStatus.CANCELLED)
+                .status(EventStatus.UNPLANNED_CANCELLED)
                 .start(LocalDateTime.of(2024, 8, 10, 11, 30))
                 .end(LocalDateTime.of(2024, 8, 10, 12, 30))
                 .build();
@@ -191,7 +191,15 @@ public class EventsAnalyzerControllerTest extends AbstractControllerTest {
                 .end(LocalDateTime.of(2024, 8, 10, 12, 30))
                 .build();
 
-        when(googleCalendarClient.getEventsBetweenDates(eq("someCalendar1"), eq(CalendarType.MAIN), any(), any(), eq(client.getName()))).thenReturn(List.of(eventDto1, eventDto2, eventDto3));
+        EventDto eventDto4 = EventDto.builder()
+                .summary(client.getName())
+                .status(EventStatus.PLANNED_CANCELLED)
+                .start(LocalDateTime.of(2024, 8, 10, 11, 30))
+                .end(LocalDateTime.of(2024, 8, 10, 12, 30))
+                .build();
+
+        when(googleCalendarClient.getEventsBetweenDates(eq("someCalendar1"), eq(CalendarType.MAIN), any(), any(), eq(client.getName())))
+                .thenReturn(List.of(eventDto1, eventDto2, eventDto3, eventDto4));
 
         mockMvc.perform(get("/events/analyzer/getClientStatistic")
                         .header("X-username", "myUser")
@@ -206,11 +214,11 @@ public class EventsAnalyzerControllerTest extends AbstractControllerTest {
                 .andExpect(jsonPath("$.serviceDuration").value(0))
                 .andExpect(jsonPath("$.phone").isEmpty())
                 .andExpect(jsonPath("$.successfulMeetingsHours").value(1.0))
-                .andExpect(jsonPath("$.cancelledMeetingsHours").value(1.0))
+                .andExpect(jsonPath("$.cancelledMeetingsHours").value(2.0))
                 .andExpect(jsonPath("$.incomePerHour").value(1000))
                 .andExpect(jsonPath("$.successfulEventsCount").value(1))
                 .andExpect(jsonPath("$.plannedCancelledEventsCount").value(1))
-                .andExpect(jsonPath("$.notPlannedCancelledEventsCount").value(0));
+                .andExpect(jsonPath("$.notPlannedCancelledEventsCount").value(1));
 
         clientRepository.delete(client);
         userRepository.delete(user);
