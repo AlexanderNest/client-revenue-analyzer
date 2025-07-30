@@ -285,7 +285,7 @@ class ClientControllerTest extends AbstractControllerTest {
                 eq("someCalendar1"), eq(CalendarType.MAIN),
                 eq(LocalDateTime.of(2024, 8, 9, 11, 30)),
                 eq(LocalDateTime.of(2024, 8, 13, 12, 30)),
-                any()))
+                eq(client.getName())))
                 .thenReturn(List.of(eventWithShift, plannedEvent));
 
         GetClientScheduleRequest request = new GetClientScheduleRequest();
