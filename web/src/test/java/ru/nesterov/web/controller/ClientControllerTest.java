@@ -15,15 +15,12 @@ import ru.nesterov.web.controller.request.GetClientScheduleRequest;
 
 import java.time.LocalDateTime;
 import java.util.List;
-import java.util.UUID;
 
 import static org.hamcrest.Matchers.hasSize;
 import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.when;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
-import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.print;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
@@ -269,8 +266,6 @@ class ClientControllerTest extends AbstractControllerTest {
     public  void shouldMarkApproveRequiredIfRequiresShift() throws Exception{
         User user = createUser(System.currentTimeMillis() + "_user");
         Client client = createClient("testClient2" + System.currentTimeMillis(), user);
-        client.setActive(true);
-        clientRepository.save(client);
 
         EventDto eventWithShift = EventDto.builder()
                 .summary(client.getName())
@@ -285,7 +280,6 @@ class ClientControllerTest extends AbstractControllerTest {
                 .start(LocalDateTime.of(2024, 8, 12, 11, 30))
                 .end(LocalDateTime.of(2024, 8, 12, 12, 30))
                 .build();
-
 
         when(googleCalendarClient.getEventsBetweenDates(
                 eq("someCalendar1"), eq(CalendarType.MAIN),
