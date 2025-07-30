@@ -67,12 +67,12 @@ public class EventsBackupService {
                     initialDelayString = "#{eventsBackupProperties.delayForBackupAfterAppStarting}",
                     timeUnit = TimeUnit.SECONDS
             ),
-            @Scheduled(cron = "#{eventsBackupProperties.backupRetentionDays}")
+            @Scheduled(cron = "#{eventsBackupProperties.backupsCleaningSchedule}")
     })
     @Transactional
     public int deleteOldBackups() {
-        LocalDateTime backupTimer = LocalDateTime.now().minusDays(eventsBackupProperties.getBackupLimit());
-        log.debug("Удалены бэкапы сроком давности более {} дней", eventsBackupProperties.getBackupLimit());
+        LocalDateTime backupTimer = LocalDateTime.now().minusDays(eventsBackupProperties.getDaysLimit());
+        log.debug("Удалены бэкапы сроком давности более {} дней", eventsBackupProperties.getDaysLimit());
         return eventsBackupRepository.deleteByBackupTimeBefore(backupTimer);
     }
     

@@ -23,5 +23,4 @@ public interface EventsBackupController {
     )
     @GetMapping
     ResponseEntity<EventBackupResponse> makeBackup(@RequestHeader(name = "X-username") String username);
-
 }
