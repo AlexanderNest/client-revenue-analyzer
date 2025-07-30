@@ -1,6 +1,7 @@
 package ru.nesterov.web.controller;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
+import org.junit.jupiter.api.BeforeEach;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.context.SpringBootTest;
@@ -29,6 +30,11 @@ public abstract class AbstractControllerTest {
 
     @MockBean
     protected GoogleCalendarClient googleCalendarClient;
+
+    @BeforeEach
+    void printCalendarServiceClass() {
+        System.out.println("📦 Используемый CalendarService: " + calendarService.getClass().getName());
+    }
 
     protected User createUser(String username) {
         User user1 = new User();

@@ -19,6 +19,7 @@ import java.util.UUID;
 
 import static org.hamcrest.Matchers.hasSize;
 import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.when;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
@@ -285,7 +286,12 @@ class ClientControllerTest extends AbstractControllerTest {
                 .end(LocalDateTime.of(2024, 8, 12, 12, 30))
                 .build();
 
-        when(googleCalendarClient.getEventsBetweenDates(eq("someCalendar1"), eq(CalendarType.MAIN), any(), any()))
+
+        when(googleCalendarClient.getEventsBetweenDates(
+                eq("someCalendar1"), eq(CalendarType.MAIN),
+                eq(LocalDateTime.of(2024, 8, 9, 11, 30)),
+                eq(LocalDateTime.of(2024, 8, 13, 12, 30)),
+                any()))
                 .thenReturn(List.of(eventWithShift, plannedEvent));
 
         GetClientScheduleRequest request = new GetClientScheduleRequest();
@@ -293,14 +299,10 @@ class ClientControllerTest extends AbstractControllerTest {
         request.setLeftDate(LocalDateTime.of(2024, 8, 9, 11, 30));
         request.setRightDate(LocalDateTime.of(2024, 8, 13, 12, 30));
 
-        System.out.println("➡️ ОТПРАВКА ЗАПРОСА С ИМЕНЕМ ПОЛЬЗОВАТЕЛЯ: " + user.getUsername() + ", ИМЕНЕМ КЛИЕНТА: " + client.getName());
-
         mockMvc.perform(post("/client/getSchedule")
                 .header("X-username", user.getUsername())
                 .contentType(MediaType.APPLICATION_JSON)
                 .content(objectMapper.writeValueAsString(request)))
-
-                .andDo(print())
 
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$", hasSize(2)))
