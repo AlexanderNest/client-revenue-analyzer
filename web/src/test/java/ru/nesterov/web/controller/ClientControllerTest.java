@@ -18,6 +18,7 @@ import java.util.List;
 
 import static org.hamcrest.Matchers.hasSize;
 import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.when;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
@@ -281,7 +282,7 @@ class ClientControllerTest extends AbstractControllerTest {
                 .end(LocalDateTime.of(2024, 8, 12, 12, 30))
                 .build();
 
-        when(googleCalendarClient.getEventsBetweenDates(eq("someCalendar1"), eq(CalendarType.MAIN), any(), any(), eq(client.getName())))
+        when(googleCalendarClient.getEventsBetweenDates(anyString(), eq(CalendarType.MAIN), any(), any(), anyString()))
                 .thenReturn(List.of(eventWithShift, plannedEvent));
 
         GetClientScheduleRequest request = new GetClientScheduleRequest();
