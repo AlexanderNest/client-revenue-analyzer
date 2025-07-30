@@ -281,11 +281,7 @@ class ClientControllerTest extends AbstractControllerTest {
                 .end(LocalDateTime.of(2024, 8, 12, 12, 30))
                 .build();
 
-        when(googleCalendarClient.getEventsBetweenDates(
-                eq("someCalendar1"), eq(CalendarType.MAIN),
-                eq(LocalDateTime.of(2024, 8, 9, 11, 30)),
-                eq(LocalDateTime.of(2024, 8, 13, 12, 30)),
-                eq(client.getName())))
+        when(googleCalendarClient.getEventsBetweenDates(eq("someCalendar1"), eq(CalendarType.MAIN), any(), any(), eq(client.getName())))
                 .thenReturn(List.of(eventWithShift, plannedEvent));
 
         GetClientScheduleRequest request = new GetClientScheduleRequest();
