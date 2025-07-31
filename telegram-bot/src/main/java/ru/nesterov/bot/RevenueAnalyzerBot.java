@@ -43,7 +43,6 @@ public class RevenueAnalyzerBot extends TelegramLongPollingBot {
         taskExecutor.execute(() -> handleUpdate(update));
     }
 
-    M
     public void handleUpdate(Update update) {
 
         long userId = TelegramUpdateUtils.getUserId(update);
