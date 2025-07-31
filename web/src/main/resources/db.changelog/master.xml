@@ -4,304 +4,135 @@
                    xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog
                    https://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-latest.xsd">
 
-    <changeSet id="create-table-parameter" author="Valera">
+    <!-- === CLIENT TABLE === -->
+    <changeSet id="create-table-client" author="Valera">
         <preConditions onFail="MARK_RAN">
-            <not>
-                <tableExists tableName="client"/>
-            </not>
+            <not><tableExists tableName="client"/></not>
         </preConditions>
-        <sql>
-            CREATE SEQUENCE client_seq START WITH 1 INCREMENT BY 1;
-
-            CREATE TABLE CLIENT
-            (
-                ID             BIGINT DEFAULT NEXT VALUE FOR client_seq PRIMARY KEY,
-                NAME           VARCHAR(255),
-                DESCRIPTION    VARCHAR(255),
-                PRICE_PER_HOUR INT
-            );
-            CREATE INDEX IDX_CLIENT_ID ON CLIENT (ID);
-        </sql>
+        <createTable tableName="client">
+            <column name="id" type="BIGINT" autoIncrement="true">
+                <constraints primaryKey="true"/>
+            </column>
+            <column name="name" type="VARCHAR(255)"/>
+            <column name="description" type="VARCHAR(255)"/>
+            <column name="price_per_hour" type="INT"/>
+        </createTable>
+        <createIndex indexName="IDX_CLIENT_ID" tableName="client">
+            <column name="id"/>
+        </createIndex>
     </changeSet>
 
-    <changeSet id="add active row" author="nestrov">
-        <preConditions onFail="MARK_RAN">
-            <not>
-                <columnExists tableName="client" columnName="active"></columnExists>
-            </not>
-        </preConditions>
+    <changeSet id="add-client-columns" author="nesterov">
         <addColumn tableName="client">
-            <column name="active" type="boolean" defaultValue="true"></column>
+            <column name="active" type="BOOLEAN" defaultValueBoolean="true"/>
+            <column name="start_date" type="TIMESTAMP" defaultValueComputed="CURRENT_TIMESTAMP">
+            </column>
+            <column name="phone" type="VARCHAR(255)"/>
         </addColumn>
     </changeSet>
 
-    <changeSet id="task-#42-create-table-user" author="Valera">
-        <preConditions>
-            <not>
-                <tableExists tableName="user"/>
-            </not>
-        </preConditions>
-        <sql>
-            CREATE TABLE "user"
-            (
-                id                 BIGSERIAL PRIMARY KEY NOT NULL,
-                username           VARCHAR(20) UNIQUE    NOT NULL,
-                main_calendar_id      VARCHAR(200)          NOT NULL,
-                cancelled_calendar_id VARCHAR(200),
-                cancelled_calendar_enabled boolean DEFAULT false
-            )
-        </sql>
+    <!-- === USER TABLE === -->
+    <changeSet id="create-table-user" author="Valera">
+        <preConditions><not><tableExists tableName="user"/></not></preConditions>
+        <createTable tableName="user">
+            <column name="id" type="BIGINT" autoIncrement="true">
+                <constraints primaryKey="true" nullable="false"/>
+            </column>
+            <column name="username" type="VARCHAR(20)">
+                <constraints nullable="false" unique="true"/>
+            </column>
+            <column name="main_calendar_id" type="VARCHAR(200)">
+                <constraints nullable="false"/>
+            </column>
+            <column name="cancelled_calendar_id" type="VARCHAR(200)"/>
+            <column name="cancelled_calendar_enabled" type="BOOLEAN" defaultValueBoolean="false"/>
+            <column name="events_backup_enabled" type="BOOLEAN" defaultValueBoolean="false"/>
+        </createTable>
     </changeSet>
 
-    <changeSet id="task-#42-add-column-user_id-to-table-CLIENT" author="Valera">
-        <preConditions>
-            <and>
-                <tableExists tableName="CLIENT"/>
-                <tableExists tableName="user"/>
-                <not>
-                    <columnExists tableName="CLIENT" columnName="user_id"/>
-                </not>
-            </and>
-        </preConditions>
-        <sql>
-            ALTER TABLE CLIENT
-                ADD user_id BIGINT REFERENCES "user" (id)
-        </sql>
-    </changeSet>
-
-    <changeSet id="make client_unique_name unique" author="Uenay">
-        <preConditions onFail="MARK_RAN">
-            <and>
-                <tableExists tableName="client"/>
-                <columnExists tableName="client" columnName="name"/>
-                <not>
-                    <uniqueConstraintExists tableName="client" constraintName="client_unique_name"/>
-                </not>
-            </and>
-        </preConditions>
-        <sql>
-            ALTER TABLE CLIENT
-                ADD CONSTRAINT client_unique_name UNIQUE (name);
-        </sql>
-    </changeSet>
-
-    <changeSet id="#51 add start_date column" author="Uenay">
-        <preConditions onFail="MARK_RAN">
-            <and>
-                <tableExists tableName="client"/>
-                <not>
-                    <columnExists tableName="client" columnName="start_date"/>
-                </not>
-            </and>
-        </preConditions>
+    <changeSet id="add-user-id-to-client" author="Valera">
         <addColumn tableName="client">
-            <column name="start_date" type="TIMESTAMP(6)" defaultValueComputed="CURRENT_TIMESTAMP"></column>
+            <column name="user_id" type="BIGINT"/>
         </addColumn>
+        <addForeignKeyConstraint baseTableName="client"
+                                 baseColumnNames="user_id"
+                                 referencedTableName="user"
+                                 referencedColumnNames="id" constraintName="user_client_id"/>
     </changeSet>
 
-
-    <changeSet id="#51 add phone" author="Uenay">
-        <preConditions>
-            <and>
-                <tableExists tableName="client"/>
-                <not>
-                    <columnExists tableName="client" columnName="phone"/>
-                </not>
-            </and>
-        </preConditions>
-        <addColumn tableName="client">
-            <column name="phone" type="VARCHAR"></column>
-        </addColumn>
-    </changeSet>
-
-    <changeSet id="create phone + user id unique index" author="Uenay">
-        <preConditions onFail="MARK_RAN">
-            <not>
-                <indexExists tableName="client" indexName="IDX_UNIQUE_PHONE_PER_USER"/>
-            </not>
-        </preConditions>
-
+    <changeSet id="unique-constraints-client" author="Uenay">
+        <addUniqueConstraint tableName="client" columnNames="name" constraintName="client_unique_name"/>
         <createIndex tableName="client" indexName="IDX_UNIQUE_PHONE_PER_USER" unique="true">
             <column name="phone"/>
             <column name="user_id"/>
         </createIndex>
-    </changeSet>
-
-    <changeSet id="#51 create table price_change_history" author="Uenay">
-        <preConditions>
-            <and>
-                <tableExists tableName="client"/>
-                <not>
-                    <tableExists tableName="price_change_history"/>
-                </not>
-            </and>
-        </preConditions>
-        <sql>
-            CREATE TABLE PRICE_CHANGE_HISTORY
-            (
-                client_id BIGINT REFERENCES client (id),
-                previous_price INT,
-                current_price INT,
-                date_of_change DATE default CURRENT_TIMESTAMP
-            );
-        </sql>
-    </changeSet>
-
-    <changeSet id="#52 change start_date to timestamp" author="Uenay">
-        <preConditions onFail="MARK_RAN">
-            <and>
-                <tableExists tableName="client"/>
-                <columnExists tableName="client" columnName="start_date"/>
-            </and>
-        </preConditions>
-        <sql>
-            ALTER TABLE client ALTER COLUMN start_date TYPE TIMESTAMP;
-        </sql>
-    </changeSet>
-
-    <changeSet id="#53 set default_value to start_date" author="Uenay">
-        <preConditions onFail="MARK_RAN">
-            <and>
-                <tableExists tableName="client"/>
-                <columnExists tableName="client" columnName="start_date"/>
-            </and>
-        </preConditions>
-        <addDefaultValue tableName="client" columnName="start_date" defaultValueComputed="CURRENT_TIMESTAMP"/>
-
-    </changeSet>
-
-    <changeSet id="drop-indx-CONSTRAINT_INDEX_3" author="nesterov">
-        <preConditions onFail="MARK_RAN">
-            <indexExists tableName="client" indexName="CONSTRAINT_INDEX_3"/>
-        </preConditions>
-
-        <dropIndex indexName="CONSTRAINT_INDEX_3" tableName="client"/>
-    </changeSet>
-
-    <changeSet id="drop-indx-CONSTRAINT_INDEX_4" author="nesterov">
-        <preConditions onFail="MARK_RAN">
-            <indexExists tableName="client" indexName="CLIENT_UNIQUE_NAME_INDEX_4"/>
-        </preConditions>
-
-        <dropUniqueConstraint constraintName="CLIENT_UNIQUE_NAME" tableName="client"/>
-    </changeSet>
-
-    <changeSet id="create name + user id unique index" author="nesterov">
-        <preConditions onFail="MARK_RAN">
-            <not>
-                <indexExists tableName="client" indexName="IDX_UNIQUE_CLIENT_NAME_PER_USER"/>
-            </not>
-        </preConditions>
-
         <createIndex tableName="client" indexName="IDX_UNIQUE_CLIENT_NAME_PER_USER" unique="true">
             <column name="name"/>
             <column name="user_id"/>
         </createIndex>
     </changeSet>
 
-    <changeSet id="create-table-event_extension" author="Lizogubov Eugeny">
-        <preConditions>
-            <not>
-                <tableExists tableName="event_extension"/>
-            </not>
-        </preConditions>
-        <sql>
-            CREATE TABLE event_extension
-            (
-                id            BIGSERIAL PRIMARY KEY NOT NULL,
-                comment       VARCHAR(200),
-                income        INT,
-                is_planned    BOOLEAN,
-                previous_date TIMESTAMP
-            );
-        </sql>
+    <!-- === PRICE CHANGE HISTORY === -->
+    <changeSet id="create-price-change-history" author="Uenay">
+        <createTable tableName="price_change_history">
+            <column name="client_id" type="BIGINT">
+                <constraints nullable="false"/>
+            </column>
+            <column name="previous_price" type="INT"/>
+            <column name="current_price" type="INT"/>
+            <column name="date_of_change" type="DATE" defaultValueComputed="CURRENT_TIMESTAMP"/>
+        </createTable>
+        <addForeignKeyConstraint baseTableName="price_change_history"
+                                 baseColumnNames="client_id"
+                                 referencedTableName="client"
+                                 referencedColumnNames="id" constraintName="price_client_id"/>
     </changeSet>
 
-    <changeSet id="create-table-event_backup" author="Lizogubov Eugeny">
-        <preConditions>
-            <tableExists tableName="user"/>
-            <not>
-                <tableExists tableName="event_backup"/>
-            </not>
-        </preConditions>
-        <sql>
-            CREATE TABLE event_backup
-            (
-                id          BIGSERIAL PRIMARY KEY NOT NULL,
-                user_id     BIGINT REFERENCES "user" (id),
-                backup_time TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-                type        VARCHAR(100)          NOT NULL
-            );
-
-            CREATE INDEX idx_event_backup_user_id ON event_backup (user_id);
-            CREATE INDEX idx_event_backup_backup_time ON event_backup (backup_time);
-        </sql>
+    <!-- === EVENT BACKUP TABLE === -->
+    <changeSet id="create-table-event-backup" author="Lizogubov Eugeny">
+        <createTable tableName="event_backup">
+            <column name="id" type="BIGINT" autoIncrement="true">
+                <constraints primaryKey="true"/>
+            </column>
+            <column name="user_id" type="BIGINT"/>
+            <column name="backup_time" type="TIMESTAMP" defaultValueComputed="CURRENT_TIMESTAMP"/>
+            <column name="type" type="VARCHAR(100)">
+                <constraints nullable="false"/>
+            </column>
+        </createTable>
+        <addForeignKeyConstraint baseTableName="event_backup"
+                                 baseColumnNames="user_id"
+                                 referencedTableName="user"
+                                 referencedColumnNames="id" constraintName="user_event_backup_id"/>
+        <createIndex tableName="event_backup" indexName="idx_event_backup_user_id">
+            <column name="user_id"/>
+        </createIndex>
+        <createIndex tableName="event_backup" indexName="idx_event_backup_backup_time">
+            <column name="backup_time"/>
+        </createIndex>
     </changeSet>
 
+    <!-- === EVENT TABLE === -->
     <changeSet id="create-table-event" author="Lizogubov Eugeny">
-        <preConditions>
-            <tableExists tableName="event_extension"/>
-            <tableExists tableName="event_backup"/>
-            <not>
-                <tableExists tableName="event"/>
-            </not>
-        </preConditions>
-        <sql>
-            CREATE TABLE event
-            (
-                id                 BIGSERIAL PRIMARY KEY NOT NULL,
-                status             VARCHAR(20)           NOT NULL,
-                summary            VARCHAR(200),
-                start_date         TIMESTAMP,
-                end_date           TIMESTAMP,
-                event_backup_id    BIGINT REFERENCES event_backup (id) ON DELETE CASCADE,
-                event_extension_id BIGINT REFERENCES event_extension (id) ON DELETE CASCADE
-            );
-
-            CREATE INDEX idx_event_event_backup_id ON event (event_backup_id);
-            CREATE INDEX idx_event_event_extension_is ON event (event_extension_id);
-        </sql>
+        <createTable tableName="event">
+            <column name="id" type="BIGINT" autoIncrement="true">
+                <constraints primaryKey="true"/>
+            </column>
+            <column name="status" type="VARCHAR(20)">
+                <constraints nullable="false"/>
+            </column>
+            <column name="summary" type="VARCHAR(200)"/>
+            <column name="start_date" type="TIMESTAMP"/>
+            <column name="end_date" type="TIMESTAMP"/>
+            <column name="event_backup_id" type="BIGINT"/>
+            <column name="event_extension" type="VARCHAR(500)"/>
+        </createTable>
+        <addForeignKeyConstraint baseTableName="event" baseColumnNames="event_backup_id"
+                                 referencedTableName="event_backup" referencedColumnNames="id"
+                                 onDelete="CASCADE" constraintName="event_backup"/>
+        <createIndex tableName="event" indexName="idx_event_event_backup_id">
+            <column name="event_backup_id"/>
+        </createIndex>
     </changeSet>
 
-    <changeSet id="add events_backup_enabled column" author="Lizogubov Eugeny">
-        <preConditions onFail="MARK_RAN">
-            <tableExists tableName="user"/>
-        </preConditions>
-        <sql>
-            ALTER TABLE "user"
-                ADD events_backup_enabled BOOLEAN DEFAULT FALSE;
-        </sql>
-    </changeSet>
-
-    <changeSet id="drop-table-event_extension" author="Lizogubov Eugeny">
-        <preConditions>
-            <tableExists tableName="event_extension"/>
-        </preConditions>
-        <sql>
-            DROP TABLE if exists event_extension cascade;
-        </sql>
-    </changeSet>
-
-    <changeSet id="drop-idx_event_event_extension_is" author="Lizogubov Eugeny">
-        <preConditions onFail="MARK_RAN">
-            <indexExists tableName="event" indexName="idx_event_event_extension_is"/>
-        </preConditions>
-        <sql>
-            DROP INDEX idx_event_event_extension_is ON event;
-        </sql>
-    </changeSet>
-
-    <changeSet id="drop-event_extension_id-and-add-event_extension-to-event-table" author="Lizogubov Eugeny">
-        <preConditions onFail="MARK_RAN">
-            <tableExists tableName="event"/>
-            <columnExists tableName="event" columnName="event_extension_id"/>
-            <not>
-                <columnExists tableName="event" columnName="event_extension"/>
-            </not>
-        </preConditions>
-        <sql>
-            ALTER TABLE event DROP COLUMN event_extension_id;
-            ALTER TABLE event ADD event_extension VARCHAR(500);
-        </sql>
-    </changeSet>
 </databaseChangeLog>
