@@ -424,6 +424,47 @@
 			]
 		},
 		{
+          "name": "Получить всех пользователей по роли и источнику",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "X-secret-token",
+                "value": "{{X-secret-token}}",
+                "type": "text"
+              },
+              {
+                "key": "X-username",
+                "value": "{{X-username}}",
+                "type": "text"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\r\n    \"role\": \"admin\",\r\n    \"source\": \"internal\"\r\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "http://localhost:8080/revenue-analyzer/user/getUsersIdByRoleAndSource",
+              "protocol": "http",
+              "host": [
+                "localhost"
+              ],
+              "port": "8080",
+              "path": [
+                "revenue-analyzer",
+                "user",
+                "getUsersIdByRoleAndSource"
+              ]
+            }
+          },
+          "response": []
+        },
+      {
 			"name": "Бэкап встреч",
 			"item": [
 				{

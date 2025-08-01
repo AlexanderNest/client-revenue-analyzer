@@ -67,6 +67,7 @@ public interface UserController {
                     @ApiResponse(responseCode = "500", description = "Внутренняя ошибка сервера")
             }
     )
-    @PostMapping("/getAllByRoleAndSource")
-    List<String> getAllByRoleAndSource(GetAllUsersByRoleAndSourceRequest getAllUsersByRoleAndSourceRequest);
+    @PostMapping("/getUsersIdByRoleAndSource")
+    List<String> getUsersIdByRoleAndSource(GetAllUsersByRoleAndSourceRequest getAllUsersByRoleAndSourceRequest);
 }
+

@@ -165,11 +165,11 @@ public class ClientRevenueAnalyzerIntegrationClient {
         );
     }
 
-    public List<String> getAllBySourceAndRole(long chatId) {
+    public List<String> getUsersIdByRoleAndSource(long chatId) {
         GetAllUsersByRoleAndSourceRequest request = new GetAllUsersByRoleAndSourceRequest();
         request.setRole(Role.USER);
         request.setSource("Telegram");
-        return postForList(String.valueOf(chatId), request, "/revenue-analyzer/user/getAllByRoleAndSource",
+        return postForList(String.valueOf(chatId), request, "/revenue-analyzer/user/getUsersIdByRoleAndSource",
                 new ParameterizedTypeReference<>() {
                 }
         );

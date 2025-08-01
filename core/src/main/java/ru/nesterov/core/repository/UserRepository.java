@@ -14,6 +14,6 @@ public interface UserRepository extends JpaRepository<User, Long> {
 
     List<User> findAllByIsEventsBackupEnabled(boolean isEventsBackupEnabled);
 
-    @Query("SELECT u.id FROM User u WHERE u.role = :role AND u.source = :source")
-    List<String> findAllByRoleAndSource(Role role, String source);
+    @Query("SELECT u.username FROM User u WHERE u.role = :role AND u.source = :source")
+    List<String> findUsersIdByRoleAndSource(Role role, String source);
 }

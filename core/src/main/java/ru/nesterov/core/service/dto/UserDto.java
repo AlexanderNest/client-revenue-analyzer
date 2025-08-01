@@ -14,5 +14,4 @@ public class UserDto {
     private boolean isCancelledCalendarEnabled;
     private Role role;
     private String source;
-    ;
 }

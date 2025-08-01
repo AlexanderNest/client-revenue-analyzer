@@ -25,7 +25,7 @@ public class UserServiceImpl implements UserService{
     }
 
     public List<String> getUsersIdByRoleAndSource(Role role, String source) {
-        return userRepository.findAllByRoleAndSource(role, source);
+        return userRepository.findUsersIdByRoleAndSource(role, source);
     }
 
     private UserDto convert(User user) {

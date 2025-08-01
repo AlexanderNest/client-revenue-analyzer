@@ -71,7 +71,7 @@ public class CreateUserHandler extends StatefulCommandHandler<State, CreateUserR
     }
 
     private BotApiMethod<?> handleCancelledCalendarEnabledInput(Update update){
-        getStateMachine(update).getMemory().setIsCancelledCalendarEnabled(Boolean.valueOf(getButtonCallbackValue(update)));
+        getStateMachine(update).getMemory().setCancelledCalendarEnabled(Boolean.parseBoolean(getButtonCallbackValue(update)));
         return getPlainSendMessage(TelegramUpdateUtils.getChatId(update), "Введите ID календаря с отмененными мероприятиями:");
     }
 

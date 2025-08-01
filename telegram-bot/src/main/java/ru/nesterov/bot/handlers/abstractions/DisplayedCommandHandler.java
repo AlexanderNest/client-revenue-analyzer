@@ -3,6 +3,7 @@ package ru.nesterov.bot.handlers.abstractions;
 import org.springframework.core.Ordered;
 import org.telegram.telegrambots.meta.api.objects.Update;
 import ru.nesterov.bot.dto.GetUserRequest;
+import ru.nesterov.bot.dto.GetUserResponse;
 import ru.nesterov.bot.utils.TelegramUpdateUtils;
 /**
  * Обработчик, который будет отображаться в списке команд для отправки на стороне пользователя
@@ -25,17 +26,16 @@ public abstract class DisplayedCommandHandler extends InvocableCommandHandler im
     public boolean isDisplayed(Update update) { //todo убрать эти параметры, оставить апдейт
         GetUserRequest getUserRequest = new GetUserRequest();
         getUserRequest.setUsername(String.valueOf(TelegramUpdateUtils.getUserId(update)));
-        if (client.getUserByUsername(getUserRequest) != null) {
-            return isDisplayedForRegistered() && isDisplayedForRole(update);
+        GetUserResponse response = client.getUserByUsername(getUserRequest);
+        if (response != null) {
+            return isDisplayedForRegistered() && isDisplayedForRole(response);
         } else {
             return isDisplayedForUnregistered();
         }
     }
 
-    public boolean isDisplayedForRole(Update update) {
-        GetUserRequest getUserRequest = new GetUserRequest();
-        getUserRequest.setUsername(String.valueOf(TelegramUpdateUtils.getUserId(update)));
-        return getApplicableRoles().contains(client.getUserByUsername(getUserRequest).getRole());
+    private boolean isDisplayedForRole(GetUserResponse response) {
+        return getApplicableRoles().contains(response.getRole());
     }
 
     public boolean isDisplayedForRegistered() {

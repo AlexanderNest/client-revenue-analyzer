@@ -12,6 +12,7 @@ import ru.nesterov.bot.dto.GetUserRequest;
 import ru.nesterov.bot.handlers.abstractions.DisplayedCommandHandler;
 import ru.nesterov.bot.handlers.abstractions.InvocableCommandHandler;
 import ru.nesterov.bot.handlers.abstractions.Priority;
+import ru.nesterov.bot.handlers.implementation.invocable.stateful.createUser.CreateUserHandler;
 import ru.nesterov.bot.integration.ClientRevenueAnalyzerIntegrationClient;
 import ru.nesterov.bot.utils.TelegramUpdateUtils;
 
@@ -28,6 +29,7 @@ public class UpdateUserControlButtonsHandler extends InvocableCommandHandler {
     private final List<DisplayedCommandHandler> sendingMessageCommandHandlers;
     private final BotProperties botProperties;
     private final ClientRevenueAnalyzerIntegrationClient client;
+    private final CreateUserHandler createUserHandler;
 
     @Override
     public String getCommand() {
@@ -55,6 +57,9 @@ public class UpdateUserControlButtonsHandler extends InvocableCommandHandler {
     public boolean isApplicable(Update update) {
         if (getCommand().equals(update.getMessage().getText())) {
             return true;
+        }
+        if (createUserHandler.getCommand().equals(update.getMessage().getText())) {
+            return false;
         }
         GetUserRequest getUserRequest = new GetUserRequest();
         getUserRequest.setUsername(String.valueOf(TelegramUpdateUtils.getUserId(update)));

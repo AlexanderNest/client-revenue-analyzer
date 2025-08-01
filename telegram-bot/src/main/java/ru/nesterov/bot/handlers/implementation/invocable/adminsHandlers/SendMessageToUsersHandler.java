@@ -76,9 +76,10 @@ public class SendMessageToUsersHandler extends StatefulCommandHandler<State, Sen
     }
 
     public BotApiMethod<?> sendMessageToUsers(Update update) {
-        List<String> users = client.getAllBySourceAndRole(TelegramUpdateUtils.getChatId(update));
+        List<String> users = client.getUsersIdByRoleAndSource(TelegramUpdateUtils.getChatId(update));
         for (String user : users) {
             try {
+
                 revenueAnalyzerBot.execute(getPlainSendMessage(Long.parseLong(user), getStateMachine(update).getMemory().getMessage()));
             } catch (Exception exception) {
                 log.error("Ошибка отправки сообщения");

@@ -18,7 +18,7 @@ public class UserMapper {
     public UserDto mapToUserDto(CreateUserRequest request) {
         return UserDto.builder()
                 .mainCalendar(request.getMainCalendarId())
-                .isCancelledCalendarEnabled(request.getIsCancelledCalendarEnabled())
+                .isCancelledCalendarEnabled(request.isCancelledCalendarEnabled())
                 .username(request.getUserIdentifier())
                 .cancelledCalendar(request.getCancelledCalendarId())
                 .build();
