@@ -12,4 +12,6 @@ public class EventsBackupProperties {
     private int delayForBackupAfterAppStarting;
     private int delayBetweenManualBackups;
     private int datesRangeForBackup;
+    private String backupsCleaningSchedule;
+    private int daysLimit;
 }
