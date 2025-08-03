@@ -1,4 +1,4 @@
-package ru.nesterov.web.servise;
+package ru.nesterov.web.service;
 
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -17,18 +17,19 @@ import ru.nesterov.core.service.event.EventsBackupService;
 import java.time.LocalDateTime;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
+
 @AutoConfigureMockMvc
 @SpringBootTest
 @TestPropertySource(properties = ("app.calendar.events.backup.enabled=true"))
 public class EventsBackupServiceTest {
     @Autowired
-    protected UserRepository userRepository;
+    private UserRepository userRepository;
     @Autowired
     private EventsBackupRepository eventsBackupRepository;
     @Autowired
     private EventsBackupService eventsBackupService;
     @MockBean
-    protected GoogleCalendarClient googleCalendarClient;
+    private GoogleCalendarClient googleCalendarClient;
 
     private User createUser(int suffix) {
         User user = new User();
