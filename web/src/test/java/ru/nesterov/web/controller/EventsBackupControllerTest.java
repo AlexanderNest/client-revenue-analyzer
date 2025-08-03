@@ -12,9 +12,7 @@ import ru.nesterov.core.entity.BackupType;
 import ru.nesterov.core.entity.EventBackup;
 import ru.nesterov.core.entity.User;
 import ru.nesterov.core.repository.EventsBackupRepository;
-import ru.nesterov.core.service.dto.EventBackupDto;
 import ru.nesterov.core.service.event.EventsBackupProperties;
-import ru.nesterov.core.service.event.EventsBackupService;
 
 import java.time.LocalDateTime;
 import java.util.List;
