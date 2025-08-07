@@ -4,13 +4,21 @@
                    xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog
                    https://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-latest.xsd">
 
+    <changeSet id="create-client-sequence" author="Uenay">
+        <preConditions onFail="MARK_RAN">
+            <not>
+                <sequenceExists sequenceName="client_seq"/>
+            </not>
+        </preConditions>
+        <createSequence sequenceName="client_seq"
+                        startValue="1"
+                        incrementBy="1"/>
+    </changeSet>
+
     <!-- === CLIENT TABLE === -->
     <changeSet id="create-table-client" author="Valera">
-        <preConditions onFail="MARK_RAN">
-            <not><tableExists tableName="client"/></not>
-        </preConditions>
         <createTable tableName="client">
-            <column name="id" type="BIGINT" autoIncrement="true">
+            <column name="id" type="BIGINT" defaultValueComputed="NEXT VALUE FOR client_seq">
                 <constraints primaryKey="true"/>
             </column>
             <column name="name" type="VARCHAR(255)"/>
@@ -32,9 +40,9 @@
     </changeSet>
 
     <!-- === USER TABLE === -->
-    <changeSet id="create-table-user" author="Valera">
-        <preConditions><not><tableExists tableName="user"/></not></preConditions>
-        <createTable tableName="user">
+    <changeSet id="create-table-users" author="Valera">
+        <preConditions><not><tableExists tableName="users"/></not></preConditions>
+        <createTable tableName="users">
             <column name="id" type="BIGINT" autoIncrement="true">
                 <constraints primaryKey="true" nullable="false"/>
             </column>
@@ -56,7 +64,7 @@
         </addColumn>
         <addForeignKeyConstraint baseTableName="client"
                                  baseColumnNames="user_id"
-                                 referencedTableName="user"
+                                 referencedTableName="users"
                                  referencedColumnNames="id" constraintName="user_client_id"/>
     </changeSet>
 
@@ -102,7 +110,7 @@
         </createTable>
         <addForeignKeyConstraint baseTableName="event_backup"
                                  baseColumnNames="user_id"
-                                 referencedTableName="user"
+                                 referencedTableName="users"
                                  referencedColumnNames="id" constraintName="user_event_backup_id"/>
         <createIndex tableName="event_backup" indexName="idx_event_backup_user_id">
             <column name="user_id"/>
