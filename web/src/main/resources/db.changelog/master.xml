@@ -18,16 +18,13 @@
     <!-- === CLIENT TABLE === -->
     <changeSet id="create-table-client" author="Valera">
         <createTable tableName="client">
-            <column name="id" type="BIGINT" defaultValueComputed="NEXT VALUE FOR client_seq">
+            <column name="id" type="BIGINT" autoIncrement="true">
                 <constraints primaryKey="true"/>
             </column>
             <column name="name" type="VARCHAR(255)"/>
             <column name="description" type="VARCHAR(255)"/>
             <column name="price_per_hour" type="INT"/>
         </createTable>
-        <createIndex indexName="IDX_CLIENT_ID" tableName="client">
-            <column name="id"/>
-        </createIndex>
     </changeSet>
 
     <changeSet id="add-client-columns" author="nesterov">
