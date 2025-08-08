@@ -71,7 +71,7 @@ public abstract class StatefulCommandHandler<STATE extends Enum<STATE>, MEMORY> 
     }
 
     @Override
-    public BotApiMethod<?> handle(Update update) {
+    public List<BotApiMethod<?>> handle(Update update) {
         StateMachine<STATE, Action, MEMORY> stateMachine = getStateMachine(update);
         List<Action> expectedActions = stateMachine.getExpectedActions();
         Action action = actionService.defineTheAction(getCommand(), update, expectedActions);
@@ -85,7 +85,7 @@ public abstract class StatefulCommandHandler<STATE extends Enum<STATE>, MEMORY> 
             );
         }
 
-        BotApiMethod<?> botApiMethod = nextStateFunction.getFunctionForTransition().apply(update);
+        List<BotApiMethod<?>> botApiMethod = nextStateFunction.getFunctionForTransition().apply(update);
         stateMachine.applyNextState(action);
 
         return botApiMethod;

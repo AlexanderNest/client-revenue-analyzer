@@ -13,7 +13,6 @@ import ru.nesterov.bot.handlers.abstractions.StatefulCommandHandler;
 import ru.nesterov.bot.handlers.callback.ButtonCallback;
 import ru.nesterov.bot.statemachine.dto.Action;
 import ru.nesterov.bot.utils.TelegramUpdateUtils;
-import ru.nesterov.core.entity.Role;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -31,11 +30,6 @@ public class CreateUserHandler extends StatefulCommandHandler<State, CreateUserR
     }
 
     @Override
-    protected List<Role> getApplicableRoles() {
-        return super.getApplicableRoles();
-    }
-
-    @Override
     public void initTransitions() {
         stateMachineProvider
                 .addTransition(State.STARTED, Action.COMMAND_INPUT, State.MAIN_CALENDAR_INPUT, this::handleRegisterCommand)
@@ -45,7 +39,7 @@ public class CreateUserHandler extends StatefulCommandHandler<State, CreateUserR
                 .addTransition(State.CANCELLED_CALENDAR_ID_INPUT, Action.ANY_STRING, State.FINISH, this::handleCancelledCalendarIdInput);
     }
 
-    private BotApiMethod<?> handleRegisterCommand(Update update) {
+    private List<BotApiMethod<?>> handleRegisterCommand(Update update) {
         long chatId = TelegramUpdateUtils.getChatId(update);
         if (isUserExists(String.valueOf(chatId))) {
             return getPlainSendMessage(chatId, "Введите ID основного календаря:");
@@ -54,7 +48,7 @@ public class CreateUserHandler extends StatefulCommandHandler<State, CreateUserR
         }
     }
 
-    private BotApiMethod<?> handleMainCalendarInput(Update update) {
+    private List<BotApiMethod<?>> handleMainCalendarInput(Update update) {
         getStateMachine(update).getMemory().setUserIdentifier(String.valueOf(TelegramUpdateUtils.getChatId(update)));
         getStateMachine(update).getMemory().setMainCalendarId(update.getMessage().getText());
 
@@ -70,12 +64,12 @@ public class CreateUserHandler extends StatefulCommandHandler<State, CreateUserR
                 "об отмененных мероприятиях с использованием второго календаря?", keyboardMarkup);
     }
 
-    private BotApiMethod<?> handleCancelledCalendarEnabledInput(Update update){
+    private List<BotApiMethod<?>> handleCancelledCalendarEnabledInput(Update update) {
         getStateMachine(update).getMemory().setCancelledCalendarEnabled(Boolean.parseBoolean(getButtonCallbackValue(update)));
         return getPlainSendMessage(TelegramUpdateUtils.getChatId(update), "Введите ID календаря с отмененными мероприятиями:");
     }
 
-    private BotApiMethod<?> handleCancelledCalendarIdInput(Update update) {
+    private List<BotApiMethod<?>> handleCancelledCalendarIdInput(Update update) {
         getStateMachine(update).getMemory().setCancelledCalendarId(update.getMessage().getText());
         return registerUser(update);
     }
@@ -87,7 +81,7 @@ public class CreateUserHandler extends StatefulCommandHandler<State, CreateUserR
         return client.getUserByUsername(request) == null;
     }
 
-    private BotApiMethod<?> registerUser(Update update) {
+    private List<BotApiMethod<?>> registerUser(Update update) {
         CreateUserResponse response = client.createUser(getStateMachine(update).getMemory());
         return getPlainSendMessage(TelegramUpdateUtils.getChatId(update), formatCreateUserResponse(response));
     }

@@ -25,10 +25,6 @@ public abstract class InvocableCommandHandler extends SendingMessageCommandHandl
 
     public abstract String getCommand();
 
-    private boolean isApplicableRole(Role role) {
-        return getApplicableRoles().contains(role);
-    }
-
     protected List<Role> getApplicableRoles() {
         return List.of(Role.USER);
     }
@@ -41,13 +37,6 @@ public abstract class InvocableCommandHandler extends SendingMessageCommandHandl
         if (isCurrentHandlerCommand) {
             return true;
         }
-
-//        GetUserRequest getUserRequest = new GetUserRequest();
-//        getUserRequest.setUsername(String.valueOf(TelegramUpdateUtils.getUserId(update)));
-//        GetUserResponse response = client.getUserByUsername(getUserRequest);
-//        if (!(isApplicableRole(response.getRole()))) {
-//            return false;
-//        }
 
         CallbackQuery callbackQuery = update.getCallbackQuery();
 

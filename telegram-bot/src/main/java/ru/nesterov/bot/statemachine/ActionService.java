@@ -29,10 +29,10 @@ public class ActionService {
     public Action defineTheAction(String command, Update update, List<Action> expectedActions) {
         Action action = null;
 
-        if (isMessageInput(update)) {
-            action = handleTextInput(command, update.getMessage().getText(), expectedActions);
-        } else if (isCallbackInput(update)) {
+        if (isCallbackInput(update)) {
             action = handleCallbackInput(update.getCallbackQuery().getData(), expectedActions);
+        } else if (isMessageInput(update)) {
+            action = handleTextInput(command, update.getMessage().getText(), expectedActions);
         }
 
         if (action == null) {

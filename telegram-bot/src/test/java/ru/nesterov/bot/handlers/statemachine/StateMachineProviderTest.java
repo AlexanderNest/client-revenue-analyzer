@@ -10,6 +10,8 @@ import ru.nesterov.bot.statemachine.StateMachineProvider;
 import ru.nesterov.bot.statemachine.dto.Action;
 import ru.nesterov.bot.statemachine.dto.NextStateFunction;
 
+import java.util.List;
+
 public class StateMachineProviderTest {
 
     private StateMachineProvider<StateTest, MemoryTest> stateMachineProvider;
@@ -23,7 +25,7 @@ public class StateMachineProviderTest {
 
     @Test
     void createAndGetMachineTest() {
-        stateMachineProvider.addTransition(StateTest.STARTED, Action.COMMAND_INPUT, StateTest.WAITING_INPUT, update -> new SendMessage("1", "Текст"));
+        stateMachineProvider.addTransition(StateTest.STARTED, Action.COMMAND_INPUT, StateTest.WAITING_INPUT, update -> List.of(new SendMessage("1", "Текст")));
 
         StateMachine<StateTest, Action, MemoryTest> stateMachine = stateMachineProvider.createMachine(1L, new MemoryTest(), stateMachineProvider.getTransitions());
 
@@ -37,9 +39,9 @@ public class StateMachineProviderTest {
         Assertions.assertNotNull(nextStateFunction);
         Assertions.assertEquals(StateTest.WAITING_INPUT, nextStateFunction.getState());
 
-        BotApiMethod<?> response = nextStateFunction.getFunctionForTransition().apply(null);
-        Assertions.assertInstanceOf(SendMessage.class, response);
-        Assertions.assertEquals("Текст", ((SendMessage) response).getText());
+        List<BotApiMethod<?>> response = nextStateFunction.getFunctionForTransition().apply(null);
+        Assertions.assertInstanceOf(SendMessage.class, response.get(0));
+        Assertions.assertEquals("Текст", ((SendMessage) response.get(0)).getText());
     }
 
     @Test

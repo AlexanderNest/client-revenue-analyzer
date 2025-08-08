@@ -3,6 +3,7 @@ package ru.nesterov.bot.handlers.implementation.invocable;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.test.context.ContextConfiguration;
+import org.telegram.telegrambots.meta.api.methods.BotApiMethod;
 import org.telegram.telegrambots.meta.api.methods.send.SendMessage;
 import org.telegram.telegrambots.meta.api.objects.Update;
 import ru.nesterov.bot.dto.GetActiveClientResponse;
@@ -38,7 +39,7 @@ class GetActiveClientsHandlerTest extends RegisteredUserHandlerTest {
 
         when(client.getActiveClients(1L)).thenReturn(getActiveClientsResponseList);
 
-        SendMessage result = (SendMessage) getActiveClientsHandler.handle(update);
+        List<BotApiMethod<?>> result = getActiveClientsHandler.handle(update);
 
         String expectedMessage =
                 "1. Макс" + System.lineSeparator() +
@@ -48,7 +49,8 @@ class GetActiveClientsHandlerTest extends RegisteredUserHandlerTest {
                 "     Тариф: 100 руб/час" + System.lineSeparator() +
                 "     Описание: Zzz" + System.lineSeparator() + System.lineSeparator();
 
-        assertEquals(expectedMessage, result.getText());
+        SendMessage sendMessage = (SendMessage) result.get(0);
+        assertEquals(expectedMessage, sendMessage.getText());
     }
 
     @Test
@@ -57,8 +59,9 @@ class GetActiveClientsHandlerTest extends RegisteredUserHandlerTest {
 
         when(client.getActiveClients(1L)).thenReturn(Collections.emptyList());
 
-        SendMessage result = (SendMessage) getActiveClientsHandler.handle(update);
+        List<BotApiMethod<?>> result = getActiveClientsHandler.handle(update);
+        SendMessage sendMessage = (SendMessage) result.get(0);
 
-        assertEquals("У вас пока нет клиентов.", result.getText());
+        assertEquals("У вас пока нет клиентов.", sendMessage.getText());
     }
 }

@@ -10,6 +10,7 @@ import ru.nesterov.bot.statemachine.StateMachine;
 import ru.nesterov.bot.statemachine.dto.Action;
 import ru.nesterov.bot.statemachine.dto.NextStateFunction;
 
+import java.util.List;
 import java.util.function.Function;
 
 public class StateMachineTest {
@@ -23,7 +24,7 @@ public class StateMachineTest {
 
     @Test
     void test() {
-        Function<Update, BotApiMethod<?>> functionForTransition = update -> new SendMessage("1", "Текст");
+        Function<Update, List<BotApiMethod<?>>> functionForTransition = update -> List.of(new SendMessage("1", "Текст"));
         stateMachine.addTransition(StateTest.STARTED, Action.COMMAND_INPUT, StateTest.WAITING_INPUT, functionForTransition);
         Assertions.assertEquals(StateTest.STARTED, stateMachine.getCurrentState());
 
@@ -31,9 +32,9 @@ public class StateMachineTest {
         Assertions.assertNotNull(nextStateFunction);
         Assertions.assertEquals(StateTest.WAITING_INPUT, nextStateFunction.getState());
 
-        BotApiMethod<?> response = nextStateFunction.getFunctionForTransition().apply(null);
-        Assertions.assertInstanceOf(SendMessage.class, response);
-        Assertions.assertEquals("Текст", ((SendMessage) response).getText());
+        List<BotApiMethod<?>> response = nextStateFunction.getFunctionForTransition().apply(null);
+        Assertions.assertInstanceOf(SendMessage.class, response.get(0));
+        Assertions.assertEquals("Текст", ((SendMessage) response.get(0)).getText());
 
         stateMachine.applyNextState(Action.COMMAND_INPUT);
         Assertions.assertEquals(StateTest.WAITING_INPUT, stateMachine.getCurrentState());

@@ -67,12 +67,12 @@ public class UpdateUserControlButtonsHandlerTest extends RegisteredUserHandlerTe
         getUserRequest.setUsername(user.getUserName());
 
 
-        BotApiMethod<?> result = updateUserControlButtonsHandler.handle(update);
+        List<BotApiMethod<?>> result = updateUserControlButtonsHandler.handle(update);
 
         assertNotNull(result);
-        assertEquals(SendMessage.class, result.getClass());
+        assertEquals(SendMessage.class, result.get(0).getClass());
 
-        SendMessage sendMessage = (SendMessage) result;
+        SendMessage sendMessage = (SendMessage) result.get(0);
         assertEquals("111", sendMessage.getChatId());
         assertEquals("Выберите опцию:", sendMessage.getText());
 
@@ -111,12 +111,12 @@ public class UpdateUserControlButtonsHandlerTest extends RegisteredUserHandlerTe
 
         when(client.getUserByUsername(any())).thenReturn(null);
 
-        BotApiMethod<?> result = updateUserControlButtonsHandler.handle(update);
+        List<BotApiMethod<?>> result = updateUserControlButtonsHandler.handle(update);
 
         assertNotNull(result);
-        assertEquals(SendMessage.class, result.getClass());
+        assertEquals(SendMessage.class, result.get(0).getClass());
 
-        SendMessage sendMessage = (SendMessage) result;
+        SendMessage sendMessage = (SendMessage) result.get(0);
         assertEquals("111", sendMessage.getChatId());
         assertEquals("Выберите опцию:", sendMessage.getText());
 

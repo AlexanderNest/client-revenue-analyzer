@@ -9,7 +9,6 @@ import ru.nesterov.bot.handlers.abstractions.InvocableCommandHandler;
 import ru.nesterov.bot.handlers.abstractions.Priority;
 import ru.nesterov.bot.handlers.service.HandlersService;
 import ru.nesterov.bot.utils.TelegramUpdateUtils;
-import ru.nesterov.core.entity.Role;
 
 import java.util.List;
 
@@ -20,12 +19,7 @@ public class CancelCommandHandler extends InvocableCommandHandler {
     private HandlersService handlersService;
 
     @Override
-    protected List<Role> getApplicableRoles() {
-        return super.getApplicableRoles();
-    }
-
-    @Override
-    public BotApiMethod<?> handle(Update update) {
+    public List<BotApiMethod<?>> handle(Update update) {
         long chatId = TelegramUpdateUtils.getChatId(update);
 
         handlersService.resetAllHandlers(chatId);

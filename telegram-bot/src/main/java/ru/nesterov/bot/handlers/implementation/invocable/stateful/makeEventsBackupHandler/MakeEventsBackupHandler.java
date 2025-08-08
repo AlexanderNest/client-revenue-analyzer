@@ -11,7 +11,6 @@ import ru.nesterov.bot.dto.MakeEventsBackupResponse;
 import ru.nesterov.bot.handlers.abstractions.StatefulCommandHandler;
 import ru.nesterov.bot.statemachine.dto.Action;
 import ru.nesterov.bot.utils.TelegramUpdateUtils;
-import ru.nesterov.core.entity.Role;
 
 import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
@@ -26,11 +25,6 @@ public class MakeEventsBackupHandler extends StatefulCommandHandler<State, MakeE
     }
 
     @Override
-    protected List<Role> getApplicableRoles() {
-        return super.getApplicableRoles();
-    }
-
-    @Override
     public void initTransitions() {
         stateMachineProvider
                 .addTransition(State.STARTED, Action.COMMAND_INPUT, State.WAITING_FOR_CONFIRMATION, this::requestConfirmation)
@@ -38,7 +32,7 @@ public class MakeEventsBackupHandler extends StatefulCommandHandler<State, MakeE
                 .addTransition(State.WAITING_FOR_CONFIRMATION, Action.CALLBACK_FALSE, State.FINISH, this::getFinishMessageWithoutBackup);
     }
 
-    private BotApiMethod<?> requestConfirmation(Update update) {
+    private List<BotApiMethod<?>> requestConfirmation(Update update) {
         InlineKeyboardMarkup keyboardMarkup = new InlineKeyboardMarkup();
         List<List<InlineKeyboardButton>> keyboard = new ArrayList<>();
         List<InlineKeyboardButton> rowInline = new ArrayList<>();
@@ -54,7 +48,7 @@ public class MakeEventsBackupHandler extends StatefulCommandHandler<State, MakeE
         );
     }
 
-    private BotApiMethod<?> getFinishMessageWithoutBackup(Update update) {
+    private List<BotApiMethod<?>> getFinishMessageWithoutBackup(Update update) {
         return editMessage(
                 TelegramUpdateUtils.getChatId(update),
                 TelegramUpdateUtils.getMessageId(update),
@@ -62,7 +56,7 @@ public class MakeEventsBackupHandler extends StatefulCommandHandler<State, MakeE
                 null);
     }
 
-    private BotApiMethod<?> makeEventsBackup(Update update) {
+    private List<BotApiMethod<?>> makeEventsBackup(Update update) {
 
         MakeEventsBackupResponse response = client.makeEventsBackup(TelegramUpdateUtils.getChatId(update));
 

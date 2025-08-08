@@ -73,9 +73,9 @@ class GetMonthStatisticsHandlerTestTest extends RegisteredUserHandlerTest {
 
         update.setCallbackQuery(callbackQuery);
 
-        BotApiMethod<?> botApiMethod = handler.handle(update);
-        assertInstanceOf(EditMessageText.class, botApiMethod);
-        EditMessageText editMessage = (EditMessageText) botApiMethod;
+        List<BotApiMethod<?>> botApiMethod = handler.handle(update);
+        assertInstanceOf(EditMessageText.class, botApiMethod.get(0));
+        EditMessageText editMessage = (EditMessageText) botApiMethod.get(0);
 
         String expected = "\uD83D\uDCCA *Анализ доходов за месяц*\n" +
                 "\n" +
@@ -102,11 +102,11 @@ class GetMonthStatisticsHandlerTestTest extends RegisteredUserHandlerTest {
         Update update = new Update();
         update.setMessage(message);
 
-        BotApiMethod<?> botApiMethod = handler.handle(update);
+        List<BotApiMethod<?>> botApiMethod = handler.handle(update);
 
-        assertInstanceOf(SendMessage.class, botApiMethod);
+        assertInstanceOf(SendMessage.class, botApiMethod.get(0));
 
-        SendMessage sendMessage = (SendMessage) botApiMethod;
+        SendMessage sendMessage = (SendMessage) botApiMethod.get(0);
         assertEquals("Выберите месяц для анализа дохода:", sendMessage.getText());
         ReplyKeyboard markup = sendMessage.getReplyMarkup();
         assertInstanceOf(InlineKeyboardMarkup.class, markup);

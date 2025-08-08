@@ -23,7 +23,7 @@ public abstract class DisplayedCommandHandler extends InvocableCommandHandler im
      * Определяет, будет ли обработчик отображаться для зарегистрированных пользователей
      */
 
-    public boolean isDisplayed(Update update) { //todo убрать эти параметры, оставить апдейт
+    public boolean isDisplayed(Update update) {
         GetUserRequest getUserRequest = new GetUserRequest();
         getUserRequest.setUsername(String.valueOf(TelegramUpdateUtils.getUserId(update)));
         GetUserResponse response = client.getUserByUsername(getUserRequest);

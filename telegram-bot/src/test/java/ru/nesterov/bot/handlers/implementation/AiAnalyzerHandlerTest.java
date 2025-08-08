@@ -10,7 +10,10 @@ import ru.nesterov.bot.handlers.RegisteredUserHandlerTest;
 import ru.nesterov.bot.handlers.abstractions.CommandHandler;
 import ru.nesterov.bot.handlers.implementation.invocable.AiAnalyzerHandler;
 
+import java.util.List;
+
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertInstanceOf;
 import static org.mockito.ArgumentMatchers.anyLong;
 import static org.mockito.Mockito.when;
@@ -30,9 +33,10 @@ class AiAnalyzerHandlerTest extends RegisteredUserHandlerTest {
         aiAnalyzerResponse.setContent("Клиент 1 показал отличные результаты в плане продуктивности и дохода.");
         when(client.getAiStatistics(anyLong())).thenReturn(aiAnalyzerResponse);
 
-        BotApiMethod<?> command = commandHandler.handle(update);
-        assertInstanceOf(SendMessage.class, command);
-        SendMessage sendStatistics = (SendMessage) command;
+        List<BotApiMethod<?>> command = commandHandler.handle(update);
+        assertFalse(command.isEmpty());
+        assertInstanceOf(SendMessage.class, command.get(0));
+        SendMessage sendStatistics = (SendMessage) command.get(0);
 
         assertEquals(aiAnalyzerResponse.getContent(), sendStatistics.getText());
     }

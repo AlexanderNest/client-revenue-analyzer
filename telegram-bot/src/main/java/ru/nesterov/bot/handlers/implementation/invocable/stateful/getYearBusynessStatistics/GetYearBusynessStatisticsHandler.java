@@ -9,7 +9,6 @@ import ru.nesterov.bot.dto.GetYearBusynessStatisticsResponse;
 import ru.nesterov.bot.handlers.abstractions.StatefulCommandHandler;
 import ru.nesterov.bot.statemachine.dto.Action;
 import ru.nesterov.bot.utils.TelegramUpdateUtils;
-import ru.nesterov.core.entity.Role;
 
 import java.util.List;
 import java.util.Locale;
@@ -27,22 +26,17 @@ public class GetYearBusynessStatisticsHandler extends StatefulCommandHandler<Sta
     }
 
     @Override
-    protected List<Role> getApplicableRoles() {
-        return super.getApplicableRoles();
-    }
-
-    @Override
     public void initTransitions() {
         stateMachineProvider
                 .addTransition(State.STARTED, Action.COMMAND_INPUT, State.WAITING_YEAR_INPUT, this::askForAYear)
                 .addTransition(State.WAITING_YEAR_INPUT, Action.ANY_STRING, State.FINISH, this::handleYearInput);
     }
 
-    private BotApiMethod<?> askForAYear(Update update) {
+    private List<BotApiMethod<?>> askForAYear(Update update) {
         return getPlainSendMessage(TelegramUpdateUtils.getChatId(update), "Введите год для расчета занятости");
     }
 
-    private BotApiMethod<?> handleYearInput(Update update) {
+    private List<BotApiMethod<?>> handleYearInput(Update update) {
         int year;
         try {
             year = Integer.parseInt(update.getMessage().getText());
@@ -54,7 +48,7 @@ public class GetYearBusynessStatisticsHandler extends StatefulCommandHandler<Sta
     }
 
     @SneakyThrows
-    private BotApiMethod<?> sendYearStatistics(Update update) {
+    private List<BotApiMethod<?>> sendYearStatistics(Update update) {
         GetYearBusynessStatisticsResponse response = client.getYearBusynessStatistics(TelegramUpdateUtils.getChatId(update),
                 getStateMachine(update).getMemory().getYear());
         return getPlainSendMessage(update.getMessage().getChatId(), formatYearStatistics(response));

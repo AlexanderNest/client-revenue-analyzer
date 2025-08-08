@@ -89,10 +89,10 @@ class MakeEventsBackupHandlerTest extends RegisteredUserHandlerTest {
         Update firstUpdate = new Update();
         firstUpdate.setMessage(message);
 
-        BotApiMethod<?> botApiMethod = handler.handle(firstUpdate);
-        assertInstanceOf(SendMessage.class, botApiMethod);
+        List<BotApiMethod<?>> botApiMethod = handler.handle(firstUpdate);
+        assertInstanceOf(SendMessage.class, botApiMethod.get(0));
 
-        SendMessage sendMessage = (SendMessage) botApiMethod;
+        SendMessage sendMessage = (SendMessage) botApiMethod.get(0);
         assertEquals("Выполнить резервное копирование событий?", sendMessage.getText());
 
         ReplyKeyboard markup = sendMessage.getReplyMarkup();
@@ -127,9 +127,9 @@ class MakeEventsBackupHandlerTest extends RegisteredUserHandlerTest {
         secondUpdate.setCallbackQuery(callbackQuery);
 
         botApiMethod = handler.handle(secondUpdate);
-        assertInstanceOf(EditMessageText.class, botApiMethod);
+        assertInstanceOf(EditMessageText.class, botApiMethod.get(0));
 
-        EditMessageText editMessageText = (EditMessageText) botApiMethod;
+        EditMessageText editMessageText = (EditMessageText) botApiMethod.get(0);
 
         DateTimeFormatter dateTimeFormatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm");
 
@@ -169,10 +169,10 @@ class MakeEventsBackupHandlerTest extends RegisteredUserHandlerTest {
         Update firstUpdate = new Update();
         firstUpdate.setMessage(message);
 
-        BotApiMethod<?> botApiMethod = handler.handle(firstUpdate);
-        assertInstanceOf(SendMessage.class, botApiMethod);
+        List<BotApiMethod<?>> botApiMethod = handler.handle(firstUpdate);
+        assertInstanceOf(SendMessage.class, botApiMethod.get(0));
 
-        SendMessage sendMessage = (SendMessage) botApiMethod;
+        SendMessage sendMessage = (SendMessage) botApiMethod.get(0);
         assertEquals("Выполнить резервное копирование событий?", sendMessage.getText());
 
         ReplyKeyboard markup = sendMessage.getReplyMarkup();
@@ -208,9 +208,9 @@ class MakeEventsBackupHandlerTest extends RegisteredUserHandlerTest {
         secondUpdate.setCallbackQuery(callbackQuery);
 
         botApiMethod = handler.handle(secondUpdate);
-        assertInstanceOf(EditMessageText.class, botApiMethod);
+        assertInstanceOf(EditMessageText.class, botApiMethod.get(0));
 
-        EditMessageText editMessageText = (EditMessageText) botApiMethod;
+        EditMessageText editMessageText = (EditMessageText) botApiMethod.get(0);
 
         assertEquals(
                 String.format("Выполнить резервное копирование событий возможно по прошествии %d минут(ы)", delayBetweenManualBackups),
@@ -250,10 +250,10 @@ class MakeEventsBackupHandlerTest extends RegisteredUserHandlerTest {
         Update firstUpdate = new Update();
         firstUpdate.setMessage(message);
 
-        BotApiMethod<?> botApiMethod = handler.handle(firstUpdate);
-        assertInstanceOf(SendMessage.class, botApiMethod);
+        List<BotApiMethod<?>> botApiMethod = handler.handle(firstUpdate);
+        assertInstanceOf(SendMessage.class, botApiMethod.get(0));
 
-        SendMessage sendMessage = (SendMessage) botApiMethod;
+        SendMessage sendMessage = (SendMessage) botApiMethod.get(0);
         assertEquals("Выполнить резервное копирование событий?", sendMessage.getText());
 
         ReplyKeyboard markup = sendMessage.getReplyMarkup();
@@ -289,9 +289,9 @@ class MakeEventsBackupHandlerTest extends RegisteredUserHandlerTest {
         secondUpdate.setCallbackQuery(callbackQuery);
 
         botApiMethod = handler.handle(secondUpdate);
-        assertInstanceOf(EditMessageText.class, botApiMethod);
+        assertInstanceOf(EditMessageText.class, botApiMethod.get(0));
 
-        EditMessageText editMessageText = (EditMessageText) botApiMethod;
+        EditMessageText editMessageText = (EditMessageText) botApiMethod.get(0);
 
         assertEquals("Вы отказались от выполнения резервного копирования событий", editMessageText.getText());
     }

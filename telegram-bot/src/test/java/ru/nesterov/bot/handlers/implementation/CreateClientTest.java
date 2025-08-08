@@ -82,33 +82,33 @@ public class CreateClientTest extends RegisteredUserHandlerTest {
         Update update = new Update();
         update.setMessage(message);
 
-        BotApiMethod<?> botApiMethod = createClientHandler.handle(update);
-        assertInstanceOf(SendMessage.class, botApiMethod);
-        SendMessage sendMessage = (SendMessage) botApiMethod;
+        List<BotApiMethod<?>> botApiMethod = createClientHandler.handle(update);
+        assertInstanceOf(SendMessage.class, botApiMethod.get(0));
+        SendMessage sendMessage = (SendMessage) botApiMethod.get(0);
         assertEquals("Введите имя", sendMessage.getText());
 
         message.setText(request.getName());
         update.setMessage(message);
         botApiMethod = createClientHandler.handle(update);
-        sendMessage = (SendMessage) botApiMethod;
+        sendMessage = (SendMessage) botApiMethod.get(0);
         assertEquals("Введите стоимость за час", sendMessage.getText());
 
         message.setText(request.getPricePerHour().toString());
         update.setMessage(message);
         botApiMethod = createClientHandler.handle(update);
-        sendMessage = (SendMessage) botApiMethod;
+        sendMessage = (SendMessage) botApiMethod.get(0);
         assertEquals("Введите описание", sendMessage.getText());
 
         message.setText(request.getDescription());
         update.setMessage(message);
         botApiMethod = createClientHandler.handle(update);
-        sendMessage = (SendMessage) botApiMethod;
+        sendMessage = (SendMessage) botApiMethod.get(0);
         assertEquals("Введите номер телефона", sendMessage.getText());
 
         message.setText(request.getPhone());
         update.setMessage(message);
         botApiMethod = createClientHandler.handle(update);
-        sendMessage = (SendMessage) botApiMethod;
+        sendMessage = (SendMessage) botApiMethod.get(0);
         assertEquals("Включить генерацию нового имени, если клиент с таким именем уже существует?", sendMessage.getText());
 
         ReplyKeyboard markup = sendMessage.getReplyMarkup();
@@ -139,7 +139,7 @@ public class CreateClientTest extends RegisteredUserHandlerTest {
         update.setCallbackQuery(callbackQuery);
 
         botApiMethod = createClientHandler.handle(update);
-        sendMessage = (SendMessage) botApiMethod;
+        sendMessage = (SendMessage) botApiMethod.get(0);
         assertEquals(String.join(System.lineSeparator(),
                 "Клиент успешно зарегистрирован!",
                 "Имя: Masha",
@@ -181,33 +181,33 @@ public class CreateClientTest extends RegisteredUserHandlerTest {
         Update update = new Update();
         update.setMessage(message);
 
-        BotApiMethod<?> botApiMethod = createClientHandler.handle(update);
-        assertInstanceOf(SendMessage.class, botApiMethod);
-        SendMessage sendMessage = (SendMessage) botApiMethod;
+        List<BotApiMethod<?>> botApiMethod = createClientHandler.handle(update);
+        assertInstanceOf(SendMessage.class, botApiMethod.get(0));
+        SendMessage sendMessage = (SendMessage) botApiMethod.get(0);
         assertEquals("Введите имя", sendMessage.getText());
 
         message.setText(request.getName());
         update.setMessage(message);
         botApiMethod = createClientHandler.handle(update);
-        sendMessage = (SendMessage) botApiMethod;
+        sendMessage = (SendMessage) botApiMethod.get(0);
         assertEquals("Введите стоимость за час", sendMessage.getText());
 
         message.setText(request.getPricePerHour().toString());
         update.setMessage(message);
         botApiMethod = createClientHandler.handle(update);
-        sendMessage = (SendMessage) botApiMethod;
+        sendMessage = (SendMessage) botApiMethod.get(0);
         assertEquals("Введите описание", sendMessage.getText());
 
         message.setText(request.getDescription());
         update.setMessage(message);
         botApiMethod = createClientHandler.handle(update);
-        sendMessage = (SendMessage) botApiMethod;
+        sendMessage = (SendMessage) botApiMethod.get(0);
         assertEquals("Введите номер телефона", sendMessage.getText());
 
         message.setText(request.getPhone());
         update.setMessage(message);
         botApiMethod = createClientHandler.handle(update);
-        sendMessage = (SendMessage) botApiMethod;
+        sendMessage = (SendMessage) botApiMethod.get(0);
         assertEquals("Включить генерацию нового имени, если клиент с таким именем уже существует?", sendMessage.getText());
 
         ReplyKeyboard markup = sendMessage.getReplyMarkup();
@@ -239,7 +239,7 @@ public class CreateClientTest extends RegisteredUserHandlerTest {
         update.setCallbackQuery(callbackQuery);
 
         botApiMethod = createClientHandler.handle(update);
-        sendMessage = (SendMessage) botApiMethod;
+        sendMessage = (SendMessage) botApiMethod.get(0);
 
         assertEquals("Клиент с таким именем уже существует", sendMessage.getText());
     }
@@ -275,33 +275,33 @@ public class CreateClientTest extends RegisteredUserHandlerTest {
         Update update = new Update();
         update.setMessage(message);
 
-        BotApiMethod<?> botApiMethod = createClientHandler.handle(update);
-        assertInstanceOf(SendMessage.class, botApiMethod);
-        SendMessage sendMessage = (SendMessage) botApiMethod;
+        List<BotApiMethod<?>> botApiMethod = createClientHandler.handle(update);
+        assertInstanceOf(SendMessage.class, botApiMethod.get(0));
+        SendMessage sendMessage = (SendMessage) botApiMethod.get(0);
         assertEquals("Введите имя", sendMessage.getText());
 
         message.setText(request.getName());
         update.setMessage(message);
         botApiMethod = createClientHandler.handle(update);
-        sendMessage = (SendMessage) botApiMethod;
+        sendMessage = (SendMessage) botApiMethod.get(0);
         assertEquals("Введите стоимость за час", sendMessage.getText());
 
         message.setText(request.getPricePerHour().toString());
         update.setMessage(message);
         botApiMethod = createClientHandler.handle(update);
-        sendMessage = (SendMessage) botApiMethod;
+        sendMessage = (SendMessage) botApiMethod.get(0);
         assertEquals("Введите описание", sendMessage.getText());
 
         message.setText(request.getDescription());
         update.setMessage(message);
         botApiMethod = createClientHandler.handle(update);
-        sendMessage = (SendMessage) botApiMethod;
+        sendMessage = (SendMessage) botApiMethod.get(0);
         assertEquals("Введите номер телефона", sendMessage.getText());
 
         message.setText(request.getPhone());
         update.setMessage(message);
         botApiMethod = createClientHandler.handle(update);
-        sendMessage = (SendMessage) botApiMethod;
+        sendMessage = (SendMessage) botApiMethod.get(0);
         assertEquals("Включить генерацию нового имени, если клиент с таким именем уже существует?", sendMessage.getText());
 
         ReplyKeyboard markup = sendMessage.getReplyMarkup();
@@ -333,7 +333,7 @@ public class CreateClientTest extends RegisteredUserHandlerTest {
         update.setCallbackQuery(callbackQuery);
 
         botApiMethod = createClientHandler.handle(update);
-        sendMessage = (SendMessage) botApiMethod;
+        sendMessage = (SendMessage) botApiMethod.get(0);
 
         assertEquals("Номер телефона уже используется", sendMessage.getText());
     }
@@ -374,33 +374,33 @@ public class CreateClientTest extends RegisteredUserHandlerTest {
         Update update = new Update();
         update.setMessage(message);
 
-        BotApiMethod<?> botApiMethod = createClientHandler.handle(update);
-        assertInstanceOf(SendMessage.class, botApiMethod);
-        SendMessage sendMessage = (SendMessage) botApiMethod;
+        List<BotApiMethod<?>> botApiMethod = createClientHandler.handle(update);
+        assertInstanceOf(SendMessage.class, botApiMethod.get(0));
+        SendMessage sendMessage = (SendMessage) botApiMethod.get(0);
         assertEquals("Введите имя", sendMessage.getText());
 
         message.setText(request.getName());
         update.setMessage(message);
         botApiMethod = createClientHandler.handle(update);
-        sendMessage = (SendMessage) botApiMethod;
+        sendMessage = (SendMessage) botApiMethod.get(0);
         assertEquals("Введите стоимость за час", sendMessage.getText());
 
         message.setText(request.getPricePerHour().toString());
         update.setMessage(message);
         botApiMethod = createClientHandler.handle(update);
-        sendMessage = (SendMessage) botApiMethod;
+        sendMessage = (SendMessage) botApiMethod.get(0);
         assertEquals("Введите описание", sendMessage.getText());
 
         message.setText(request.getDescription());
         update.setMessage(message);
         botApiMethod = createClientHandler.handle(update);
-        sendMessage = (SendMessage) botApiMethod;
+        sendMessage = (SendMessage) botApiMethod.get(0);
         assertEquals("Введите номер телефона", sendMessage.getText());
 
         message.setText(request.getPhone());
         update.setMessage(message);
         botApiMethod = createClientHandler.handle(update);
-        sendMessage = (SendMessage) botApiMethod;
+        sendMessage = (SendMessage) botApiMethod.get(0);
         assertEquals("Включить генерацию нового имени, если клиент с таким именем уже существует?", sendMessage.getText());
 
         ReplyKeyboard markup = sendMessage.getReplyMarkup();
@@ -432,7 +432,7 @@ public class CreateClientTest extends RegisteredUserHandlerTest {
         update.setCallbackQuery(callbackQuery);
 
         botApiMethod = createClientHandler.handle(update);
-        sendMessage = (SendMessage) botApiMethod;
+        sendMessage = (SendMessage) botApiMethod.get(0);
         assertEquals(String.join(System.lineSeparator(),
                         "Клиент успешно зарегистрирован!",
                         "Имя: Sasha 2",

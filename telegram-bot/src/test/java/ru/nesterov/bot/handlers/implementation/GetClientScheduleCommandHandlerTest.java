@@ -57,7 +57,7 @@ public class GetClientScheduleCommandHandlerTest extends RegisteredUserHandlerTe
 
         Update update = createUpdateWithMessage();
 
-        BotApiMethod<?> botApiMethod = handler.handle(update);
+        List<BotApiMethod<?>> botApiMethod = handler.handle(update);
         assertInstanceOf(SendMessage.class, botApiMethod);
 
         SendMessage sendMessage = (SendMessage) botApiMethod;
@@ -85,7 +85,7 @@ public class GetClientScheduleCommandHandlerTest extends RegisteredUserHandlerTe
         handler.handle(updateWithCommand);
         Update updateWithClientName = createUpdateWithCallbackQuery("Клиент 1");
 
-        BotApiMethod<?> botApiMethod = handler.handle(updateWithClientName);
+        List<BotApiMethod<?>> botApiMethod = handler.handle(updateWithClientName);
         assertInstanceOf(EditMessageText.class, botApiMethod);
 
         EditMessageText editMessage = (EditMessageText) botApiMethod;
@@ -111,7 +111,7 @@ public class GetClientScheduleCommandHandlerTest extends RegisteredUserHandlerTe
         LocalDate firstDate = LocalDate.now();
         Update updateWithFirstDate = createUpdateWithCallbackQuery(String.valueOf(firstDate));
 
-        BotApiMethod<?> botApiMethod = handler.handle(updateWithFirstDate);
+        List<BotApiMethod<?>> botApiMethod = handler.handle(updateWithFirstDate);
         assertInstanceOf(EditMessageText.class, botApiMethod);
 
         EditMessageText editMessage = (EditMessageText) botApiMethod;
@@ -166,7 +166,7 @@ public class GetClientScheduleCommandHandlerTest extends RegisteredUserHandlerTe
         )).thenReturn(clientSchedule);
 
         Update updateWithSecondDate = createUpdateWithCallbackQuery(String.valueOf(secondDate));
-        BotApiMethod<?> botApiMethod = handler.handle(updateWithSecondDate);
+        List<BotApiMethod<?>> botApiMethod = handler.handle(updateWithSecondDate);
         assertInstanceOf(EditMessageText.class, botApiMethod);
         EditMessageText editMessage = (EditMessageText) botApiMethod;
 
@@ -206,7 +206,7 @@ public class GetClientScheduleCommandHandlerTest extends RegisteredUserHandlerTe
 
         Update update = createUpdateWithCallbackQuery("Prev");
 
-        BotApiMethod<?> botApiMethod = handler.handle(update);
+        List<BotApiMethod<?>> botApiMethod = handler.handle(update);
         assertInstanceOf(EditMessageText.class, botApiMethod);
 
         EditMessageText editMessage = (EditMessageText) botApiMethod;
@@ -231,7 +231,7 @@ public class GetClientScheduleCommandHandlerTest extends RegisteredUserHandlerTe
 
         Update update = createUpdateWithCallbackQuery("Next");
 
-        BotApiMethod<?> botApiMethod = handler.handle(update);
+        List<BotApiMethod<?>> botApiMethod = handler.handle(update);
         assertInstanceOf(EditMessageText.class, botApiMethod);
 
         EditMessageText editMessage = (EditMessageText) botApiMethod;
@@ -276,7 +276,7 @@ public class GetClientScheduleCommandHandlerTest extends RegisteredUserHandlerTe
     void handleCommandWhenNoClientsFound() {
         Update update = createUpdateWithMessage();
 
-        BotApiMethod<?> botApiMethod = handler.handle(update);
+        List<BotApiMethod<?>> botApiMethod = handler.handle(update);
         assertInstanceOf(SendMessage.class, botApiMethod);
         SendMessage sendMessage = (SendMessage) botApiMethod;
 

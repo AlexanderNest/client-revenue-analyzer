@@ -42,7 +42,7 @@ public class UpdateUserControlButtonsHandler extends InvocableCommandHandler {
     }
 
     @Override
-    public BotApiMethod<?> handle(Update update) {
+    public List<BotApiMethod<?>> handle(Update update) {
         ReplyKeyboardMarkup keyboardMarkup = new ReplyKeyboardMarkup();
         keyboardMarkup.setResizeKeyboard(true);
         int buttonsPerLine = botProperties.getMenuButtonsPerLine();
@@ -55,6 +55,10 @@ public class UpdateUserControlButtonsHandler extends InvocableCommandHandler {
 
     @Override
     public boolean isApplicable(Update update) {
+        if (!update.hasMessage() || !update.getMessage().hasText()) {
+            return false;
+        }
+
         if (getCommand().equals(update.getMessage().getText())) {
             return true;
         }

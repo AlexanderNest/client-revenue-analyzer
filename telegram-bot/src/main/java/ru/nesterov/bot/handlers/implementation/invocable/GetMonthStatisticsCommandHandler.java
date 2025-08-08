@@ -12,7 +12,6 @@ import ru.nesterov.bot.dto.GetIncomeAnalysisForMonthResponse;
 import ru.nesterov.bot.handlers.abstractions.DisplayedCommandHandler;
 import ru.nesterov.bot.handlers.callback.ButtonCallback;
 import ru.nesterov.bot.utils.MonthUtil;
-import ru.nesterov.core.entity.Role;
 
 import java.text.NumberFormat;
 import java.util.ArrayList;
@@ -35,11 +34,6 @@ public class GetMonthStatisticsCommandHandler extends DisplayedCommandHandler {
     };
 
     private static final String markSymbol = "\u2B50";
-
-    @Override
-    protected List<Role> getApplicableRoles() {
-        return super.getApplicableRoles();
-    }
 
     private static String formatIncomeReport(GetIncomeAnalysisForMonthResponse response) {
         NumberFormat currencyFormat = NumberFormat.getNumberInstance(new Locale("ru", "RU"));
@@ -65,8 +59,8 @@ public class GetMonthStatisticsCommandHandler extends DisplayedCommandHandler {
     }
 
     @Override
-    public BotApiMethod<?> handle(Update update) {
-        BotApiMethod<?> sendMessage;
+    public List<BotApiMethod<?>> handle(Update update) {
+        List<BotApiMethod<?>> sendMessage;
         if (update.getMessage() == null) {
             sendMessage = sendMonthStatistics(update);
         } else {
@@ -77,7 +71,7 @@ public class GetMonthStatisticsCommandHandler extends DisplayedCommandHandler {
     }
 
     @SneakyThrows
-    private BotApiMethod<?> sendMonthStatistics(Update update) {
+    private List<BotApiMethod<?>> sendMonthStatistics(Update update) {
         long userId = update.getCallbackQuery().getFrom().getId();
         CallbackQuery callbackQuery = update.getCallbackQuery();
         ButtonCallback callback = objectMapper.readValue(callbackQuery.getData(), ButtonCallback.class);
@@ -92,7 +86,7 @@ public class GetMonthStatisticsCommandHandler extends DisplayedCommandHandler {
     }
 
     @SneakyThrows
-    private SendMessage sendMonthKeyboard(long chatId) {
+    private List<BotApiMethod<?>> sendMonthKeyboard(long chatId) {
         SendMessage message = new SendMessage();
         message.setChatId(String.valueOf(chatId));
         message.setText("Выберите месяц для анализа дохода:");
@@ -118,7 +112,7 @@ public class GetMonthStatisticsCommandHandler extends DisplayedCommandHandler {
         keyboardMarkup.setKeyboard(keyboard);
         message.setReplyMarkup(keyboardMarkup);
 
-        return message;
+        return List.of(message);
     }
 
     private String clearFromMark(String string) {
