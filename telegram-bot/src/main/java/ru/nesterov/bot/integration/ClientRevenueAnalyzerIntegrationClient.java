@@ -52,7 +52,6 @@ public class ClientRevenueAnalyzerIntegrationClient {
     private final BotProperties botProperties;
     private final ObjectMapper objectMapper;
 
-
     public GetIncomeAnalysisForMonthResponse getIncomeAnalysisForMonth(long userId, String monthName) {
         GetForMonthRequest getForMonthRequest = new GetForMonthRequest();
         getForMonthRequest.setMonthName(monthName);

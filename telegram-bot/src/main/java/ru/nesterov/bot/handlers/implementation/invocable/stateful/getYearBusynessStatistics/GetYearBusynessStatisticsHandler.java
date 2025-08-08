@@ -10,7 +10,6 @@ import ru.nesterov.bot.handlers.abstractions.StatefulCommandHandler;
 import ru.nesterov.bot.statemachine.dto.Action;
 import ru.nesterov.bot.utils.TelegramUpdateUtils;
 
-import java.util.List;
 import java.util.Locale;
 import java.util.stream.Collectors;
 
@@ -84,6 +83,5 @@ public class GetYearBusynessStatisticsHandler extends StatefulCommandHandler<Sta
     public String getCommand() {
         return "Анализ занятости за год";
     }
-
 }
 

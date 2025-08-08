@@ -70,4 +70,3 @@ public interface UserController {
     @PostMapping("/getUsersIdByRoleAndSource")
     List<String> getUsersIdByRoleAndSource(GetAllUsersByRoleAndSourceRequest getAllUsersByRoleAndSourceRequest);
 }
-

@@ -120,5 +120,4 @@ public class CreateUserHandler extends StatefulCommandHandler<State, CreateUserR
     public boolean isDisplayedForRegistered() {
         return false;
     }
-
 }

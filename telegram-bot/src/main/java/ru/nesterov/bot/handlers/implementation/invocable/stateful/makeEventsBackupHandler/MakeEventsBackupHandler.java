@@ -89,7 +89,6 @@ public class MakeEventsBackupHandler extends StatefulCommandHandler<State, MakeE
     public String getCommand() {
         return "Создать бэкап событий";
     }
-
 }
 
 

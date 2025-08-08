@@ -22,7 +22,6 @@ import java.util.Locale;
 /**
  * Получение месячного отчета для выбранного месяца
  */
-
 @Component
 public class GetMonthStatisticsCommandHandler extends DisplayedCommandHandler {
     private static final String[] months = {
@@ -137,5 +136,4 @@ public class GetMonthStatisticsCommandHandler extends DisplayedCommandHandler {
     public int getOrder() {
         return 1;
     }
-
 }

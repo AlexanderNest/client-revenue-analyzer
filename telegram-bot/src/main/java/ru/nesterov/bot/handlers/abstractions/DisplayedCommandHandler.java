@@ -8,7 +8,6 @@ import ru.nesterov.bot.utils.TelegramUpdateUtils;
 /**
  * Обработчик, который будет отображаться в списке команд для отправки на стороне пользователя
  */
-
 public abstract class DisplayedCommandHandler extends InvocableCommandHandler implements Ordered {
 
     /**
@@ -22,7 +21,6 @@ public abstract class DisplayedCommandHandler extends InvocableCommandHandler im
     /**
      * Определяет, будет ли обработчик отображаться для зарегистрированных пользователей
      */
-
     public boolean isDisplayed(Update update) {
         GetUserRequest getUserRequest = new GetUserRequest();
         getUserRequest.setUsername(String.valueOf(TelegramUpdateUtils.getUserId(update)));

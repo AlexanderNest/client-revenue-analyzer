@@ -1,11 +1,9 @@
 package ru.nesterov.bot.handlers.abstractions;
 
-import org.springframework.beans.factory.annotation.Autowired;
 import org.telegram.telegrambots.meta.api.objects.CallbackQuery;
 import org.telegram.telegrambots.meta.api.objects.Message;
 import org.telegram.telegrambots.meta.api.objects.Update;
 import ru.nesterov.bot.handlers.callback.ButtonCallback;
-import ru.nesterov.bot.integration.ClientRevenueAnalyzerIntegrationClient;
 import ru.nesterov.core.entity.Role;
 
 import java.util.List;
@@ -13,16 +11,10 @@ import java.util.List;
 /**
  * Обработчик, который вызывается по отправленной команде
  */
-
-
 public abstract class InvocableCommandHandler extends SendingMessageCommandHandler {
     /**
      * Команда, которая вызовет обработчик
      */
-
-    @Autowired
-    protected ClientRevenueAnalyzerIntegrationClient client;
-
     public abstract String getCommand();
 
     protected List<Role> getApplicableRoles() {
@@ -54,5 +46,4 @@ public abstract class InvocableCommandHandler extends SendingMessageCommandHandl
 
         return isShortButtonCallback || isJsonButtonCallback;
     }
-
 }
