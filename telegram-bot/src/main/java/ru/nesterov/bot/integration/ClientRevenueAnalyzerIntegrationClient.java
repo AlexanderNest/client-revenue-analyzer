@@ -57,6 +57,10 @@ public class ClientRevenueAnalyzerIntegrationClient {
         return post(String.valueOf(userId), getForMonthRequest, "/revenue-analyzer/events/analyzer/getIncomeAnalysisForMonth", GetIncomeAnalysisForMonthResponse.class).getBody();
     }
 
+    public GetClientStatisticResponse getClientStatistic(long userId, String clientName){
+        return null;
+    }
+
     public GetYearBusynessStatisticsResponse getYearBusynessStatistics(long userId, int year) {
         GetForYearRequest getForYearRequest = new GetForYearRequest();
         getForYearRequest.setYear(year);
