@@ -25,6 +25,8 @@ import ru.nesterov.bot.dto.CreateUserRequest;
 import ru.nesterov.bot.dto.CreateUserResponse;
 import ru.nesterov.bot.dto.GetActiveClientResponse;
 import ru.nesterov.bot.dto.GetClientScheduleResponse;
+import ru.nesterov.bot.dto.GetClientStatisticResponse;
+import ru.nesterov.bot.dto.GetForClientNameRequest;
 import ru.nesterov.bot.dto.GetForClientScheduleRequest;
 import ru.nesterov.bot.dto.GetForMonthRequest;
 import ru.nesterov.bot.dto.GetForYearRequest;
@@ -58,7 +60,10 @@ public class ClientRevenueAnalyzerIntegrationClient {
     }
 
     public GetClientStatisticResponse getClientStatistic(long userId, String clientName){
-        return null;
+        GetForClientNameRequest getForClientNameRequest = new GetForClientNameRequest();
+        getForClientNameRequest.setClientName(clientName);
+
+        return post(String.valueOf(userId), getForClientNameRequest, "/revenue-analyzer/events/analyzer/getClientStatistic", GetClientStatisticResponse.class).getBody();
     }
 
     public GetYearBusynessStatisticsResponse getYearBusynessStatistics(long userId, int year) {
