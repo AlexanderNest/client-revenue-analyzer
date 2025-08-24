@@ -1,4 +1,4 @@
-package ru.nesterov.bot.handlers.implementation.invocable;
+package ru.nesterov.bot.handlers.implementation.invocable.stateful.getClientStatisticHandler;
 
 import lombok.SneakyThrows;
 import org.springframework.stereotype.Component;
@@ -8,9 +8,13 @@ import org.telegram.telegrambots.meta.api.objects.Update;
 import org.telegram.telegrambots.meta.api.objects.replykeyboard.InlineKeyboardMarkup;
 import org.telegram.telegrambots.meta.api.objects.replykeyboard.buttons.InlineKeyboardButton;
 import ru.nesterov.bot.dto.GetActiveClientResponse;
+import ru.nesterov.bot.dto.GetClientScheduleRequest;
+import ru.nesterov.bot.dto.GetClientStatisticRequest;
 import ru.nesterov.bot.dto.GetClientStatisticResponse;
 import ru.nesterov.bot.handlers.abstractions.DisplayedCommandHandler;
+import ru.nesterov.bot.handlers.abstractions.StatefulCommandHandler;
 import ru.nesterov.bot.handlers.callback.ButtonCallback;
+import ru.nesterov.bot.statemachine.dto.Action;
 import ru.nesterov.bot.utils.TelegramUpdateUtils;
 
 import java.text.NumberFormat;
@@ -20,17 +24,18 @@ import java.util.List;
 import java.util.Locale;
 
 @Component
-public class GetClientStatisticHandler extends DisplayedCommandHandler {
-    @Override
-    public BotApiMethod<?> handle(Update update) {
-        BotApiMethod<?> sendMessage;
-        if (update.getMessage() == null) {
-            sendMessage = sendClientStatistic(update);
-        } else {
-            sendMessage = sendClientNamesKeyboard(update);
-        }
+public class GetClientStatisticHandler extends StatefulCommandHandler<State, GetClientStatisticRequest> {
+    public GetClientStatisticHandler(State state, Class<GetClientStatisticRequest> memoryType) {
+        super(State.STARTED, GetClientStatisticRequest.class);
+    }
 
-        return sendMessage;
+
+    @Override
+    public void initTransitions() {
+        stateMachineProvider
+                .addTransition(State.STARTED, Action.COMMAND_INPUT, State.SELECT_CLIENT, this::sendClientNamesKeyboard)
+
+                .addTransition(State.SELECT_CLIENT, Action.ANY_CALLBACK_INPUT, State.FINISH, this::handleClientName);
     }
 
     @Override
@@ -39,7 +44,7 @@ public class GetClientStatisticHandler extends DisplayedCommandHandler {
     }
 
     @SneakyThrows
-    private BotApiMethod<?> sendClientStatistic(Update update, String clientName) {
+    private BotApiMethod<?> handleClientName(Update update, String clientName) {
         long userId = update.getCallbackQuery().getFrom().getId();
         CallbackQuery callbackQuery = update.getCallbackQuery();
 //        ButtonCallback callback = objectMapper.readValue(callbackQuery.getData(), ButtonCallback.class);
