@@ -44,11 +44,11 @@ public class GetClientStatisticHandler extends StatefulCommandHandler<State, Get
     }
 
     @SneakyThrows
-    private BotApiMethod<?> handleClientName(Update update, String clientName) {
+    private BotApiMethod<?> handleClientName(Update update) {
         long userId = update.getCallbackQuery().getFrom().getId();
         CallbackQuery callbackQuery = update.getCallbackQuery();
 //        ButtonCallback callback = objectMapper.readValue(callbackQuery.getData(), ButtonCallback.class);
-        GetClientStatisticResponse response = client.getClientStatistic(userId, clientName);
+        GetClientStatisticResponse response = client.getClientStatistic(userId, callbackQuery.);
 
         return editMessage(
                 callbackQuery.getMessage().getChatId(),
