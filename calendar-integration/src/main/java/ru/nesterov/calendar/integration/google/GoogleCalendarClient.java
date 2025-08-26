@@ -108,17 +108,17 @@ public class GoogleCalendarClient implements CalendarClient {
     }
 
     @SneakyThrows
-    private List<EventDto> getEventsBetweenDatesInternal(String calendarId, CalendarType calendarType, LocalDateTime leftDate, LocalDateTime rightDate, String clientName) {
+    private List<EventDto> getEventsBetweenDatesInternal(String calendarId, CalendarType calendarType, LocalDateTime leftDate, LocalDateTime rightDate, String eventName) {
         Date startTime = Date.from(leftDate.atZone(ZoneId.systemDefault()).toInstant());
         Date endTime = Date.from(rightDate.atZone(ZoneId.systemDefault()).toInstant());
 
-        List<Events> events = getEventsBetweenDates(calendarId, clientName, startTime, endTime);
+        List<Events> events = getEventsBetweenDates(calendarId, eventName, startTime, endTime);
         Stream<EventDto> eventDtoStream = events.stream()
                 .flatMap(e -> e.getItems().stream())
                 .map(event -> buildEvent(event, calendarType));
 
-        if (clientName != null) {
-            eventDtoStream = eventDtoStream.filter(eventDto -> eventDto.getSummary().equals(clientName));
+        if (eventName != null) {
+            eventDtoStream = eventDtoStream.filter(eventDto -> eventDto.getSummary().equals(eventName));
         }
 
         return eventDtoStream.toList();
@@ -160,7 +160,7 @@ public class GoogleCalendarClient implements CalendarClient {
     private EventDto buildEvent(com.google.api.services.calendar.model.Event event, CalendarType calendarType) {
         EventStatus eventStatus;
         if (calendarType == CalendarType.CANCELLED) {
-            eventStatus = EventStatus.CANCELLED;
+            eventStatus = EventStatus.UNPLANNED_CANCELLED; // TODO если ивент пришел из отмененного календаря, то надо тоже высчитывать статус, они там не только незапланированные. поэтому сейчас учитываем этот календарь некорректно
         } else if (calendarType == CalendarType.PLAIN) {
             eventStatus = null;
         } else {
