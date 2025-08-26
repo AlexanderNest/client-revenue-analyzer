@@ -49,6 +49,7 @@ class GetActiveClientsHandlerTest extends RegisteredUserHandlerTest {
                 "     Тариф: 100 руб/час" + System.lineSeparator() +
                 "     Описание: Zzz" + System.lineSeparator() + System.lineSeparator();
 
+        assertEquals(1, result.size());
         SendMessage sendMessage = (SendMessage) result.get(0);
         assertEquals(expectedMessage, sendMessage.getText());
     }
@@ -60,6 +61,7 @@ class GetActiveClientsHandlerTest extends RegisteredUserHandlerTest {
         when(client.getActiveClients(1L)).thenReturn(Collections.emptyList());
 
         List<BotApiMethod<?>> result = getActiveClientsHandler.handle(update);
+        assertEquals(1, result.size());
         SendMessage sendMessage = (SendMessage) result.get(0);
 
         assertEquals("У вас пока нет клиентов.", sendMessage.getText());

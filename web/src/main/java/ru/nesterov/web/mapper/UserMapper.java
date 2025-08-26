@@ -21,6 +21,7 @@ public class UserMapper {
                 .isCancelledCalendarEnabled(request.isCancelledCalendarEnabled())
                 .username(request.getUserIdentifier())
                 .cancelledCalendar(request.getCancelledCalendarId())
+                .source(request.getSource())
                 .build();
     }
 

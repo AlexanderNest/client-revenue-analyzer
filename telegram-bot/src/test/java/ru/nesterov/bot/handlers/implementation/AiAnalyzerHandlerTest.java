@@ -35,6 +35,7 @@ class AiAnalyzerHandlerTest extends RegisteredUserHandlerTest {
 
         List<BotApiMethod<?>> command = commandHandler.handle(update);
         assertFalse(command.isEmpty());
+        assertEquals(1, command.size());
         assertInstanceOf(SendMessage.class, command.get(0));
         SendMessage sendStatistics = (SendMessage) command.get(0);
 
