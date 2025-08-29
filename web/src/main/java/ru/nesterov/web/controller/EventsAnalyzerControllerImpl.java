@@ -13,6 +13,7 @@ import ru.nesterov.core.service.dto.ClientMeetingsStatistic;
 import ru.nesterov.core.service.dto.IncomeAnalysisResult;
 import ru.nesterov.core.service.event.EventsAnalyzerService;
 import ru.nesterov.core.service.user.UserService;
+import ru.nesterov.web.controller.request.GetForClientNameRequest;
 import ru.nesterov.web.controller.request.GetForMonthRequest;
 import ru.nesterov.web.controller.response.ClientMeetingsStatisticResponse;
 import ru.nesterov.web.controller.response.EventResponse;
@@ -31,8 +32,8 @@ public class EventsAnalyzerControllerImpl implements EventsAnalyzerController {
         return eventsAnalyzerService.getStatisticsOfEachClientMeetingsForMonth(userService.getUserByUsername(username), request.getMonthName());
     }
 
-    public ResponseEntity<ClientMeetingsStatisticResponse> getClientStatistic(@RequestHeader(name = "X-username") String username, @RequestParam("clientName") String clientName) {
-        ClientMeetingsStatistic clientMeetingsStatistic = eventsAnalyzerService.getStatisticsByClientMeetings(userService.getUserByUsername(username), clientName);
+    public ResponseEntity<ClientMeetingsStatisticResponse> getClientStatistic(@RequestHeader(name = "X-username") String username, @RequestBody GetForClientNameRequest clientNameRequest) {
+        ClientMeetingsStatistic clientMeetingsStatistic = eventsAnalyzerService.getStatisticsByClientMeetings(userService.getUserByUsername(username), clientNameRequest.getClientName());
 
         if (clientMeetingsStatistic == null) {
             return new ResponseEntity<>(HttpStatus.NOT_FOUND);

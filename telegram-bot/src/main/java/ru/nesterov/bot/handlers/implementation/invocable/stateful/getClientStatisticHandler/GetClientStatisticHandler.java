@@ -3,15 +3,12 @@ package ru.nesterov.bot.handlers.implementation.invocable.stateful.getClientStat
 import lombok.SneakyThrows;
 import org.springframework.stereotype.Component;
 import org.telegram.telegrambots.meta.api.methods.BotApiMethod;
-import org.telegram.telegrambots.meta.api.objects.CallbackQuery;
 import org.telegram.telegrambots.meta.api.objects.Update;
 import org.telegram.telegrambots.meta.api.objects.replykeyboard.InlineKeyboardMarkup;
 import org.telegram.telegrambots.meta.api.objects.replykeyboard.buttons.InlineKeyboardButton;
 import ru.nesterov.bot.dto.GetActiveClientResponse;
-import ru.nesterov.bot.dto.GetClientScheduleRequest;
 import ru.nesterov.bot.dto.GetClientStatisticRequest;
 import ru.nesterov.bot.dto.GetClientStatisticResponse;
-import ru.nesterov.bot.handlers.abstractions.DisplayedCommandHandler;
 import ru.nesterov.bot.handlers.abstractions.StatefulCommandHandler;
 import ru.nesterov.bot.handlers.callback.ButtonCallback;
 import ru.nesterov.bot.statemachine.dto.Action;
@@ -25,10 +22,9 @@ import java.util.Locale;
 
 @Component
 public class GetClientStatisticHandler extends StatefulCommandHandler<State, GetClientStatisticRequest> {
-    public GetClientStatisticHandler(State state, Class<GetClientStatisticRequest> memoryType) {
+    public GetClientStatisticHandler() {
         super(State.STARTED, GetClientStatisticRequest.class);
     }
-
 
     @Override
     public void initTransitions() {
@@ -46,13 +42,15 @@ public class GetClientStatisticHandler extends StatefulCommandHandler<State, Get
     @SneakyThrows
     private BotApiMethod<?> handleClientName(Update update) {
         long userId = update.getCallbackQuery().getFrom().getId();
-        CallbackQuery callbackQuery = update.getCallbackQuery();
-//        ButtonCallback callback = objectMapper.readValue(callbackQuery.getData(), ButtonCallback.class);
-        GetClientStatisticResponse response = client.getClientStatistic(userId, callbackQuery.);
+//        if (getStateMachine(update).getMemory().getClientName() == null) {
+        ButtonCallback buttonCallback = buttonCallbackService.buildButtonCallback(update.getCallbackQuery().getData());
+         getStateMachine(update).getMemory().setClientName(buttonCallback.getValue());
+         GetClientStatisticResponse response = client.getClientStatistic(userId, buttonCallback.getValue());
+//        }
 
         return editMessage(
-                callbackQuery.getMessage().getChatId(),
-                callbackQuery.getMessage().getMessageId(),
+                TelegramUpdateUtils.getChatId(update),
+                TelegramUpdateUtils.getMessageId(update),
                 formatIncomeReport(response),
                 null
         );

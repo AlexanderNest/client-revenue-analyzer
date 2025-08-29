@@ -27,7 +27,7 @@ import java.util.stream.Collectors;
  * Получение информации о расписании указанного клиента
  */
 
-@Component
+//@Component
 public class GetClientScheduleCommandHandler extends StatefulCommandHandler<State, GetClientScheduleRequest> {
 
     private final InlineCalendarBuilder inlineCalendarBuilder;

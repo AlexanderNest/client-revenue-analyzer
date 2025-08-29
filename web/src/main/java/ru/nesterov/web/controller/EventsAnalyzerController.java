@@ -15,6 +15,7 @@ import org.springframework.web.bind.annotation.RequestParam;
 import ru.nesterov.calendar.integration.dto.EventStatus;
 import ru.nesterov.core.service.dto.ClientMeetingsStatistic;
 import ru.nesterov.core.service.dto.IncomeAnalysisResult;
+import ru.nesterov.web.controller.request.GetForClientNameRequest;
 import ru.nesterov.web.controller.request.GetForMonthRequest;
 import ru.nesterov.web.controller.response.ClientMeetingsStatisticResponse;
 import ru.nesterov.web.controller.response.EventResponse;
@@ -58,8 +59,8 @@ public interface EventsAnalyzerController {
                     @ApiResponse(responseCode = "500", description = "Внутренняя ошибка сервера")
             }
     )
-    @GetMapping("/getClientStatistic")
-    ResponseEntity<ClientMeetingsStatisticResponse> getClientStatistic(@RequestHeader(name = "X-username") String username, @RequestParam("clientName") String clientName);
+    @PostMapping("/getClientStatistic")
+    ResponseEntity<ClientMeetingsStatisticResponse> getClientStatistic(@RequestHeader(name = "X-username") String username, @RequestBody GetForClientNameRequest clientNameRequest);
 
     @Operation(
             summary = "Получить статусы событий за месяц",
