@@ -43,7 +43,6 @@ public abstract class AbstractControllerTest {
         client1.setUser(user);
         client1.setName(name);
         client1.setPricePerHour(1000);
-
         return clientRepository.save(client1);
     }
 }
