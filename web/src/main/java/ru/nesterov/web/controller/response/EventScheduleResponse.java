@@ -10,4 +10,5 @@ import java.time.LocalDateTime;
 public class EventScheduleResponse {
     private final LocalDateTime eventStart;
     private final LocalDateTime eventEnd;
+    private final boolean requiresShift;
 }
