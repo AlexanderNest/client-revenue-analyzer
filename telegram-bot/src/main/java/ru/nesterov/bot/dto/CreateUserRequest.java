@@ -14,4 +14,5 @@ public class CreateUserRequest {
     private String cancelledCalendarId;
     private String userIdentifier;
     private boolean isCancelledCalendarEnabled;
+    private String source;
 }

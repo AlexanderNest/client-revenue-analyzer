@@ -325,4 +325,16 @@
         </sql>
     </changeSet>
 
+    <changeSet id="set-default-role-and-source" author="uliana2903">
+        <sql>
+            UPDATE "user"
+            SET role = 'USER'
+            WHERE role IS NULL;
+
+            UPDATE "user"
+            SET source = 'telegram'
+            WHERE source IS NULL;
+        </sql>
+    </changeSet>
+
 </databaseChangeLog>

@@ -18,6 +18,7 @@ import ru.nesterov.bot.utils.TelegramUpdateUtils;
 import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
+import java.util.Comparator;
 import java.util.List;
 import java.util.Locale;
 import java.util.stream.Collectors;
@@ -49,10 +50,12 @@ public class GetClientScheduleCommandHandler extends StatefulCommandHandler<Stat
                 .addTransition(State.SELECT_FIRST_DATE, Action.CALLBACK_DATE, State.SELECT_SECOND_DATE, this::handleFirstDate)
                 .addTransition(State.SELECT_FIRST_DATE, Action.CALLBACK_PREV, State.SELECT_FIRST_DATE, this::handleCallbackPrev)
                 .addTransition(State.SELECT_FIRST_DATE, Action.CALLBACK_NEXT, State.SELECT_FIRST_DATE, this::handleCallbackNext)
+                .addTransition(State.SELECT_FIRST_DATE, Action.CALLBACK_TODAY, State.SELECT_FIRST_DATE, this::handleCallbackToday)
 
                 .addTransition(State.SELECT_SECOND_DATE, Action.CALLBACK_DATE, State.FINISH, this::handleSecondDate)
                 .addTransition(State.SELECT_SECOND_DATE, Action.CALLBACK_PREV, State.SELECT_SECOND_DATE, this::handleCallbackPrev)
-                .addTransition(State.SELECT_SECOND_DATE, Action.CALLBACK_NEXT, State.SELECT_SECOND_DATE, this::handleCallbackNext);
+                .addTransition(State.SELECT_SECOND_DATE, Action.CALLBACK_NEXT, State.SELECT_SECOND_DATE, this::handleCallbackNext)
+                .addTransition(State.SELECT_SECOND_DATE, Action.CALLBACK_TODAY, State.SELECT_SECOND_DATE, this::handleCallbackToday);
     }
 
     private List<BotApiMethod<?>> handleClientName(Update update) {
@@ -93,11 +96,13 @@ public class GetClientScheduleCommandHandler extends StatefulCommandHandler<Stat
     private List<BotApiMethod<?>> sendClientNamesKeyboard(Update update) {
         InlineKeyboardMarkup keyboardMarkup = new InlineKeyboardMarkup();
         List<List<InlineKeyboardButton>> keyboard = new ArrayList<>();
-        List<GetActiveClientResponse> clients = client.getActiveClients(TelegramUpdateUtils.getChatId(update));
+        List<GetActiveClientResponse> clients = client.getActiveClients(TelegramUpdateUtils.getUserId(update));
 
         if (clients.isEmpty()) {
             return getPlainSendMessage(TelegramUpdateUtils.getChatId(update), "Нет доступных клиентов");
         }
+
+        clients.sort(Comparator.comparing(GetActiveClientResponse::getName, String.CASE_INSENSITIVE_ORDER));
 
         for (GetActiveClientResponse response : clients) {
             InlineKeyboardButton button = new InlineKeyboardButton();
@@ -119,7 +124,7 @@ public class GetClientScheduleCommandHandler extends StatefulCommandHandler<Stat
     @SneakyThrows
     private List<BotApiMethod<?>> sendClientSchedule(Update update) {
         List<GetClientScheduleResponse> response = client.getClientSchedule(
-                TelegramUpdateUtils.getChatId(update),
+                TelegramUpdateUtils.getUserId(update),
                 getStateMachine(update).getMemory().getClientName(),
                 getStateMachine(update).getMemory().getFirstDate().atStartOfDay(),
                 getStateMachine(update).getMemory().getSecondDate().atStartOfDay());
@@ -158,6 +163,13 @@ public class GetClientScheduleCommandHandler extends StatefulCommandHandler<Stat
     }
 
     @SneakyThrows
+    private List<BotApiMethod<?>> handleCallbackToday(Update update) {
+        LocalDate today = LocalDate.now();
+        getStateMachine(update).getMemory().setDisplayedMonth(today.withDayOfMonth(1));
+        return handleMonthSwitch(update);
+    }
+
+    @SneakyThrows
     private List<BotApiMethod<?>> handleCallbackNext(Update update) {
         LocalDate displayedMonth = getStateMachine(update).getMemory().getDisplayedMonth().plusMonths(1);
         getStateMachine(update).getMemory().setDisplayedMonth(displayedMonth);
@@ -185,4 +197,3 @@ public class GetClientScheduleCommandHandler extends StatefulCommandHandler<Stat
         return "Узнать расписание клиента";
     }
 }
-

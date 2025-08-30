@@ -28,10 +28,10 @@ public class GoogleCalendarService implements CalendarService {
 
     @Override
     public List<EventDto> getEventsBetweenDates(EventsFilter eventsFilter) {
-        List<EventDto> eventsFromMainCalendar = googleCalendarClient.getEventsBetweenDates(eventsFilter.getMainCalendar(), CalendarType.MAIN, eventsFilter.getLeftDate(), eventsFilter.getRightDate());
+        List<EventDto> eventsFromMainCalendar = googleCalendarClient.getEventsBetweenDates(eventsFilter.getMainCalendar(), CalendarType.MAIN, eventsFilter.getLeftDate(), eventsFilter.getRightDate(), eventsFilter.getClientName());
 
         if (eventsFilter.getCancelledCalendar() != null && eventsFilter.isCancelledCalendarEnabled()) {
-            List<EventDto> eventsFromCancelledCalendar = googleCalendarClient.getEventsBetweenDates(eventsFilter.getCancelledCalendar(), CalendarType.CANCELLED, eventsFilter.getLeftDate(), eventsFilter.getRightDate());
+            List<EventDto> eventsFromCancelledCalendar = googleCalendarClient.getEventsBetweenDates(eventsFilter.getCancelledCalendar(), CalendarType.CANCELLED, eventsFilter.getLeftDate(), eventsFilter.getRightDate(), eventsFilter.getClientName());
             return mergeEvents(eventsFromMainCalendar, eventsFromCancelledCalendar);
         }
         return eventsFromMainCalendar;

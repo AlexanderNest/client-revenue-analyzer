@@ -71,6 +71,7 @@ public class CreateUserHandler extends StatefulCommandHandler<State, CreateUserR
 
     private List<BotApiMethod<?>> handleCancelledCalendarIdInput(Update update) {
         getStateMachine(update).getMemory().setCancelledCalendarId(update.getMessage().getText());
+
         return registerUser(update);
     }
 
@@ -82,7 +83,9 @@ public class CreateUserHandler extends StatefulCommandHandler<State, CreateUserR
     }
 
     private List<BotApiMethod<?>> registerUser(Update update) {
-        CreateUserResponse response = client.createUser(getStateMachine(update).getMemory());
+        CreateUserRequest request = getStateMachine(update).getMemory();
+        request.setSource("telegram");
+        CreateUserResponse response = client.createUser(request);
         return getPlainSendMessage(TelegramUpdateUtils.getChatId(update), formatCreateUserResponse(response));
     }
 

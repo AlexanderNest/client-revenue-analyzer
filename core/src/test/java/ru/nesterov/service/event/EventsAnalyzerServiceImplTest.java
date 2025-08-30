@@ -15,6 +15,7 @@ import ru.nesterov.core.entity.Client;
 import ru.nesterov.core.entity.User;
 import ru.nesterov.core.repository.ClientRepository;
 import ru.nesterov.core.repository.UserRepository;
+import ru.nesterov.core.service.dto.ClientMeetingsStatistic;
 import ru.nesterov.core.service.dto.IncomeAnalysisResult;
 import ru.nesterov.core.service.dto.UserDto;
 import ru.nesterov.core.service.event.EventService;
@@ -22,6 +23,8 @@ import ru.nesterov.core.service.event.EventsAnalyzerProperties;
 import ru.nesterov.core.service.event.EventsAnalyzerServiceImpl;
 
 import java.time.LocalDateTime;
+import java.util.Calendar;
+import java.util.Date;
 import java.util.List;
 import java.util.Map;
 
@@ -53,6 +56,9 @@ class EventsAnalyzerServiceImplTest {
         client.setId(1);
         client.setName("testName");
         client.setPricePerHour(1000);
+        client.setDescription("description");
+        client.setStartDate(new Date(2025, Calendar.JUNE, 1));
+        client.setPhone("phone");
         when(clientRepository.findClientByNameAndUserId("testName", 1)).thenReturn(client);
 
         User user = new User();
@@ -96,7 +102,7 @@ class EventsAnalyzerServiceImplTest {
 
         EventDto eventDto5 = EventDto.builder()
                 .summary("testName")
-                .status(EventStatus.CANCELLED)
+                .status(EventStatus.PLANNED_CANCELLED)
                 .start(start)
                 .end(end)
                 .build();
@@ -111,6 +117,27 @@ class EventsAnalyzerServiceImplTest {
                 .status(EventStatus.SUCCESS)
                 .build();
 
+        EventExtensionDto eventExtensionDto1 = new EventExtensionDto();
+        eventExtensionDto1.setIsPlanned(true);
+        EventDto eventDto7 = EventDto.builder()
+                .summary("testName")
+                .start(start)
+                .end(end)
+                .eventExtensionDto(eventExtensionDto1)
+                .status(EventStatus.PLANNED_CANCELLED)
+                .build();
+
+        EventExtensionDto eventExtensionDto2 = new EventExtensionDto();
+        eventExtensionDto2.setIsPlanned(false);
+        EventDto eventDto8 = EventDto.builder()
+                .summary("testName")
+                .start(start)
+                .end(end)
+                .eventExtensionDto(eventExtensionDto2)
+                .status(EventStatus.UNPLANNED_CANCELLED)
+                .build();
+
+
         EventDto holidayEvent = EventDto.builder()
                 .summary("testName")
                 .start(start)
@@ -118,7 +145,7 @@ class EventsAnalyzerServiceImplTest {
                 .build();
 
         when(googleCalendarService.getHolidays(any(), any())).thenReturn(List.of(holidayEvent));
-        when(googleCalendarService.getEventsBetweenDates(any())).thenReturn(List.of(eventDto1, eventDto2, eventDto3, eventDto4, eventDto5, eventDto6));
+        when(googleCalendarService.getEventsBetweenDates(any())).thenReturn(List.of(eventDto1, eventDto2, eventDto3, eventDto4, eventDto5, eventDto6, eventDto7, eventDto8));
     }
 
     @Test
@@ -133,11 +160,11 @@ class EventsAnalyzerServiceImplTest {
                 .build();
 
         IncomeAnalysisResult incomeAnalysisResult = eventsAnalyzerService.getIncomeAnalysisByMonth(userDto, "august");
-        assertEquals(1000, incomeAnalysisResult.getLostIncome());
+        assertEquals(3000, incomeAnalysisResult.getLostIncome());
         assertEquals(4500, incomeAnalysisResult.getActualIncome());
-        assertEquals(7500, incomeAnalysisResult.getPotentialIncome());
+        assertEquals(9500, incomeAnalysisResult.getPotentialIncome());
         assertEquals(6500, incomeAnalysisResult.getExpectedIncome());
-        assertEquals(1000, incomeAnalysisResult.getLostIncomeDueToHoliday());
+        assertEquals(3000, incomeAnalysisResult.getLostIncomeDueToHoliday());
     }
 
     @Test
@@ -148,11 +175,37 @@ class EventsAnalyzerServiceImplTest {
                 .build();
 
         Map<EventStatus, Integer> statuses = eventsAnalyzerService.getEventStatusesByMonthName(userDto, "august");
-        assertEquals(4, statuses.size());
+        assertEquals(5, statuses.size());
         assertEquals(3, statuses.get(EventStatus.SUCCESS));
-        assertEquals(1, statuses.get(EventStatus.CANCELLED));
+        assertEquals(2, statuses.get(EventStatus.PLANNED_CANCELLED));
+        assertEquals(1, statuses.get(EventStatus.UNPLANNED_CANCELLED));
         assertEquals(1, statuses.get(EventStatus.PLANNED));
         assertEquals(1, statuses.get(EventStatus.REQUIRES_SHIFT));
     }
 
+    @Test
+    void getStatisticsByOneClientMeetings() {
+        UserDto userDto = UserDto.builder()
+                .username("testUsername")
+                .id(1)
+                .build();
+
+        Date date = new Date(2025, Calendar.JUNE, 1);
+
+        ClientMeetingsStatistic meetingsStatistics = eventsAnalyzerService.getStatisticsByClientMeetings(userDto, "testName");
+        assertEquals("testName", meetingsStatistics.getName());
+        assertEquals(1, meetingsStatistics.getId());
+        assertEquals("description", meetingsStatistics.getDescription());
+        assertEquals(date, meetingsStatistics.getStartDate());
+        assertEquals("phone", meetingsStatistics.getPhone());
+        assertEquals(3, meetingsStatistics.getSuccessfulMeetingsHours());
+        assertEquals(3, meetingsStatistics.getCancelledMeetingsHours());
+        assertEquals(50, meetingsStatistics.getSuccessfulMeetingsPercentage());
+        assertEquals(3000, meetingsStatistics.getLostIncome());
+        assertEquals(3000, meetingsStatistics.getActualIncome());
+        assertEquals(1000, meetingsStatistics.getIncomePerHour());
+        assertEquals(3, meetingsStatistics.getSuccessfulEventsCount());
+        assertEquals(2, meetingsStatistics.getPlannedCancelledEventsCount());
+        assertEquals(1, meetingsStatistics.getNotPlannedCancelledEventsCount());
+    }
 }

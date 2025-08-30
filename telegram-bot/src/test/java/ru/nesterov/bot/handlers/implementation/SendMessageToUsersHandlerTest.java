@@ -17,12 +17,12 @@ import org.telegram.telegrambots.meta.api.objects.replykeyboard.buttons.InlineKe
 import ru.nesterov.bot.handlers.RegisteredUserHandlerTest;
 import ru.nesterov.bot.handlers.callback.ButtonCallback;
 import ru.nesterov.bot.handlers.implementation.invocable.adminsHandlers.SendMessageToUsersHandler;
+import ru.nesterov.core.entity.Role;
 
 import java.util.List;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertInstanceOf;
-import static org.mockito.ArgumentMatchers.anyLong;
 import static org.mockito.Mockito.when;
 
 @ContextConfiguration(classes = {
@@ -91,7 +91,7 @@ public class SendMessageToUsersHandlerTest extends RegisteredUserHandlerTest {
         update3.setMessage(message);
 
         List<String> userIds = List.of("100", "150");
-        when(client.getUsersIdByRoleAndSource(anyLong())).thenReturn(userIds);
+        when(client.getUsersIdByRoleAndSource(chat.getId(), Role.USER, "telegram")).thenReturn(userIds);
 
         response = sendMessageToUsersHandler.handle(update3);
 
@@ -198,13 +198,12 @@ public class SendMessageToUsersHandlerTest extends RegisteredUserHandlerTest {
         callback.setValue("false");
         callbackQuery.setData(buttonCallbackService.getTelegramButtonCallbackString(callback));
 
+        List<String> userIds = List.of("100", "150");
+        when(client.getUsersIdByRoleAndSource(chat.getId(), Role.USER, "telegram")).thenReturn(userIds);
+
         update5.setCallbackQuery(callbackQuery);
         message.setText("Новая рассылка");
         update5.setMessage(message);
-
-        List<String> userIds = List.of("100", "150");
-        when(client.getUsersIdByRoleAndSource(anyLong())).thenReturn(userIds);
-
         response = sendMessageToUsersHandler.handle(update5);
 
         sendMessage = (SendMessage) (response.get(0));
