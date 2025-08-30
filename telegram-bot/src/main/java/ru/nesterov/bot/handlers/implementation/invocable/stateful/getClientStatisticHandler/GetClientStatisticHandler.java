@@ -15,6 +15,7 @@ import ru.nesterov.bot.statemachine.dto.Action;
 import ru.nesterov.bot.utils.TelegramUpdateUtils;
 
 import java.text.NumberFormat;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.List;
@@ -42,11 +43,8 @@ public class GetClientStatisticHandler extends StatefulCommandHandler<State, Get
     @SneakyThrows
     private BotApiMethod<?> handleClientName(Update update) {
         long userId = update.getCallbackQuery().getFrom().getId();
-//        if (getStateMachine(update).getMemory().getClientName() == null) {
         ButtonCallback buttonCallback = buttonCallbackService.buildButtonCallback(update.getCallbackQuery().getData());
-         getStateMachine(update).getMemory().setClientName(buttonCallback.getValue());
          GetClientStatisticResponse response = client.getClientStatistic(userId, buttonCallback.getValue());
-//        }
 
         return editMessage(
                 TelegramUpdateUtils.getChatId(update),
@@ -90,28 +88,43 @@ public class GetClientStatisticHandler extends StatefulCommandHandler<State, Get
         currencyFormat.setMinimumFractionDigits(0);
         currencyFormat.setMaximumFractionDigits(0);
 
+        SimpleDateFormat dateFormat = new SimpleDateFormat("dd.MM.yyyy", new Locale("ru", "RU"));
+
         return String.format(
                 "📊 *Статистика клиента*\n\n" +
-                        "%-22s %10s ₽\n" +
-                        "%-22s %10s ₽\n" +
-                        "-----------------------------\n" +
-                        "%-22s %10s ₽\n" +
-                        "-----------------------------\n" +
-                        "%-22s %10s ₽\n" +
-                        "%-22s %10s ₽",
-                "Имя:", currencyFormat.format(response.getName()),
-                "ID:", currencyFormat.format(response.getId()),
-                "Описание:", currencyFormat.format(response.getDescription()),
-                "Начало обучения:", currencyFormat.format(response.getStartDate()),
-                "Продолжительность обучения:", currencyFormat.format(response.getServiceDuration()),
-                "Телефон:", currencyFormat.format(response.getPhone()),
+                        "%-35s %s\n" +
+                        "%-35s %s\n" +
+                        "%-35s %s\n" +
+                        "-------------------------------------------\n" +
+                        "%-35s %s\n" +
+                        "%-35s %s\n" +
+                        "%-35s %s\n" +
+                        "-------------------------------------------\n" +
+                        "%-35s %s часов\n" +
+                        "%-35s %s часов\n" +
+                        "%-35s %s ₽/час\n" +
+                        "%-35s %s\n" +
+                        "%-35s %s\n" +
+                        "%-35s %s\n" +
+                        "-------------------------------------------\n" +
+                        "%-35s %s ₽",
+
+                "Имя:", response.getName(),
+                "ID:", (response.getId()),
+                "Телефон:", response.getPhone(),
+
+                "Описание:", response.getDescription(),
+                "Начало обучения:", dateFormat.format(response.getStartDate()),
+                "Продолжительность обучения:", response.getServiceDuration() + " дней",
+
                 "Состоявшихся занятий в часах:", currencyFormat.format(response.getSuccessfulMeetingsHours()),
                 "Отмененных занятий в часах:", currencyFormat.format(response.getCancelledMeetingsHours()),
                 "Доход в час:", currencyFormat.format(response.getIncomePerHour()),
                 "Количество состоявшихся занятий:", currencyFormat.format(response.getSuccessfulEventsCount()),
-                "Количество запланированно отмененных занятия:", currencyFormat.format(response.getPlannedCancelledEventsCount()),
-                "Количество не запланированно отмененных занятия:", currencyFormat.format(response.getNotPlannedCancelledEventsCount()),
-                "Сумарный дохожд:", currencyFormat.format(response.getTotalIncome())
+                "Количество запланированно отмененных занятий:", currencyFormat.format(response.getPlannedCancelledEventsCount()),
+                "Количество не запланированно отмененных занятий:", currencyFormat.format(response.getNotPlannedCancelledEventsCount()),
+
+                "Суммарный доход:", currencyFormat.format(response.getTotalIncome())
         );
     }
 }
