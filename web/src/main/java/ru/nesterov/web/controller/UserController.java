@@ -56,7 +56,7 @@ public interface UserController {
 
     @Operation(
             summary = "Получить всех пользователей",
-            description = "Возвращает список всех пользователей",
+            description = "Возвращает список всех пользователей по роли и по источнику создания пользователя",
             requestBody = @RequestBody(
                     description = "Запрос с ролью и источником",
                     required = true,

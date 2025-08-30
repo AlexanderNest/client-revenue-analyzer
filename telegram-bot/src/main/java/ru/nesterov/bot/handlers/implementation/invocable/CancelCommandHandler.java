@@ -35,5 +35,4 @@ public class CancelCommandHandler extends InvocableCommandHandler {
     public String getCommand() {
         return "/cancel";
     }
-
 }

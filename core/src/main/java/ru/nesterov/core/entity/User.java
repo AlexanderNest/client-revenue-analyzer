@@ -31,10 +31,8 @@ public class User {
     private boolean isCancelledCalendarEnabled;
     @Column(name = "events_backup_enabled")
     private boolean isEventsBackupEnabled;
-    @Column(name = "role")
     @Enumerated(EnumType.STRING)
     private Role role;
-    @Column(name = "source")
     private String source;
 
     @OneToMany(mappedBy = "user")

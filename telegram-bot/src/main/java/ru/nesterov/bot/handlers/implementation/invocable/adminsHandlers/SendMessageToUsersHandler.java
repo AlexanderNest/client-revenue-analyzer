@@ -40,9 +40,11 @@ public class SendMessageToUsersHandler extends StatefulCommandHandler<State, Sen
     public void initTransitions() {
         stateMachineProvider
                 .addTransition(State.STARTED, Action.COMMAND_INPUT, State.TEXT_INPUT, this::handleStartMessage)
+
                 .addTransition(State.TEXT_INPUT, Action.ANY_STRING, State.WAITING_FOR_CONFIRMATION, this::handleTextInput)
+                .addTransition(State.TEXT_INPUT, Action.ANY_STRING, State.WAITING_FOR_CONFIRMATION, this::handleTextInput)
+
                 .addTransition(State.WAITING_FOR_CONFIRMATION, Action.CALLBACK_TRUE, State.TEXT_INPUT, this::handleUpdatedMessage)
-                .addTransition(State.TEXT_INPUT, Action.ANY_STRING, State.WAITING_FOR_CONFIRMATION, this::handleTextInput)
                 .addTransition(State.WAITING_FOR_CONFIRMATION, Action.CALLBACK_FALSE, State.FINISH, this::sendMessageToUsers);
     }
 
