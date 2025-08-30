@@ -32,8 +32,8 @@ public class EventsAnalyzerControllerImpl implements EventsAnalyzerController {
         return eventsAnalyzerService.getStatisticsOfEachClientMeetingsForMonth(userService.getUserByUsername(username), request.getMonthName());
     }
 
-    public ResponseEntity<ClientMeetingsStatisticResponse> getClientStatistic(@RequestHeader(name = "X-username") String username, @RequestBody GetForClientNameRequest clientNameRequest) {
-        ClientMeetingsStatistic clientMeetingsStatistic = eventsAnalyzerService.getStatisticsByClientMeetings(userService.getUserByUsername(username), clientNameRequest.getClientName());
+    public ResponseEntity<ClientMeetingsStatisticResponse> getClientStatistic(@RequestHeader(name = "X-username") String username, @RequestParam String clientName) {
+        ClientMeetingsStatistic clientMeetingsStatistic = eventsAnalyzerService.getStatisticsByClientMeetings(userService.getUserByUsername(username), clientName);
 
         if (clientMeetingsStatistic == null) {
             return new ResponseEntity<>(HttpStatus.NOT_FOUND);

@@ -59,8 +59,8 @@ public interface EventsAnalyzerController {
                     @ApiResponse(responseCode = "500", description = "Внутренняя ошибка сервера")
             }
     )
-    @PostMapping("/getClientStatistic")
-    ResponseEntity<ClientMeetingsStatisticResponse> getClientStatistic(@RequestHeader(name = "X-username") String username, @RequestBody GetForClientNameRequest clientNameRequest);
+    @GetMapping("/getClientStatistic")
+    ResponseEntity<ClientMeetingsStatisticResponse> getClientStatistic(@RequestHeader(name = "X-username") String username, @RequestParam String clientName);
 
     @Operation(
             summary = "Получить статусы событий за месяц",

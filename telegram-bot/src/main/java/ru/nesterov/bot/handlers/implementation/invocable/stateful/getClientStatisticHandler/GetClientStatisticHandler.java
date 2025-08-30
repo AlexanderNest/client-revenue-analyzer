@@ -44,7 +44,14 @@ public class GetClientStatisticHandler extends StatefulCommandHandler<State, Get
     private BotApiMethod<?> handleClientName(Update update) {
         long userId = update.getCallbackQuery().getFrom().getId();
         ButtonCallback buttonCallback = buttonCallbackService.buildButtonCallback(update.getCallbackQuery().getData());
-         GetClientStatisticResponse response = client.getClientStatistic(userId, buttonCallback.getValue());
+        GetClientStatisticResponse response = client.getClientStatistic(userId, buttonCallback.getValue());
+
+         if(response == null) {
+             return getPlainSendMessage(
+                     TelegramUpdateUtils.getChatId(update),
+                     "У пользователя нет встреч"
+             );
+         }
 
         return editMessage(
                 TelegramUpdateUtils.getChatId(update),

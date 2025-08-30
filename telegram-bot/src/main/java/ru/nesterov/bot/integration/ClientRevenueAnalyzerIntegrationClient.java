@@ -13,9 +13,12 @@ import org.springframework.http.HttpMethod;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Component;
+import org.springframework.util.LinkedMultiValueMap;
+import org.springframework.util.MultiValueMap;
 import org.springframework.web.client.HttpClientErrorException;
 import org.springframework.web.client.HttpServerErrorException;
 import org.springframework.web.client.RestTemplate;
+import org.springframework.web.util.UriComponentsBuilder;
 import ru.nesterov.bot.config.BotProperties;
 import ru.nesterov.bot.config.RevenueAnalyzerProperties;
 import ru.nesterov.bot.dto.AiAnalyzerResponse;
@@ -39,6 +42,7 @@ import ru.nesterov.bot.dto.MakeEventsBackupResponse;
 import ru.nesterov.bot.exception.InternalException;
 import ru.nesterov.bot.exception.UserFriendlyException;
 
+import java.net.URI;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.List;
@@ -62,8 +66,10 @@ public class ClientRevenueAnalyzerIntegrationClient {
     public GetClientStatisticResponse getClientStatistic(long userId, String clientName){
         GetForClientNameRequest getForClientNameRequest = new GetForClientNameRequest();
         getForClientNameRequest.setClientName(clientName);
+        LinkedMultiValueMap<String, String> requestParams = new LinkedMultiValueMap<>();
+        requestParams.add("clientName", clientName);
 
-        return post(String.valueOf(userId), getForClientNameRequest, "/revenue-analyzer/events/analyzer/getClientStatistic", GetClientStatisticResponse.class).getBody();
+        return get(String.valueOf(userId), requestParams, "/revenue-analyzer/events/analyzer/getClientStatistic", GetClientStatisticResponse.class).getBody();
     }
 
     public GetYearBusynessStatisticsResponse getYearBusynessStatistics(long userId, int year) {
@@ -157,6 +163,7 @@ public class ClientRevenueAnalyzerIntegrationClient {
     public MakeEventsBackupResponse makeEventsBackup(long userId) {
         ResponseEntity<MakeEventsBackupResponse> response = get(
                 String.valueOf(userId),
+                null,
                 "/revenue-analyzer/events/backup",
                 MakeEventsBackupResponse.class
         );
@@ -171,12 +178,12 @@ public class ClientRevenueAnalyzerIntegrationClient {
         );
     }
 
-    private <T> ResponseEntity<T> get(String username, String endpoint, Class<T> responseType) {
-        return exchange(username, null, endpoint, responseType, HttpMethod.GET);
+    private <T> ResponseEntity<T> get(String username, MultiValueMap<String, String> requestParams , String endpoint, Class<T> responseType) {
+        return exchange(username, requestParams, null, endpoint, responseType, HttpMethod.GET);
     }
 
     private <T> ResponseEntity<T> post(String username, Object request, String endpoint, Class<T> responseType) {
-        return exchange(username, request, endpoint, responseType, HttpMethod.POST);
+        return exchange(username, null, request, endpoint, responseType, HttpMethod.POST);
     }
 
     private <T> List<T> getForList(String username, String endpoint, ParameterizedTypeReference<List<T>> typeReference) {
@@ -205,12 +212,18 @@ public class ClientRevenueAnalyzerIntegrationClient {
         return responseEntity.getBody();
     }
 
-    private <T> ResponseEntity<T> exchange(String username, Object request, String endpoint, Class<T> responseType, HttpMethod httpMethod) {
+    private <T> ResponseEntity<T> exchange(String username, MultiValueMap<String, String> requestParams, Object request, String endpoint, Class<T> responseType, HttpMethod httpMethod) {
         HttpEntity<Object> entity = new HttpEntity<>(request, createHeaders(username));
+
+        URI uri = UriComponentsBuilder.fromHttpUrl(revenueAnalyzerProperties.getUrl() + endpoint)
+                .queryParams(requestParams)
+                .build()
+                .encode()
+                .toUri();
 
         try {
             return restTemplate.exchange(
-                    revenueAnalyzerProperties.getUrl() + endpoint,
+                    uri,
                     httpMethod,
                     entity,
                     responseType
