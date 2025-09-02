@@ -19,7 +19,7 @@ public abstract class DisplayedCommandHandler extends InvocableCommandHandler im
     }
 
     /**
-     * Определяет, будет ли обработчик отображаться для зарегистрированных пользователей
+     * Определяет, будет ли обработчик отображаться для текущего update
      */
     public boolean isDisplayed(Update update) {
         GetUserRequest getUserRequest = new GetUserRequest();
@@ -36,6 +36,9 @@ public abstract class DisplayedCommandHandler extends InvocableCommandHandler im
         return getApplicableRoles().contains(response.getRole());
     }
 
+    /**
+     * Определяет, будет ли обработчик отображаться для зарегистрированных пользователей
+     */
     public boolean isDisplayedForRegistered() {
         return true;
     }
