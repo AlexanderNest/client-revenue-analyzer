@@ -52,7 +52,7 @@ public abstract class StatefulCommandHandler<STATE extends Enum<STATE>, MEMORY> 
     /**
      * Возвращает машину для указанного пользователя. Если машина для пользователя не существует, создает ее.
      */
-    protected StateMachine<STATE, Action, MEMORY> getStateMachine(Update update) {
+    public StateMachine<STATE, Action, MEMORY> getStateMachine(Update update) {
         long chatId = TelegramUpdateUtils.getChatId(update);
         StateMachine<STATE, Action, MEMORY> stateMachine = stateMachineProvider.getMachine(chatId);
         if (stateMachine == null){
@@ -73,9 +73,7 @@ public abstract class StatefulCommandHandler<STATE extends Enum<STATE>, MEMORY> 
     @Override
     public List<BotApiMethod<?>> handle(Update update) {
         StateMachine<STATE, Action, MEMORY> stateMachine = getStateMachine(update);
-        List<Action> expectedActions = stateMachine.getExpectedActions();
-        Action action = actionService.defineTheAction(getCommand(), update, expectedActions);
-
+        Action action = actionService.defineTheAction(this, update);
         NextStateFunction<STATE> nextStateFunction = stateMachine.getNextStateFunction(action);
 
         if (nextStateFunction == null) {
