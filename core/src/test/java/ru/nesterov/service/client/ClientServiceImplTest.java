@@ -17,7 +17,7 @@ import ru.nesterov.core.repository.ClientRepository;
 import ru.nesterov.core.repository.UserRepository;
 import ru.nesterov.core.service.client.ClientService;
 import ru.nesterov.core.service.client.ClientServiceImpl;
-import ru.nesterov.core.service.date.helper.MonthDatesPair;
+import ru.nesterov.core.service.dto.ClientScheduleDto;
 import ru.nesterov.core.service.dto.UserDto;
 
 import java.time.LocalDateTime;
@@ -120,17 +120,19 @@ public class ClientServiceImplTest {
         LocalDateTime from = LocalDateTime.of(2024, 8, 9, 11, 30);
         LocalDateTime to = LocalDateTime.of(2024, 8, 13, 12, 30);
 
-        List<MonthDatesPair> actual = clientService.getClientSchedule(userDto, "testClient1", from, to);
+        List<ClientScheduleDto> actual = clientService.getClientSchedule(userDto, "testClient1", from, to);
 
-        List<MonthDatesPair> expected = List.of(
-                new MonthDatesPair(
-                        LocalDateTime.of(2024, 8, 9, 11, 30),
-                        LocalDateTime.of(2024, 8, 9, 12, 30)
-                ),
-                new MonthDatesPair(
-                        LocalDateTime.of(2024, 8, 10, 11, 30),
-                        LocalDateTime.of(2024, 8, 10, 12, 30)
-                )
+        List<ClientScheduleDto> expected = List.of(
+                ClientScheduleDto.builder()
+                        .eventStart(LocalDateTime.of(2024, 8, 9, 11, 30))
+                        .eventEnd(LocalDateTime.of(2024, 8, 9, 12, 30))
+                        .requiresShift(false)
+                        .build(),
+                ClientScheduleDto.builder()
+                        .eventStart(LocalDateTime.of(2024, 8, 10, 11, 30))
+                        .eventEnd(LocalDateTime.of(2024, 8, 10, 12, 30))
+                        .requiresShift(false)
+                        .build()
         );
 
         validateSchedule(actual, expected);
@@ -142,20 +144,23 @@ public class ClientServiceImplTest {
 
         LocalDateTime from = LocalDateTime.of(2024, 8, 9, 11, 30);
         LocalDateTime to = LocalDateTime.of(2024, 8, 13, 12, 30);
-        List<MonthDatesPair> actual = clientService.getClientSchedule(userDto,"testClient2", from, to);
-        List<MonthDatesPair> expected = List.of(
-                new MonthDatesPair(
-                        LocalDateTime.of(2024, 8, 11, 11, 30),
-                        LocalDateTime.of(2024, 8, 11, 12, 30)
-                ),
-                new MonthDatesPair(
-                        LocalDateTime.of(2024, 8, 12, 11, 30),
-                        LocalDateTime.of(2024, 8, 12, 12, 30)
-                ),
-                new MonthDatesPair(
-                        LocalDateTime.of(2024, 8, 13, 11, 30),
-                        LocalDateTime.of(2024, 8, 13, 12, 30)
-                )
+        List<ClientScheduleDto> actual = clientService.getClientSchedule(userDto,"testClient2", from, to);
+        List<ClientScheduleDto> expected = List.of(
+                ClientScheduleDto.builder()
+                        .eventStart(LocalDateTime.of(2024, 8, 11, 11, 30))
+                        .eventEnd(LocalDateTime.of(2024, 8, 11, 12, 30))
+                        .requiresShift(true)
+                        .build(),
+                ClientScheduleDto.builder()
+                        .eventStart(LocalDateTime.of(2024, 8, 12, 11, 30))
+                        .eventEnd(LocalDateTime.of(2024, 8, 12, 12, 30))
+                        .requiresShift(false)
+                        .build(),
+                ClientScheduleDto.builder()
+                        .eventStart(LocalDateTime.of(2024, 8, 13, 11, 30))
+                        .eventEnd(LocalDateTime.of(2024, 8, 13, 12, 30))
+                        .requiresShift(false)
+                        .build()
         );
 
         validateSchedule(actual, expected);
@@ -167,7 +172,7 @@ public class ClientServiceImplTest {
 
         LocalDateTime from = LocalDateTime.of(2024, 11, 9, 11, 30);
         LocalDateTime to = LocalDateTime.of(2024, 11, 13, 12, 30);
-        List<MonthDatesPair> clientSchedule = clientService.getClientSchedule(userDto,"testClient1", from, to);
+        List<ClientScheduleDto> clientSchedule = clientService.getClientSchedule(userDto,"testClient1", from, to);
         assertTrue(clientSchedule.isEmpty());
     }
 
@@ -186,7 +191,7 @@ public class ClientServiceImplTest {
         });
     }
 
-    private void validateSchedule(List<MonthDatesPair> actual, List<MonthDatesPair> expected) {
+    private void validateSchedule(List<ClientScheduleDto> actual, List<ClientScheduleDto> expected) {
         assertEquals(expected.size(), actual.size());
         assertTrue(actual.containsAll(expected));
     }

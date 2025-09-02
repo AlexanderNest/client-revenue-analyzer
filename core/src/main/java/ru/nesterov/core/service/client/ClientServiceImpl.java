@@ -5,6 +5,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.stereotype.Service;
 import ru.nesterov.calendar.integration.dto.EventDto;
+import ru.nesterov.calendar.integration.dto.EventStatus;
 import ru.nesterov.calendar.integration.dto.EventsFilter;
 import ru.nesterov.calendar.integration.service.CalendarService;
 import ru.nesterov.core.entity.Client;
@@ -13,8 +14,8 @@ import ru.nesterov.core.exception.ClientDataIntegrityException;
 import ru.nesterov.core.exception.ClientNotFoundException;
 import ru.nesterov.core.repository.ClientRepository;
 import ru.nesterov.core.repository.UserRepository;
-import ru.nesterov.core.service.date.helper.MonthDatesPair;
 import ru.nesterov.core.service.dto.ClientDto;
+import ru.nesterov.core.service.dto.ClientScheduleDto;
 import ru.nesterov.core.service.dto.UserDto;
 import ru.nesterov.core.service.mapper.ClientMapper;
 import java.time.LocalDateTime;
@@ -28,7 +29,7 @@ public class ClientServiceImpl implements ClientService {
     private final ClientRepository clientRepository;
     private final UserRepository userRepository;
 
-    public List<MonthDatesPair> getClientSchedule(UserDto userDto, String clientName, LocalDateTime leftDate, LocalDateTime rightDate) {
+    public List<ClientScheduleDto> getClientSchedule(UserDto userDto, String clientName, LocalDateTime leftDate, LocalDateTime rightDate) {
         Client client = clientRepository.findClientByNameAndUserId(clientName, userDto.getId());
         if (client == null) {
             throw new ClientNotFoundException(clientName);
@@ -46,7 +47,11 @@ public class ClientServiceImpl implements ClientService {
 
         return eventDtos.stream()
                 .filter(event -> event.getSummary().equals(client.getName()))
-                .map(event -> new MonthDatesPair(event.getStart(), event.getEnd()))
+                .map(event -> ClientScheduleDto.builder()
+                        .eventStart(event.getStart())
+                        .eventEnd(event.getEnd())
+                        .requiresShift(event.getStatus() == EventStatus.REQUIRES_SHIFT)
+                        .build())
                 .toList();
     }
 
