@@ -6,7 +6,6 @@ import ru.nesterov.core.entity.Role;
 import ru.nesterov.core.entity.User;
 import ru.nesterov.core.repository.UserRepository;
 import ru.nesterov.core.service.dto.UserDto;
-import ru.nesterov.core.service.dto.UserIdsDto;
 
 import java.util.List;
 
@@ -25,17 +24,8 @@ public class UserServiceImpl implements UserService{
         return convert(user);
     }
 
-    public List<UserIdsDto> getUsersIdByRoleAndSource(Role role, String source) {
-        List<String> userIds = userRepository.findUsersIdByRoleAndSource(role, source);
-        return userIds.stream()
-                .map(this::mapToUserIdsDto)
-                .toList();
-    }
-
-    private UserIdsDto mapToUserIdsDto(String userId) {
-        UserIdsDto userIdsDto = new UserIdsDto();
-        userIdsDto.setId(userId);
-        return userIdsDto;
+    public List<String> getUsersIdByRoleAndSource(Role role, String source) {
+        return userRepository.findUsersIdByRoleAndSource(role, source);
     }
 
     private UserDto convert(User user) {

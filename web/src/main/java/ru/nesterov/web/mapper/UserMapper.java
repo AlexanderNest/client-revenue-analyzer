@@ -4,10 +4,11 @@ import ru.nesterov.bot.dto.CreateUserRequest;
 import ru.nesterov.bot.dto.CreateUserResponse;
 import ru.nesterov.core.service.dto.BusynessAnalysisResult;
 import ru.nesterov.core.service.dto.UserDto;
-import ru.nesterov.core.service.dto.UserIdsDto;
 import ru.nesterov.web.controller.response.GetUserIdsResponse;
 import ru.nesterov.web.controller.response.GetUserResponse;
 import ru.nesterov.web.controller.response.YearBusynessStatisticsResponse;
+
+import java.util.List;
 
 public class UserMapper {
     public static YearBusynessStatisticsResponse mapToResponse(BusynessAnalysisResult busynessAnalysisResult) {
@@ -52,9 +53,9 @@ public class UserMapper {
                 .build();
     }
 
-    public GetUserIdsResponse mapToGetUserIdsResponse(UserIdsDto userIdsDto) {
+    public static GetUserIdsResponse mapToGetUserIdsResponse(List<String> ids) {
         GetUserIdsResponse response = new GetUserIdsResponse();
-        response.setId(userIdsDto.getId());
+        response.setUserIds(ids);
         return response;
     }
 }

@@ -20,7 +20,6 @@ import ru.nesterov.bot.handlers.callback.ButtonCallback;
 import ru.nesterov.bot.handlers.implementation.invocable.adminsHandlers.SendMessageToUsersHandler;
 import ru.nesterov.core.entity.Role;
 
-import java.util.ArrayList;
 import java.util.List;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
@@ -50,8 +49,8 @@ public class SendMessageToUsersHandlerTest extends RegisteredUserHandlerTest {
         Update update1 = new Update();
         update1.setMessage(message);
 
-        List<BotApiMethod<?>> response = sendMessageToUsersHandler.handle(update1);
-        SendMessage sendMessage = (SendMessage) (response.get(0));
+        List<BotApiMethod<?>> botApiMethod = sendMessageToUsersHandler.handle(update1);
+        SendMessage sendMessage = (SendMessage) (botApiMethod.get(0));
         Assertions.assertEquals("Введите текст рассылки", sendMessage.getText());
         Assertions.assertInstanceOf(SendMessage.class, sendMessage);
 
@@ -59,8 +58,8 @@ public class SendMessageToUsersHandlerTest extends RegisteredUserHandlerTest {
         message.setText("Рассылка");
         update2.setMessage(message);
 
-        response = sendMessageToUsersHandler.handle(update2);
-        sendMessage = (SendMessage) (response.get(0));
+        botApiMethod = sendMessageToUsersHandler.handle(update2);
+        sendMessage = (SendMessage) (botApiMethod.get(0));
         Assertions.assertEquals("Редактировать сообщение?", sendMessage.getText());
         Assertions.assertInstanceOf(SendMessage.class, sendMessage);
 
@@ -92,21 +91,16 @@ public class SendMessageToUsersHandlerTest extends RegisteredUserHandlerTest {
         message.setText("Рассылка");
         update3.setMessage(message);
 
-        GetAllUsersByRoleAndSourceResponse response1 = new GetAllUsersByRoleAndSourceResponse();
-        response1.setId("100");
-        GetAllUsersByRoleAndSourceResponse response2 = new GetAllUsersByRoleAndSourceResponse();
-        response2.setId("150");
-        List<GetAllUsersByRoleAndSourceResponse> userIds = new ArrayList<>();
-        userIds.add(response1);
-        userIds.add(response2);
-        when(client.getUsersIdByRoleAndSource(chat.getId(), Role.USER, "telegram")).thenReturn(userIds);
+        GetAllUsersByRoleAndSourceResponse response = new GetAllUsersByRoleAndSourceResponse();
+        response.setUserIds(List.of("100", "150"));
+        when(client.getUsersIdByRoleAndSource(chat.getId(), Role.USER, "telegram")).thenReturn(response);
 
-        response = sendMessageToUsersHandler.handle(update3);
+        botApiMethod = sendMessageToUsersHandler.handle(update3);
 
-        sendMessage = (SendMessage) (response.get(0));
+        sendMessage = (SendMessage) (botApiMethod.get(0));
         Assertions.assertEquals("Рассылка", sendMessage.getText());
         Assertions.assertInstanceOf(SendMessage.class, sendMessage);
-        sendMessage = (SendMessage) (response.get(response.size() - 1));
+        sendMessage = (SendMessage) (botApiMethod.get(botApiMethod.size() - 1));
         Assertions.assertEquals("Рассылка завершена", sendMessage.getText());
     }
 
@@ -126,8 +120,8 @@ public class SendMessageToUsersHandlerTest extends RegisteredUserHandlerTest {
         Update update1 = new Update();
         update1.setMessage(message);
 
-        List<BotApiMethod<?>> response = sendMessageToUsersHandler.handle(update1);
-        SendMessage sendMessage = (SendMessage) (response.get(0));
+        List<BotApiMethod<?>> botApiMethod = sendMessageToUsersHandler.handle(update1);
+        SendMessage sendMessage = (SendMessage) (botApiMethod.get(0));
         Assertions.assertEquals("Введите текст рассылки", sendMessage.getText());
         Assertions.assertInstanceOf(SendMessage.class, sendMessage);
 
@@ -135,8 +129,8 @@ public class SendMessageToUsersHandlerTest extends RegisteredUserHandlerTest {
         message.setText("Рассылка");
         update2.setMessage(message);
 
-        response = sendMessageToUsersHandler.handle(update2);
-        sendMessage = (SendMessage) (response.get(0));
+        botApiMethod = sendMessageToUsersHandler.handle(update2);
+        sendMessage = (SendMessage) (botApiMethod.get(0));
         Assertions.assertEquals("Редактировать сообщение?", sendMessage.getText());
         Assertions.assertInstanceOf(SendMessage.class, sendMessage);
 
@@ -168,8 +162,8 @@ public class SendMessageToUsersHandlerTest extends RegisteredUserHandlerTest {
         message.setText("Рассылка");
         update3.setMessage(message);
 
-        response = sendMessageToUsersHandler.handle(update3);
-        sendMessage = (SendMessage) (response.get(0));
+        botApiMethod = sendMessageToUsersHandler.handle(update3);
+        sendMessage = (SendMessage) (botApiMethod.get(0));
         Assertions.assertEquals("Введите исправленный текст рассылки", sendMessage.getText());
         Assertions.assertInstanceOf(SendMessage.class, sendMessage);
 
@@ -177,8 +171,8 @@ public class SendMessageToUsersHandlerTest extends RegisteredUserHandlerTest {
         message.setText("Новая рассылка");
         update4.setMessage(message);
 
-        response = sendMessageToUsersHandler.handle(update4);
-        sendMessage = (SendMessage) (response.get(0));
+        botApiMethod = sendMessageToUsersHandler.handle(update4);
+        sendMessage = (SendMessage) (botApiMethod.get(0));
         Assertions.assertEquals("Редактировать сообщение?", sendMessage.getText());
         Assertions.assertInstanceOf(SendMessage.class, sendMessage);
 
@@ -206,24 +200,20 @@ public class SendMessageToUsersHandlerTest extends RegisteredUserHandlerTest {
         callback.setValue("false");
         callbackQuery.setData(buttonCallbackService.getTelegramButtonCallbackString(callback));
 
-        GetAllUsersByRoleAndSourceResponse response1 = new GetAllUsersByRoleAndSourceResponse();
-        response1.setId("100");
-        GetAllUsersByRoleAndSourceResponse response2 = new GetAllUsersByRoleAndSourceResponse();
-        response2.setId("150");
-        List<GetAllUsersByRoleAndSourceResponse> userIds = new ArrayList<>();
-        userIds.add(response1);
-        userIds.add(response2);
-        when(client.getUsersIdByRoleAndSource(chat.getId(), Role.USER, "telegram")).thenReturn(userIds);
+
+        GetAllUsersByRoleAndSourceResponse response = new GetAllUsersByRoleAndSourceResponse();
+        response.setUserIds(List.of("100", "150"));
+        when(client.getUsersIdByRoleAndSource(chat.getId(), Role.USER, "telegram")).thenReturn(response);
 
         update5.setCallbackQuery(callbackQuery);
         message.setText("Новая рассылка");
         update5.setMessage(message);
-        response = sendMessageToUsersHandler.handle(update5);
+        botApiMethod = sendMessageToUsersHandler.handle(update5);
 
-        sendMessage = (SendMessage) (response.get(0));
+        sendMessage = (SendMessage) (botApiMethod.get(0));
         Assertions.assertEquals("Новая рассылка", sendMessage.getText());
         Assertions.assertInstanceOf(SendMessage.class, sendMessage);
-        sendMessage = (SendMessage) (response.get(response.size() - 1));
+        sendMessage = (SendMessage) (botApiMethod.get(botApiMethod.size() - 1));
         Assertions.assertEquals("Рассылка завершена", sendMessage.getText());
     }
 }

@@ -165,14 +165,14 @@ public class ClientRevenueAnalyzerIntegrationClient {
         );
     }
 
-    public List<GetAllUsersByRoleAndSourceResponse> getUsersIdByRoleAndSource(long chatId, Role role, String source) {
+    public GetAllUsersByRoleAndSourceResponse getUsersIdByRoleAndSource(long chatId, Role role, String source) {
         GetAllUsersByRoleAndSourceRequest request = new GetAllUsersByRoleAndSourceRequest();
         request.setRole(role);
         request.setSource(source);
-        return postForList(String.valueOf(chatId), request, "/revenue-analyzer/user/getUsersIdByRoleAndSource",
-                new ParameterizedTypeReference<>() {
-                }
+        ResponseEntity<GetAllUsersByRoleAndSourceResponse> responseEntity = post(String.valueOf(chatId), request, "/revenue-analyzer/user/getUsersIdByRoleAndSource",
+                GetAllUsersByRoleAndSourceResponse.class
         );
+        return responseEntity.getBody();
     }
 
     private <T> ResponseEntity<T> get(String username, String endpoint, Class<T> responseType) {

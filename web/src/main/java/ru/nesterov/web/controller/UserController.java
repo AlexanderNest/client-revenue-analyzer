@@ -16,8 +16,6 @@ import ru.nesterov.web.controller.request.GetUserRequest;
 import ru.nesterov.web.controller.response.GetUserIdsResponse;
 import ru.nesterov.web.controller.response.GetUserResponse;
 
-import java.util.List;
-
 @Tag(name = "Управление пользователями", description = "API для управления пользователями")
 @RequestMapping("/user")
 public interface UserController {
@@ -69,5 +67,5 @@ public interface UserController {
             }
     )
     @PostMapping("/getUsersIdByRoleAndSource")
-    List<GetUserIdsResponse> getUsersIdByRoleAndSource(GetAllUsersByRoleAndSourceRequest getAllUsersByRoleAndSourceRequest);
+    GetUserIdsResponse getUsersIdByRoleAndSource(GetAllUsersByRoleAndSourceRequest getAllUsersByRoleAndSourceRequest);
 }
