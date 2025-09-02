@@ -4,6 +4,8 @@ import ru.nesterov.bot.dto.CreateUserRequest;
 import ru.nesterov.bot.dto.CreateUserResponse;
 import ru.nesterov.core.service.dto.BusynessAnalysisResult;
 import ru.nesterov.core.service.dto.UserDto;
+import ru.nesterov.core.service.dto.UserIdsDto;
+import ru.nesterov.web.controller.response.GetUserIdsResponse;
 import ru.nesterov.web.controller.response.GetUserResponse;
 import ru.nesterov.web.controller.response.YearBusynessStatisticsResponse;
 
@@ -48,5 +50,11 @@ public class UserMapper {
                 .role(userDto.getRole())
                 .source(userDto.getSource())
                 .build();
+    }
+
+    public GetUserIdsResponse mapToGetUserIdsResponse(UserIdsDto userIdsDto) {
+        GetUserIdsResponse response = new GetUserIdsResponse();
+        response.setId(userIdsDto.getId());
+        return response;
     }
 }

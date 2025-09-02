@@ -25,6 +25,7 @@ import ru.nesterov.bot.dto.CreateUserRequest;
 import ru.nesterov.bot.dto.CreateUserResponse;
 import ru.nesterov.bot.dto.GetActiveClientResponse;
 import ru.nesterov.bot.dto.GetAllUsersByRoleAndSourceRequest;
+import ru.nesterov.bot.dto.GetAllUsersByRoleAndSourceResponse;
 import ru.nesterov.bot.dto.GetClientScheduleResponse;
 import ru.nesterov.bot.dto.GetForClientScheduleRequest;
 import ru.nesterov.bot.dto.GetForMonthRequest;
@@ -164,7 +165,7 @@ public class ClientRevenueAnalyzerIntegrationClient {
         );
     }
 
-    public List<String> getUsersIdByRoleAndSource(long chatId, Role role, String source) {
+    public List<GetAllUsersByRoleAndSourceResponse> getUsersIdByRoleAndSource(long chatId, Role role, String source) {
         GetAllUsersByRoleAndSourceRequest request = new GetAllUsersByRoleAndSourceRequest();
         request.setRole(role);
         request.setSource(source);

@@ -14,11 +14,13 @@ import org.telegram.telegrambots.meta.api.objects.User;
 import org.telegram.telegrambots.meta.api.objects.replykeyboard.InlineKeyboardMarkup;
 import org.telegram.telegrambots.meta.api.objects.replykeyboard.ReplyKeyboard;
 import org.telegram.telegrambots.meta.api.objects.replykeyboard.buttons.InlineKeyboardButton;
+import ru.nesterov.bot.dto.GetAllUsersByRoleAndSourceResponse;
 import ru.nesterov.bot.handlers.RegisteredUserHandlerTest;
 import ru.nesterov.bot.handlers.callback.ButtonCallback;
 import ru.nesterov.bot.handlers.implementation.invocable.adminsHandlers.SendMessageToUsersHandler;
 import ru.nesterov.core.entity.Role;
 
+import java.util.ArrayList;
 import java.util.List;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
@@ -90,7 +92,13 @@ public class SendMessageToUsersHandlerTest extends RegisteredUserHandlerTest {
         message.setText("Рассылка");
         update3.setMessage(message);
 
-        List<String> userIds = List.of("100", "150");
+        GetAllUsersByRoleAndSourceResponse response1 = new GetAllUsersByRoleAndSourceResponse();
+        response1.setId("100");
+        GetAllUsersByRoleAndSourceResponse response2 = new GetAllUsersByRoleAndSourceResponse();
+        response2.setId("150");
+        List<GetAllUsersByRoleAndSourceResponse> userIds = new ArrayList<>();
+        userIds.add(response1);
+        userIds.add(response2);
         when(client.getUsersIdByRoleAndSource(chat.getId(), Role.USER, "telegram")).thenReturn(userIds);
 
         response = sendMessageToUsersHandler.handle(update3);
@@ -198,7 +206,13 @@ public class SendMessageToUsersHandlerTest extends RegisteredUserHandlerTest {
         callback.setValue("false");
         callbackQuery.setData(buttonCallbackService.getTelegramButtonCallbackString(callback));
 
-        List<String> userIds = List.of("100", "150");
+        GetAllUsersByRoleAndSourceResponse response1 = new GetAllUsersByRoleAndSourceResponse();
+        response1.setId("100");
+        GetAllUsersByRoleAndSourceResponse response2 = new GetAllUsersByRoleAndSourceResponse();
+        response2.setId("150");
+        List<GetAllUsersByRoleAndSourceResponse> userIds = new ArrayList<>();
+        userIds.add(response1);
+        userIds.add(response2);
         when(client.getUsersIdByRoleAndSource(chat.getId(), Role.USER, "telegram")).thenReturn(userIds);
 
         update5.setCallbackQuery(callbackQuery);

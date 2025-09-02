@@ -8,9 +8,11 @@ import org.springframework.web.bind.annotation.RestController;
 import ru.nesterov.bot.dto.CreateUserRequest;
 import ru.nesterov.bot.dto.CreateUserResponse;
 import ru.nesterov.core.service.dto.UserDto;
+import ru.nesterov.core.service.dto.UserIdsDto;
 import ru.nesterov.core.service.user.UserService;
 import ru.nesterov.web.controller.request.GetAllUsersByRoleAndSourceRequest;
 import ru.nesterov.web.controller.request.GetUserRequest;
+import ru.nesterov.web.controller.response.GetUserIdsResponse;
 import ru.nesterov.web.controller.response.GetUserResponse;
 import ru.nesterov.web.mapper.UserMapper;
 
@@ -36,7 +38,10 @@ public class UserControllerImpl implements UserController{
         return ResponseEntity.ok(response);
     }
 
-    public List<String> getUsersIdByRoleAndSource(@RequestBody GetAllUsersByRoleAndSourceRequest request) {
-        return userService.getUsersIdByRoleAndSource(request.getRole(), request.getSource());
+    public List<GetUserIdsResponse> getUsersIdByRoleAndSource(@RequestBody GetAllUsersByRoleAndSourceRequest request) {
+        List<UserIdsDto> userIds = userService.getUsersIdByRoleAndSource(request.getRole(), request.getSource());
+        return userIds.stream()
+                .map(userMapper::mapToGetUserIdsResponse)
+                .toList();
     }
 }

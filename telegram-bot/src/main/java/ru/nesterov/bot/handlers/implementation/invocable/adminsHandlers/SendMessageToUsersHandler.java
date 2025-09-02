@@ -6,6 +6,7 @@ import org.telegram.telegrambots.meta.api.methods.BotApiMethod;
 import org.telegram.telegrambots.meta.api.objects.Update;
 import org.telegram.telegrambots.meta.api.objects.replykeyboard.InlineKeyboardMarkup;
 import org.telegram.telegrambots.meta.api.objects.replykeyboard.buttons.InlineKeyboardButton;
+import ru.nesterov.bot.dto.GetAllUsersByRoleAndSourceResponse;
 import ru.nesterov.bot.dto.SendMessageToUserRequest;
 import ru.nesterov.bot.handlers.abstractions.StatefulCommandHandler;
 import ru.nesterov.bot.statemachine.dto.Action;
@@ -70,12 +71,12 @@ public class SendMessageToUsersHandler extends StatefulCommandHandler<State, Sen
     }
 
     public List<BotApiMethod<?>> sendMessageToUsers(Update update) {
-        List<String> users = client.getUsersIdByRoleAndSource(TelegramUpdateUtils.getChatId(update),
+        List<GetAllUsersByRoleAndSourceResponse> users = client.getUsersIdByRoleAndSource(TelegramUpdateUtils.getChatId(update),
                 Role.USER, "telegram");
         List<BotApiMethod<?>> messages = new ArrayList<>();
-        for (String user : users) {
+        for (GetAllUsersByRoleAndSourceResponse user : users) {
             try {
-                messages.addAll(getPlainSendMessage(Long.parseLong(user), getStateMachine(update).getMemory().getMessage()));
+                messages.addAll(getPlainSendMessage(Long.parseLong(user.getId()), getStateMachine(update).getMemory().getMessage()));
             } catch (Exception exception) {
                 log.error("Ошибка отправки сообщения");
             }

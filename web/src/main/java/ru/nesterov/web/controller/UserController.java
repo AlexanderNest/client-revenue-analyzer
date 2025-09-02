@@ -13,6 +13,7 @@ import ru.nesterov.bot.dto.CreateUserRequest;
 import ru.nesterov.bot.dto.CreateUserResponse;
 import ru.nesterov.web.controller.request.GetAllUsersByRoleAndSourceRequest;
 import ru.nesterov.web.controller.request.GetUserRequest;
+import ru.nesterov.web.controller.response.GetUserIdsResponse;
 import ru.nesterov.web.controller.response.GetUserResponse;
 
 import java.util.List;
@@ -68,5 +69,5 @@ public interface UserController {
             }
     )
     @PostMapping("/getUsersIdByRoleAndSource")
-    List<String> getUsersIdByRoleAndSource(GetAllUsersByRoleAndSourceRequest getAllUsersByRoleAndSourceRequest);
+    List<GetUserIdsResponse> getUsersIdByRoleAndSource(GetAllUsersByRoleAndSourceRequest getAllUsersByRoleAndSourceRequest);
 }
