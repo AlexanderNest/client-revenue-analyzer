@@ -21,14 +21,14 @@ public class GetUnpaidEventsHandler extends DisplayedCommandHandler {
     }
 
     @Override
-    public BotApiMethod<?> handle(Update update) {
-        List<GetUnpaidEventsResponse> unpaidEvents = client.getUnpaidEvents(TelegramUpdateUtils.getUserId(update));
+    public List<BotApiMethod<?>> handle(Update update) {
+        List<GetUnpaidEventsResponse> unpaidEvents = client.getUnpaidEvents(TelegramUpdateUtils.getChatId(update));
 
         if (unpaidEvents.isEmpty()) {
             return getPlainSendMessage(TelegramUpdateUtils.getChatId(update), "Нет неоплаченных событий");
         }
         String message = formatMessage(unpaidEvents);
-        return getPlainSendMessage(TelegramUpdateUtils.getUserId(update), message);
+        return getPlainSendMessage(TelegramUpdateUtils.getChatId(update), message);
     }
 
     private String formatMessage(List<GetUnpaidEventsResponse> events) {

@@ -48,26 +48,26 @@ public class CreateClientHandler extends StatefulCommandHandler<State, CreateCli
                 .addTransition(State.CLIENT_NAME_GENERATION_INPUT, Action.CALLBACK_FALSE, State.FINISH, this::createClient);
     }
 
-    private BotApiMethod<?> handleCreateClientCommand(Update update) {
+    private List<BotApiMethod<?>> handleCreateClientCommand(Update update) {
         return getPlainSendMessage(TelegramUpdateUtils.getChatId(update), "Введите имя");
     }
 
-    private BotApiMethod<?> handleNameInput(Update update) {
+    private List<BotApiMethod<?>> handleNameInput(Update update) {
         getStateMachine(update).getMemory().setName(update.getMessage().getText());
         return getPlainSendMessage(TelegramUpdateUtils.getChatId(update), "Введите стоимость за час");
     }
 
-    private BotApiMethod<?> handlePricePerHourInput(Update update) {
+    private List<BotApiMethod<?>> handlePricePerHourInput(Update update) {
         getStateMachine(update).getMemory().setPricePerHour(Integer.parseInt(update.getMessage().getText()));
         return getPlainSendMessage(TelegramUpdateUtils.getChatId(update), "Введите описание");
     }
 
-    private BotApiMethod<?> handleDescriptionInput(Update update) {
+    private List<BotApiMethod<?>> handleDescriptionInput(Update update) {
         getStateMachine(update).getMemory().setDescription(update.getMessage().getText());
         return getPlainSendMessage(TelegramUpdateUtils.getChatId(update), "Введите номер телефона");
     }
 
-    private BotApiMethod<?> handlePhoneNumberInput(Update update) {
+    private List<BotApiMethod<?>> handlePhoneNumberInput(Update update) {
         getStateMachine(update).getMemory().setPhone(update.getMessage().getText());
         InlineKeyboardMarkup keyboardMarkup = new InlineKeyboardMarkup();
         List<List<InlineKeyboardButton>> keyboard = new ArrayList<>();
@@ -79,15 +79,15 @@ public class CreateClientHandler extends StatefulCommandHandler<State, CreateCli
         return getReplyKeyboard(TelegramUpdateUtils.getChatId(update), "Включить генерацию нового имени, если клиент с таким именем уже существует?", keyboardMarkup);
     }
 
-    private BotApiMethod<?> handleIdGenerationNeededInput(Update update) {
+    private List<BotApiMethod<?>> handleIdGenerationNeededInput(Update update) {
         getStateMachine(update).getMemory().setIdGenerationNeeded(Boolean.valueOf(getButtonCallbackValue(update)));
         return createClient(update);
     }
 
-    private BotApiMethod<?> createClient(Update update) {
+    private List<BotApiMethod<?>> createClient(Update update) {
         long chatId = TelegramUpdateUtils.getChatId(update);
         CreateClientResponse response = client.createClient(
-                String.valueOf(TelegramUpdateUtils.getUserId(update)),
+                String.valueOf(TelegramUpdateUtils.getChatId(update)),
                 getStateMachine(update).getMemory()
         );
 

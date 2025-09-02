@@ -1,7 +1,6 @@
 package ru.nesterov.bot.handlers.implementation.invocable;
 
 import lombok.RequiredArgsConstructor;
-import org.apache.commons.lang3.StringUtils;
 import org.springframework.stereotype.Component;
 import org.telegram.telegrambots.meta.api.methods.BotApiMethod;
 import org.telegram.telegrambots.meta.api.objects.Update;
@@ -24,9 +23,8 @@ import java.util.stream.Collectors;
 /**
  * Отображает кнопки для управления ботом
  */
-
-@Component
 @RequiredArgsConstructor
+@Component
 public class UpdateUserControlButtonsHandler extends InvocableCommandHandler {
     private final List<DisplayedCommandHandler> sendingMessageCommandHandlers;
     private final BotProperties botProperties;
@@ -44,14 +42,12 @@ public class UpdateUserControlButtonsHandler extends InvocableCommandHandler {
     }
 
     @Override
-    public BotApiMethod<?> handle(Update update) {
+    public List<BotApiMethod<?>> handle(Update update) {
         ReplyKeyboardMarkup keyboardMarkup = new ReplyKeyboardMarkup();
         keyboardMarkup.setResizeKeyboard(true);
-
-        boolean isRegistered = isRegisteredUser(TelegramUpdateUtils.getUserId(update));
         int buttonsPerLine = botProperties.getMenuButtonsPerLine();
 
-        List<KeyboardRow> keyboardRows = buildKeyboardRows(isRegistered, buttonsPerLine);
+        List<KeyboardRow> keyboardRows = buildKeyboardRows(update, buttonsPerLine);
 
         keyboardMarkup.setKeyboard(keyboardRows);
         return getReplyKeyboard(TelegramUpdateUtils.getChatId(update), "Выберите опцию:", keyboardMarkup);
@@ -59,25 +55,27 @@ public class UpdateUserControlButtonsHandler extends InvocableCommandHandler {
 
     @Override
     public boolean isApplicable(Update update) {
-        return isUnregistered(update) || super.isApplicable(update);
-    }
-
-    private boolean isUnregistered(Update update) {
-        long userId = TelegramUpdateUtils.getUserId(update);
-        String text = null;
-        if (update.getMessage() != null) {
-            text = update.getMessage().getText();
+        if (!update.hasMessage() || !update.getMessage().hasText()) {
+            return false;
         }
 
-        return !(StringUtils.isNotBlank(text) && createUserHandler.getCommand().equals(text))
-                && !isRegisteredUser(userId);
+        if (getCommand().equals(update.getMessage().getText())) {
+            return true;
+        }
+        if (createUserHandler.getCommand().equals(update.getMessage().getText())) {
+            return false;
+        }
+        GetUserRequest getUserRequest = new GetUserRequest();
+        getUserRequest.setUsername(String.valueOf(TelegramUpdateUtils.getUserId(update)));
+        boolean userExists = client.getUserByUsername(getUserRequest) != null;
+        return !userExists;
     }
 
-    private List<KeyboardRow> buildKeyboardRows(boolean isRegistered, int buttonsPerLine) {
+    private List<KeyboardRow> buildKeyboardRows(Update update, int buttonsPerLine) {
         List<KeyboardRow> keyboardRows = new ArrayList<>();
         KeyboardRow currentRow = new KeyboardRow();
 
-        List<DisplayedCommandHandler> relevantHandlers = getRelevantHandlers(isRegistered);
+        List<DisplayedCommandHandler> relevantHandlers = getRelevantHandlers(update);
 
         for (int buttonNumber = 0; buttonNumber < relevantHandlers.size(); buttonNumber++) {
             DisplayedCommandHandler handler = relevantHandlers.get(buttonNumber);
@@ -96,15 +94,9 @@ public class UpdateUserControlButtonsHandler extends InvocableCommandHandler {
         return keyboardRows;
     }
 
-    private boolean isRegisteredUser(long userId) {
-        GetUserRequest request = new GetUserRequest();
-        request.setUsername(String.valueOf(userId));
-        return client.getUserByUsername(request) != null;
-    }
-
-    private List<DisplayedCommandHandler> getRelevantHandlers(boolean isRegistered) {
+    private List<DisplayedCommandHandler> getRelevantHandlers(Update update) {
         return sendingMessageCommandHandlers.stream()
-                .filter(handler -> isRegistered ? handler.isDisplayedForRegistered() : handler.isDisplayedForUnregistered())
+                .filter(handler -> handler.isDisplayed(update))
                 .collect(Collectors.toList());
     }
 }

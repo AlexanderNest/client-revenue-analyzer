@@ -71,10 +71,11 @@ public class GetClientScheduleCommandHandlerTest extends RegisteredUserHandlerTe
 
         Update updateNext = createUpdateWithCallbackQuery(nextCallback.getValue());
 
-        BotApiMethod<?> botApiMethod = handler.handle(updateNext);
-        assertInstanceOf(EditMessageText.class, botApiMethod);
+        List<BotApiMethod<?>> botApiMethod = handler.handle(updateNext);
+        assertInstanceOf(EditMessageText.class, botApiMethod.get(0));
 
-        InlineKeyboardMarkup markupNext = ((EditMessageText) botApiMethod).getReplyMarkup();
+        EditMessageText text = (EditMessageText) botApiMethod.get(0);
+        InlineKeyboardMarkup markupNext = text.getReplyMarkup();
         assertNotNull(markupNext);
         LocalDate expectedNextDate = LocalDate.now().plusMonths(1);
         assertCalendar(markupNext.getKeyboard(), expectedNextDate);
@@ -85,9 +86,11 @@ public class GetClientScheduleCommandHandlerTest extends RegisteredUserHandlerTe
 
         Update updateToday = createUpdateWithCallbackQuery(todayCallback.getValue());
 
-        BotApiMethod<?> botApiMethodToday = handler.handle(updateToday);
-        assertInstanceOf(EditMessageText.class, botApiMethodToday);
-        InlineKeyboardMarkup markupToday = ((EditMessageText) botApiMethodToday).getReplyMarkup();
+        List<BotApiMethod<?>> botApiMethodToday = handler.handle(updateToday);
+        assertInstanceOf(EditMessageText.class, botApiMethodToday.get(0));
+
+        EditMessageText text1 = (EditMessageText) botApiMethodToday.get(0);
+        InlineKeyboardMarkup markupToday = text1.getReplyMarkup();
         assertNotNull(markupToday);
         LocalDate expectedTodayDate = LocalDate.now();
         assertCalendar(markupToday.getKeyboard(), expectedTodayDate);
@@ -100,10 +103,10 @@ public class GetClientScheduleCommandHandlerTest extends RegisteredUserHandlerTe
 
         Update update = createUpdateWithCommand();
 
-        BotApiMethod<?> botApiMethod = handler.handle(update);
-        assertInstanceOf(SendMessage.class, botApiMethod);
+        List<BotApiMethod<?>> botApiMethod = handler.handle(update);
+        assertInstanceOf(SendMessage.class, botApiMethod.get(0));
 
-        SendMessage sendMessage = (SendMessage) botApiMethod;
+        SendMessage sendMessage = (SendMessage) botApiMethod.get(0);
         assertEquals("Выберите клиента, для которого хотите получить расписание:", sendMessage.getText());
 
         ReplyKeyboard markup = sendMessage.getReplyMarkup();
@@ -127,10 +130,10 @@ public class GetClientScheduleCommandHandlerTest extends RegisteredUserHandlerTe
         handler.handle(updateWithCommand);
         Update updateWithClientName = createUpdateWithCallbackQuery("Клиент 1");
 
-        BotApiMethod<?> botApiMethod = handler.handle(updateWithClientName);
-        assertInstanceOf(EditMessageText.class, botApiMethod);
+        List<BotApiMethod<?>> botApiMethod = handler.handle(updateWithClientName);
+        assertInstanceOf(EditMessageText.class, botApiMethod.get(0));
 
-        EditMessageText editMessage = (EditMessageText) botApiMethod;
+        EditMessageText editMessage = (EditMessageText) botApiMethod.get(0);
         assertEquals(ENTER_FIRST_DATE, editMessage.getText());
 
         InlineKeyboardMarkup markup = editMessage.getReplyMarkup();
@@ -152,10 +155,10 @@ public class GetClientScheduleCommandHandlerTest extends RegisteredUserHandlerTe
         LocalDate firstDate = LocalDate.now();
         Update updateWithFirstDate = createUpdateWithCallbackQuery(String.valueOf(firstDate));
 
-        BotApiMethod<?> botApiMethod = handler.handle(updateWithFirstDate);
-        assertInstanceOf(EditMessageText.class, botApiMethod);
+        List<BotApiMethod<?>> botApiMethod = handler.handle(updateWithFirstDate);
+        assertInstanceOf(EditMessageText.class, botApiMethod.get(0));
 
-        EditMessageText editMessage = (EditMessageText) botApiMethod;
+        EditMessageText editMessage = (EditMessageText) botApiMethod.get(0);
         assertEquals(ENTER_SECOND_DATE, editMessage.getText());
 
         InlineKeyboardMarkup markup = editMessage.getReplyMarkup();
@@ -206,10 +209,10 @@ public class GetClientScheduleCommandHandlerTest extends RegisteredUserHandlerTe
         )).thenReturn(clientSchedule);
 
         Update updateWithSecondDate = createUpdateWithCallbackQuery(String.valueOf(secondDate));
-        BotApiMethod<?> botApiMethod = handler.handle(updateWithSecondDate);
+        List<BotApiMethod<?>> botApiMethod = handler.handle(updateWithSecondDate);
 
-        assertInstanceOf(EditMessageText.class, botApiMethod);
-        EditMessageText editMessage = (EditMessageText) botApiMethod;
+        assertInstanceOf(EditMessageText.class, botApiMethod.get(0));
+        EditMessageText editMessage = (EditMessageText) botApiMethod.get(0);
 
         DateTimeFormatter dateFormatter = DateTimeFormatter.ofPattern("dd MMMM yyyy", Locale.forLanguageTag("ru"));
         DateTimeFormatter timeFormatter = DateTimeFormatter.ofPattern("HH:mm", Locale.forLanguageTag("ru"));
@@ -246,10 +249,10 @@ public class GetClientScheduleCommandHandlerTest extends RegisteredUserHandlerTe
 
         Update update = createUpdateWithCallbackQuery("Prev");
 
-        BotApiMethod<?> botApiMethod = handler.handle(update);
-        assertInstanceOf(EditMessageText.class, botApiMethod);
+        List<BotApiMethod<?>> botApiMethod = handler.handle(update);
+        assertInstanceOf(EditMessageText.class, botApiMethod.get(0));
 
-        EditMessageText editMessage = (EditMessageText) botApiMethod;
+        EditMessageText editMessage = (EditMessageText) botApiMethod.get(0);
         assertEquals(ENTER_FIRST_DATE, editMessage.getText());
 
         InlineKeyboardMarkup markup = editMessage.getReplyMarkup();
@@ -270,10 +273,10 @@ public class GetClientScheduleCommandHandlerTest extends RegisteredUserHandlerTe
 
         Update update = createUpdateWithCallbackQuery("Next");
 
-        BotApiMethod<?> botApiMethod = handler.handle(update);
-        assertInstanceOf(EditMessageText.class, botApiMethod);
+        List<BotApiMethod<?>> botApiMethod = handler.handle(update);
+        assertInstanceOf(EditMessageText.class, botApiMethod.get(0));
 
-        EditMessageText editMessage = (EditMessageText) botApiMethod;
+        EditMessageText editMessage = (EditMessageText) botApiMethod.get(0);
         assertEquals(ENTER_FIRST_DATE, editMessage.getText());
 
         InlineKeyboardMarkup markup = editMessage.getReplyMarkup();
@@ -314,9 +317,9 @@ public class GetClientScheduleCommandHandlerTest extends RegisteredUserHandlerTe
     void handleCommandWhenNoClientsFound() {
         Update update = createUpdateWithCommand();
 
-        BotApiMethod<?> botApiMethod = handler.handle(update);
-        assertInstanceOf(SendMessage.class, botApiMethod);
-        SendMessage sendMessage = (SendMessage) botApiMethod;
+        List<BotApiMethod<?>> botApiMethod = handler.handle(update);
+        assertInstanceOf(SendMessage.class, botApiMethod.get(0));
+        SendMessage sendMessage = (SendMessage) botApiMethod.get(0);
 
         assertEquals("Нет доступных клиентов", sendMessage.getText());
     }
@@ -344,10 +347,10 @@ public class GetClientScheduleCommandHandlerTest extends RegisteredUserHandlerTe
         when(client.getActiveClients(anyLong())).thenReturn(unsortedClients);
 
         Update update = createUpdateWithCommand();
-        BotApiMethod<?> result = handler.handle(update);
+        List<BotApiMethod<?>> result = handler.handle(update);
 
-        assertInstanceOf(SendMessage.class, result);
-        SendMessage sendMessage = (SendMessage) result;
+        assertInstanceOf(SendMessage.class, result.get(0));
+        SendMessage sendMessage = (SendMessage) result.get(0);
 
         InlineKeyboardMarkup markup = (InlineKeyboardMarkup) sendMessage.getReplyMarkup();
         List<List<InlineKeyboardButton>> keyboard = markup.getKeyboard();

@@ -67,8 +67,8 @@ public class HandlersService {
         }
 
         if (isCommandUpdate(update)){
-            long userId = TelegramUpdateUtils.getUserId(update);
-            resetAllHandlers(userId);
+            long chatId = TelegramUpdateUtils.getChatId(update);
+            resetAllHandlers(chatId);
         }
 
         commandHandler = getStartedHandler(update);
@@ -116,10 +116,10 @@ public class HandlersService {
     }
 
     private CommandHandler getStartedHandler(Update update) {
-        long userId = TelegramUpdateUtils.getUserId(update);
+        long chatId = TelegramUpdateUtils.getChatId(update);
 
         CommandHandler commandHandler = statefulCommandHandlers.stream()
-                .filter(handler -> !handler.isFinishedOrNotStarted(userId))
+                .filter(handler -> !handler.isFinishedOrNotStarted(chatId))
                 .findFirst()
                 .orElse(null);
 

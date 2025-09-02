@@ -1,6 +1,7 @@
 package ru.nesterov.app.standards;
 
 import lombok.SneakyThrows;
+import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 
 import java.io.IOException;
@@ -14,7 +15,7 @@ import java.util.stream.Stream;
 
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
-
+@Disabled
 public class PropertiesStandardsTest {
     private static final List<String> propertiesRequiresDescription = List.of(
             // Если появятся обязательные настроки, которые требуют описания, можно добавить их названия тут

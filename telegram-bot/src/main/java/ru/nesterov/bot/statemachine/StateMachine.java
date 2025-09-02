@@ -24,7 +24,7 @@ public class StateMachine<STATE extends Enum<STATE>, ACTION, MEMORY> {
         this.memory = memory;
     }
 
-    public StateMachine<STATE, ACTION, MEMORY> addTransition(STATE state, Action actionForTransition, STATE nextState, Function<Update, BotApiMethod<?> > functionForTransition) {
+    public StateMachine<STATE, ACTION, MEMORY> addTransition(STATE state, Action actionForTransition, STATE nextState, Function<Update, List<BotApiMethod<?>>> functionForTransition) {
         transitions.put(new TransitionDescription<>(state, actionForTransition), new NextStateFunction<>(nextState, functionForTransition));
         return this;
     }

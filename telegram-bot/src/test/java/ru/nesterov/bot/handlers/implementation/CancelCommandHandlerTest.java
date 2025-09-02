@@ -14,7 +14,10 @@ import ru.nesterov.bot.handlers.abstractions.CommandHandler;
 import ru.nesterov.bot.handlers.implementation.invocable.stateful.createClient.CreateClientHandler;
 import ru.nesterov.bot.handlers.service.HandlersService;
 
+import java.util.List;
+
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertInstanceOf;
 
 @ContextConfiguration(classes = {
@@ -55,9 +58,10 @@ public class CancelCommandHandlerTest  extends AbstractHandlerTest {
         Update update = new Update();
         update.setMessage(message);
 
-        BotApiMethod<?> botApiMethod = commandHandler.handle(update);
-        assertInstanceOf(SendMessage.class, botApiMethod);
+        List<BotApiMethod<?>> botApiMethod = commandHandler.handle(update);
+        assertFalse(botApiMethod.isEmpty());
+        assertInstanceOf(SendMessage.class, botApiMethod.get(0));
 
-        return (SendMessage) botApiMethod;
+        return (SendMessage) botApiMethod.get(0);
     }
 }

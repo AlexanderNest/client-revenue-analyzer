@@ -19,9 +19,9 @@ public class GetActiveClientsHandler extends DisplayedCommandHandler {
     }
 
     @Override
-    public BotApiMethod<?> handle(Update update) {
-        long userId = TelegramUpdateUtils.getUserId(update);
-        List<GetActiveClientResponse> activeClientResponseList = client.getActiveClients(userId);
+    public List<BotApiMethod<?>> handle(Update update) {
+        long chatId = TelegramUpdateUtils.getChatId(update);
+        List<GetActiveClientResponse> activeClientResponseList = client.getActiveClients(chatId);
 
         if (activeClientResponseList.isEmpty()) {
             return getPlainSendMessage(TelegramUpdateUtils.getChatId(update),

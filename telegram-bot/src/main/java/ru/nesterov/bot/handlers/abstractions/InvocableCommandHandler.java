@@ -4,6 +4,9 @@ import org.telegram.telegrambots.meta.api.objects.CallbackQuery;
 import org.telegram.telegrambots.meta.api.objects.Message;
 import org.telegram.telegrambots.meta.api.objects.Update;
 import ru.nesterov.bot.handlers.callback.ButtonCallback;
+import ru.nesterov.core.entity.Role;
+
+import java.util.List;
 
 /**
  * Обработчик, который вызывается по отправленной команде
@@ -13,6 +16,10 @@ public abstract class InvocableCommandHandler extends SendingMessageCommandHandl
      * Команда, которая вызовет обработчик
      */
     public abstract String getCommand();
+
+    protected List<Role> getApplicableRoles() {
+        return List.of(Role.USER);
+    }
 
     @Override
     public boolean isApplicable(Update update) {
