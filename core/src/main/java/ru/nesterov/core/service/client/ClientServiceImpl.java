@@ -47,6 +47,7 @@ public class ClientServiceImpl implements ClientService {
 
         return eventDtos.stream()
                 .filter(event -> event.getSummary().equals(client.getName()))
+                .filter(eventDto -> eventDto.getStatus() == EventStatus.SUCCESS)
                 .map(event -> ClientScheduleDto.builder()
                         .eventStart(event.getStart())
                         .eventEnd(event.getEnd())
