@@ -17,6 +17,8 @@ import ru.nesterov.bot.handlers.callback.ButtonCallback;
 import ru.nesterov.bot.handlers.service.ButtonCallbackService;
 import ru.nesterov.bot.integration.ClientRevenueAnalyzerIntegrationClient;
 
+import java.util.List;
+
 /**
  * CommandHandler, который отправляет сообщения. Также содержит полезные методы для быстрого создания сообщений.
  * В том числе и с клавиатурами, коллбеками и др.
@@ -34,29 +36,29 @@ public abstract class SendingMessageCommandHandler implements CommandHandler {
      * Вернет метод для отправки простого сообщения в чат
      * @param text - сообщение для отправки
      */
-    public BotApiMethod<?> getPlainSendMessage(long chatId, String text) {
-        return buildSendMessage(chatId, text, null);
+    public List<BotApiMethod<?>> getPlainSendMessage(long chatId, String text) {
+        return List.of(buildSendMessage(chatId, text, null));
     }
 
     /**
      * Метод для отправки текстового сообщения с клавиатурой в чат
      */
-    public BotApiMethod<?> getReplyKeyboard(long chatId, String text, ReplyKeyboard replyKeyboard) {
-        return buildSendMessage(chatId, text, replyKeyboard);
+    public List<BotApiMethod<?>> getReplyKeyboard(long chatId, String text, ReplyKeyboard replyKeyboard) {
+        return List.of(buildSendMessage(chatId, text, replyKeyboard));
     }
 
     /**
      * Метод для изменения уже отправленного сообщения в чат
      * @param keyboardMarkup - если в сообщении нужно добавить клавиатуру
      */
-    public EditMessageText editMessage(long chatId, int messageId, String text, @Nullable InlineKeyboardMarkup keyboardMarkup) {
+    public List<BotApiMethod<?>> editMessage(long chatId, int messageId, String text, @Nullable InlineKeyboardMarkup keyboardMarkup) {
         EditMessageText editMessageText = new EditMessageText();
         editMessageText.setChatId(chatId);
         editMessageText.setMessageId(messageId);
         editMessageText.setText(text);
         editMessageText.setReplyMarkup(keyboardMarkup);
 
-        return editMessageText;
+        return List.of(editMessageText);
     }
 
     /**

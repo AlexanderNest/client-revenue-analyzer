@@ -2,6 +2,7 @@ package ru.nesterov.core.service.dto;
 
 import lombok.Builder;
 import lombok.Data;
+import ru.nesterov.core.entity.Role;
 
 @Builder
 @Data
@@ -11,4 +12,6 @@ public class UserDto {
     private String mainCalendar;
     private String cancelledCalendar;
     private boolean isCancelledCalendarEnabled;
+    private Role role;
+    private String source;
 }

@@ -6,11 +6,13 @@ import org.telegram.telegrambots.meta.api.objects.Update;
 import ru.nesterov.bot.handlers.abstractions.SendingMessageCommandHandler;
 import ru.nesterov.bot.utils.TelegramUpdateUtils;
 
+import java.util.List;
+
 @Component
 public class UndefinedHandler extends SendingMessageCommandHandler {
     @Override
-    public BotApiMethod<?> handle(Update update) {
-        return getPlainSendMessage(TelegramUpdateUtils.getUserId(update), "Неизвестная команда");
+    public List<BotApiMethod<?>> handle(Update update) {
+        return getPlainSendMessage(TelegramUpdateUtils.getChatId(update), "Неизвестная команда");
     }
 
     @Override

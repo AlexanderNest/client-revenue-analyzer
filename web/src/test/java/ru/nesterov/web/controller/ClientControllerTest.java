@@ -3,11 +3,21 @@ package ru.nesterov.web.controller;
 import lombok.extern.slf4j.Slf4j;
 import org.junit.jupiter.api.Test;
 import org.springframework.http.MediaType;
+import ru.nesterov.calendar.integration.dto.CalendarType;
+import ru.nesterov.calendar.integration.dto.EventDto;
+import ru.nesterov.calendar.integration.dto.EventStatus;
 import ru.nesterov.core.entity.Client;
 import ru.nesterov.core.entity.User;
 import ru.nesterov.web.controller.request.CreateClientRequest;
+import ru.nesterov.web.controller.request.GetClientScheduleRequest;
+
+import java.time.LocalDateTime;
+import java.util.List;
 
 import static org.hamcrest.Matchers.hasSize;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.eq;
+import static org.mockito.Mockito.when;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
@@ -244,5 +254,47 @@ class ClientControllerTest extends AbstractControllerTest {
                 .andExpect(jsonPath("$[1].description").value(client1.getDescription()))
                 .andExpect(jsonPath("$[1].pricePerHour").value(client1.getPricePerHour()))
                 .andExpect(jsonPath("$[1].active").value(client1.isActive()));
+    }
+
+    @Test
+    public  void shouldMarkApproveRequiredIfRequiresShift() throws Exception{
+        User user = createUser(System.currentTimeMillis() + "_user");
+        Client client = createClient("testClient2" + System.currentTimeMillis(), user);
+
+        EventDto eventWithShift = EventDto.builder()
+                .summary(client.getName())
+                .status(EventStatus.REQUIRES_SHIFT)
+                .start(LocalDateTime.of(2024, 8, 11, 11, 30))
+                .end(LocalDateTime.of(2024, 8, 11, 12, 30))
+                .build();
+
+        EventDto plannedEvent = EventDto.builder()
+                .summary(client.getName())
+                .status(EventStatus.PLANNED)
+                .start(LocalDateTime.of(2024, 8, 12, 11, 30))
+                .end(LocalDateTime.of(2024, 8, 12, 12, 30))
+                .build();
+
+        when(googleCalendarClient.getEventsBetweenDates(eq("someCalendar1"), eq(CalendarType.MAIN), any(), any(), any()))
+                .thenReturn(List.of(eventWithShift, plannedEvent));
+
+        GetClientScheduleRequest request = new GetClientScheduleRequest();
+        request.setClientName(client.getName());
+        request.setLeftDate(LocalDateTime.of(2024, 8, 9, 11, 30));
+        request.setRightDate(LocalDateTime.of(2024, 8, 13, 12, 30));
+
+        mockMvc.perform(post("/client/getSchedule")
+                .header("X-username", user.getUsername())
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(objectMapper.writeValueAsString(request)))
+
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$", hasSize(2)))
+                .andExpect(jsonPath("$[0].eventStart").value("2024-08-11T11:30:00"))
+                .andExpect(jsonPath("$[0].eventEnd").value("2024-08-11T12:30:00"))
+                .andExpect(jsonPath("$[0].requiresShift").value(true))
+                .andExpect(jsonPath("$[1].eventStart").value("2024-08-12T11:30:00"))
+                .andExpect(jsonPath("$[1].eventEnd").value("2024-08-12T12:30:00"))
+                .andExpect(jsonPath("$[1].requiresShift").value(false));
     }
 }

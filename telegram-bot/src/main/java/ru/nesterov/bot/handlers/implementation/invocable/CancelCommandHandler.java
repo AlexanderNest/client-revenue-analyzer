@@ -10,6 +10,8 @@ import ru.nesterov.bot.handlers.abstractions.Priority;
 import ru.nesterov.bot.handlers.service.HandlersService;
 import ru.nesterov.bot.utils.TelegramUpdateUtils;
 
+import java.util.List;
+
 @Component
 public class CancelCommandHandler extends InvocableCommandHandler {
     @Resource
@@ -17,11 +19,11 @@ public class CancelCommandHandler extends InvocableCommandHandler {
     private HandlersService handlersService;
 
     @Override
-    public BotApiMethod<?> handle(Update update) {
-        long userId = TelegramUpdateUtils.getUserId(update);
+    public List<BotApiMethod<?>> handle(Update update) {
+        long chatId = TelegramUpdateUtils.getChatId(update);
 
-        handlersService.resetAllHandlers(userId);
-        return getPlainSendMessage(userId, "Контекст сброшен");
+        handlersService.resetAllHandlers(chatId);
+        return getPlainSendMessage(chatId, "Контекст сброшен");
     }
 
     @Override

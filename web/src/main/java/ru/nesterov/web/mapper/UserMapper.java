@@ -4,8 +4,11 @@ import ru.nesterov.bot.dto.CreateUserRequest;
 import ru.nesterov.bot.dto.CreateUserResponse;
 import ru.nesterov.core.service.dto.BusynessAnalysisResult;
 import ru.nesterov.core.service.dto.UserDto;
+import ru.nesterov.web.controller.response.GetUserIdsResponse;
 import ru.nesterov.web.controller.response.GetUserResponse;
 import ru.nesterov.web.controller.response.YearBusynessStatisticsResponse;
+
+import java.util.List;
 
 public class UserMapper {
     public static YearBusynessStatisticsResponse mapToResponse(BusynessAnalysisResult busynessAnalysisResult) {
@@ -18,9 +21,10 @@ public class UserMapper {
     public UserDto mapToUserDto(CreateUserRequest request) {
         return UserDto.builder()
                 .mainCalendar(request.getMainCalendarId())
-                .isCancelledCalendarEnabled(request.getIsCancelledCalendarEnabled())
+                .isCancelledCalendarEnabled(request.isCancelledCalendarEnabled())
                 .username(request.getUserIdentifier())
                 .cancelledCalendar(request.getCancelledCalendarId())
+                .source(request.getSource())
                 .build();
     }
 
@@ -44,6 +48,14 @@ public class UserMapper {
                 .mainCalendarId(userDto.getMainCalendar())
                 .username(userDto.getUsername())
                 .isCancelledCalendarEnabled(userDto.isCancelledCalendarEnabled())
+                .role(userDto.getRole())
+                .source(userDto.getSource())
                 .build();
+    }
+
+    public static GetUserIdsResponse mapToGetUserIdsResponse(List<String> ids) {
+        GetUserIdsResponse response = new GetUserIdsResponse();
+        response.setUserIds(ids);
+        return response;
     }
 }

@@ -27,6 +27,8 @@ import ru.nesterov.bot.dto.CreateClientResponse;
 import ru.nesterov.bot.dto.CreateUserRequest;
 import ru.nesterov.bot.dto.CreateUserResponse;
 import ru.nesterov.bot.dto.GetActiveClientResponse;
+import ru.nesterov.bot.dto.GetAllUsersByRoleAndSourceRequest;
+import ru.nesterov.bot.dto.GetAllUsersByRoleAndSourceResponse;
 import ru.nesterov.bot.dto.GetClientScheduleResponse;
 import ru.nesterov.bot.dto.GetClientStatisticResponse;
 import ru.nesterov.bot.dto.GetForClientNameRequest;
@@ -41,8 +43,8 @@ import ru.nesterov.bot.dto.GetYearBusynessStatisticsResponse;
 import ru.nesterov.bot.dto.MakeEventsBackupResponse;
 import ru.nesterov.bot.exception.InternalException;
 import ru.nesterov.bot.exception.UserFriendlyException;
+import ru.nesterov.core.entity.Role;
 
-import java.net.URI;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.List;
@@ -163,7 +165,6 @@ public class ClientRevenueAnalyzerIntegrationClient {
     public MakeEventsBackupResponse makeEventsBackup(long userId) {
         ResponseEntity<MakeEventsBackupResponse> response = get(
                 String.valueOf(userId),
-                null,
                 "/revenue-analyzer/events/backup",
                 MakeEventsBackupResponse.class
         );
@@ -180,10 +181,21 @@ public class ClientRevenueAnalyzerIntegrationClient {
 
     private <T> ResponseEntity<T> get(String username, MultiValueMap<String, String> requestParams , String endpoint, Class<T> responseType) {
         return exchange(username, requestParams, null, endpoint, responseType, HttpMethod.GET);
+        }
+
+    public GetAllUsersByRoleAndSourceResponse getUsersIdByRoleAndSource(long chatId, Role role, String source) {
+        GetAllUsersByRoleAndSourceRequest request = new GetAllUsersByRoleAndSourceRequest();
+        request.setRole(role);
+        request.setSource(source);
+        ResponseEntity<GetAllUsersByRoleAndSourceResponse> responseEntity = post(String.valueOf(chatId), request, "/revenue-analyzer/user/getUsersIdByRoleAndSource",
+                GetAllUsersByRoleAndSourceResponse.class
+        );
+        return responseEntity.getBody();
     }
 
+
     private <T> ResponseEntity<T> post(String username, Object request, String endpoint, Class<T> responseType) {
-        return exchange(username, null, request, endpoint, responseType, HttpMethod.POST);
+        return exchange(username, request, endpoint, responseType, HttpMethod.POST);
     }
 
     private <T> List<T> getForList(String username, String endpoint, ParameterizedTypeReference<List<T>> typeReference) {

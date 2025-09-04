@@ -9,9 +9,13 @@ import ru.nesterov.bot.dto.CreateUserRequest;
 import ru.nesterov.bot.dto.CreateUserResponse;
 import ru.nesterov.core.service.dto.UserDto;
 import ru.nesterov.core.service.user.UserService;
+import ru.nesterov.web.controller.request.GetAllUsersByRoleAndSourceRequest;
 import ru.nesterov.web.controller.request.GetUserRequest;
+import ru.nesterov.web.controller.response.GetUserIdsResponse;
 import ru.nesterov.web.controller.response.GetUserResponse;
 import ru.nesterov.web.mapper.UserMapper;
+
+import java.util.List;
 
 @RestController
 @AllArgsConstructor
@@ -31,5 +35,11 @@ public class UserControllerImpl implements UserController{
         }
         GetUserResponse response = userMapper.mapToGetUserResponse(userDto);
         return ResponseEntity.ok(response);
+    }
+
+    public GetUserIdsResponse getUsersIdByRoleAndSource(@RequestBody GetAllUsersByRoleAndSourceRequest request) {
+        List<String> userIds = userService.getUsersIdByRoleAndSource(request.getRole(), request.getSource());
+        return UserMapper.mapToGetUserIdsResponse(userIds);
+
     }
 }

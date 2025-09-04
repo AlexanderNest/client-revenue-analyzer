@@ -2,9 +2,12 @@ package ru.nesterov.core.service.user;
 
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
+import ru.nesterov.core.entity.Role;
 import ru.nesterov.core.entity.User;
 import ru.nesterov.core.repository.UserRepository;
 import ru.nesterov.core.service.dto.UserDto;
+
+import java.util.List;
 
 @Service
 @RequiredArgsConstructor
@@ -21,6 +24,10 @@ public class UserServiceImpl implements UserService{
         return convert(user);
     }
 
+    public List<String> getUsersIdByRoleAndSource(Role role, String source) {
+        return userRepository.findUsersIdByRoleAndSource(role, source);
+    }
+
     private UserDto convert(User user) {
         if (user == null) { return null; }
         return UserDto.builder()
@@ -29,6 +36,8 @@ public class UserServiceImpl implements UserService{
                 .cancelledCalendar(user.getCancelledCalendar())
                 .mainCalendar(user.getMainCalendar())
                 .isCancelledCalendarEnabled(user.isCancelledCalendarEnabled())
+                .role(user.getRole())
+                .source(user.getSource())
                 .build();
     }
 
@@ -39,6 +48,8 @@ public class UserServiceImpl implements UserService{
         user.setMainCalendar(userDto.getMainCalendar());
         user.setCancelledCalendarEnabled(userDto.isCancelledCalendarEnabled());
         user.setCancelledCalendar(userDto.getCancelledCalendar());
+        user.setRole(Role.USER);
+        user.setSource(userDto.getSource());
 
         return user;
     }
