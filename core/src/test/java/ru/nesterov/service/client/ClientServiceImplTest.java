@@ -26,6 +26,7 @@ import java.util.List;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.when;
 
 @SpringBootTest
@@ -145,9 +146,27 @@ public class ClientServiceImplTest {
         LocalDateTime from = LocalDateTime.of(2024, 8, 9, 11, 30);
         LocalDateTime to = LocalDateTime.of(2024, 8, 13, 12, 30);
 
-        List<ClientScheduleDto> actual = clientService.getClientSchedule(userDto,"testClient2", from, to);
+        EventDto successEvent = EventDto.builder()
+                .summary("testClient2")
+                .status(EventStatus.SUCCESS)
+                .start(LocalDateTime.of(2024, 8, 11, 11, 30))
+                .end(LocalDateTime.of(2024, 8, 11, 12, 30))
+                .build();
 
-        assertTrue(actual.isEmpty(), "Для клиента2 должны возвращаться только подтвержденные встречи (SUCCESS)");
+        when(calendarService.getEventsBetweenDates(any(EventsFilter.class)))
+                .thenReturn(List.of(successEvent));
+
+        List<ClientScheduleDto> actual = clientService.getClientSchedule(userDto, "testClient2", from, to);
+
+        List<ClientScheduleDto> expected = List.of(
+                ClientScheduleDto.builder()
+                        .eventStart(LocalDateTime.of(2024, 8, 11, 11, 30))
+                        .eventEnd(LocalDateTime.of(2024, 8, 11, 12, 30))
+                        .requiresShift(false) // SUCCESS -> всегда false
+                        .build()
+        );
+
+        validateSchedule(actual, expected);
     }
 
     @Test
@@ -176,7 +195,7 @@ public class ClientServiceImplTest {
     }
 
     @Test
-    public void shouldReturnOnlySuccessEvents() {
+    public void shouldReturnAllNonCancelledEvents() {
         UserDto userDto = createUserDto();
 
         LocalDateTime from = LocalDateTime.of(2024, 8, 9, 11, 30);
@@ -184,12 +203,11 @@ public class ClientServiceImplTest {
 
         List<ClientScheduleDto> actualClient1 = clientService.getClientSchedule(userDto, "testClient1", from, to);
         assertEquals(2, actualClient1.size());
-        assertTrue(actualClient1.stream().noneMatch(ClientScheduleDto::isRequiresShift)); // все без requiresShift
+        assertTrue(actualClient1.stream().allMatch(e -> !e.isRequiresShift()));
 
         List<ClientScheduleDto> actualClient2 = clientService.getClientSchedule(userDto, "testClient2", from, to);
-        assertTrue(actualClient2.isEmpty(), "У клиента2 не должно быть подтвержденных событий");
+        assertEquals(0, actualClient2.size()); // пустой список, потому что нет SUCCESS
     }
-
     private void validateSchedule(List<ClientScheduleDto> actual, List<ClientScheduleDto> expected) {
         assertEquals(expected.size(), actual.size());
         assertTrue(actual.containsAll(expected));

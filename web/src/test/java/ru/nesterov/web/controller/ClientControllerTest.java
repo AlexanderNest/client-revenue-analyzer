@@ -257,26 +257,27 @@ class ClientControllerTest extends AbstractControllerTest {
     }
 
     @Test
-    public  void shouldMarkApproveRequiredIfRequiresShift() throws Exception{
+    public void shouldReturnOnlySuccessEvents() throws Exception {
         User user = createUser(System.currentTimeMillis() + "_user");
         Client client = createClient("testClient2" + System.currentTimeMillis(), user);
 
-        EventDto eventWithShift = EventDto.builder()
+        EventDto successEvent1 = EventDto.builder()
                 .summary(client.getName())
-                .status(EventStatus.REQUIRES_SHIFT)
+                .status(EventStatus.SUCCESS)
                 .start(LocalDateTime.of(2024, 8, 11, 11, 30))
                 .end(LocalDateTime.of(2024, 8, 11, 12, 30))
                 .build();
 
-        EventDto plannedEvent = EventDto.builder()
+        EventDto successEvent2 = EventDto.builder()
                 .summary(client.getName())
-                .status(EventStatus.PLANNED)
+                .status(EventStatus.SUCCESS)
                 .start(LocalDateTime.of(2024, 8, 12, 11, 30))
                 .end(LocalDateTime.of(2024, 8, 12, 12, 30))
                 .build();
 
+        // события с другими статусами не попадут в ответ
         when(googleCalendarClient.getEventsBetweenDates(eq("someCalendar1"), eq(CalendarType.MAIN), any(), any(), any()))
-                .thenReturn(List.of(eventWithShift, plannedEvent));
+                .thenReturn(List.of(successEvent1, successEvent2));
 
         GetClientScheduleRequest request = new GetClientScheduleRequest();
         request.setClientName(client.getName());
@@ -284,15 +285,14 @@ class ClientControllerTest extends AbstractControllerTest {
         request.setRightDate(LocalDateTime.of(2024, 8, 13, 12, 30));
 
         mockMvc.perform(post("/client/getSchedule")
-                .header("X-username", user.getUsername())
-                .contentType(MediaType.APPLICATION_JSON)
-                .content(objectMapper.writeValueAsString(request)))
-
+                        .header("X-username", user.getUsername())
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(objectMapper.writeValueAsString(request)))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$", hasSize(2)))
                 .andExpect(jsonPath("$[0].eventStart").value("2024-08-11T11:30:00"))
                 .andExpect(jsonPath("$[0].eventEnd").value("2024-08-11T12:30:00"))
-                .andExpect(jsonPath("$[0].requiresShift").value(true))
+                .andExpect(jsonPath("$[0].requiresShift").value(false))
                 .andExpect(jsonPath("$[1].eventStart").value("2024-08-12T11:30:00"))
                 .andExpect(jsonPath("$[1].eventEnd").value("2024-08-12T12:30:00"))
                 .andExpect(jsonPath("$[1].requiresShift").value(false));
