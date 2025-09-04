@@ -41,7 +41,7 @@ public class GetClientStatisticHandler extends StatefulCommandHandler<State, Get
     }
 
     @SneakyThrows
-    private BotApiMethod<?> handleClientName(Update update) {
+    private List<BotApiMethod<?>> handleClientName(Update update) {
         long userId = update.getCallbackQuery().getFrom().getId();
         ButtonCallback buttonCallback = buttonCallbackService.buildButtonCallback(update.getCallbackQuery().getData());
         GetClientStatisticResponse response = client.getClientStatistic(userId, buttonCallback.getValue());
@@ -62,7 +62,7 @@ public class GetClientStatisticHandler extends StatefulCommandHandler<State, Get
     }
 
     @SneakyThrows
-    private BotApiMethod<?> sendClientNamesKeyboard(Update update) {
+    private List<BotApiMethod<?>> sendClientNamesKeyboard(Update update) {
         InlineKeyboardMarkup keyboardMarkup = new InlineKeyboardMarkup();
         List<List<InlineKeyboardButton>> keyboard = new ArrayList<>();
         List<GetActiveClientResponse> clients = client.getActiveClients(TelegramUpdateUtils.getUserId(update));

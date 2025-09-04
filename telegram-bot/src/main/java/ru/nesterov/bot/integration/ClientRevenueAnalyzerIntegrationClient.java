@@ -45,6 +45,7 @@ import ru.nesterov.bot.exception.InternalException;
 import ru.nesterov.bot.exception.UserFriendlyException;
 import ru.nesterov.core.entity.Role;
 
+import java.net.URI;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.List;
@@ -165,6 +166,7 @@ public class ClientRevenueAnalyzerIntegrationClient {
     public MakeEventsBackupResponse makeEventsBackup(long userId) {
         ResponseEntity<MakeEventsBackupResponse> response = get(
                 String.valueOf(userId),
+                null,
                 "/revenue-analyzer/events/backup",
                 MakeEventsBackupResponse.class
         );
@@ -181,7 +183,7 @@ public class ClientRevenueAnalyzerIntegrationClient {
 
     private <T> ResponseEntity<T> get(String username, MultiValueMap<String, String> requestParams , String endpoint, Class<T> responseType) {
         return exchange(username, requestParams, null, endpoint, responseType, HttpMethod.GET);
-        }
+    }
 
     public GetAllUsersByRoleAndSourceResponse getUsersIdByRoleAndSource(long chatId, Role role, String source) {
         GetAllUsersByRoleAndSourceRequest request = new GetAllUsersByRoleAndSourceRequest();
@@ -195,7 +197,7 @@ public class ClientRevenueAnalyzerIntegrationClient {
 
 
     private <T> ResponseEntity<T> post(String username, Object request, String endpoint, Class<T> responseType) {
-        return exchange(username, request, endpoint, responseType, HttpMethod.POST);
+        return exchange(username, null, request, endpoint, responseType, HttpMethod.POST);
     }
 
     private <T> List<T> getForList(String username, String endpoint, ParameterizedTypeReference<List<T>> typeReference) {
