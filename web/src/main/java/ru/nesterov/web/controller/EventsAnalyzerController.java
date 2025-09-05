@@ -15,7 +15,6 @@ import org.springframework.web.bind.annotation.RequestParam;
 import ru.nesterov.calendar.integration.dto.EventStatus;
 import ru.nesterov.core.service.dto.ClientMeetingsStatistic;
 import ru.nesterov.core.service.dto.IncomeAnalysisResult;
-import ru.nesterov.web.controller.request.GetForClientNameRequest;
 import ru.nesterov.web.controller.request.GetForMonthRequest;
 import ru.nesterov.web.controller.response.ClientMeetingsStatisticResponse;
 import ru.nesterov.web.controller.response.EventResponse;
