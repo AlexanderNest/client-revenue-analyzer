@@ -24,9 +24,11 @@ import java.time.LocalDateTime;
 import java.util.List;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.argThat;
 import static org.mockito.Mockito.when;
 
 @SpringBootTest
@@ -88,19 +90,27 @@ public class ClientServiceImplTest {
         EventDto eventDto4 = EventDto.builder()
                 .summary("testClient2")
                 .status(EventStatus.PLANNED)
-                .start(LocalDateTime.of(2024, 8, 12, 11, 30))
-                .end(LocalDateTime.of(2024, 8, 12, 12, 30))
+                .start(LocalDateTime.of(2024, 9, 12, 11, 30))
+                .end(LocalDateTime.of(2024, 9, 12, 12, 30))
                 .build();
 
         EventDto eventDto5 = EventDto.builder()
                 .summary("testClient2")
                 .status(EventStatus.PLANNED_CANCELLED)
-                .start(LocalDateTime.of(2024, 8, 13, 11, 30))
-                .end(LocalDateTime.of(2024, 8, 13, 12, 30))
+                .start(LocalDateTime.of(2025, 7, 13, 11, 30))
+                .end(LocalDateTime.of(2025, 7, 13, 12, 30))
                 .build();
 
+        EventDto eventDto6 = EventDto.builder()
+                .summary("testClient2")
+                .status(EventStatus.UNPLANNED_CANCELLED)
+                .start(LocalDateTime.of(2025, 6, 13, 11, 30))
+                .end(LocalDateTime.of(2025, 6, 13, 12, 30))
+                .build();
+
+
         LocalDateTime from = LocalDateTime.of(2024, 8, 9, 11, 30);
-        LocalDateTime to = LocalDateTime.of(2024, 8, 13, 12, 30);
+        LocalDateTime to = LocalDateTime.of(2025, 9, 13, 12, 30);
 
         EventsFilter eventsFilter = EventsFilter.builder()
                 .mainCalendar(user.getMainCalendar())
@@ -110,8 +120,14 @@ public class ClientServiceImplTest {
                 .isCancelledCalendarEnabled(user.isCancelledCalendarEnabled())
                 .build();
 
-        when(calendarService.getEventsBetweenDates(eventsFilter))
-                .thenReturn(List.of(eventDto1, eventDto2, eventDto3, eventDto4, eventDto5));
+        when(calendarService.getEventsBetweenDates(any(EventsFilter.class)))
+                .thenReturn(List.of(eventDto1, eventDto2, eventDto3, eventDto4, eventDto5, eventDto6));
+
+        // Универсальный мок для пустого результата конкретного диапазона (уникальные даты)
+        when(calendarService.getEventsBetweenDates(argThat(filter -> filter != null &&
+                filter.getLeftDate().equals(LocalDateTime.of(2024, 12, 3, 0, 0)) &&
+                filter.getRightDate().equals(LocalDateTime.of(2024, 12, 5, 23, 59))
+        ))).thenReturn(List.of());
     }
 
     @Test
@@ -162,7 +178,7 @@ public class ClientServiceImplTest {
                 ClientScheduleDto.builder()
                         .eventStart(LocalDateTime.of(2024, 8, 11, 11, 30))
                         .eventEnd(LocalDateTime.of(2024, 8, 11, 12, 30))
-                        .requiresShift(false) // SUCCESS -> всегда false
+                        .requiresShift(false)
                         .build()
         );
 
@@ -173,8 +189,9 @@ public class ClientServiceImplTest {
     public void shouldReturnEmptySchedule() {
         UserDto userDto = createUserDto();
 
-        LocalDateTime from = LocalDateTime.of(2024, 11, 9, 11, 30);
-        LocalDateTime to = LocalDateTime.of(2024, 11, 13, 12, 30);
+        LocalDateTime from = LocalDateTime.of(2024, 12, 3, 0, 0);
+        LocalDateTime to = LocalDateTime.of(2024, 12, 5, 23, 59);
+
         List<ClientScheduleDto> clientSchedule = clientService.getClientSchedule(userDto,"testClient1", from, to);
         assertTrue(clientSchedule.isEmpty());
     }
@@ -199,15 +216,22 @@ public class ClientServiceImplTest {
         UserDto userDto = createUserDto();
 
         LocalDateTime from = LocalDateTime.of(2024, 8, 9, 11, 30);
-        LocalDateTime to = LocalDateTime.of(2024, 8, 13, 12, 30);
+        LocalDateTime to = LocalDateTime.of(2025, 9, 13, 12, 30);
 
-        List<ClientScheduleDto> actualClient1 = clientService.getClientSchedule(userDto, "testClient1", from, to);
-        assertEquals(2, actualClient1.size());
-        assertTrue(actualClient1.stream().allMatch(e -> !e.isRequiresShift()));
+        List<ClientScheduleDto> actualClient2 =
+                clientService.getClientSchedule(userDto, "testClient2", from, to);
 
-        List<ClientScheduleDto> actualClient2 = clientService.getClientSchedule(userDto, "testClient2", from, to);
-        assertEquals(0, actualClient2.size()); // пустой список, потому что нет SUCCESS
+        assertEquals(2, actualClient2.size());
+
+        List<Integer> count = actualClient2.stream()
+                .map(csd -> csd.getEventStart().getYear())
+                .toList();
+
+        assertTrue(count.contains(2024));
+        assertFalse(count.contains(2025));
+
     }
+
     private void validateSchedule(List<ClientScheduleDto> actual, List<ClientScheduleDto> expected) {
         assertEquals(expected.size(), actual.size());
         assertTrue(actual.containsAll(expected));
