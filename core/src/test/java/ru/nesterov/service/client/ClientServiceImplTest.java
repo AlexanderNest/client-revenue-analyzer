@@ -206,9 +206,7 @@ public class ClientServiceImplTest {
         LocalDateTime from = LocalDateTime.of(2024, 11, 9, 11, 30);
         LocalDateTime to = LocalDateTime.of(2024, 11, 13, 12, 30);
 
-        assertThrows(ClientNotFoundException.class, () -> {
-            clientService.getClientSchedule(userDto,"Client", from, to);
-        });
+        assertThrows(ClientNotFoundException.class, () -> clientService.getClientSchedule(userDto,"Client", from, to));
     }
 
     @Test
