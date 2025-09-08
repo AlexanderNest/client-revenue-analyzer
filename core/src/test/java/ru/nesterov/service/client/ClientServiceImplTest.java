@@ -112,18 +112,9 @@ public class ClientServiceImplTest {
         LocalDateTime from = LocalDateTime.of(2024, 8, 9, 11, 30);
         LocalDateTime to = LocalDateTime.of(2025, 9, 13, 12, 30);
 
-        EventsFilter eventsFilter = EventsFilter.builder()
-                .mainCalendar(user.getMainCalendar())
-                .cancelledCalendar(user.getCancelledCalendar())
-                .leftDate(from)
-                .rightDate(to)
-                .isCancelledCalendarEnabled(user.isCancelledCalendarEnabled())
-                .build();
-
         when(calendarService.getEventsBetweenDates(any(EventsFilter.class)))
                 .thenReturn(List.of(eventDto1, eventDto2, eventDto3, eventDto4, eventDto5, eventDto6));
 
-        // Универсальный мок для пустого результата конкретного диапазона (уникальные даты)
         when(calendarService.getEventsBetweenDates(argThat(filter -> filter != null &&
                 filter.getLeftDate().equals(LocalDateTime.of(2024, 12, 3, 0, 0)) &&
                 filter.getRightDate().equals(LocalDateTime.of(2024, 12, 5, 23, 59))
@@ -219,14 +210,13 @@ public class ClientServiceImplTest {
         List<ClientScheduleDto> actualClient2 =
                 clientService.getClientSchedule(userDto, "testClient2", from, to);
 
-        assertEquals(2, actualClient2.size());
-
-        List<Integer> count = actualClient2.stream()
+        List<Integer> years = actualClient2.stream()
                 .map(csd -> csd.getEventStart().getYear())
                 .toList();
 
-        assertTrue(count.contains(2024));
-        assertFalse(count.contains(2025));
+        assertEquals(2, years.size());
+        assertTrue(years.contains(2024));
+        assertFalse(years.contains(2025));
 
     }
 
