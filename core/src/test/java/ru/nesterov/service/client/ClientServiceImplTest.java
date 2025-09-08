@@ -108,10 +108,6 @@ public class ClientServiceImplTest {
                 .end(LocalDateTime.of(2025, 6, 13, 12, 30))
                 .build();
 
-
-        LocalDateTime from = LocalDateTime.of(2024, 8, 9, 11, 30);
-        LocalDateTime to = LocalDateTime.of(2025, 9, 13, 12, 30);
-
         when(calendarService.getEventsBetweenDates(any(EventsFilter.class)))
                 .thenReturn(List.of(eventDto1, eventDto2, eventDto3, eventDto4, eventDto5, eventDto6));
 
