@@ -59,7 +59,7 @@ public interface EventsAnalyzerController {
             }
     )
     @GetMapping("/getClientStatistic")
-    ResponseEntity<ClientMeetingsStatisticResponse> getClientStatistic(@RequestHeader(name = "X-username") String username, @RequestParam("clientName") String clientName);
+    ResponseEntity<ClientMeetingsStatisticResponse> getClientStatistic(@RequestHeader(name = "X-username") String username, @RequestParam String clientName);
 
     @Operation(
             summary = "Получить статусы событий за месяц",
