@@ -9,5 +9,4 @@ public class GetForClientScheduleRequest {
     private String clientName;
     private LocalDateTime leftDate;
     private LocalDateTime rightDate;
-    private boolean requiresShift;
 }
