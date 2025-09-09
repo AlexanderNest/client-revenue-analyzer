@@ -9,6 +9,7 @@ import ru.nesterov.bot.statemachine.dto.NextStateFunction;
 import ru.nesterov.bot.statemachine.dto.TransitionDescription;
 
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.function.Function;
@@ -50,7 +51,7 @@ public class StateMachineProvider<STATE extends Enum<STATE>, MEMORY> {
         userMachines.remove(userId);
     }
 
-    public StateMachineProvider<STATE, MEMORY> addTransition(STATE state, Action actionForTransition, STATE nextState, Function<Update, BotApiMethod<?>> functionForTransition) {
+    public StateMachineProvider<STATE, MEMORY> addTransition(STATE state, Action actionForTransition, STATE nextState, Function<Update, List<BotApiMethod<?>>> functionForTransition) {
         transitions.put(new TransitionDescription<>(state, actionForTransition), new NextStateFunction<>(nextState, functionForTransition));
         return this;
     }

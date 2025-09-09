@@ -8,6 +8,7 @@ import ru.nesterov.bot.dto.GetUserResponse;
 import ru.nesterov.bot.handlers.implementation.invocable.UpdateUserControlButtonsHandler;
 import ru.nesterov.bot.handlers.implementation.invocable.stateful.createUser.CreateUserHandler;
 import ru.nesterov.bot.handlers.service.ButtonCallbackService;
+import ru.nesterov.core.entity.Role;
 
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.when;
@@ -33,6 +34,8 @@ public abstract class RegisteredUserHandlerTest extends AbstractHandlerTest {
                         .mainCalendarId("mainCalendar")
                         .isCancelledCalendarEnabled(true)
                         .cancelledCalendarId("cancelCalendar")
+                        .role(Role.USER)
+                        .source(null)
                         .build();
 
         when(client.getUserByUsername(any())).thenReturn(getUserResponse);

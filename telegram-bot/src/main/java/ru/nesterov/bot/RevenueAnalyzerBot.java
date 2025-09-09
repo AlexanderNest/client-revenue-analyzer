@@ -15,6 +15,8 @@ import ru.nesterov.bot.handlers.abstractions.CommandHandler;
 import ru.nesterov.bot.handlers.service.HandlersService;
 import ru.nesterov.bot.utils.TelegramUpdateUtils;
 
+import java.util.List;
+
 @Service
 @Slf4j
 @ConditionalOnProperty("bot.enabled")
@@ -39,7 +41,7 @@ public class RevenueAnalyzerBot extends TelegramLongPollingBot {
 
     public void handleUpdate(Update update) {
 
-        long userId = TelegramUpdateUtils.getUserId(update);
+        long chatId = TelegramUpdateUtils.getChatId(update);
 
         CommandHandler commandHandler = handlersService.getHandler(update);
         if (commandHandler == null) {
@@ -49,15 +51,15 @@ public class RevenueAnalyzerBot extends TelegramLongPollingBot {
 
         log.debug("Выбранный CommandHandler = {}", commandHandler.getClass().getSimpleName());
 
-        BotApiMethod<?> sendMessage;
+        List<BotApiMethod<?>> sendMessage;
 
         try {
             sendMessage = commandHandler.handle(update);
         } catch (Exception exception) {
-            handlersService.resetBrokeHandler(commandHandler, userId);
+            handlersService.resetBrokeHandler(commandHandler, chatId);
             sendMessage = buildTextMessage(update, exception.getMessage());
         } finally {
-            handlersService.resetFinishedHandlers(userId);
+            handlersService.resetFinishedHandlers(chatId);
         }
         sendMessage(sendMessage);
     }
@@ -67,19 +69,21 @@ public class RevenueAnalyzerBot extends TelegramLongPollingBot {
         return botProperties.getUsername();
     }
 
-    private SendMessage buildTextMessage(Update update, String text) {
+    private List<BotApiMethod<?>> buildTextMessage(Update update, String text) {
         SendMessage message = new SendMessage();
         message.setChatId(TelegramUpdateUtils.getChatId(update));
         message.setText(text);
 
-        return message;
+        return List.of(message);
     }
 
-    private void sendMessage(BotApiMethod<?> message) {
-        try {
-            execute(message);
-        } catch (TelegramApiException e) {
-            log.error("Ошибка отправки сообщения", e);
+    private void sendMessage(List<BotApiMethod<?>> message) {
+        for (BotApiMethod<?> thisMessage : message) {
+            try {
+                execute(thisMessage);
+            } catch (TelegramApiException e) {
+                log.error("Ошибка отправки сообщения", e);
+            }
         }
     }
 }

@@ -32,7 +32,7 @@ public class MakeEventsBackupHandler extends StatefulCommandHandler<State, MakeE
                 .addTransition(State.WAITING_FOR_CONFIRMATION, Action.CALLBACK_FALSE, State.FINISH, this::getFinishMessageWithoutBackup);
     }
 
-    private BotApiMethod<?> requestConfirmation(Update update) {
+    private List<BotApiMethod<?>> requestConfirmation(Update update) {
         InlineKeyboardMarkup keyboardMarkup = new InlineKeyboardMarkup();
         List<List<InlineKeyboardButton>> keyboard = new ArrayList<>();
         List<InlineKeyboardButton> rowInline = new ArrayList<>();
@@ -48,7 +48,7 @@ public class MakeEventsBackupHandler extends StatefulCommandHandler<State, MakeE
         );
     }
 
-    private BotApiMethod<?> getFinishMessageWithoutBackup(Update update) {
+    private List<BotApiMethod<?>> getFinishMessageWithoutBackup(Update update) {
         return editMessage(
                 TelegramUpdateUtils.getChatId(update),
                 TelegramUpdateUtils.getMessageId(update),
@@ -56,9 +56,9 @@ public class MakeEventsBackupHandler extends StatefulCommandHandler<State, MakeE
                 null);
     }
 
-    private BotApiMethod<?> makeEventsBackup(Update update) {
+    private List<BotApiMethod<?>> makeEventsBackup(Update update) {
 
-        MakeEventsBackupResponse response = client.makeEventsBackup(TelegramUpdateUtils.getUserId(update));
+        MakeEventsBackupResponse response = client.makeEventsBackup(TelegramUpdateUtils.getChatId(update));
 
         String message;
 

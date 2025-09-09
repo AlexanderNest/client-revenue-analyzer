@@ -24,6 +24,8 @@ import ru.nesterov.bot.dto.CreateClientResponse;
 import ru.nesterov.bot.dto.CreateUserRequest;
 import ru.nesterov.bot.dto.CreateUserResponse;
 import ru.nesterov.bot.dto.GetActiveClientResponse;
+import ru.nesterov.bot.dto.GetAllUsersByRoleAndSourceRequest;
+import ru.nesterov.bot.dto.GetAllUsersByRoleAndSourceResponse;
 import ru.nesterov.bot.dto.GetClientScheduleResponse;
 import ru.nesterov.bot.dto.GetForClientScheduleRequest;
 import ru.nesterov.bot.dto.GetForMonthRequest;
@@ -36,6 +38,7 @@ import ru.nesterov.bot.dto.GetYearBusynessStatisticsResponse;
 import ru.nesterov.bot.dto.MakeEventsBackupResponse;
 import ru.nesterov.bot.exception.InternalException;
 import ru.nesterov.bot.exception.UserFriendlyException;
+import ru.nesterov.core.entity.Role;
 
 import java.time.LocalDate;
 import java.time.LocalDateTime;
@@ -160,6 +163,16 @@ public class ClientRevenueAnalyzerIntegrationClient {
                 "/revenue-analyzer/events/analyzer/getUnpaidEvents",
                 new ParameterizedTypeReference<>() {}
         );
+    }
+
+    public GetAllUsersByRoleAndSourceResponse getUsersIdByRoleAndSource(long chatId, Role role, String source) {
+        GetAllUsersByRoleAndSourceRequest request = new GetAllUsersByRoleAndSourceRequest();
+        request.setRole(role);
+        request.setSource(source);
+        ResponseEntity<GetAllUsersByRoleAndSourceResponse> responseEntity = post(String.valueOf(chatId), request, "/revenue-analyzer/user/getUsersIdByRoleAndSource",
+                GetAllUsersByRoleAndSourceResponse.class
+        );
+        return responseEntity.getBody();
     }
 
     private <T> ResponseEntity<T> get(String username, String endpoint, Class<T> responseType) {

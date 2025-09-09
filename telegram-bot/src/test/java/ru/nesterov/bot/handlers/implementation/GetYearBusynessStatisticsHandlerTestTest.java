@@ -11,6 +11,7 @@ import ru.nesterov.bot.handlers.abstractions.CommandHandler;
 import ru.nesterov.bot.handlers.implementation.invocable.stateful.getYearBusynessStatistics.GetYearBusynessStatisticsHandler;
 
 import java.util.LinkedHashMap;
+import java.util.List;
 import java.util.Map;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
@@ -28,11 +29,11 @@ class GetYearBusynessStatisticsHandlerTestTest extends RegisteredUserHandlerTest
         Update update = createUpdateWithMessage("Анализ занятости за год");
         CommandHandler commandHandler = handlerService.getHandler(update);
 
-        BotApiMethod<?> command = commandHandler.handle(update);
+        List<BotApiMethod<?>> command = commandHandler.handle(update);
 
-        assertInstanceOf(SendMessage.class, command);
+        assertInstanceOf(SendMessage.class, command.get(0));
 
-        SendMessage sendMessage = (SendMessage) command;
+        SendMessage sendMessage = (SendMessage) command.get(0);
         assertEquals("Введите год для расчета занятости", sendMessage.getText());
 
 //        BotApiMethod<?> wrongYearInput = commandHandler.handle(createUpdateWithMessage("fff"));  //TODO тут если вводится некорректный год, машина переходит в состояние финиШ, потому что для нее была введена строка и ей неважно, что ошибочная. далее вызывается уже повторно машина и не может найти новый метод для вызова, потому что она уже в финише
@@ -53,9 +54,9 @@ class GetYearBusynessStatisticsHandlerTestTest extends RegisteredUserHandlerTest
 
         when(client.getYearBusynessStatistics(anyLong(), anyInt())).thenReturn(getYearBusynessStatisticsResponse);
 
-        BotApiMethod<?> botApiMethod = commandHandler.handle(createUpdateWithMessage("2024"));
-        assertInstanceOf(SendMessage.class, botApiMethod);
-        SendMessage sendStatistics = (SendMessage) botApiMethod;
+        List<BotApiMethod<?>> botApiMethod = commandHandler.handle(createUpdateWithMessage("2024"));
+        assertInstanceOf(SendMessage.class, botApiMethod.get(0));
+        SendMessage sendStatistics = (SendMessage) botApiMethod.get(0);
 
         String expectedMessage = "\uD83D\uDCCA Анализ занятости за год:\n" +
                 "\n" +

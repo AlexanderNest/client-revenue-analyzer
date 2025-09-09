@@ -66,7 +66,7 @@ public class CreateUserHandlerTestTest extends RegisteredUserHandlerTest {
         CreateUserResponse createUserResponse = CreateUserResponse.builder()
                 .userIdentifier(request.getUserIdentifier())
                 .mainCalendarId(request.getMainCalendarId())
-                .isCancelledCalendarEnabled(request.getIsCancelledCalendarEnabled())
+                .isCancelledCalendarEnabled(request.isCancelledCalendarEnabled())
                 .cancelledCalendarId(request.getCancelledCalendarId())
                 .build();
 
@@ -81,18 +81,18 @@ public class CreateUserHandlerTestTest extends RegisteredUserHandlerTest {
         update.setMessage(message);
 
         when(client.getUserByUsername(any(GetUserRequest.class))).thenReturn(null);
-        BotApiMethod<?> botApiMethod = createUserHandler.handle(update);
+        List<BotApiMethod<?>> botApiMethod = createUserHandler.handle(update);
 
-        assertInstanceOf(SendMessage.class, botApiMethod);
+        assertInstanceOf(SendMessage.class, botApiMethod.get(0));
 
-        SendMessage sendMessage = (SendMessage) botApiMethod;
+        SendMessage sendMessage = (SendMessage) botApiMethod.get(0);
         assertEquals("Введите ID основного календаря:", sendMessage.getText());
 
         message.setText(request.getMainCalendarId());
         update.setMessage(message);
 
         botApiMethod = createUserHandler.handle(update);
-        sendMessage = (SendMessage) botApiMethod;
+        sendMessage = (SendMessage) botApiMethod.get(0);
         assertEquals("Вы хотите сохранять информацию об отмененных мероприятиях с использованием второго календаря?", sendMessage.getText());
 
         ReplyKeyboard markup = sendMessage.getReplyMarkup();
@@ -117,7 +117,7 @@ public class CreateUserHandlerTestTest extends RegisteredUserHandlerTest {
         callbackQuery.setFrom(user);
         callbackQuery.setMessage(message);
         callback.setCommand(COMMAND);
-        callback.setValue(request.getIsCancelledCalendarEnabled().toString());
+        callback.setValue(String.valueOf(request.isCancelledCalendarEnabled()));
         String callbackData = buttonCallbackService.getTelegramButtonCallbackString(callback);
         callbackQuery.setData(callbackData);
 
@@ -125,15 +125,16 @@ public class CreateUserHandlerTestTest extends RegisteredUserHandlerTest {
         update.setMessage(null);
 
         botApiMethod = createUserHandler.handle(update);
-        sendMessage = (SendMessage) botApiMethod;
+        sendMessage = (SendMessage) botApiMethod.get(0);
 
         assertEquals("Введите ID календаря с отмененными мероприятиями:", sendMessage.getText());
 
         message.setText(request.getCancelledCalendarId());
         update.setMessage(message);
+        update.setCallbackQuery(null);
 
         botApiMethod = createUserHandler.handle(update);
-        sendMessage = (SendMessage) botApiMethod;
+        sendMessage = (SendMessage) botApiMethod.get(0);
 
         assertEquals(String.join(System.lineSeparator(),
                         "Вы успешно зарегистрированы! ",
@@ -167,18 +168,18 @@ public class CreateUserHandlerTestTest extends RegisteredUserHandlerTest {
         update.setMessage(message);
 
         when(client.getUserByUsername(any(GetUserRequest.class))).thenReturn(null);
-        BotApiMethod<?> botApiMethod = createUserHandler.handle(update);
+        List<BotApiMethod<?>> botApiMethod = createUserHandler.handle(update);
 
-        assertInstanceOf(SendMessage.class, botApiMethod);
+        assertInstanceOf(SendMessage.class, botApiMethod.get(0));
 
-        SendMessage sendMessage = (SendMessage) botApiMethod;
+        SendMessage sendMessage = (SendMessage) botApiMethod.get(0);
         assertEquals("Введите ID основного календаря:", sendMessage.getText());
 
         message.setText(request.getMainCalendarId());
         update.setMessage(message);
 
         botApiMethod = createUserHandler.handle(update);
-        sendMessage = (SendMessage) botApiMethod;
+        sendMessage = (SendMessage) botApiMethod.get(0);
         assertEquals("Вы хотите сохранять информацию об отмененных мероприятиях с использованием второго календаря?", sendMessage.getText());
 
         ReplyKeyboard markup = sendMessage.getReplyMarkup();
@@ -201,7 +202,7 @@ public class CreateUserHandlerTestTest extends RegisteredUserHandlerTest {
         callbackQuery.setFrom(user);
         callbackQuery.setMessage(message);
         callback.setCommand(COMMAND);
-        callback.setValue(request.getIsCancelledCalendarEnabled().toString());
+        callback.setValue(String.valueOf(request.isCancelledCalendarEnabled()));
         callbackQuery.setData(objectMapper.writeValueAsString(callback));
 
         update.setCallbackQuery(callbackQuery);
@@ -209,7 +210,7 @@ public class CreateUserHandlerTestTest extends RegisteredUserHandlerTest {
         CreateUserResponse createUserResponse = CreateUserResponse.builder()
                 .userIdentifier(request.getUserIdentifier())
                 .mainCalendarId(request.getMainCalendarId())
-                .isCancelledCalendarEnabled(request.getIsCancelledCalendarEnabled())
+                .isCancelledCalendarEnabled(request.isCancelledCalendarEnabled())
                 .cancelledCalendarId(request.getCancelledCalendarId())
                 .build();
 
@@ -221,7 +222,7 @@ public class CreateUserHandlerTestTest extends RegisteredUserHandlerTest {
         when(client.createUser(createUserRequest)).thenReturn(createUserResponse);
 
         botApiMethod = createUserHandler.handle(update);
-        sendMessage = (SendMessage) botApiMethod;
+        sendMessage = (SendMessage) botApiMethod.get(0);
 
         assertEquals(String.join(System.lineSeparator(),
                         "Вы успешно зарегистрированы! ",
@@ -255,11 +256,11 @@ public class CreateUserHandlerTestTest extends RegisteredUserHandlerTest {
 
         when(client.getUserByUsername(any(GetUserRequest.class))).thenReturn(response);
 
-        BotApiMethod<?> botApiMethod = createUserHandler.handle(update);
+        List<BotApiMethod<?>> botApiMethod = createUserHandler.handle(update);
 
-        assertInstanceOf(SendMessage.class, botApiMethod);
+        assertInstanceOf(SendMessage.class, botApiMethod.get(0));
 
-        SendMessage sendMessage = (SendMessage) botApiMethod;
+        SendMessage sendMessage = (SendMessage) botApiMethod.get(0);
         assertEquals("Вы уже зарегистрированы и можете пользоваться функциями бота", sendMessage.getText());
     }
 }
