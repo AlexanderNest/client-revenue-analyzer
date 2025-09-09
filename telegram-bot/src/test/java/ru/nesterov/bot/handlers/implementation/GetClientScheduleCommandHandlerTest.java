@@ -182,21 +182,18 @@ public class GetClientScheduleCommandHandlerTest extends RegisteredUserHandlerTe
         LocalDateTime eventStart1 = LocalDateTime.now();
         schedule1.setEventStart(eventStart1);
         schedule1.setEventEnd(eventStart1.plusHours(1L));
-        schedule1.setRequiresShift(true);
         clientSchedule.add(schedule1);
 
         GetClientScheduleResponse schedule2 = new GetClientScheduleResponse();
         LocalDateTime eventStart2 = LocalDateTime.now().plusDays(1L);
         schedule2.setEventStart(eventStart2);
         schedule2.setEventEnd(eventStart2.plusHours(1L));
-        schedule2.setRequiresShift(false);
         clientSchedule.add(schedule2);
 
         GetClientScheduleResponse schedule3 = new GetClientScheduleResponse();
         LocalDateTime eventStart3 = LocalDateTime.now().plusDays(2L);
         schedule3.setEventStart(eventStart3);
         schedule3.setEventEnd(eventStart3.plusHours(1L));
-        schedule3.setRequiresShift(false);
         clientSchedule.add(schedule3);
 
         LocalDate secondDate = firstDate.plusMonths(1L);
@@ -219,25 +216,22 @@ public class GetClientScheduleCommandHandlerTest extends RegisteredUserHandlerTe
 
         String expectedText = String.join("\n\n",
                 String.format(
-                        "📅 Дата: %s\n⏰ Время: %s - %s\n%s",
-                        eventStart1.format(dateFormatter),
-                        eventStart1.format(timeFormatter),
-                        eventStart1.plusHours(1).format(timeFormatter),
-                        "⚠️ Требуется перенос"
+                        "📅 Дата: %s\n⏰ Время: %s - %s",
+                        LocalDateTime.now().format(dateFormatter),
+                        LocalDateTime.now().format(timeFormatter),
+                        LocalDateTime.now().plusHours(1).format(timeFormatter)
                 ),
                 String.format(
-                        "📅 Дата: %s\n⏰ Время: %s - %s\n%s",
-                        eventStart2.format(dateFormatter),
-                        eventStart2.format(timeFormatter),
-                        eventStart2.plusHours(1).format(timeFormatter),
-                        "✅ Перенос не требуется"
+                        "📅 Дата: %s\n⏰ Время: %s - %s",
+                        LocalDateTime.now().plusDays(1).format(dateFormatter),
+                        LocalDateTime.now().plusDays(1).format(timeFormatter),
+                        LocalDateTime.now().plusDays(1).plusHours(1).format(timeFormatter)
                 ),
                 String.format(
-                        "📅 Дата: %s\n⏰ Время: %s - %s\n%s",
-                        eventStart3.format(dateFormatter),
-                        eventStart3.format(timeFormatter),
-                        eventStart3.plusHours(1).format(timeFormatter),
-                        "✅ Перенос не требуется"
+                        "📅 Дата: %s\n⏰ Время: %s - %s",
+                        LocalDateTime.now().plusDays(2).format(dateFormatter),
+                        LocalDateTime.now().plusDays(2).format(timeFormatter),
+                        LocalDateTime.now().plusDays(2).plusHours(1).format(timeFormatter)
                 )
         );
         assertEquals(expectedText, editMessage.getText());
