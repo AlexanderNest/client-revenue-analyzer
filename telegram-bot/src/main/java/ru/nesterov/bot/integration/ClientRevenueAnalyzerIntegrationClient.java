@@ -123,12 +123,11 @@ public class ClientRevenueAnalyzerIntegrationClient {
         return responseEntity.getBody();
     }
 
-    public List<GetClientScheduleResponse> getClientSchedule(long userId, String clientName, LocalDateTime leftDate, LocalDateTime rightDate, boolean requiresShiftInfo) {
+    public List<GetClientScheduleResponse> getClientSchedule(long userId, String clientName, LocalDateTime leftDate, LocalDateTime rightDate) {
         GetForClientScheduleRequest request = new GetForClientScheduleRequest();
         request.setClientName(clientName);
         request.setLeftDate(leftDate);
         request.setRightDate(rightDate);
-        request.setRequiresShift(requiresShiftInfo);
 
         return postForList(
                 String.valueOf(userId),

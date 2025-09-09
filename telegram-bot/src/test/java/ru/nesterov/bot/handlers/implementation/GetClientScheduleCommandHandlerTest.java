@@ -205,8 +205,7 @@ public class GetClientScheduleCommandHandlerTest extends RegisteredUserHandlerTe
                 1L,
                 "Клиент 1",
                 firstDate.atStartOfDay(),
-                secondDate.atStartOfDay().plusDays(1),
-                true
+                secondDate.atStartOfDay().plusDays(1)
         )).thenReturn(clientSchedule);
 
         Update updateWithSecondDate = createUpdateWithCallbackQuery(String.valueOf(secondDate));
