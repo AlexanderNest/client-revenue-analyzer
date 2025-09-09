@@ -127,7 +127,8 @@ public class GetClientScheduleCommandHandler extends StatefulCommandHandler<Stat
                 TelegramUpdateUtils.getUserId(update),
                 getStateMachine(update).getMemory().getClientName(),
                 getStateMachine(update).getMemory().getFirstDate().atStartOfDay(),
-                getStateMachine(update).getMemory().getSecondDate().atStartOfDay());
+                getStateMachine(update).getMemory().getSecondDate().atStartOfDay(),
+                getStateMachine(update).getMemory().isRequiresShift());
 
         return editMessage(TelegramUpdateUtils.getChatId(update),
                 TelegramUpdateUtils.getMessageId(update),
@@ -147,10 +148,13 @@ public class GetClientScheduleCommandHandler extends StatefulCommandHandler<Stat
                     String startDate = schedule.getEventStart().format(dateFormatter);
                     String startTime = schedule.getEventStart().format(timeFormatter);
                     String endTime = schedule.getEventEnd().format(timeFormatter);
+                    String requiresShiftInfo = schedule.isRequiresShift()
+                            ? "⚠️ Требуется перенос"
+                            : "✅ Перенос не требуется";
 
                     return String.format(
-                            "📅 Дата: %s\n⏰ Время: %s - %s",
-                            startDate, startTime, endTime);
+                            "📅 Дата: %s\n⏰ Время: %s - %s\n%s",
+                            startDate, startTime, endTime, requiresShiftInfo);
                 })
                 .collect(Collectors.joining("\n\n"));
     }

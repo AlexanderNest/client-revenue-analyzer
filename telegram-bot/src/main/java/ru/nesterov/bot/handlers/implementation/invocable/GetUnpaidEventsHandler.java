@@ -13,7 +13,8 @@ import java.util.List;
 
 @RequiredArgsConstructor
 @Component
-public class GetUnpaidEventsHandler extends DisplayedCommandHandler {
+public class
+GetUnpaidEventsHandler extends DisplayedCommandHandler {
 
     @Override
     public String getCommand() {

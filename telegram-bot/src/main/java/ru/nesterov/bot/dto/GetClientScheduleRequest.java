@@ -19,4 +19,5 @@ public class GetClientScheduleRequest {
     private LocalDate displayedMonth;
     private LocalDate firstDate;
     private LocalDate secondDate;
+    private boolean requiresShift;
 }
