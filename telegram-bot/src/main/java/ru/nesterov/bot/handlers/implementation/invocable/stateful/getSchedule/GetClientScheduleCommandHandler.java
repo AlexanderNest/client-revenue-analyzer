@@ -147,10 +147,11 @@ public class GetClientScheduleCommandHandler extends StatefulCommandHandler<Stat
                     String startDate = schedule.getEventStart().format(dateFormatter);
                     String startTime = schedule.getEventStart().format(timeFormatter);
                     String endTime = schedule.getEventEnd().format(timeFormatter);
+                    String requiresShiftInfo = schedule.isRequiresShift() ? "\n⚠️ Требуется перенос" : "";
 
                     return String.format(
-                            "📅 Дата: %s\n⏰ Время: %s - %s",
-                            startDate, startTime, endTime);
+                            "📅 Дата: %s\n⏰ Время: %s - %s%s",
+                            startDate, startTime, endTime, requiresShiftInfo);
                 })
                 .collect(Collectors.joining("\n\n"));
     }
