@@ -1,11 +1,14 @@
 package ru.nesterov.bot.handlers.implementation;
 
+import lombok.SneakyThrows;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.test.context.ContextConfiguration;
 import org.telegram.telegrambots.meta.api.methods.BotApiMethod;
 import org.telegram.telegrambots.meta.api.methods.send.SendMessage;
+import org.telegram.telegrambots.meta.api.methods.updatingmessages.EditMessageText;
+import org.telegram.telegrambots.meta.api.objects.CallbackQuery;
 import org.telegram.telegrambots.meta.api.objects.Chat;
 import org.telegram.telegrambots.meta.api.objects.Message;
 import org.telegram.telegrambots.meta.api.objects.Update;
@@ -14,15 +17,19 @@ import org.telegram.telegrambots.meta.api.objects.replykeyboard.InlineKeyboardMa
 import org.telegram.telegrambots.meta.api.objects.replykeyboard.ReplyKeyboard;
 import org.telegram.telegrambots.meta.api.objects.replykeyboard.buttons.InlineKeyboardButton;
 import ru.nesterov.bot.dto.GetActiveClientResponse;
+import ru.nesterov.bot.dto.GetClientStatisticResponse;
 import ru.nesterov.bot.handlers.RegisteredUserHandlerTest;
+import ru.nesterov.bot.handlers.callback.ButtonCallback;
 import ru.nesterov.bot.handlers.implementation.invocable.stateful.getClientStatisticHandler.GetClientStatisticHandler;
 
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.List;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertInstanceOf;
 import static org.mockito.ArgumentMatchers.anyLong;
+import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.when;
 
 @ContextConfiguration(classes = {
@@ -77,45 +84,58 @@ public class GetClientStatisticHandlerTest extends RegisteredUserHandlerTest {
         assertEquals("Нет доступных клиентов", sendMessage.getText());
     }
 
+
     @Test
-    void sendClientNamesKeyboardShouldReturnSortedClients() {
-
-        GetActiveClientResponse client1 = new GetActiveClientResponse();
-        client1.setName("алексей");
-
-        GetActiveClientResponse client2 = new GetActiveClientResponse();
-        client2.setName("Яна");
-
-        GetActiveClientResponse client3 = new GetActiveClientResponse();
-        client3.setName("Андрей");
-
-        GetActiveClientResponse client4 = new GetActiveClientResponse();
-        client4.setName("борис");
-
-        GetActiveClientResponse client5 = new GetActiveClientResponse();
-        client5.setName("Борис");
-
-        List<GetActiveClientResponse> unsortedClients = new ArrayList<>(List.of(client1, client2, client3, client4, client5));
-
-        when(client.getActiveClients(anyLong())).thenReturn(unsortedClients);
-
+    void handleCommandWhenClientsFound() {
         Update update = createUpdateWithCommand();
-        List<BotApiMethod<?>> result = handler.handle(update);
+        handler.handle(update);
 
-        assertInstanceOf(SendMessage.class, result.get(0));
-        SendMessage sendMessage = (SendMessage) result.get(0);
+        GetClientStatisticResponse client1 = new GetClientStatisticResponse();
+        client1.setName("Клиент 1");
+        client1.setId(123L);
+        client1.setPhone("+123456789");
+        client1.setDescription("Test Client");
+        client1.setStartDate(new Date());
+        client1.setServiceDuration(30);
+        client1.setSuccessfulMeetingsHours(10);
+        client1.setCancelledMeetingsHours(2);
+        client1.setIncomePerHour(500);
+        client1.setSuccessfulEventsCount(10);
+        client1.setPlannedCancelledEventsCount(1);
+        client1.setNotPlannedCancelledEventsCount(1);
+        client1.setTotalIncome(5000);
 
-        InlineKeyboardMarkup markup = (InlineKeyboardMarkup) sendMessage.getReplyMarkup();
-        List<List<InlineKeyboardButton>> keyboard = markup.getKeyboard();
+        ButtonCallback clientCallback = new ButtonCallback();
+        clientCallback.setCommand("Узнать статистику по клиенту");
+        clientCallback.setValue("Клиент 1");
+        Update updateWithClientName = createUpdateWithCallbackQuery(clientCallback.getValue());
+        List<BotApiMethod<?>> botApiMethod = handler.handle(updateWithClientName);
 
-        assertEquals(5, keyboard.size());
+        assertInstanceOf(SendMessage.class, botApiMethod.get(0));
 
-        assertEquals("алексей", keyboard.get(0).get(0).getText());
-        assertEquals("Андрей", keyboard.get(1).get(0).getText());
-        assertEquals("борис", keyboard.get(2).get(0).getText());
-        assertEquals("Борис", keyboard.get(3).get(0).getText());
-        assertEquals("Яна", keyboard.get(4).get(0).getText());
+        String clientStaticticString = "```\n" +
+                "Имя:                           Client A\n" +
+                "ID:                                123L\n" +
+                "Телефон:                  +123456789\n" +
+                "─────────────────────────────────────────\n" +
+                "Описание:                                               Test Client\n" +
+                "Начало обучения:                               01.01.2025\n" +
+                "Продолжительность обучения: 30 дней\n" +
+                "─────────────────────────────────────────\n" +
+                "Состоявшихся занятий:          10 часов\n" +
+                "Отмененных занятий:            2 часов\n" +
+                "Доход в час:                   500 ₽/час\n" +
+                "Состоявшиеся занятия:          10\n" +
+                "Запланированные отмены:        1\n" +
+                "Незапланированные отмены:      1\n" +
+                "─────────────────────────────────────────\n" +
+                "Суммарный доход:               5000 ₽\n" +
+                "```";
+
+        SendMessage sendMessage = (SendMessage) botApiMethod.get(0);
+        assertEquals(clientStaticticString, sendMessage.getText());
     }
+
 
     private List<GetActiveClientResponse> createActiveClients() {
         GetActiveClientResponse client1 = new GetActiveClientResponse();
@@ -150,6 +170,33 @@ public class GetClientStatisticHandlerTest extends RegisteredUserHandlerTest {
 
         Update update = new Update();
         update.setMessage(message);
+
+        return update;
+    }
+
+    @SneakyThrows
+    private Update createUpdateWithCallbackQuery(String callbackValue) {
+        CallbackQuery callbackQuery = new CallbackQuery();
+        callbackQuery.setId(String.valueOf(1));
+
+        User user = new User();
+        user.setId(1L);
+        callbackQuery.setFrom(user);
+
+        Message message = new Message();
+        message.setMessageId(1);
+        Chat chat = new Chat();
+        chat.setId(1L);
+        message.setChat(chat);
+        callbackQuery.setMessage(message);
+
+        ButtonCallback buttonCallback = new ButtonCallback();
+        buttonCallback.setCommand(COMMAND);
+        buttonCallback.setValue(callbackValue);
+        callbackQuery.setData(buttonCallbackService.getTelegramButtonCallbackString(buttonCallback));
+
+        Update update = new Update();
+        update.setCallbackQuery(callbackQuery);
 
         return update;
     }
