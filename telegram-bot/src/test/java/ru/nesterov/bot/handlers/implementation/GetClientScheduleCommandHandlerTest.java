@@ -185,6 +185,7 @@ public class GetClientScheduleCommandHandlerTest extends RegisteredUserHandlerTe
         LocalDateTime eventStart1 = LocalDateTime.now();
         schedule1.setEventStart(eventStart1);
         schedule1.setEventEnd(eventStart1.plusHours(1L));
+        schedule1.setRequiresShift(true);
         clientSchedule.add(schedule1);
 
         GetClientScheduleResponse schedule2 = new GetClientScheduleResponse();
@@ -219,10 +220,11 @@ public class GetClientScheduleCommandHandlerTest extends RegisteredUserHandlerTe
 
         String expectedText = String.join("\n\n",
                 String.format(
-                        "📅 Дата: %s\n⏰ Время: %s - %s",
+                        "📅 Дата: %s\n⏰ Время: %s - %s\n%s",
                         LocalDateTime.now().format(dateFormatter),
                         LocalDateTime.now().format(timeFormatter),
-                        LocalDateTime.now().plusHours(1).format(timeFormatter)
+                        LocalDateTime.now().plusHours(1).format(timeFormatter),
+                        "⚠️ Требуется перенос"
                 ),
                 String.format(
                         "📅 Дата: %s\n⏰ Время: %s - %s",
