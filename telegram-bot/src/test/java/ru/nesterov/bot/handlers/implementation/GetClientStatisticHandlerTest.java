@@ -61,11 +61,18 @@ public class GetClientStatisticHandlerTest extends RegisteredUserHandlerTest {
 
     @Test
     void handleCommandWhenClientsFound() {
+        // Вызвали хендлер УЗНАТЬ СТАТИСТИКУ ПО КЛИЕНТУ + создали клиентов + проверили что вывелся выбор криентов.
         Update update = createUpdateWithCommand();
+
+        List<GetActiveClientResponse> clients = createActiveClients();
+        when(client.getActiveClients(anyLong())).thenReturn(clients);
+
         List<BotApiMethod<?>> botApiMethod = handler.handle(update);
         SendMessage sendMessage = (SendMessage) botApiMethod.get(0);
+
         assertEquals("Выберите клиента, чью статистику хотите узнать:", sendMessage.getText());
 
+        // Проверяем что кнопок с клиентами 4 (сколько мы создали) + проверяем совпадения по имени
         ReplyKeyboard markup = sendMessage.getReplyMarkup();
         assertInstanceOf(InlineKeyboardMarkup.class, markup);
 
@@ -79,9 +86,9 @@ public class GetClientStatisticHandlerTest extends RegisteredUserHandlerTest {
             assertEquals("Клиент " + (i + 1), button.getText());
         }
 
+
         GetClientStatisticResponse client1 = new GetClientStatisticResponse();
         client1.setName("Клиент 1");
-        client1.setId(123L);
         client1.setPhone("+123456789");
         client1.setDescription("Test Client");
         client1.setStartDate(new Date());
@@ -94,34 +101,40 @@ public class GetClientStatisticHandlerTest extends RegisteredUserHandlerTest {
         client1.setNotPlannedCancelledEventsCount(1);
         client1.setTotalIncome(5000);
 
+        when(client.getClientStatistic(anyLong(), eq("Клиент 1"))).thenReturn(client1);
+
         ButtonCallback clientCallback = new ButtonCallback();
-        clientCallback.setCommand("Узнать статистику по клиенту");
+        clientCallback.setCommand("Выберите клиента, чью статистику хотите узнать:");
         clientCallback.setValue("Клиент 1");
         Update updateWithClientName = createUpdateWithCallbackQuery(clientCallback.getValue());
-        List<BotApiMethod<?>> botApiMethod = handler.handle(updateWithClientName);
+        List<BotApiMethod<?>> botApiMethod2 = handler.handle(updateWithClientName);
 
-        assertInstanceOf(SendMessage.class, botApiMethod.get(0));
+        assertInstanceOf(EditMessageText.class, botApiMethod2.get(0));
 
-        String clientStaticticString = "```\n" +
-                "Имя:                           Client A\n" +
-                "Телефон:                  +123456789\n" +
-                "─────────────────────────────────────────\n" +
-                "Описание:                                               Test Client\n" +
-                "Начало обучения:                               01.01.2025\n" +
-                "Продолжительность обучения: 30 дней\n" +
-                "─────────────────────────────────────────\n" +
-                "Состоявшихся занятий:          10 часов\n" +
-                "Отмененных занятий:            2 часов\n" +
-                "Доход в час:                   500 ₽/час\n" +
-                "Состоявшиеся занятия:          10\n" +
-                "Запланированные отмены:        1\n" +
-                "Незапланированные отмены:      1\n" +
-                "─────────────────────────────────────────\n" +
-                "Суммарный доход:               5000 ₽\n" +
-                "```";
+        String clientStaticticString =
+                "📊 *Статистика клиента*\n" +
+                        "\n" +
+                        "Имя:                                                               Клиент 1\n" +
+                        "ID:                                                                        0\n" +
+                        "Телефон:                                                   +123456789\n" +
+                        "─────────────────────────────────────────\n" +
+                        "Описание:                                                       Test Client\n" +
+                        "Начало обучения:                                       20.09.2025\n" +
+                        "Продолжительность обучения:           30 дней\n" +
+                        "─────────────────────────────────────────\n" +
+                        "Состоявшихся занятий:                           10 часов\n" +
+                        "Отмененных занятий:                               2 часов\n" +
+                        "Доход в час:                                                   500 ₽/час\n" +
+                        "Состоявшиеся занятия:                           10\n" +
+                        "Запланированные отмены:                   1\n" +
+                        "Незапланированные отмены:              1\n" +
+                        "─────────────────────────────────────────\n" +
+                        "Суммарный доход:                                  5\u00A0000 ₽\n";
 
-        SendMessage sendMessage = (SendMessage) botApiMethod.get(0);
-        assertEquals(clientStaticticString, sendMessage.getText());
+        EditMessageText editMessageText = (EditMessageText) botApiMethod2.get(0);
+
+
+        assertEquals(clientStaticticString, editMessageText.getText());
     }
 
 
