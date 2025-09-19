@@ -46,32 +46,6 @@ public class GetClientStatisticHandlerTest extends RegisteredUserHandlerTest {
         handler.resetState(1);
     }
 
-    @Test
-    void handleCommandWhenMessageContainsText() {
-        List<GetActiveClientResponse> clients = createActiveClients();
-        when(client.getActiveClients(anyLong())).thenReturn(clients);
-
-        Update update = createUpdateWithCommand();
-
-        List<BotApiMethod<?>> botApiMethod = handler.handle(update);
-        assertInstanceOf(SendMessage.class, botApiMethod.get(0));
-
-        SendMessage sendMessage = (SendMessage) botApiMethod.get(0);
-        assertEquals("Выберите клиента, чью статистику хотите узнать:", sendMessage.getText());
-
-        ReplyKeyboard markup = sendMessage.getReplyMarkup();
-        assertInstanceOf(InlineKeyboardMarkup.class, markup);
-
-        InlineKeyboardMarkup inlineKeyboardMarkup = (InlineKeyboardMarkup) markup;
-        List<List<InlineKeyboardButton>> clientNamesKeyboard = inlineKeyboardMarkup.getKeyboard();
-
-        assertEquals(4, clientNamesKeyboard.size());
-
-        for (int i = 0; i < clientNamesKeyboard.size(); i++) {
-            InlineKeyboardButton button = clientNamesKeyboard.get(i).get(0);
-            assertEquals("Клиент " + (i + 1), button.getText());
-        }
-    }
 
     @Test
     void handleCommandWhenNoClientsFound() {
@@ -88,7 +62,22 @@ public class GetClientStatisticHandlerTest extends RegisteredUserHandlerTest {
     @Test
     void handleCommandWhenClientsFound() {
         Update update = createUpdateWithCommand();
-        handler.handle(update);
+        List<BotApiMethod<?>> botApiMethod = handler.handle(update);
+        SendMessage sendMessage = (SendMessage) botApiMethod.get(0);
+        assertEquals("Выберите клиента, чью статистику хотите узнать:", sendMessage.getText());
+
+        ReplyKeyboard markup = sendMessage.getReplyMarkup();
+        assertInstanceOf(InlineKeyboardMarkup.class, markup);
+
+        InlineKeyboardMarkup inlineKeyboardMarkup = (InlineKeyboardMarkup) markup;
+        List<List<InlineKeyboardButton>> clientNamesKeyboard = inlineKeyboardMarkup.getKeyboard();
+
+        assertEquals(4, clientNamesKeyboard.size());
+
+        for (int i = 0; i < clientNamesKeyboard.size(); i++) {
+            InlineKeyboardButton button = clientNamesKeyboard.get(i).get(0);
+            assertEquals("Клиент " + (i + 1), button.getText());
+        }
 
         GetClientStatisticResponse client1 = new GetClientStatisticResponse();
         client1.setName("Клиент 1");
@@ -115,7 +104,6 @@ public class GetClientStatisticHandlerTest extends RegisteredUserHandlerTest {
 
         String clientStaticticString = "```\n" +
                 "Имя:                           Client A\n" +
-                "ID:                                123L\n" +
                 "Телефон:                  +123456789\n" +
                 "─────────────────────────────────────────\n" +
                 "Описание:                                               Test Client\n" +
