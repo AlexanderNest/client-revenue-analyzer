@@ -22,6 +22,8 @@ import ru.nesterov.bot.handlers.RegisteredUserHandlerTest;
 import ru.nesterov.bot.handlers.callback.ButtonCallback;
 import ru.nesterov.bot.handlers.implementation.invocable.stateful.getClientStatisticHandler.GetClientStatisticHandler;
 
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
@@ -46,7 +48,6 @@ public class GetClientStatisticHandlerTest extends RegisteredUserHandlerTest {
         handler.resetState(1);
     }
 
-
     @Test
     void handleCommandWhenNoClientsFound() {
         Update update = createUpdateWithCommand();
@@ -58,10 +59,8 @@ public class GetClientStatisticHandlerTest extends RegisteredUserHandlerTest {
         assertEquals("Нет доступных клиентов", sendMessage.getText());
     }
 
-
     @Test
-    void handleCommandWhenClientsFound() {
-        // Вызвали хендлер УЗНАТЬ СТАТИСТИКУ ПО КЛИЕНТУ + создали клиентов + проверили что вывелся выбор криентов.
+    void handleCommandWhenClientsFound() throws ParseException {
         Update update = createUpdateWithCommand();
 
         List<GetActiveClientResponse> clients = createActiveClients();
@@ -72,7 +71,6 @@ public class GetClientStatisticHandlerTest extends RegisteredUserHandlerTest {
 
         assertEquals("Выберите клиента, чью статистику хотите узнать:", sendMessage.getText());
 
-        // Проверяем что кнопок с клиентами 4 (сколько мы создали) + проверяем совпадения по имени
         ReplyKeyboard markup = sendMessage.getReplyMarkup();
         assertInstanceOf(InlineKeyboardMarkup.class, markup);
 
@@ -86,12 +84,11 @@ public class GetClientStatisticHandlerTest extends RegisteredUserHandlerTest {
             assertEquals("Клиент " + (i + 1), button.getText());
         }
 
-
         GetClientStatisticResponse client1 = new GetClientStatisticResponse();
         client1.setName("Клиент 1");
         client1.setPhone("+123456789");
         client1.setDescription("Test Client");
-        client1.setStartDate(new Date());
+        client1.setStartDate(new SimpleDateFormat("dd.MM.yyyy").parse("20.09.2025"));
         client1.setServiceDuration(30);
         client1.setSuccessfulMeetingsHours(10);
         client1.setCancelledMeetingsHours(2);
@@ -132,11 +129,8 @@ public class GetClientStatisticHandlerTest extends RegisteredUserHandlerTest {
                         "Суммарный доход:                                  5\u00A0000 ₽\n";
 
         EditMessageText editMessageText = (EditMessageText) botApiMethod2.get(0);
-
-
         assertEquals(clientStaticticString, editMessageText.getText());
     }
-
 
     private List<GetActiveClientResponse> createActiveClients() {
         GetActiveClientResponse client1 = new GetActiveClientResponse();
