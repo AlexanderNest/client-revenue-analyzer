@@ -25,7 +25,6 @@ import ru.nesterov.bot.handlers.implementation.invocable.stateful.getClientStati
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
-import java.util.Date;
 import java.util.List;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
