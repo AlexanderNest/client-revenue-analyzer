@@ -107,21 +107,21 @@ public class GetClientStatisticHandler extends StatefulCommandHandler<State, Get
         String totalIncome = String.format("%s ₽", currencyFormat.format(response.getTotalIncome()));
 
         return "📊 *Статистика клиента*\n\n" +
-                String.format("%s %70s", "Имя:", response.getName()) + "\n" +
-                String.format("%s %72s", "ID:", response.getId()) + "\n" +
-                String.format("%s %60s", "Телефон:", response.getPhone()) + "\n" +
-                "─────────────────────────────────────────" + "\n" +
-                String.format("%s %65s", "Описание:", response.getDescription()) + "\n" +
-                String.format("%s %48s", "Начало обучения:", dateFormat.format(response.getStartDate())) + "\n" +
-                String.format("%s %17s", "Продолжительность обучения:", response.getServiceDuration() + " дней") + "\n" +
-                "─────────────────────────────────────────" + "\n" +
-                String.format("%s %34s", "Состоявшихся занятий:", successfulHours) + "\n" +
-                String.format("%s %37s", "Отмененных занятий:", cancelledHours) + "\n" +
-                String.format("%s %59s", "Доход в час:", incomePerHour) + "\n" +
-                String.format("%s %28s", "Состоявшиеся занятия:", successfulEvents) + "\n" +
-                String.format("%s %19s", "Запланированные отмены:", plannedCancelled) + "\n" +
-                String.format("%s %14s", "Незапланированные отмены:", notPlannedCancelled) + "\n" +
-                "─────────────────────────────────────────" + "\n" +
-                String.format("%s %40s", "Суммарный доход:", totalIncome) + "\n";
+                String.format("%s %s", "Имя:", response.getName()) + "\n" +
+                String.format("%s %s", "ID:", response.getId()) + "\n" +
+                String.format("%s %s", "Телефон:", response.getPhone()) + "\n" +
+                "─────────────────────────────" + "\n" +
+                String.format("%s %s", "Описание:", response.getDescription()) + "\n" +
+                String.format("%s %s", "Начало обучения:", dateFormat.format(response.getStartDate())) + "\n" +
+                String.format("%s %s", "Продолжительность обучения:", response.getServiceDuration() + " дней") + "\n" +
+                "─────────────────────────────" + "\n" +
+                String.format("%s %s", "Состоявшихся занятий:", successfulHours) + "\n" +
+                String.format("%s %s", "Отмененных занятий:", cancelledHours) + "\n" +
+                String.format("%s %s", "Доход в час:", incomePerHour) + "\n" +
+                String.format("%s %s", "Состоявшиеся занятия:", successfulEvents) + "\n" +
+                String.format("%s %s", "Запланированные отмены:", plannedCancelled) + "\n" +
+                String.format("%s %s", "Незапланированные отмены:", notPlannedCancelled) + "\n" +
+                "─────────────────────────────" + "\n" +
+                String.format("%s %s", "Суммарный доход:", totalIncome) + "\n";
     }
 }
