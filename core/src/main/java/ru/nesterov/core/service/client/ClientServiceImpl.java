@@ -123,10 +123,6 @@ public class ClientServiceImpl implements ClientService {
             clientForUpdate.setPricePerHour(updatedClientDto.getPricePerHour());
         }
 
-//        if (updatedClientDto.getIdGenerationNeeded() != null){
-//            clientForUpdate.setActive(updatedClientDto.getIdGenerationNeeded()); //   ????
-//        }
-
         Client updatedClient = clientRepository.save(clientForUpdate);
         return ClientMapper.mapToClientDto(updatedClient);
     }
