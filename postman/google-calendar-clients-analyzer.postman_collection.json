@@ -7,6 +7,37 @@
 	},
 	"item": [
 		{
+			"name": "Удалить клиента",
+			"request": {
+				"method": "DELETE",
+				"header": [
+					{
+						"key": "X-username",
+						"value": "{{X-username}}",
+						"type": "text"
+					},
+					{
+						"key": "X-secret-token",
+						"value": "{{X-secret-token}}",
+						"type": "text"
+					}
+				],
+				"url": {
+					"raw": "localhost:8080/revenue-analyzer/client/delete?id=123",
+					"host": ["localhost"],
+					"port": "8080",
+					"path": ["client", "delete"],
+					"query": [
+						{
+							"key": "id",
+							"value": "123"
+						}
+					]
+				}
+			},
+			"response": []
+		},
+		{
 			"name": "Клиенты",
 			"item": [
 				{

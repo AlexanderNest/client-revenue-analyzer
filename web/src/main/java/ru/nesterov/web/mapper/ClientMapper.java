@@ -2,11 +2,34 @@ package ru.nesterov.web.mapper;
 
 import ru.nesterov.core.service.dto.ClientDto;
 import ru.nesterov.core.service.dto.ClientMeetingsStatistic;
+import ru.nesterov.core.service.dto.UpdatedClientDto;
 import ru.nesterov.web.controller.request.CreateClientRequest;
+import ru.nesterov.web.controller.request.UpdateClientRequest;
 import ru.nesterov.web.controller.response.ClientMeetingsStatisticResponse;
 import ru.nesterov.web.controller.response.ClientResponse;
+import ru.nesterov.web.controller.response.UpdateClientResponse;
 
 public class ClientMapper {
+
+    public static UpdateClientResponse mapToupdateClientResponse(ClientDto request) {
+
+        return UpdateClientResponse.builder()
+                .description(request.getDescription())
+                .pricePerHour(request.getPricePerHour())
+                .newName(request.getName())
+                .phone(request.getPhone())
+                .build();
+    }
+    public static UpdatedClientDto mapToUpdatedClientDto(UpdateClientRequest request) {
+
+        return UpdatedClientDto.builder()
+                .description(request.getDescription())
+                .pricePerHour(request.getPricePerHour())
+                .newName(request.getNewName())
+                .idGenerationNeeded(request.isIdGenerationNeeded())
+                .phone(request.getPhone())
+                .build();
+    }
     public static ClientDto mapToClientDto(CreateClientRequest request) {
 
         return ClientDto.builder()
