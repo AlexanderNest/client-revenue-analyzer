@@ -284,9 +284,9 @@ class ClientControllerTest extends AbstractControllerTest {
         request.setRightDate(LocalDateTime.of(2024, 8, 13, 12, 30));
 
         mockMvc.perform(post("/client/getSchedule")
-                .header("X-username", user.getUsername())
-                .contentType(MediaType.APPLICATION_JSON)
-                .content(objectMapper.writeValueAsString(request)))
+                        .header("X-username", user.getUsername())
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(objectMapper.writeValueAsString(request)))
 
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$", hasSize(2)))

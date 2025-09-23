@@ -28,7 +28,7 @@ import java.util.stream.Collectors;
 public class UpdateUserControlButtonsHandler extends InvocableCommandHandler {
     private final List<DisplayedCommandHandler> sendingMessageCommandHandlers;
     private final BotProperties botProperties;
-    private final ClientRevenueAnalyzerIntegrationClient client;
+    private final ClientRevenueAnalyzerIntegrationClient analyzerIntegrationClient;
     private final CreateUserHandler createUserHandler;
 
     @Override
@@ -62,26 +62,28 @@ public class UpdateUserControlButtonsHandler extends InvocableCommandHandler {
         if (getCommand().equals(update.getMessage().getText())) {
             return true;
         }
+
         if (createUserHandler.getCommand().equals(update.getMessage().getText())) {
             return false;
         }
+
         GetUserRequest getUserRequest = new GetUserRequest();
         getUserRequest.setUsername(String.valueOf(TelegramUpdateUtils.getUserId(update)));
-        boolean userExists = client.getUserByUsername(getUserRequest) != null;
+        boolean userExists = analyzerIntegrationClient.getUserByUsername(getUserRequest) != null;
         return !userExists;
     }
 
     private List<KeyboardRow> buildKeyboardRows(Update update, int buttonsPerLine) {
+        List<DisplayedCommandHandler> relevantHandlers = getHandlersDisplayedForCurrentUser(update);
+
         List<KeyboardRow> keyboardRows = new ArrayList<>();
         KeyboardRow currentRow = new KeyboardRow();
-
-        List<DisplayedCommandHandler> relevantHandlers = getRelevantHandlers(update);
 
         for (int buttonNumber = 0; buttonNumber < relevantHandlers.size(); buttonNumber++) {
             DisplayedCommandHandler handler = relevantHandlers.get(buttonNumber);
             currentRow.add(new KeyboardButton(handler.getCommand()));
 
-            if (buttonNumber % buttonsPerLine == 0) {
+            if ((buttonNumber + 1) % buttonsPerLine == 0) {
                 keyboardRows.add(currentRow);
                 currentRow = new KeyboardRow();
             }
@@ -94,7 +96,7 @@ public class UpdateUserControlButtonsHandler extends InvocableCommandHandler {
         return keyboardRows;
     }
 
-    private List<DisplayedCommandHandler> getRelevantHandlers(Update update) {
+    private List<DisplayedCommandHandler> getHandlersDisplayedForCurrentUser(Update update) {
         return sendingMessageCommandHandlers.stream()
                 .filter(handler -> handler.isDisplayed(update))
                 .collect(Collectors.toList());
