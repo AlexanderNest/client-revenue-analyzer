@@ -16,11 +16,10 @@ import ru.nesterov.core.repository.ClientRepository;
 import ru.nesterov.core.repository.UserRepository;
 import ru.nesterov.core.service.dto.ClientDto;
 import ru.nesterov.core.service.dto.ClientScheduleDto;
-import ru.nesterov.core.service.dto.UpdatedClientDto;
+import ru.nesterov.core.service.dto.UpdateClientDto;
 import ru.nesterov.core.service.dto.UserDto;
 import ru.nesterov.core.service.mapper.ClientMapper;
 import java.time.LocalDateTime;
-import java.util.Date;
 import java.util.List;
 
 @Service
@@ -93,38 +92,37 @@ public class ClientServiceImpl implements ClientService {
     }
 
     @Override
-    public void deleteClient(UserDto userDto, String nameClient) {
-        Client client = clientRepository.findClientByNameAndUserId(nameClient, userDto.getId());
+    public void deleteClient(UserDto userDto, String clientName) {
+        Client client = clientRepository.findClientByNameAndUserId(clientName, userDto.getId());
         if (client == null) {
-            throw new ClientNotFoundException(userDto.getUsername());
+            throw new ClientNotFoundException(clientName);
         }
         clientRepository.delete(client);
     }
 
     @Override
-    public ClientDto updatedClient(UserDto userDto, UpdatedClientDto updatedClientDto, String lastNameClient) {
+    public ClientDto updateClient(UserDto userDto, UpdateClientDto updateClientDto, String lastNameClient) {
         Client clientForUpdate = clientRepository.findClientByNameAndUserId(lastNameClient, userDto.getId()); //нашла клиента с нужными данными по старому имени
         if (clientForUpdate == null) {
-        return null;
+            throw new ClientNotFoundException(lastNameClient);
     }
-        if (updatedClientDto.getNewName() != null){
-            clientForUpdate.setName(updatedClientDto.getNewName());
+        if (updateClientDto.getNewName() != null){
+            clientForUpdate.setName(updateClientDto.getNewName());
         }
 
-        if (updatedClientDto.getDescription() != null){
-            clientForUpdate.setDescription(updatedClientDto.getDescription());
+        if (updateClientDto.getDescription() != null){
+            clientForUpdate.setDescription(updateClientDto.getDescription());
         }
 
-        if (updatedClientDto.getPhone() != null){
-            clientForUpdate.setPhone(updatedClientDto.getPhone());
+        if (updateClientDto.getPhone() != null){
+            clientForUpdate.setPhone(updateClientDto.getPhone());
         }
 
-        if (updatedClientDto.getPricePerHour() != null){
-            clientForUpdate.setPricePerHour(updatedClientDto.getPricePerHour());
+        if (updateClientDto.getPricePerHour() != null){
+            clientForUpdate.setPricePerHour(updateClientDto.getPricePerHour());
         }
 
         Client updatedClient = clientRepository.save(clientForUpdate);
         return ClientMapper.mapToClientDto(updatedClient);
     }
-
 }

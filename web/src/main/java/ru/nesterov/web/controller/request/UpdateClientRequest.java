@@ -6,7 +6,7 @@ import lombok.Data;
 @Data
 public class UpdateClientRequest {
     @NotBlank(message = "Поле не может быть пустым")
-    private String lastName;
+    private String clientName;
     private String newName;
     private int pricePerHour;
     private String description;

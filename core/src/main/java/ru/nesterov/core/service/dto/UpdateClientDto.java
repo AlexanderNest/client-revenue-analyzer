@@ -5,7 +5,7 @@ import lombok.Data;
 
 @Data
 @Builder
-public class UpdatedClientDto {
+public class UpdateClientDto {
     private String newName;
     private Integer pricePerHour;
     private String description;

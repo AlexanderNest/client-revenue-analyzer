@@ -1,21 +1,19 @@
 package ru.nesterov.web.controller;
 
 import lombok.RequiredArgsConstructor;
-import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestHeader;
 import org.springframework.web.bind.annotation.RestController;
 import ru.nesterov.core.service.client.ClientService;
 import ru.nesterov.core.service.dto.ClientDto;
 import ru.nesterov.core.service.dto.ClientScheduleDto;
-import ru.nesterov.core.service.dto.UpdatedClientDto;
+import ru.nesterov.core.service.dto.UpdateClientDto;
 import ru.nesterov.core.service.user.UserService;
 import ru.nesterov.web.controller.request.CreateClientRequest;
 import ru.nesterov.web.controller.request.GetClientScheduleRequest;
 import ru.nesterov.web.controller.request.UpdateClientRequest;
 import ru.nesterov.web.controller.response.ClientResponse;
 import ru.nesterov.web.controller.response.EventScheduleResponse;
-import ru.nesterov.web.controller.response.UpdateClientResponse;
 import ru.nesterov.web.mapper.ClientMapper;
 
 import java.util.List;
@@ -57,15 +55,14 @@ public class ClientControllerImpl implements ClientController {
     }
 
     @Override
-    public ResponseEntity<Void> deleteClient(String username, String clientName) {
+    public void deleteClient(String username, String clientName) {
         clientService.deleteClient(userService.getUserByUsername(username), clientName);
-        return ResponseEntity.ok().build();
     }
 
     @Override
-    public UpdateClientResponse updateClient(String username, UpdateClientRequest updateClientRequest) {
-        UpdatedClientDto updatedClientDto = ClientMapper.mapToUpdatedClientDto(updateClientRequest);
-        ClientDto clientDto = clientService.updatedClient(userService.getUserByUsername(username), updatedClientDto, updateClientRequest.getLastName());
-        return ClientMapper.mapToupdateClientResponse(clientDto);
+    public ClientResponse updateClient(String username, UpdateClientRequest updateClientRequest) {
+        UpdateClientDto updateClientDto = ClientMapper.mapToUpdatedClientDto(updateClientRequest);
+        ClientDto clientDto = clientService.updateClient(userService.getUserByUsername(username), updateClientDto, updateClientRequest.getClientName());
+        return ClientMapper.mapToClientResponse(clientDto);
     }
 }

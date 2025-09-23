@@ -6,19 +6,16 @@ import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.parameters.RequestBody;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.tags.Tag;
-import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestHeader;
 import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestParam;
 import ru.nesterov.web.controller.request.CreateClientRequest;
 import ru.nesterov.web.controller.request.GetClientScheduleRequest;
 import ru.nesterov.web.controller.request.UpdateClientRequest;
 import ru.nesterov.web.controller.response.ClientResponse;
 import ru.nesterov.web.controller.response.EventScheduleResponse;
-import ru.nesterov.web.controller.response.UpdateClientResponse;
 
 import java.util.List;
 
@@ -82,7 +79,7 @@ public interface ClientController {
             }
     )
     @DeleteMapping("/{clientName}")
-    ResponseEntity<Void> deleteClient(@RequestHeader(name = "X-username") String username, @PathVariable String clientName);
+    void deleteClient(@RequestHeader(name = "X-username") String username, @PathVariable String clientName);
 
 
     @Operation(
@@ -98,5 +95,5 @@ public interface ClientController {
             }
     )
     @PostMapping("/update")
-    UpdateClientResponse updateClient(@RequestHeader(name = "X-username") String username, @RequestBody UpdateClientRequest updateClientRequest);
+    ClientResponse updateClient(@RequestHeader(name = "X-username") String username, @RequestBody UpdateClientRequest updateClientRequest);
 }

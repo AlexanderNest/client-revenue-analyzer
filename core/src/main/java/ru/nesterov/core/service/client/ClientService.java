@@ -2,7 +2,7 @@ package ru.nesterov.core.service.client;
 
 import ru.nesterov.core.service.dto.ClientDto;
 import ru.nesterov.core.service.dto.ClientScheduleDto;
-import ru.nesterov.core.service.dto.UpdatedClientDto;
+import ru.nesterov.core.service.dto.UpdateClientDto;
 import ru.nesterov.core.service.dto.UserDto;
 
 import java.time.LocalDateTime;
@@ -15,8 +15,9 @@ public interface ClientService {
 
     List<ClientDto> getActiveClientsOrderedByPrice(UserDto userDto);
 
-    void deleteClient (UserDto userDto, String nameClient);
-    ClientDto updatedClient (UserDto userDto, UpdatedClientDto updatedClientDto, String lastName);
+    void deleteClient(UserDto userDto, String nameClient);
+
+    ClientDto updateClient(UserDto userDto, UpdateClientDto updateClientDto, String lastName);
 
 }
 
