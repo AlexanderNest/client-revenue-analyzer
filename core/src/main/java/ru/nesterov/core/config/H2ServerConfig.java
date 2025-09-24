@@ -10,19 +10,7 @@ import java.sql.SQLException;
 @Slf4j
 @Configuration
 public class H2ServerConfig {
-    private static final Server server = startServer();
     private static final Server uiServer = startUIServer();
-
-    private static Server startServer() {
-        try {
-            log.info("Starting H2 server with params -tcp -tcpAllowOthers -tcpPort 9092...");
-            Server startedServer = Server.createTcpServer("-tcp", "-tcpAllowOthers", "-tcpPort", "9092").start();
-            log.info("H2 server started");
-            return startedServer;
-        } catch (SQLException e) {
-            throw new RuntimeException(e);
-        }
-    }
 
     private static Server startUIServer() {
         try {
@@ -37,10 +25,6 @@ public class H2ServerConfig {
 
     @PreDestroy
     public void stopServer() {
-        log.info("Stopping H2 server...");
-        server.stop();
-        log.info("H2 server stopped");
-
         log.info("Stopping H2 ui server...");
         uiServer.stop();
         log.info("H2 ui server stopped");
