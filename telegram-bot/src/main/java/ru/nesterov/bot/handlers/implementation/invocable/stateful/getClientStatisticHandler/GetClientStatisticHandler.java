@@ -7,11 +7,11 @@ import org.telegram.telegrambots.meta.api.objects.Update;
 import org.telegram.telegrambots.meta.api.objects.replykeyboard.InlineKeyboardMarkup;
 import org.telegram.telegrambots.meta.api.objects.replykeyboard.buttons.InlineKeyboardButton;
 import ru.nesterov.bot.dto.GetActiveClientResponse;
-import ru.nesterov.bot.dto.GetClientStatisticRequest;
 import ru.nesterov.bot.dto.GetClientStatisticResponse;
 import ru.nesterov.bot.handlers.abstractions.StatefulCommandHandler;
 import ru.nesterov.bot.handlers.callback.ButtonCallback;
 import ru.nesterov.bot.statemachine.dto.Action;
+import ru.nesterov.bot.statemachine.dto.NoMemory;
 import ru.nesterov.bot.utils.TelegramUpdateUtils;
 
 import java.text.NumberFormat;
@@ -22,18 +22,17 @@ import java.util.List;
 import java.util.Locale;
 
 @Component
-public class GetClientStatisticHandler extends StatefulCommandHandler<State, GetClientStatisticRequest> {
-    private static String clientStatisticTemplate;
+public class GetClientStatisticHandler extends StatefulCommandHandler<State, NoMemory> {
     public GetClientStatisticHandler() {
-        super(State.STARTED, GetClientStatisticRequest.class);
+        super(State.STARTED, NoMemory.class);
     }
 
     @Override
     public void initTransitions() {
         stateMachineProvider
-                .addTransition(State.STARTED, Action.COMMAND_INPUT, State.SELECT_CLIENT, this::sendClientNamesKeyboard)
+                .addTransition(State.STARTED, Action.COMMAND_INPUT, State.SELECT_CLIENT, this::handleCommandInputAndSendClientNamesKeyboard)
 
-                .addTransition(State.SELECT_CLIENT, Action.ANY_CALLBACK_INPUT, State.FINISH, this::handleClientName);
+                .addTransition(State.SELECT_CLIENT, Action.ANY_CALLBACK_INPUT, State.FINISH, this::handleClientNameAndSendReport);
     }
 
     @Override
@@ -42,7 +41,7 @@ public class GetClientStatisticHandler extends StatefulCommandHandler<State, Get
     }
 
     @SneakyThrows
-    private List<BotApiMethod<?>> handleClientName(Update update) {
+    private List<BotApiMethod<?>> handleClientNameAndSendReport(Update update) {
         long userId = update.getCallbackQuery().getFrom().getId();
         ButtonCallback buttonCallback = buttonCallbackService.buildButtonCallback(update.getCallbackQuery().getData());
         GetClientStatisticResponse response = client.getClientStatistic(userId, buttonCallback.getValue());
@@ -63,7 +62,7 @@ public class GetClientStatisticHandler extends StatefulCommandHandler<State, Get
     }
 
     @SneakyThrows
-    private List<BotApiMethod<?>> sendClientNamesKeyboard(Update update) {
+    private List<BotApiMethod<?>> handleCommandInputAndSendClientNamesKeyboard(Update update) {
         InlineKeyboardMarkup keyboardMarkup = new InlineKeyboardMarkup();
         List<List<InlineKeyboardButton>> keyboard = new ArrayList<>();
         List<GetActiveClientResponse> clients = client.getActiveClients(TelegramUpdateUtils.getUserId(update));
@@ -113,7 +112,7 @@ public class GetClientStatisticHandler extends StatefulCommandHandler<State, Get
                 "─────────────────────────────" + "\n" +
                 String.format("%s %s", "Описание:", response.getDescription()) + "\n" +
                 String.format("%s %s", "Начало обучения:", dateFormat.format(response.getStartDate())) + "\n" +
-                String.format("%s %s", "Продолжительность обучения:", response.getServiceDuration() + " дней") + "\n" +
+                String.format("%s %s", "Продолжительность обучения:", response.getServiceDuration() + " месяцев") + "\n" +
                 "─────────────────────────────" + "\n" +
                 String.format("%s %s", "Состоявшихся занятий:", successfulHours) + "\n" +
                 String.format("%s %s", "Отмененных занятий:", cancelledHours) + "\n" +

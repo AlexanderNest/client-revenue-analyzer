@@ -3,6 +3,5 @@ package ru.nesterov.bot.handlers.implementation.invocable.stateful.getClientStat
 public enum State {
     STARTED,
     SELECT_CLIENT,
-
     FINISH
 }

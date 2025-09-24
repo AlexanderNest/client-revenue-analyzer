@@ -31,7 +31,6 @@ import ru.nesterov.bot.dto.GetAllUsersByRoleAndSourceRequest;
 import ru.nesterov.bot.dto.GetAllUsersByRoleAndSourceResponse;
 import ru.nesterov.bot.dto.GetClientScheduleResponse;
 import ru.nesterov.bot.dto.GetClientStatisticResponse;
-import ru.nesterov.bot.dto.GetForClientNameRequest;
 import ru.nesterov.bot.dto.GetForClientScheduleRequest;
 import ru.nesterov.bot.dto.GetForMonthRequest;
 import ru.nesterov.bot.dto.GetForYearRequest;
@@ -67,8 +66,6 @@ public class ClientRevenueAnalyzerIntegrationClient {
     }
 
     public GetClientStatisticResponse getClientStatistic(long userId, String clientName){
-        GetForClientNameRequest getForClientNameRequest = new GetForClientNameRequest();
-        getForClientNameRequest.setClientName(clientName);
         LinkedMultiValueMap<String, String> requestParams = new LinkedMultiValueMap<>();
         requestParams.add("clientName", clientName);
 
