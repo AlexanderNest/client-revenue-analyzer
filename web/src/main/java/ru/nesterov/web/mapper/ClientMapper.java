@@ -16,7 +16,7 @@ public class ClientMapper {
                 .description(request.getDescription())
                 .pricePerHour(request.getPricePerHour())
                 .newName(request.getNewName())
-                .idGenerationNeeded(request.isIdGenerationNeeded())
+                .idGenerationNeeded(request.getIdGenerationNeeded())
                 .phone(request.getPhone())
                 .build();
     }

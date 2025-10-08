@@ -7,10 +7,10 @@ import io.swagger.v3.oas.annotations.parameters.RequestBody;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import org.springframework.web.bind.annotation.DeleteMapping;
-import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestHeader;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 import ru.nesterov.web.controller.request.CreateClientRequest;
 import ru.nesterov.web.controller.request.GetClientScheduleRequest;
 import ru.nesterov.web.controller.request.UpdateClientRequest;
@@ -78,8 +78,8 @@ public interface ClientController {
                     @ApiResponse(responseCode = "500", description = "Внутренняя ошибка сервера")
             }
     )
-    @DeleteMapping("/{clientName}")
-    void deleteClient(@RequestHeader(name = "X-username") String username, @PathVariable String clientName);
+    @DeleteMapping
+    void deleteClient(@RequestHeader(name = "X-username") String username, @RequestParam String clientName);
 
 
     @Operation(

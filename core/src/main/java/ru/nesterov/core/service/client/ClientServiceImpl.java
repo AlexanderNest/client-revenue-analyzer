@@ -19,6 +19,7 @@ import ru.nesterov.core.service.dto.ClientScheduleDto;
 import ru.nesterov.core.service.dto.UpdateClientDto;
 import ru.nesterov.core.service.dto.UserDto;
 import ru.nesterov.core.service.mapper.ClientMapper;
+
 import java.time.LocalDateTime;
 import java.util.List;
 
@@ -58,30 +59,14 @@ public class ClientServiceImpl implements ClientService {
     }
 
     public ClientDto createClient(UserDto userDto, ClientDto clientDto, boolean isIdGenerationNeeded) throws ClientDataIntegrityException {
-        List<Client> clientsWithThisName = clientRepository.findAllByExactNameOrNameStartingWithAndEndingWithNumberAndUserId(clientDto.getName(), userDto.getId());
-
-        if (!clientsWithThisName.isEmpty() && !isIdGenerationNeeded) {
-            throw new ClientDataIntegrityException("Клиент с таким именем уже существует");
-        }
-        if (!clientsWithThisName.isEmpty()) {
-            clientDto.setName(clientDto.getName() + " " + (clientsWithThisName.size() + 1));
-        }
+        String uniqueName = generateUniqueClientName(clientDto.getName(), userDto.getId(), isIdGenerationNeeded);
+        clientDto.setName(uniqueName);
 
         User user = userRepository.findByUsername(userDto.getUsername());
-        try {
-            Client forSave = ClientMapper.mapToClient(clientDto);
-            forSave.setUser(user);
-            Client saved = clientRepository.save(forSave);
-            return ClientMapper.mapToClientDto(saved);
-        } catch (DataIntegrityViolationException ex) {
-            String alias = DataIntegrityViolationExceptionHandler.getLocalizedMessage(ex);
+        Client forSave = ClientMapper.mapToClient(clientDto);
+        forSave.setUser(user);
 
-            String message = (alias != null)
-                    ? String.format("%s уже используется", alias)
-                    : "Одно из значений, указанных для этого клиента уже используется";
-
-            throw new ClientDataIntegrityException(message);
-        }
+        return savedNewClient(forSave);
     }
 
     @Override
@@ -103,9 +88,11 @@ public class ClientServiceImpl implements ClientService {
     @Override
     public ClientDto updateClient(UserDto userDto, UpdateClientDto updateClientDto, String lastNameClient) {
         Client clientForUpdate = clientRepository.findClientByNameAndUserId(lastNameClient, userDto.getId()); //нашла клиента с нужными данными по старому имени
+
+
         if (clientForUpdate == null) {
             throw new ClientNotFoundException(lastNameClient);
-    }
+        }
         if (updateClientDto.getNewName() != null){
             clientForUpdate.setName(updateClientDto.getNewName());
         }
@@ -122,7 +109,35 @@ public class ClientServiceImpl implements ClientService {
             clientForUpdate.setPricePerHour(updateClientDto.getPricePerHour());
         }
 
-        Client updatedClient = clientRepository.save(clientForUpdate);
-        return ClientMapper.mapToClientDto(updatedClient);
+        return savedNewClient(clientForUpdate);
+    }
+
+    private String generateUniqueClientName(String baseName, long userId, boolean isIdGenerationNeeded) {
+        List<Client> clientsWithThisName = clientRepository
+                .findAllByExactNameOrNameStartingWithAndEndingWithNumberAndUserId(baseName, userId);
+
+        if (!clientsWithThisName.isEmpty() && !isIdGenerationNeeded) {
+            throw new ClientDataIntegrityException("Клиент с таким именем уже существует");
+        }
+        if (!clientsWithThisName.isEmpty()) {
+            return baseName + " " + (clientsWithThisName.size() + 1);
+        }
+        return baseName;
+    }
+
+
+    private ClientDto savedNewClient(Client client) {
+        try {
+            Client saved = clientRepository.save(client);
+            return ClientMapper.mapToClientDto(saved);
+        } catch (DataIntegrityViolationException ex) {
+            String alias = DataIntegrityViolationExceptionHandler.getLocalizedMessage(ex);
+
+            String message = (alias != null)
+                    ? String.format("%s уже используется", alias)
+                    : "Одно из значений, указанных для этого клиента уже используется";
+
+            throw new ClientDataIntegrityException(message);
+        }
     }
 }

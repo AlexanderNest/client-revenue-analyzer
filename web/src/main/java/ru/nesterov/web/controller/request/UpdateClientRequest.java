@@ -8,8 +8,8 @@ public class UpdateClientRequest {
     @NotBlank(message = "Поле не может быть пустым")
     private String clientName;
     private String newName;
-    private int pricePerHour;
+    private Integer pricePerHour;
     private String description;
-    private boolean idGenerationNeeded;
+    private Boolean idGenerationNeeded;
     private String phone;
 }

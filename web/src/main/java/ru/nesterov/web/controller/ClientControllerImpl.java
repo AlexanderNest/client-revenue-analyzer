@@ -60,7 +60,7 @@ public class ClientControllerImpl implements ClientController {
     }
 
     @Override
-    public ClientResponse updateClient(String username, UpdateClientRequest updateClientRequest) {
+    public ClientResponse updateClient(String username, @RequestBody UpdateClientRequest updateClientRequest) {
         UpdateClientDto updateClientDto = ClientMapper.mapToUpdatedClientDto(updateClientRequest);
         ClientDto clientDto = clientService.updateClient(userService.getUserByUsername(username), updateClientDto, updateClientRequest.getClientName());
         return ClientMapper.mapToClientResponse(clientDto);

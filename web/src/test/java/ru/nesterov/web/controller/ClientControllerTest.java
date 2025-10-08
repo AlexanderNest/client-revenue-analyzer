@@ -10,6 +10,7 @@ import ru.nesterov.core.entity.Client;
 import ru.nesterov.core.entity.User;
 import ru.nesterov.web.controller.request.CreateClientRequest;
 import ru.nesterov.web.controller.request.GetClientScheduleRequest;
+import ru.nesterov.web.controller.request.UpdateClientRequest;
 
 import java.time.LocalDateTime;
 import java.util.List;
@@ -18,6 +19,7 @@ import static org.hamcrest.Matchers.hasSize;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.when;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.delete;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
@@ -111,6 +113,92 @@ class ClientControllerTest extends AbstractControllerTest {
                 .andExpect(status().is(409));
     }
 
+    @Test
+    void deleteUser() throws Exception {
+        User user = new User();
+        user.setUsername("testUser5");
+        user.setMainCalendar("mainCalendar");
+        user.setCancelledCalendar("cancelCalendar");
+        user = userRepository.save(user);
+
+        Client client = new Client();
+        client.setActive(true);
+        client.setName("toDelete");
+        client.setDescription("deleteDesc");
+        client.setPricePerHour(300);
+        client.setUser(user);
+        client = clientRepository.save(client);
+
+        mockMvc.perform(
+                        delete("/client/{clientName}", client.getName())
+                                .header("X-username", user.getUsername())
+                                .contentType(MediaType.APPLICATION_JSON)
+                )
+                .andExpect(status().isOk());
+
+    }
+
+    @Test
+    void deleteClient() throws Exception {
+        User user = new User();
+        user.setUsername("testUser6");
+        user.setMainCalendar("mainCalendar");
+        user.setCancelledCalendar("cancelCalendar");
+        user = userRepository.save(user);
+
+        Client client = new Client();
+        client.setActive(true);
+        client.setName("toDelete");
+        client.setDescription("deleteDesc");
+        client.setPricePerHour(300);
+        client.setUser(user);
+        client = clientRepository.save(client);
+
+        mockMvc.perform(
+                        delete("/client/" + client.getName())
+                                .header("X-username", user.getUsername())
+                )
+                .andExpect(status().isOk());
+
+    }
+
+    @Test
+    void updateClient() throws Exception {
+        User user = new User();
+        user.setUsername("testUser7");
+        user.setMainCalendar("mainCalendar");
+        user.setCancelledCalendar("cancelCalendar");
+        user = userRepository.save(user);
+
+        Client client = new Client();
+        client.setActive(true);
+        client.setName("oldName");
+        client.setDescription("oldDesc");
+        client.setPhone("89000000000");
+        client.setPricePerHour(500);
+        client.setUser(user);
+        client = clientRepository.save(client);
+
+        UpdateClientRequest updateRequest = new UpdateClientRequest();
+        updateRequest.setClientName("oldName");
+        updateRequest.setNewName("newName");
+        updateRequest.setDescription("newDesc");
+        updateRequest.setPhone("89999999999");
+        updateRequest.setPricePerHour(1000);
+        updateRequest.setIdGenerationNeeded(false);
+
+        mockMvc.perform(
+                        post("/client/update")
+                                .header("X-username", user.getUsername())
+                                .contentType(MediaType.APPLICATION_JSON)
+                                .content(objectMapper.writeValueAsString(updateRequest))
+                )
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.name").value("newName"))
+                .andExpect(jsonPath("$.description").value("newDesc"))
+                .andExpect(jsonPath("$.phone").value("89999999999"))
+                .andExpect(jsonPath("$.pricePerHour").value(1000));
+    }
     @Test
     void createClientWithTheSameNameWithIdGeneration() throws Exception {
         User user = new User();

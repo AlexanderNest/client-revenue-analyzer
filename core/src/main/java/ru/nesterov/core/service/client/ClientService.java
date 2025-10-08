@@ -15,7 +15,7 @@ public interface ClientService {
 
     List<ClientDto> getActiveClientsOrderedByPrice(UserDto userDto);
 
-    void deleteClient(UserDto userDto, String nameClient);
+    void deleteClient(UserDto userDto, String clientName);
 
     ClientDto updateClient(UserDto userDto, UpdateClientDto updateClientDto, String lastName);
 

@@ -1,42 +1,11 @@
 {
 	"info": {
-		"_postman_id": "3cee6dee-105a-4fab-9d9b-e2220b61db58",
+		"_postman_id": "5b011e56-6b62-4a00-8db5-9a9d518a1dd2",
 		"name": "google-calendar-clients-analyzer",
 		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
-		"_exporter_id": "35186334"
+		"_exporter_id": "37609741"
 	},
 	"item": [
-		{
-			"name": "Удалить клиента",
-			"request": {
-				"method": "DELETE",
-				"header": [
-					{
-						"key": "X-username",
-						"value": "{{X-username}}",
-						"type": "text"
-					},
-					{
-						"key": "X-secret-token",
-						"value": "{{X-secret-token}}",
-						"type": "text"
-					}
-				],
-				"url": {
-					"raw": "localhost:8080/revenue-analyzer/client/delete?id=123",
-					"host": ["localhost"],
-					"port": "8080",
-					"path": ["client", "delete"],
-					"query": [
-						{
-							"key": "id",
-							"value": "123"
-						}
-					]
-				}
-			},
-			"response": []
-		},
 		{
 			"name": "Клиенты",
 			"item": [
@@ -231,6 +200,83 @@
 									"key": "clientName",
 									"value": "Гриша"
 								}
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Удалить клиента",
+					"request": {
+						"method": "DELETE",
+						"header": [
+							{
+								"key": "X-username",
+								"value": "{{X-username}}",
+								"type": "text"
+							},
+							{
+								"key": "X-secret-token",
+								"value": "{{X-secret-token}}",
+								"type": "text"
+							}
+						],
+						"url": {
+							"raw": "http://localhost:8080/revenue-analyzer/client?clientName=C new",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "8080",
+							"path": [
+								"revenue-analyzer",
+								"client"
+							],
+							"query": [
+								{
+									"key": "clientName",
+									"value": "C new"
+								}
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Обновить клиента",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "X-username",
+								"value": "{{X-username}}",
+								"type": "text"
+							},
+							{
+								"key": "X-secret-token",
+								"value": "{{X-secret-token}}",
+								"type": "text"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"clientName\" : \"C new\",\n    \"newName\": \"newName\",\n    \"description\" : \"description 2\"\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "localhost:8081/revenue-analyzer/client/update",
+							"host": [
+								"localhost"
+							],
+							"port": "8081",
+							"path": [
+								"revenue-analyzer",
+								"client",
+								"update"
 							]
 						}
 					},
@@ -493,47 +539,6 @@
 			]
 		},
 		{
-          "name": "Получить всех пользователей по роли и источнику",
-          "request": {
-            "method": "POST",
-            "header": [
-              {
-                "key": "X-secret-token",
-                "value": "{{X-secret-token}}",
-                "type": "text"
-              },
-              {
-                "key": "X-username",
-                "value": "{{X-username}}",
-                "type": "text"
-              }
-            ],
-            "body": {
-              "mode": "raw",
-              "raw": "{\r\n    \"role\": \"admin\",\r\n    \"source\": \"internal\"\r\n}",
-              "options": {
-                "raw": {
-                  "language": "json"
-                }
-              }
-            },
-            "url": {
-              "raw": "http://localhost:8080/revenue-analyzer/user/getUsersIdByRoleAndSource",
-              "protocol": "http",
-              "host": [
-                "localhost"
-              ],
-              "port": "8080",
-              "path": [
-                "revenue-analyzer",
-                "user",
-                "getUsersIdByRoleAndSource"
-              ]
-            }
-          },
-          "response": []
-        },
-      {
 			"name": "Бэкап встреч",
 			"item": [
 				{
@@ -614,6 +619,53 @@
 					"response": []
 				}
 			]
+		},
+		{
+			"name": "Получить всех пользователей по роли и источнику",
+			"request": {
+				"method": "POST",
+				"header": [
+					{
+						"key": "X-secret-token",
+						"value": "{{X-secret-token}}",
+						"type": "text"
+					},
+					{
+						"key": "X-username",
+						"value": "{{X-username}}",
+						"type": "text"
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "{\r\n    \"role\": \"admin\",\r\n    \"source\": \"internal\"\r\n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "http://localhost:8080/revenue-analyzer/user/getUsersIdByRoleAndSource",
+					"protocol": "http",
+					"host": [
+						"localhost"
+					],
+					"port": "8080",
+					"path": [
+						"revenue-analyzer",
+						"user",
+						"getUsersIdByRoleAndSource"
+					]
+				}
+			},
+			"response": []
+		}
+	],
+	"variable": [
+		{
+			"key": "X-secret-token",
+			"value": "secret-token"
 		}
 	]
 }
