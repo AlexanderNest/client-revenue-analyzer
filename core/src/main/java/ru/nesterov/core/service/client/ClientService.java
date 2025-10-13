@@ -13,5 +13,4 @@ public interface ClientService {
     List<ClientScheduleDto> getClientSchedule(UserDto userDto, String clientName, LocalDateTime leftDate, LocalDateTime rightDate);
 
     List<ClientDto> getActiveClientsOrderedByPrice(UserDto userDto);
-
 }
