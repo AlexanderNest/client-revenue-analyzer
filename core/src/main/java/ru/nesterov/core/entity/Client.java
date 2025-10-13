@@ -1,17 +1,11 @@
 package ru.nesterov.core.entity;
 
-import jakarta.persistence.Entity;
-import jakarta.persistence.GeneratedValue;
-import jakarta.persistence.GenerationType;
-import jakarta.persistence.Id;
-import jakarta.persistence.JoinColumn;
-import jakarta.persistence.ManyToOne;
-import jakarta.persistence.SequenceGenerator;
-import jakarta.persistence.Table;
+import jakarta.persistence.*;
 import lombok.Data;
 import org.hibernate.annotations.CreationTimestamp;
 
 import java.util.Date;
+import java.util.List;
 
 @Entity
 @Data
@@ -33,4 +27,8 @@ public class Client {
     @CreationTimestamp
     private Date startDate;
     private String phone;
+
+    @OneToMany(fetch = FetchType.LAZY)
+    @JoinColumn(name = "CLIENT_ID")
+    private List<PriceChangeHistory> priceChangeHistory;
 }

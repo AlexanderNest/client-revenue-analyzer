@@ -11,6 +11,7 @@ import ru.nesterov.core.entity.Client;
 import ru.nesterov.core.exception.ClientNotFoundException;
 import ru.nesterov.core.exception.UnknownEventStatusException;
 import ru.nesterov.core.repository.ClientRepository;
+import ru.nesterov.core.service.client.ClientService;
 import ru.nesterov.core.service.date.helper.MonthDatesPair;
 import ru.nesterov.core.service.date.helper.MonthHelper;
 import ru.nesterov.core.service.date.helper.WeekHelper;
@@ -34,6 +35,7 @@ public class EventsAnalyzerServiceImpl implements EventsAnalyzerService {
     private final ClientRepository clientRepository;
     private final EventsAnalyzerProperties eventsAnalyzerProperties;
     private final EventService eventService;
+    private final ClientService clientService;
 
     @Nullable
     public ClientMeetingsStatistic getStatisticsByClientMeetings(UserDto userDto, String clientName) {
@@ -68,7 +70,7 @@ public class EventsAnalyzerServiceImpl implements EventsAnalyzerService {
                     throw new ClientNotFoundException(eventDto.getSummary());
                 }
 
-                clientMeetingsStatistic = new ClientMeetingsStatistic(client.getPricePerHour());
+                clientMeetingsStatistic = new ClientMeetingsStatistic(client.getPricePerHour()); //TODO тут именно эта цена, чтобы просто показать текущую цену. Но надо доработать и сделать так, чтобы указывались изменения по стоимости
                 clientMeetingsStatistic.setName(client.getName());
                 clientMeetingsStatistic.setId(client.getId());
                 clientMeetingsStatistic.setDescription(client.getDescription());
@@ -93,7 +95,9 @@ public class EventsAnalyzerServiceImpl implements EventsAnalyzerService {
         double eventDuration = eventService.getEventDuration(eventDto);
         clientMeetingsStatistic.increaseSuccessfulHours(eventDuration);
         clientMeetingsStatistic.increaseSuccessfulEvents(1);
-        clientMeetingsStatistic.increaseIncome(client.getPricePerHour() * eventDuration);
+
+        double actualPricePerHourForDate = eventService.getEventIncome(client, eventDto);
+        clientMeetingsStatistic.increaseIncome(actualPricePerHourForDate * eventDuration);
     }
 
     private void handlePlannedCancelledEvent(ClientMeetingsStatistic clientMeetingsStatistic, EventDto eventDto){
@@ -128,7 +132,7 @@ public class EventsAnalyzerServiceImpl implements EventsAnalyzerService {
                 throw new ClientNotFoundException(eventDto.getSummary(), eventDto.getStart());
             }
 
-            double eventPrice = eventService.getEventIncome(userDto, eventDto);
+            double eventPrice = eventService.getEventIncome(client, eventDto);
             potentialIncome += eventPrice;
 
             if (eventStatus == EventStatus.SUCCESS) {
