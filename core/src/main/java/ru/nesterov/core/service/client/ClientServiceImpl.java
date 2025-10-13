@@ -9,7 +9,6 @@ import ru.nesterov.calendar.integration.dto.EventStatus;
 import ru.nesterov.calendar.integration.dto.EventsFilter;
 import ru.nesterov.calendar.integration.service.CalendarService;
 import ru.nesterov.core.entity.Client;
-import ru.nesterov.core.entity.PriceChangeHistory;
 import ru.nesterov.core.entity.User;
 import ru.nesterov.core.exception.ClientDataIntegrityException;
 import ru.nesterov.core.exception.ClientNotFoundException;
@@ -20,7 +19,6 @@ import ru.nesterov.core.service.dto.ClientScheduleDto;
 import ru.nesterov.core.service.dto.UserDto;
 import ru.nesterov.core.service.mapper.ClientMapper;
 import java.time.LocalDateTime;
-import java.util.Comparator;
 import java.util.List;
 
 @Service
