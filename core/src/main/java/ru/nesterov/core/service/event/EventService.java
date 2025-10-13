@@ -8,8 +8,6 @@ import ru.nesterov.calendar.integration.dto.EventExtensionDto;
 import ru.nesterov.core.entity.Client;
 import ru.nesterov.core.entity.PriceChangeHistory;
 import ru.nesterov.core.exception.ClientNotFoundException;
-import ru.nesterov.core.repository.ClientRepository;
-import ru.nesterov.core.service.dto.UserDto;
 
 import java.time.Duration;
 import java.time.LocalDateTime;
@@ -19,8 +17,6 @@ import java.util.Comparator;
 @Slf4j
 @AllArgsConstructor
 public class EventService {
-    private final ClientRepository clientRepository;
-    
     public double getEventIncome(Client client, EventDto eventDto) {
         if (client == null) {
             throw new ClientNotFoundException(eventDto.getSummary(), eventDto.getStart());
@@ -43,7 +39,7 @@ public class EventService {
                 .filter(pch -> pch.getChangeDate().isAfter(dateTime))
                 .min(Comparator.comparing(PriceChangeHistory::getChangeDate))
                 .map(PriceChangeHistory::getPreviousPrice)
-                .orElseThrow(() -> new RuntimeException("Something goes wrong while calculating a price for an event"));
+                .orElse(client.getPricePerHour());
     }
 
 
