@@ -87,7 +87,7 @@ public interface ClientController {
            description = "Обновляет данные клиента и возвращает данные о нем",
             requestBody = @RequestBody(
                     description = "Запрос для обновление клиента",
-                    required = true // описать pathVar
+                    required = true
             ),
             responses = {
                     @ApiResponse(responseCode = "200", description = "Успешный ответ"),
