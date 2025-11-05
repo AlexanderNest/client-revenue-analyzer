@@ -19,4 +19,3 @@ public interface ClientService {
 
     ClientDto updateClient(UserDto userDto, UpdateClientDto updateClientDto, String lastName);
 }
-
