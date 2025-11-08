@@ -24,7 +24,8 @@ public class SecretTokenFilter implements Filter {
 
     private final List<String> excludedEndpointGroups = List.of(
             "/swagger-ui",
-            "/api-docs"
+            "/api-docs",
+            "/h2-console"
     );
 
     public SecretTokenFilter(@Value("${app.secret-token}") String token, @Value("${app.secret-token.enabled}") boolean secretTokenEnabled) {
