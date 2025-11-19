@@ -178,8 +178,22 @@ public class ClientRevenueAnalyzerIntegrationClient {
         );
     }
 
+    public ResponseEntity<Void> deleteClient(long userId, String clientName) {
+        MultiValueMap<String, String> params = new LinkedMultiValueMap<>();
+        params.add("clientName", clientName);
+
+        return delete(String.valueOf(userId),
+                params,
+                "/revenue-analyzer/client"
+        );
+    }
+
     private <T> ResponseEntity<T> get(String username, MultiValueMap<String, String> requestParams , String endpoint, Class<T> responseType) {
         return exchange(username, requestParams, null, endpoint, responseType, HttpMethod.GET);
+    }
+
+    private ResponseEntity<Void> delete(String username, MultiValueMap<String, String> requestParams , String endpoint) {
+        return exchange(username, requestParams, null, endpoint, Void.class, HttpMethod.DELETE);
     }
 
     public GetAllUsersByRoleAndSourceResponse getUsersIdByRoleAndSource(long chatId, Role role, String source) {

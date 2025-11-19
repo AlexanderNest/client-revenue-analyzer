@@ -1,6 +1,7 @@
 package ru.nesterov.bot.handlers.implementation.invocable.stateful.deleteClient;
 
 import lombok.SneakyThrows;
+import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Component;
 import org.telegram.telegrambots.meta.api.methods.BotApiMethod;
 import org.telegram.telegrambots.meta.api.objects.Update;
@@ -17,10 +18,10 @@ import java.util.Comparator;
 import java.util.List;
 
 @Component
-public class DeleteClientHandler extends StatefulCommandHandler<State, String> {
+public class DeleteClientHandler extends StatefulCommandHandler<State, DeleteClientDto> {
 
     public DeleteClientHandler() {
-        super(State.STARTED, String.class);
+        super(State.STARTED, DeleteClientDto.class);
     }
     @Override
     public String getCommand() {
@@ -31,11 +32,9 @@ public class DeleteClientHandler extends StatefulCommandHandler<State, String> {
     protected void initTransitions() {
         stateMachineProvider
                 .addTransition(State.STARTED, Action.COMMAND_INPUT, State.SELECT_CLIENT, this::handleCommandInputAndSendClientNamesKeyboard)
-
-                .addTransition(State.SELECT_CLIENT, Action.ANY_CALLBACK_INPUT, State.APPROVE_DELETING, this::handleClientNameAndRequestApprovement);
-//                .addTransition(State.APPROVE_DELETING, Action.CALLBACK_TRUE, State.FINISH, this::handleFirstDate)
-//                .addTransition(State.APPROVE_DELETING, Action.CALLBACK_FALSE, State.FINISH, this::handleCallbackPrev);
-
+                .addTransition(State.SELECT_CLIENT, Action.ANY_CALLBACK_INPUT, State.APPROVE_DELETING, this::handleClientNameAndRequestApprovement)
+                .addTransition(State.APPROVE_DELETING, Action.CALLBACK_TRUE, State.FINISH, this::handleDeleteClient)
+                .addTransition(State.APPROVE_DELETING, Action.CALLBACK_FALSE, State.FINISH, this::handleDeleteCanceling);
     }
 
     @SneakyThrows
@@ -64,11 +63,35 @@ public class DeleteClientHandler extends StatefulCommandHandler<State, String> {
         }
         keyboardMarkup.setKeyboard(keyboard);
 
-        return getReplyKeyboard(TelegramUpdateUtils.getChatId(update), "Выберите клиента, для которого хотите получить расписание:", keyboardMarkup);
+        return getReplyKeyboard(TelegramUpdateUtils.getChatId(update), "Выберите клиента для удаления:", keyboardMarkup);
     }
 
     private List<BotApiMethod<?>> handleClientNameAndRequestApprovement(Update update){
-        System.out.println();
-        return null;
+        ButtonCallback buttonCallback = buttonCallbackService.buildButtonCallback(update.getCallbackQuery().getData());
+        getStateMachine(update).getMemory().setClientName(buttonCallback.getValue());
+
+        InlineKeyboardMarkup keyboardMarkup = new InlineKeyboardMarkup();
+        List<List<InlineKeyboardButton>> keyboard = new ArrayList<>();
+        List<InlineKeyboardButton> rowInline = new ArrayList<>();
+        rowInline.add(buildButton("Да", "true", getCommand()));
+        rowInline.add(buildButton("Нет", "false", getCommand()));
+        keyboard.add(rowInline);
+        keyboardMarkup.setKeyboard(keyboard);
+        return getReplyKeyboard(TelegramUpdateUtils.getChatId(update), "Подтвердите удаление", keyboardMarkup);
+    }
+
+    private List<BotApiMethod<?>> handleDeleteClient(Update update) {
+        ResponseEntity<Void> response = client.deleteClient(TelegramUpdateUtils.getUserId(update),
+                getStateMachine(update).getMemory().getClientName());
+        return getPlainSendMessage(TelegramUpdateUtils.getChatId(update), formatDeleteUserResponse(getStateMachine(update).getMemory().getClientName()));
+    }
+
+    private String formatDeleteUserResponse(String clientName) {
+        return String.join(System.lineSeparator(),
+                "Пользователь " + clientName + " успешно удален.");
+    }
+
+    private List<BotApiMethod<?>> handleDeleteCanceling(Update update) {
+        return editMessage(TelegramUpdateUtils.getChatId(update), TelegramUpdateUtils.getMessageId(update), "Пользователь не удален.", null);
     }
 }

@@ -30,10 +30,9 @@ import java.util.stream.Collectors;
 @Component
 public class GetClientScheduleCommandHandler extends StatefulCommandHandler<State, GetClientScheduleRequest> {
 
-    private final InlineCalendarBuilder inlineCalendarBuilder;
-
     private static final String ENTER_FIRST_DATE = "Введите первую дату";
     private static final String ENTER_SECOND_DATE = "Введите вторую дату";
+    private final InlineCalendarBuilder inlineCalendarBuilder;
 
     public GetClientScheduleCommandHandler(InlineCalendarBuilder inlineCalendarBuilder) {
         super(State.STARTED, GetClientScheduleRequest.class);
