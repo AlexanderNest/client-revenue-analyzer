@@ -1,7 +1,6 @@
 package ru.nesterov.bot.handlers.implementation.invocable.stateful.deleteClient;
 
 import lombok.SneakyThrows;
-import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Component;
 import org.telegram.telegrambots.meta.api.methods.BotApiMethod;
 import org.telegram.telegrambots.meta.api.objects.Update;

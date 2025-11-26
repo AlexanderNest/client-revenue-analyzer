@@ -114,7 +114,7 @@ class ClientControllerTest extends AbstractControllerTest {
     }
 
     @Test
-    void deleteUser() throws Exception {
+    void deleteClient() throws Exception {
         User user = new User();
         user.setUsername("testUser5");
         user.setMainCalendar("mainCalendar");
@@ -130,7 +130,8 @@ class ClientControllerTest extends AbstractControllerTest {
         client = clientRepository.save(client);
 
         mockMvc.perform(
-                        delete("/client/{clientName}", client.getName())
+                        delete("/client")
+                                .param("clientName", client.getName())
                                 .header("X-username", user.getUsername())
                                 .contentType(MediaType.APPLICATION_JSON)
                 )
@@ -138,26 +139,21 @@ class ClientControllerTest extends AbstractControllerTest {
     }
 
     @Test
-    void deleteClient() throws Exception {
+    void deleteNotExistingClient() throws Exception {
         User user = new User();
         user.setUsername("testUser6");
         user.setMainCalendar("mainCalendar");
         user.setCancelledCalendar("cancelCalendar");
         user = userRepository.save(user);
 
-        Client client = new Client();
-        client.setActive(true);
-        client.setName("toDelete");
-        client.setDescription("deleteDesc");
-        client.setPricePerHour(300);
-        client.setUser(user);
-        client = clientRepository.save(client);
+        String nonExistentClientName = "nonExistentClient";
 
         mockMvc.perform(
-                        delete("/client/" + client.getName())
+                        delete("/client" + nonExistentClientName)
+                                .param("clientName", nonExistentClientName)
                                 .header("X-username", user.getUsername())
                 )
-                .andExpect(status().isOk());
+                .andExpect(status().isNotFound());
     }
 
     @Test
@@ -175,7 +171,7 @@ class ClientControllerTest extends AbstractControllerTest {
         client.setPhone("89000000000");
         client.setPricePerHour(500);
         client.setUser(user);
-        client = clientRepository.save(client);
+        clientRepository.save(client);
 
         UpdateClientRequest updateRequest = new UpdateClientRequest();
         updateRequest.setClientName("oldName");
@@ -192,10 +188,10 @@ class ClientControllerTest extends AbstractControllerTest {
                                 .content(objectMapper.writeValueAsString(updateRequest))
                 )
                 .andExpect(status().isOk())
-                .andExpect(jsonPath("$.name").value("newName"))
-                .andExpect(jsonPath("$.description").value("newDesc"))
-                .andExpect(jsonPath("$.phone").value("89999999999"))
-                .andExpect(jsonPath("$.pricePerHour").value(1000));
+                .andExpect(jsonPath("$.name").value(updateRequest.getClientName()))
+                .andExpect(jsonPath("$.description").value(updateRequest.getDescription()))
+                .andExpect(jsonPath("$.phone").value(updateRequest.getPhone()))
+                .andExpect(jsonPath("$.pricePerHour").value(updateRequest.getPricePerHour()));
     }
 
     @Test
