@@ -108,46 +108,4 @@ public abstract class StatefulCommandHandler<STATE extends Enum<STATE>, MEMORY> 
 
         return super.isApplicable(update);
     }
-
-    @SneakyThrows
-    public List<BotApiMethod<?>> handleCommandInputAndSendClientNamesKeyboard(Update update, String text) {
-        InlineKeyboardMarkup keyboardMarkup = new InlineKeyboardMarkup();
-        List<List<InlineKeyboardButton>> keyboard = new ArrayList<>();
-        List<GetActiveClientResponse> clients = client.getActiveClients(TelegramUpdateUtils.getUserId(update));
-
-        if (clients.isEmpty()) {
-            return getPlainSendMessage(TelegramUpdateUtils.getChatId(update), "Нет доступных клиентов");
-        }
-
-        clients.sort(Comparator.comparing(GetActiveClientResponse::getName, String.CASE_INSENSITIVE_ORDER));
-
-        for (GetActiveClientResponse response : clients) {
-            InlineKeyboardButton button = new InlineKeyboardButton();
-            button.setText(response.getName());
-            ButtonCallback callback = new ButtonCallback();
-            callback.setCommand(getCommand());
-            callback.setValue(response.getName());
-            button.setCallbackData(buttonCallbackService.getTelegramButtonCallbackString(callback));
-
-            List<InlineKeyboardButton> rowInline = new ArrayList<>();
-            rowInline.add(button);
-            keyboard.add(rowInline);
-        }
-        keyboardMarkup.setKeyboard(keyboard);
-
-        return getReplyKeyboard(TelegramUpdateUtils.getChatId(update), text, keyboardMarkup);
-    }
-
-    public List<BotApiMethod<?>> handleApproveKeyBoard(Update update, String message) {
-        InlineKeyboardMarkup keyboardMarkup = new InlineKeyboardMarkup();
-        List<List<InlineKeyboardButton>> keyboard = new ArrayList<>();
-        List<InlineKeyboardButton> rowInline = new ArrayList<>();
-        rowInline.add(buildButton("Да", "true", getCommand()));
-        rowInline.add(buildButton("Нет", "false", getCommand()));
-        keyboard.add(rowInline);
-        keyboardMarkup.setKeyboard(keyboard);
-        return getReplyKeyboard(TelegramUpdateUtils.getChatId(update), message, keyboardMarkup);
-    }
-
-
 }
