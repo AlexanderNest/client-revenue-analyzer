@@ -23,6 +23,7 @@ public class DeleteClientHandler extends StatefulCommandHandler<State, DeleteCli
     public DeleteClientHandler() {
         super(State.STARTED, DeleteClientDto.class);
     }
+
     @Override
     public String getCommand() {
         return "Удалить клиента";
@@ -66,7 +67,7 @@ public class DeleteClientHandler extends StatefulCommandHandler<State, DeleteCli
         return getReplyKeyboard(TelegramUpdateUtils.getChatId(update), "Выберите клиента для удаления:", keyboardMarkup);
     }
 
-    private List<BotApiMethod<?>> handleClientNameAndRequestApprovement(Update update){
+    private List<BotApiMethod<?>> handleClientNameAndRequestApprovement(Update update) {
         ButtonCallback buttonCallback = buttonCallbackService.buildButtonCallback(update.getCallbackQuery().getData());
         getStateMachine(update).getMemory().setClientName(buttonCallback.getValue());
 
