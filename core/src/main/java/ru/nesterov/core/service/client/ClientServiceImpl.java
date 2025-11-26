@@ -66,7 +66,7 @@ public class ClientServiceImpl implements ClientService {
         Client forSave = ClientMapper.mapToClient(clientDto);
         forSave.setUser(user);
 
-        return savedNewClient(forSave);
+        return saveClient(forSave);
     }
 
     @Override
@@ -86,13 +86,13 @@ public class ClientServiceImpl implements ClientService {
     }
 
     @Override
-    public ClientDto updateClient(UserDto userDto, UpdateClientDto updateClientDto, String lastNameClient) {
-        Client clientForUpdate = clientRepository.findClientByNameAndUserId(lastNameClient, userDto.getId()); //нашла клиента с нужными данными по старому имени
-
+    public ClientDto updateClient(UserDto userDto, UpdateClientDto updateClientDto) {
+        Client clientForUpdate = clientRepository.findClientByNameAndUserId(updateClientDto.getOldClientName(), userDto.getId());
 
         if (clientForUpdate == null) {
-            throw new ClientNotFoundException(lastNameClient);
+            throw new ClientNotFoundException(updateClientDto.getOldClientName());
         }
+
         if (updateClientDto.getNewName() != null){
             clientForUpdate.setName(updateClientDto.getNewName());
         }
@@ -109,7 +109,7 @@ public class ClientServiceImpl implements ClientService {
             clientForUpdate.setPricePerHour(updateClientDto.getPricePerHour());
         }
 
-        return savedNewClient(clientForUpdate);
+        return saveClient(clientForUpdate);
     }
 
     private String generateUniqueClientName(String baseName, long userId, boolean isIdGenerationNeeded) {
@@ -126,7 +126,7 @@ public class ClientServiceImpl implements ClientService {
     }
 
 
-    private ClientDto savedNewClient(Client client) {
+    private ClientDto saveClient(Client client) {
         try {
             Client saved = clientRepository.save(client);
             return ClientMapper.mapToClientDto(saved);

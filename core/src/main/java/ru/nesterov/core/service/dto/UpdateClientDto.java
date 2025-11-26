@@ -6,9 +6,9 @@ import lombok.Data;
 @Data
 @Builder
 public class UpdateClientDto {
+    private String oldClientName;
     private String newName;
     private Integer pricePerHour;
     private String description;
-    private Boolean idGenerationNeeded;
     private String phone;
 }
