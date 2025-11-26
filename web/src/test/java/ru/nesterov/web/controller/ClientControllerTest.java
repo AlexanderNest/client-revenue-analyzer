@@ -188,7 +188,7 @@ class ClientControllerTest extends AbstractControllerTest {
                                 .content(objectMapper.writeValueAsString(updateRequest))
                 )
                 .andExpect(status().isOk())
-                .andExpect(jsonPath("$.name").value(updateRequest.getClientName()))
+                .andExpect(jsonPath("$.name").value(updateRequest.getNewName()))
                 .andExpect(jsonPath("$.description").value(updateRequest.getDescription()))
                 .andExpect(jsonPath("$.phone").value(updateRequest.getPhone()))
                 .andExpect(jsonPath("$.pricePerHour").value(updateRequest.getPricePerHour()));
