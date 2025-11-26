@@ -116,7 +116,7 @@ class ClientControllerTest extends AbstractControllerTest {
     @Test
     void deleteClient() throws Exception {
         User user = new User();
-        user.setUsername("testUser5");
+        user.setUsername("testUser15");
         user.setMainCalendar("mainCalendar");
         user.setCancelledCalendar("cancelCalendar");
         user = userRepository.save(user);
