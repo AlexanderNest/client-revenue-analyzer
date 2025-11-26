@@ -4,16 +4,11 @@ import lombok.SneakyThrows;
 import org.springframework.stereotype.Component;
 import org.telegram.telegrambots.meta.api.methods.BotApiMethod;
 import org.telegram.telegrambots.meta.api.objects.Update;
-import org.telegram.telegrambots.meta.api.objects.replykeyboard.InlineKeyboardMarkup;
-import org.telegram.telegrambots.meta.api.objects.replykeyboard.buttons.InlineKeyboardButton;
-import ru.nesterov.bot.dto.GetActiveClientResponse;
 import ru.nesterov.bot.handlers.abstractions.StatefulCommandHandler;
 import ru.nesterov.bot.handlers.callback.ButtonCallback;
 import ru.nesterov.bot.statemachine.dto.Action;
 import ru.nesterov.bot.utils.TelegramUpdateUtils;
 
-import java.util.ArrayList;
-import java.util.Comparator;
 import java.util.List;
 
 @Component
@@ -40,46 +35,15 @@ public class DeleteClientHandler extends StatefulCommandHandler<State, DeleteCli
     }
 
     @SneakyThrows
-    private List<BotApiMethod<?>> handleCommandInputAndSendClientNamesKeyboard(Update update) {
-        InlineKeyboardMarkup keyboardMarkup = new InlineKeyboardMarkup();
-        List<List<InlineKeyboardButton>> keyboard = new ArrayList<>();
-        List<GetActiveClientResponse> clients = client.getActiveClients(TelegramUpdateUtils.getUserId(update));
-
-        if (clients.isEmpty()) {
-            return getPlainSendMessage(TelegramUpdateUtils.getChatId(update), "Нет доступных клиентов");
-        }
-
-        clients.sort(Comparator.comparing(GetActiveClientResponse::getName, String.CASE_INSENSITIVE_ORDER));
-
-        for (GetActiveClientResponse response : clients) {
-            InlineKeyboardButton button = new InlineKeyboardButton();
-            button.setText(response.getName());
-            ButtonCallback callback = new ButtonCallback();
-            callback.setCommand(getCommand());
-            callback.setValue(response.getName());
-            button.setCallbackData(buttonCallbackService.getTelegramButtonCallbackString(callback));
-
-            List<InlineKeyboardButton> rowInline = new ArrayList<>();
-            rowInline.add(button);
-            keyboard.add(rowInline);
-        }
-        keyboardMarkup.setKeyboard(keyboard);
-
-        return getReplyKeyboard(TelegramUpdateUtils.getChatId(update), "Выберите клиента для удаления:", keyboardMarkup);
+    public List<BotApiMethod<?>> handleCommandInputAndSendClientNamesKeyboard(Update update) {
+        return handleCommandInputAndSendClientNamesKeyboard(update, "Выберите клиента для удаления:");
     }
 
+    @SneakyThrows
     private List<BotApiMethod<?>> handleClientNameAndRequestApprove(Update update) {
         ButtonCallback buttonCallback = buttonCallbackService.buildButtonCallback(update.getCallbackQuery().getData());
         getStateMachine(update).getMemory().setClientName(buttonCallback.getValue());
-
-        InlineKeyboardMarkup keyboardMarkup = new InlineKeyboardMarkup();
-        List<List<InlineKeyboardButton>> keyboard = new ArrayList<>();
-        List<InlineKeyboardButton> rowInline = new ArrayList<>();
-        rowInline.add(buildButton("Да", "true", getCommand()));
-        rowInline.add(buildButton("Нет", "false", getCommand()));
-        keyboard.add(rowInline);
-        keyboardMarkup.setKeyboard(keyboard);
-        return getReplyKeyboard(TelegramUpdateUtils.getChatId(update), "Подтвердите удаление", keyboardMarkup);
+        return handleApproveKeyBoard(update, "Подтвердите удаление");
     }
 
     private List<BotApiMethod<?>> handleDeleteClient(Update update) {
