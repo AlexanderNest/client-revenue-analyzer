@@ -33,7 +33,9 @@ public class DeleteClientHandler extends StatefulCommandHandler<State, DeleteCli
     protected void initTransitions() {
         stateMachineProvider
                 .addTransition(State.STARTED, Action.COMMAND_INPUT, State.SELECT_CLIENT, this::handleCommandInputAndSendClientNamesKeyboard)
-                .addTransition(State.SELECT_CLIENT, Action.ANY_CALLBACK_INPUT, State.APPROVE_DELETING, this::handleClientNameAndRequestApprovement)
+
+                .addTransition(State.SELECT_CLIENT, Action.ANY_CALLBACK_INPUT, State.APPROVE_DELETING, this::handleClientNameAndRequestApprove)
+
                 .addTransition(State.APPROVE_DELETING, Action.CALLBACK_TRUE, State.FINISH, this::handleDeleteClient)
                 .addTransition(State.APPROVE_DELETING, Action.CALLBACK_FALSE, State.FINISH, this::handleDeleteCanceling);
     }
@@ -67,7 +69,7 @@ public class DeleteClientHandler extends StatefulCommandHandler<State, DeleteCli
         return getReplyKeyboard(TelegramUpdateUtils.getChatId(update), "Выберите клиента для удаления:", keyboardMarkup);
     }
 
-    private List<BotApiMethod<?>> handleClientNameAndRequestApprovement(Update update) {
+    private List<BotApiMethod<?>> handleClientNameAndRequestApprove(Update update) {
         ButtonCallback buttonCallback = buttonCallbackService.buildButtonCallback(update.getCallbackQuery().getData());
         getStateMachine(update).getMemory().setClientName(buttonCallback.getValue());
 
@@ -82,8 +84,7 @@ public class DeleteClientHandler extends StatefulCommandHandler<State, DeleteCli
     }
 
     private List<BotApiMethod<?>> handleDeleteClient(Update update) {
-        ResponseEntity<Void> response = client.deleteClient(TelegramUpdateUtils.getUserId(update),
-                getStateMachine(update).getMemory().getClientName());
+        client.deleteClient(TelegramUpdateUtils.getUserId(update), getStateMachine(update).getMemory().getClientName());
         return getPlainSendMessage(TelegramUpdateUtils.getChatId(update), formatDeleteUserResponse(getStateMachine(update).getMemory().getClientName()));
     }
 

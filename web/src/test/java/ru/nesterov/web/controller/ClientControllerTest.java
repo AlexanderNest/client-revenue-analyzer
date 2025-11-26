@@ -135,7 +135,6 @@ class ClientControllerTest extends AbstractControllerTest {
                                 .contentType(MediaType.APPLICATION_JSON)
                 )
                 .andExpect(status().isOk());
-
     }
 
     @Test
@@ -159,7 +158,6 @@ class ClientControllerTest extends AbstractControllerTest {
                                 .header("X-username", user.getUsername())
                 )
                 .andExpect(status().isOk());
-
     }
 
     @Test
@@ -199,6 +197,7 @@ class ClientControllerTest extends AbstractControllerTest {
                 .andExpect(jsonPath("$.phone").value("89999999999"))
                 .andExpect(jsonPath("$.pricePerHour").value(1000));
     }
+
     @Test
     void createClientWithTheSameNameWithIdGeneration() throws Exception {
         User user = new User();

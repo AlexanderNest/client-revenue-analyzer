@@ -41,7 +41,7 @@ public class DeleteClientHandlerTest extends RegisteredUserHandlerTest {
     }
 
     @Test
-    void ShouldReturnNoClientsMessage() {
+    void shouldReturnNoClientsMessage() {
         Update update = createUpdateWithMessage(handler.getCommand());
         List<BotApiMethod<?>> handle = handler.handle(update);
         assertEquals(1, handle.size());
@@ -50,7 +50,7 @@ public class DeleteClientHandlerTest extends RegisteredUserHandlerTest {
     }
 
     @Test
-    void ShouldReturnClientsMessage() {
+    void fullDeleteClientFlow() {
         List<GetActiveClientResponse> clients = createClients();
         when(client.getActiveClients(anyLong())).thenReturn(clients);
 
@@ -92,14 +92,13 @@ public class DeleteClientHandlerTest extends RegisteredUserHandlerTest {
         Update confirmUpdate = createUpdateWithCallbackQuery("Да");
         List<BotApiMethod<?>> step3Result = handler.handle(confirmUpdate);
 
-        // Проверяем шаг 3: Получили сообщение об успешном удалении
         assertEquals(1, step3Result.size());
         SendMessage successMessage = (SendMessage) step3Result.get(0);
         assertTrue(successMessage.getText().contains("Пользователь Макс успешно удален"));
     }
 
 
-    List<GetActiveClientResponse> createClients() {
+    private List<GetActiveClientResponse> createClients() {
         GetActiveClientResponse client1 = new GetActiveClientResponse();
         client1.setName("Макс");
         client1.setPricePerHour(999);
