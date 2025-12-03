@@ -66,7 +66,7 @@ public class CreateClientHandler extends StatefulCommandHandler<State, CreateCli
 
     private List<BotApiMethod<?>> handlePhoneNumberInput(Update update) {
         getStateMachine(update).getMemory().setPhone(update.getMessage().getText());
-        return handleApproveKeyBoard(update, "Включить генерацию нового имени, если клиент с таким именем уже существует?");
+        return getApproveKeyBoard(update, "Включить генерацию нового имени, если клиент с таким именем уже существует?", getCommand());
     }
 
     private List<BotApiMethod<?>> handleIdGenerationNeededInput(Update update) {

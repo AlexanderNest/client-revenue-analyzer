@@ -58,7 +58,7 @@ public class GetClientStatisticHandler extends StatefulCommandHandler<State, NoM
 
     @SneakyThrows
     private List<BotApiMethod<?>> handleCommandInputAndSendClientNamesKeyboard(Update update) {
-        return handleCommandInputAndSendClientNamesKeyboard(update, "Выберите клиента, чью статистику хотите узнать:");
+        return getClientNamesKeyboardAndSend(update, "Выберите клиента, чью статистику хотите узнать:", getCommand());
     }
 
     private static String formatIncomeReport(GetClientStatisticResponse response) {

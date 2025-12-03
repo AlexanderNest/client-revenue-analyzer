@@ -36,19 +36,25 @@ public class DeleteClientHandler extends StatefulCommandHandler<State, DeleteCli
 
     @SneakyThrows
     public List<BotApiMethod<?>> handleCommandInputAndSendClientNamesKeyboard(Update update) {
-        return handleCommandInputAndSendClientNamesKeyboard(update, "Выберите клиента для удаления:");
+        return getClientNamesKeyboardAndSend(update, "Выберите клиента для удаления:", getCommand());
     }
 
     @SneakyThrows
     private List<BotApiMethod<?>> handleClientNameAndRequestApprove(Update update) {
         ButtonCallback buttonCallback = buttonCallbackService.buildButtonCallback(update.getCallbackQuery().getData());
         getStateMachine(update).getMemory().setClientName(buttonCallback.getValue());
-        return handleApproveKeyBoard(update, "Подтвердите удаление");
+        return getApproveKeyBoard(update, "Подтвердите удаление", getCommand());
     }
 
     private List<BotApiMethod<?>> handleDeleteClient(Update update) {
         client.deleteClient(TelegramUpdateUtils.getUserId(update), getStateMachine(update).getMemory().getClientName());
-        return getPlainSendMessage(TelegramUpdateUtils.getChatId(update), formatDeleteUserResponse(getStateMachine(update).getMemory().getClientName()));
+
+        return editMessage(
+                TelegramUpdateUtils.getChatId(update),
+                TelegramUpdateUtils.getMessageId(update),
+                formatDeleteUserResponse(getStateMachine(update).getMemory().getClientName()),
+                null
+        );
     }
 
     private String formatDeleteUserResponse(String clientName) {
