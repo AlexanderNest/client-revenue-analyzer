@@ -48,13 +48,7 @@ public class DeleteClientHandler extends StatefulCommandHandler<State, DeleteCli
 
     private List<BotApiMethod<?>> handleDeleteClient(Update update) {
         client.deleteClient(TelegramUpdateUtils.getUserId(update), getStateMachine(update).getMemory().getClientName());
-
-        return editMessage(
-                TelegramUpdateUtils.getChatId(update),
-                TelegramUpdateUtils.getMessageId(update),
-                formatDeleteUserResponse(getStateMachine(update).getMemory().getClientName()),
-                null
-        );
+        return getPlainSendMessage(TelegramUpdateUtils.getChatId(update), formatDeleteUserResponse(getStateMachine(update).getMemory().getClientName()));
     }
 
     private String formatDeleteUserResponse(String clientName) {
