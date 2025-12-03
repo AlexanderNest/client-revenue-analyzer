@@ -8,6 +8,5 @@ import java.util.List;
 public interface UserService {
     UserDto getUserByUsername(String username);
     UserDto createUser(UserDto userDto);
-
     List<String> getUsersIdByRoleAndSource(Role role, String source);
 }

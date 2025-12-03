@@ -56,7 +56,7 @@ public class ActionService {
             return Action.COMMAND_INPUT;
         }
 
-        Boolean booleanValue = getBooleanValue(text.toLowerCase());
+        Boolean booleanValue = getBooleanValue(text);
         if (booleanValue != null) {
             if (expectedActions.contains(booleanValue ? Action.TRUE : Action.FALSE)) {
                 return booleanValue ? Action.TRUE : Action.FALSE;
@@ -129,6 +129,7 @@ public class ActionService {
 
     @Nullable
     private Boolean getBooleanValue(String input) {
+        input = input.toLowerCase();
         if (trueAliases.contains(input)) {
             return true;
         } else if (falseAliases.contains(input)) {

@@ -4,9 +4,6 @@ import lombok.SneakyThrows;
 import org.springframework.stereotype.Component;
 import org.telegram.telegrambots.meta.api.methods.BotApiMethod;
 import org.telegram.telegrambots.meta.api.objects.Update;
-import org.telegram.telegrambots.meta.api.objects.replykeyboard.InlineKeyboardMarkup;
-import org.telegram.telegrambots.meta.api.objects.replykeyboard.buttons.InlineKeyboardButton;
-import ru.nesterov.bot.dto.GetActiveClientResponse;
 import ru.nesterov.bot.dto.GetClientStatisticResponse;
 import ru.nesterov.bot.handlers.abstractions.StatefulCommandHandler;
 import ru.nesterov.bot.handlers.callback.ButtonCallback;
@@ -16,8 +13,6 @@ import ru.nesterov.bot.utils.TelegramUpdateUtils;
 
 import java.text.NumberFormat;
 import java.text.SimpleDateFormat;
-import java.util.ArrayList;
-import java.util.Comparator;
 import java.util.List;
 import java.util.Locale;
 
@@ -63,31 +58,7 @@ public class GetClientStatisticHandler extends StatefulCommandHandler<State, NoM
 
     @SneakyThrows
     private List<BotApiMethod<?>> handleCommandInputAndSendClientNamesKeyboard(Update update) {
-        InlineKeyboardMarkup keyboardMarkup = new InlineKeyboardMarkup();
-        List<List<InlineKeyboardButton>> keyboard = new ArrayList<>();
-        List<GetActiveClientResponse> clients = client.getActiveClients(TelegramUpdateUtils.getUserId(update));
-
-        if (clients.isEmpty()) {
-            return getPlainSendMessage(TelegramUpdateUtils.getChatId(update), "Нет доступных клиентов");
-        }
-
-        clients.sort(Comparator.comparing(GetActiveClientResponse::getName, String.CASE_INSENSITIVE_ORDER));
-
-        for (GetActiveClientResponse response : clients) {
-            InlineKeyboardButton button = new InlineKeyboardButton();
-            button.setText(response.getName());
-            ButtonCallback callback = new ButtonCallback();
-            callback.setCommand(getCommand());
-            callback.setValue(response.getName());
-            button.setCallbackData(buttonCallbackService.getTelegramButtonCallbackString(callback));
-
-            List<InlineKeyboardButton> rowInline = new ArrayList<>();
-            rowInline.add(button);
-            keyboard.add(rowInline);
-        }
-        keyboardMarkup.setKeyboard(keyboard);
-
-        return getReplyKeyboard(TelegramUpdateUtils.getChatId(update), "Выберите клиента, чью статистику хотите узнать:", keyboardMarkup);
+        return getClientNamesKeyboard(update, "Выберите клиента, чью статистику хотите узнать:");
     }
 
     private static String formatIncomeReport(GetClientStatisticResponse response) {

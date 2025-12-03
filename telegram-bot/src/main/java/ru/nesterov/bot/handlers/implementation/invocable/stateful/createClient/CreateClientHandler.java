@@ -6,8 +6,6 @@ import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Component;
 import org.telegram.telegrambots.meta.api.methods.BotApiMethod;
 import org.telegram.telegrambots.meta.api.objects.Update;
-import org.telegram.telegrambots.meta.api.objects.replykeyboard.InlineKeyboardMarkup;
-import org.telegram.telegrambots.meta.api.objects.replykeyboard.buttons.InlineKeyboardButton;
 import ru.nesterov.bot.dto.CreateClientRequest;
 import ru.nesterov.bot.dto.CreateClientResponse;
 import ru.nesterov.bot.handlers.abstractions.StatefulCommandHandler;
@@ -16,7 +14,6 @@ import ru.nesterov.bot.statemachine.dto.Action;
 import ru.nesterov.bot.utils.TelegramUpdateUtils;
 
 import java.text.SimpleDateFormat;
-import java.util.ArrayList;
 import java.util.List;
 
 /**
@@ -69,14 +66,7 @@ public class CreateClientHandler extends StatefulCommandHandler<State, CreateCli
 
     private List<BotApiMethod<?>> handlePhoneNumberInput(Update update) {
         getStateMachine(update).getMemory().setPhone(update.getMessage().getText());
-        InlineKeyboardMarkup keyboardMarkup = new InlineKeyboardMarkup();
-        List<List<InlineKeyboardButton>> keyboard = new ArrayList<>();
-        List<InlineKeyboardButton> rowInline = new ArrayList<>();
-        rowInline.add(buildButton("Да", "true", getCommand()));
-        rowInline.add(buildButton("Нет", "false", getCommand()));
-        keyboard.add(rowInline);
-        keyboardMarkup.setKeyboard(keyboard);
-        return getReplyKeyboard(TelegramUpdateUtils.getChatId(update), "Включить генерацию нового имени, если клиент с таким именем уже существует?", keyboardMarkup);
+        return getApproveKeyBoard(update, "Включить генерацию нового имени, если клиент с таким именем уже существует?");
     }
 
     private List<BotApiMethod<?>> handleIdGenerationNeededInput(Update update) {

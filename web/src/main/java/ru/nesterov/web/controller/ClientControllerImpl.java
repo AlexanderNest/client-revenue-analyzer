@@ -7,9 +7,11 @@ import org.springframework.web.bind.annotation.RestController;
 import ru.nesterov.core.service.client.ClientService;
 import ru.nesterov.core.service.dto.ClientDto;
 import ru.nesterov.core.service.dto.ClientScheduleDto;
+import ru.nesterov.core.service.dto.UpdateClientDto;
 import ru.nesterov.core.service.user.UserService;
 import ru.nesterov.web.controller.request.CreateClientRequest;
 import ru.nesterov.web.controller.request.GetClientScheduleRequest;
+import ru.nesterov.web.controller.request.UpdateClientRequest;
 import ru.nesterov.web.controller.response.ClientResponse;
 import ru.nesterov.web.controller.response.EventScheduleResponse;
 import ru.nesterov.web.mapper.ClientMapper;
@@ -50,5 +52,17 @@ public class ClientControllerImpl implements ClientController {
         return activeClients.stream()
                 .map(ClientMapper::mapToClientResponse)
                 .toList();
+    }
+
+    @Override
+    public void deleteClient(String username, String clientName) {
+        clientService.deleteClient(userService.getUserByUsername(username), clientName);
+    }
+
+    @Override
+    public ClientResponse updateClient(String username, @RequestBody UpdateClientRequest updateClientRequest) {
+        UpdateClientDto updateClientDto = ClientMapper.mapToUpdatedClientDto(updateClientRequest);
+        ClientDto clientDto = clientService.updateClient(userService.getUserByUsername(username), updateClientDto);
+        return ClientMapper.mapToClientResponse(clientDto);
     }
 }
