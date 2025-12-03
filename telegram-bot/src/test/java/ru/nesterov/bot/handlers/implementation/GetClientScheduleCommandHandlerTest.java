@@ -327,7 +327,7 @@ public class GetClientScheduleCommandHandlerTest extends RegisteredUserHandlerTe
     }
 
     @Test
-    void sendClientNamesKeyboardShouldReturnSortedClients() {
+    void handleCommandInputAndSendClientsShouldReturnSortedClients() {
 
         GetActiveClientResponse client1 = new GetActiveClientResponse();
         client1.setName("алексей");

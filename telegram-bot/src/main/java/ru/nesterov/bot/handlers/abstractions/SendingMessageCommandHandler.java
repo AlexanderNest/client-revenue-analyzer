@@ -2,7 +2,6 @@ package ru.nesterov.bot.handlers.abstractions;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import jakarta.annotation.Nullable;
-import lombok.SneakyThrows;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Lazy;
 import org.telegram.telegrambots.meta.api.methods.AnswerCallbackQuery;
@@ -104,45 +103,5 @@ public abstract class SendingMessageCommandHandler implements CommandHandler {
 
         button.setCallbackData(buttonCallbackService.getTelegramButtonCallbackString(buttonCallback));
         return button;
-    }
-    @SneakyThrows
-    public List<BotApiMethod<?>> getClientNamesKeyboardAndSend(Update update, String text, String command) {
-        InlineKeyboardMarkup keyboardMarkup = new InlineKeyboardMarkup();
-        List<List<InlineKeyboardButton>> keyboard = new ArrayList<>();
-        List<GetActiveClientResponse> clients = client.getActiveClients(TelegramUpdateUtils.getUserId(update));
-
-        if (clients.isEmpty()) {
-            return getPlainSendMessage(TelegramUpdateUtils.getChatId(update), "Нет доступных клиентов");
-        }
-
-        clients.sort(Comparator.comparing(GetActiveClientResponse::getName, String.CASE_INSENSITIVE_ORDER));
-
-        for (GetActiveClientResponse response : clients) {
-            InlineKeyboardButton button = new InlineKeyboardButton();
-            button.setText(response.getName());
-            ButtonCallback callback = new ButtonCallback();
-            callback.setCommand(command);
-            callback.setValue(response.getName());
-            button.setCallbackData(buttonCallbackService.getTelegramButtonCallbackString(callback));
-
-            List<InlineKeyboardButton> rowInline = new ArrayList<>();
-            rowInline.add(button);
-            keyboard.add(rowInline);
-        }
-        keyboardMarkup.setKeyboard(keyboard);
-
-        return getReplyKeyboard(TelegramUpdateUtils.getChatId(update), text, keyboardMarkup);
-    }
-
-    public List<BotApiMethod<?>> getApproveKeyBoard(Update update, String message, String command) {
-        InlineKeyboardMarkup keyboardMarkup = new InlineKeyboardMarkup();
-        List<List<InlineKeyboardButton>> keyboard = new ArrayList<>();
-        List<InlineKeyboardButton> rowInline = new ArrayList<>();
-        rowInline.add(buildButton("Да", "true", command));
-        rowInline.add(buildButton("Нет", "false", command));
-        keyboard.add(rowInline);
-        keyboardMarkup.setKeyboard(keyboard);
-
-        return getReplyKeyboard(TelegramUpdateUtils.getChatId(update), message, keyboardMarkup);
     }
 }
