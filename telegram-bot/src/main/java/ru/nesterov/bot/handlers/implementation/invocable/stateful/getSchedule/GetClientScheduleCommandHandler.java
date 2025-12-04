@@ -5,9 +5,6 @@ import lombok.SneakyThrows;
 import org.springframework.stereotype.Component;
 import org.telegram.telegrambots.meta.api.methods.BotApiMethod;
 import org.telegram.telegrambots.meta.api.objects.Update;
-import org.telegram.telegrambots.meta.api.objects.replykeyboard.InlineKeyboardMarkup;
-import org.telegram.telegrambots.meta.api.objects.replykeyboard.buttons.InlineKeyboardButton;
-import ru.nesterov.bot.dto.GetActiveClientResponse;
 import ru.nesterov.bot.dto.GetClientScheduleRequest;
 import ru.nesterov.bot.dto.GetClientScheduleResponse;
 import ru.nesterov.bot.handlers.abstractions.StatefulCommandHandler;
@@ -17,8 +14,6 @@ import ru.nesterov.bot.utils.TelegramUpdateUtils;
 
 import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
-import java.util.ArrayList;
-import java.util.Comparator;
 import java.util.List;
 import java.util.Locale;
 import java.util.stream.Collectors;
@@ -30,10 +25,9 @@ import java.util.stream.Collectors;
 @Component
 public class GetClientScheduleCommandHandler extends StatefulCommandHandler<State, GetClientScheduleRequest> {
 
-    private final InlineCalendarBuilder inlineCalendarBuilder;
-
     private static final String ENTER_FIRST_DATE = "Введите первую дату";
     private static final String ENTER_SECOND_DATE = "Введите вторую дату";
+    private final InlineCalendarBuilder inlineCalendarBuilder;
 
     public GetClientScheduleCommandHandler(InlineCalendarBuilder inlineCalendarBuilder) {
         super(State.STARTED, GetClientScheduleRequest.class);
@@ -43,7 +37,7 @@ public class GetClientScheduleCommandHandler extends StatefulCommandHandler<Stat
     @Override
     public void initTransitions() {
         stateMachineProvider
-                .addTransition(State.STARTED, Action.COMMAND_INPUT, State.SELECT_CLIENT, this::sendClientNamesKeyboard)
+                .addTransition(State.STARTED, Action.COMMAND_INPUT, State.SELECT_CLIENT, this::handleCommandInputAndSendClients)
 
                 .addTransition(State.SELECT_CLIENT, Action.ANY_CALLBACK_INPUT, State.SELECT_FIRST_DATE, this::handleClientName)
 
@@ -93,32 +87,8 @@ public class GetClientScheduleCommandHandler extends StatefulCommandHandler<Stat
     }
 
     @SneakyThrows
-    private List<BotApiMethod<?>> sendClientNamesKeyboard(Update update) {
-        InlineKeyboardMarkup keyboardMarkup = new InlineKeyboardMarkup();
-        List<List<InlineKeyboardButton>> keyboard = new ArrayList<>();
-        List<GetActiveClientResponse> clients = client.getActiveClients(TelegramUpdateUtils.getUserId(update));
-
-        if (clients.isEmpty()) {
-            return getPlainSendMessage(TelegramUpdateUtils.getChatId(update), "Нет доступных клиентов");
-        }
-
-        clients.sort(Comparator.comparing(GetActiveClientResponse::getName, String.CASE_INSENSITIVE_ORDER));
-
-        for (GetActiveClientResponse response : clients) {
-            InlineKeyboardButton button = new InlineKeyboardButton();
-            button.setText(response.getName());
-            ButtonCallback callback = new ButtonCallback();
-            callback.setCommand(getCommand());
-            callback.setValue(response.getName());
-            button.setCallbackData(buttonCallbackService.getTelegramButtonCallbackString(callback));
-
-            List<InlineKeyboardButton> rowInline = new ArrayList<>();
-            rowInline.add(button);
-            keyboard.add(rowInline);
-        }
-        keyboardMarkup.setKeyboard(keyboard);
-
-        return getReplyKeyboard(TelegramUpdateUtils.getChatId(update), "Выберите клиента, для которого хотите получить расписание:", keyboardMarkup);
+    private List<BotApiMethod<?>> handleCommandInputAndSendClients(Update update) {
+        return getClientNamesKeyboard(update, "Выберите клиента, для которого хотите получить расписание:");
     }
 
     @SneakyThrows
@@ -147,10 +117,11 @@ public class GetClientScheduleCommandHandler extends StatefulCommandHandler<Stat
                     String startDate = schedule.getEventStart().format(dateFormatter);
                     String startTime = schedule.getEventStart().format(timeFormatter);
                     String endTime = schedule.getEventEnd().format(timeFormatter);
+                    String requiresShiftInfo = schedule.isRequiresShift() ? "\n⚠️ Требуется перенос" : "";
 
                     return String.format(
-                            "📅 Дата: %s\n⏰ Время: %s - %s",
-                            startDate, startTime, endTime);
+                            "📅 Дата: %s\n⏰ Время: %s - %s%s",
+                            startDate, startTime, endTime, requiresShiftInfo);
                 })
                 .collect(Collectors.joining("\n\n"));
     }

@@ -15,7 +15,9 @@ import ru.nesterov.bot.handlers.implementation.invocable.CancelCommandHandler;
 import ru.nesterov.bot.utils.TelegramUpdateUtils;
 
 import java.util.List;
+import java.util.Objects;
 import java.util.function.Predicate;
+import java.util.stream.Stream;
 
 @Component
 @Slf4j
@@ -41,6 +43,8 @@ public class HandlersService {
         this.commandHandlers = commandHandlers;
         this.statefulCommandHandlers = statefulCommandHandlers;
         this.invocableCommandHandlers = invocableCommandHandlers;
+        this.undefinedHandler = undefinedHandler;
+        this.cancelCommandHandler = cancelCommandHandler;
 
         highestPriorityCommandHandlers = commandHandlers.stream()
                 .filter(ch -> ch.getPriority() == Priority.HIGHEST)
@@ -53,46 +57,51 @@ public class HandlersService {
         lowestPriorityCommandHandlers = commandHandlers.stream()
                 .filter(ch -> ch.getPriority() == Priority.LOWEST)
                 .toList();
+    }
 
-        this.undefinedHandler = undefinedHandler;
-        this.cancelCommandHandler = cancelCommandHandler;
+    @PostConstruct
+    private void logHandlersInfo() {
+        log.info("Зарегистрировано обработчиков: {}", commandHandlers.size());
+
+        log.info("Обработчики с высоким приоритетом (HIGHEST):");
+        logHandlerList(highestPriorityCommandHandlers);
+
+        log.info("Обработчики с нормальным приоритетом (NORMAL):");
+        logHandlerList(normalPriorityCommandHandlers);
+
+        log.info("Обработчики с низким приоритетом (LOWEST):");
+        logHandlerList(lowestPriorityCommandHandlers);
+
+        log.info("Stateful обработчики:");
+        logHandlerList(statefulCommandHandlers);
+
+        log.info("Invocable обработчики:");
+        logHandlerList(invocableCommandHandlers);
     }
 
     @Nullable
     public CommandHandler getHandler(Update update) {
-        CommandHandler commandHandler;
-
         if (cancelCommandHandler.isApplicable(update)) {
             return cancelCommandHandler;
         }
 
         if (isCommandUpdate(update)){
-            long chatId = TelegramUpdateUtils.getChatId(update);
-            resetAllHandlers(chatId);
+            resetAllHandlers(TelegramUpdateUtils.getChatId(update));
         }
 
-        commandHandler = getStartedHandler(update);
-        if (commandHandler != null) {
-            return commandHandler;
+        CommandHandler started = getStartedHandler(update);
+        if (started != null) {
+            return started;
         }
 
-        commandHandler = selectHandler(highestPriorityCommandHandlers, update);
-        if (commandHandler != null) {
-            return commandHandler;
-        }
-
-        commandHandler = selectHandler(normalPriorityCommandHandlers, update);
-        if (commandHandler != null) {
-            return commandHandler;
-        }
-
-        commandHandler = selectHandler(lowestPriorityCommandHandlers, update);
-        if (commandHandler != null) {
-            return commandHandler;
-        }
-
-        log.warn("Не удалось найти Handler для этого Update [{}]", update);
-        return undefinedHandler;
+        return Stream.of(highestPriorityCommandHandlers, normalPriorityCommandHandlers, lowestPriorityCommandHandlers)
+                .map(handlers -> selectHandler(handlers, update))
+                .filter(Objects::nonNull)
+                .findFirst()
+                .orElseGet(() -> {
+                    log.warn("Не удалось найти Handler для этого Update [{}]", update);
+                    return undefinedHandler;
+                });
     }
 
     public void resetBrokeHandler(CommandHandler commandHandler, long userId) {
@@ -118,68 +127,39 @@ public class HandlersService {
     private CommandHandler getStartedHandler(Update update) {
         long chatId = TelegramUpdateUtils.getChatId(update);
 
-        CommandHandler commandHandler = statefulCommandHandlers.stream()
+        return statefulCommandHandlers.stream()
                 .filter(handler -> !handler.isFinishedOrNotStarted(chatId))
                 .findFirst()
+                .filter(handler -> handler.isApplicable(update))
                 .orElse(null);
-
-        if (commandHandler != null) {
-            if (commandHandler.isApplicable(update)) {
-                return commandHandler;
-            } else {
-                throw new RuntimeException("Неподходящий commandHandler " + update + commandHandler);
-            }
-        }
-        return null;
     }
 
     private CommandHandler selectHandler(List<CommandHandler> commandHandlers, Update update) {
-        for (CommandHandler commandHandler : commandHandlers) {
-            if (commandHandler.isApplicable(update)) {
-                return commandHandler;
-            }
-        }
-        return null;
+        return commandHandlers.stream()
+                .filter(handler -> handler.isApplicable(update))
+                .findFirst()
+                .orElse(null);
     }
 
     private boolean isCommandUpdate(Update update) {
-        return invocableCommandHandlers.stream()
-                .anyMatch(handler -> update.getMessage() != null && handler.getCommand().equals(update.getMessage().getText()));
-    }
-
-
-    @PostConstruct
-    private void logHandlersInfo() {
-        log.info("Зарегистрировано обработчиков: {}", commandHandlers.size());
-
-        log.info("Обработчики с высоким приоритетом (HIGHEST):");
-        logHandlerList(highestPriorityCommandHandlers);
-
-        log.info("Обработчики с нормальным приоритетом (NORMAL):");
-        logHandlerList(normalPriorityCommandHandlers);
-
-        log.info("Обработчики с низким приоритетом (LOWEST):");
-        logHandlerList(lowestPriorityCommandHandlers);
-
-        log.info("Stateful обработчики:");
-        logHandlerList(statefulCommandHandlers);
-
-        log.info("Invocable обработчики:");
-        logHandlerList(invocableCommandHandlers);
+        String text = update.getMessage() != null ? update.getMessage().getText() : null;
+        return text != null
+                && invocableCommandHandlers.stream().anyMatch(handler -> handler.getCommand().equals(text));
     }
 
     private void logHandlerList(List<? extends CommandHandler> handlers) {
         if (handlers.isEmpty()) {
             log.info("  - Нет обработчиков");
-        } else {
-            for (CommandHandler handler : handlers) {
-                String name = handler.getClass().getSimpleName();
-                String command = "";
-                if (handler instanceof InvocableCommandHandler invocableHandler) {
-                    command = " (" + invocableHandler.getCommand() + ")";
-                }
-                log.info("  - {}{}{}", name, command, isStateful(handler) ? " [stateful]" : "");
+            return;
+        }
+
+        for (CommandHandler handler : handlers) {
+            String name = handler.getClass().getSimpleName();
+            String command = "";
+            if (handler instanceof InvocableCommandHandler invocableHandler) {
+                command = " (" + invocableHandler.getCommand() + ")";
             }
+            log.info("  - {}{}{}", name, command, isStateful(handler) ? " [stateful]" : "");
         }
     }
 

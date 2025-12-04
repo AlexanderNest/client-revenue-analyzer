@@ -5,6 +5,7 @@ import org.telegram.telegrambots.meta.api.objects.Update;
 import ru.nesterov.bot.dto.GetUserRequest;
 import ru.nesterov.bot.dto.GetUserResponse;
 import ru.nesterov.bot.utils.TelegramUpdateUtils;
+
 /**
  * Обработчик, который будет отображаться в списке команд для отправки на стороне пользователя
  */
@@ -49,4 +50,5 @@ public abstract class DisplayedCommandHandler extends InvocableCommandHandler im
     public boolean isDisplayedForUnregistered() {
         return false;
     }
+
 }

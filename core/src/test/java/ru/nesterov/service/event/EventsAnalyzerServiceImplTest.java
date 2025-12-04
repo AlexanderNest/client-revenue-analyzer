@@ -59,6 +59,7 @@ class EventsAnalyzerServiceImplTest {
         client.setDescription("description");
         client.setStartDate(new Date(2025, Calendar.JUNE, 1));
         client.setPhone("phone");
+        client.setPriceChangeHistory(List.of());
         when(clientRepository.findClientByNameAndUserId("testName", 1)).thenReturn(client);
 
         User user = new User();

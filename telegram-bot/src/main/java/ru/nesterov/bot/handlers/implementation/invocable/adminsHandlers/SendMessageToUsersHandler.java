@@ -59,15 +59,7 @@ public class SendMessageToUsersHandler extends StatefulCommandHandler<State, Sen
 
     public List<BotApiMethod<?>> handleTextInput(Update update) {
         getStateMachine(update).getMemory().setMessage(update.getMessage().getText());
-        InlineKeyboardMarkup keyboardMarkup = new InlineKeyboardMarkup();
-        List<List<InlineKeyboardButton>> keyboard = new ArrayList<>();
-        List<InlineKeyboardButton> rowInline = new ArrayList<>();
-        rowInline.add(buildButton("Да", "true", getCommand()));
-        rowInline.add(buildButton("Нет", "false", getCommand()));
-        keyboard.add(rowInline);
-        keyboardMarkup.setKeyboard(keyboard);
-
-        return getReplyKeyboard(TelegramUpdateUtils.getChatId(update), "Редактировать сообщение?", keyboardMarkup);
+        return getApproveKeyBoard(update, "Редактировать сообщение?");
     }
 
     public List<BotApiMethod<?>> sendMessageToUsers(Update update) {

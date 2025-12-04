@@ -6,11 +6,14 @@ import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.parameters.RequestBody;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.tags.Tag;
+import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestHeader;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 import ru.nesterov.web.controller.request.CreateClientRequest;
 import ru.nesterov.web.controller.request.GetClientScheduleRequest;
+import ru.nesterov.web.controller.request.UpdateClientRequest;
 import ru.nesterov.web.controller.response.ClientResponse;
 import ru.nesterov.web.controller.response.EventScheduleResponse;
 
@@ -62,4 +65,35 @@ public interface ClientController {
     )
     @PostMapping("/getActiveClients")
     List<ClientResponse> getActiveClients(@RequestHeader(name = "X-username") String username);
+
+    @Operation(
+            summary = "Удалить клиента",
+            description = "Удаляет клиента",
+            requestBody = @RequestBody(
+                    description = "Запрос для удаления клиента",
+                    required = true
+            ),
+            responses = {
+                    @ApiResponse(responseCode = "200", description = "Успешный ответ"),
+                    @ApiResponse(responseCode = "500", description = "Внутренняя ошибка сервера")
+            }
+    )
+    @DeleteMapping
+    void deleteClient(@RequestHeader(name = "X-username") String username, @RequestParam String clientName);
+
+
+    @Operation(
+           summary = "Обновить данные клиента",
+           description = "Обновляет данные клиента и возвращает данные о нем",
+            requestBody = @RequestBody(
+                    description = "Запрос для обновление клиента",
+                    required = true
+            ),
+            responses = {
+                    @ApiResponse(responseCode = "200", description = "Успешный ответ"),
+                    @ApiResponse(responseCode = "500", description = "Внутренняя ошибка сервера")
+            }
+    )
+    @PostMapping("/update")
+    ClientResponse updateClient(@RequestHeader(name = "X-username") String username, @RequestBody UpdateClientRequest updateClientRequest);
 }

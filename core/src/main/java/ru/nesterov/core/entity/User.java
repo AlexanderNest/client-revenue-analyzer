@@ -10,6 +10,7 @@ import jakarta.persistence.Id;
 import jakarta.persistence.OneToMany;
 import jakarta.persistence.Table;
 import lombok.Data;
+import lombok.ToString;
 
 import java.util.List;
 
@@ -36,5 +37,6 @@ public class User {
     private String source;
 
     @OneToMany(mappedBy = "user")
+    @ToString.Exclude
     private List<Client> clients;
 }

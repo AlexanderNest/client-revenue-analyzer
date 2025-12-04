@@ -16,8 +16,10 @@ import ru.nesterov.core.repository.ClientRepository;
 import ru.nesterov.core.repository.UserRepository;
 import ru.nesterov.core.service.dto.ClientDto;
 import ru.nesterov.core.service.dto.ClientScheduleDto;
+import ru.nesterov.core.service.dto.UpdateClientDto;
 import ru.nesterov.core.service.dto.UserDto;
 import ru.nesterov.core.service.mapper.ClientMapper;
+
 import java.time.LocalDateTime;
 import java.util.List;
 
@@ -57,20 +59,76 @@ public class ClientServiceImpl implements ClientService {
     }
 
     public ClientDto createClient(UserDto userDto, ClientDto clientDto, boolean isIdGenerationNeeded) throws ClientDataIntegrityException {
-        List<Client> clientsWithThisName = clientRepository.findAllByExactNameOrNameStartingWithAndEndingWithNumberAndUserId(clientDto.getName(), userDto.getId());
+        String uniqueName = generateUniqueClientName(clientDto.getName(), userDto.getId(), isIdGenerationNeeded);
+        clientDto.setName(uniqueName);
+
+        User user = userRepository.findByUsername(userDto.getUsername());
+        Client forSave = ClientMapper.mapToClient(clientDto);
+        forSave.setUser(user);
+
+        return saveClient(forSave);
+    }
+
+    @Override
+    public List<ClientDto> getActiveClientsOrderedByPrice(UserDto userDto) {
+        return clientRepository.findClientByUserIdAndActiveOrderByPricePerHourDesc(userDto.getId(), true).stream()
+                .map(ClientMapper::mapToClientDto)
+                .toList();
+    }
+
+    @Override
+    public void deleteClient(UserDto userDto, String clientName) {
+        Client client = clientRepository.findClientByNameAndUserId(clientName, userDto.getId());
+        if (client == null) {
+            throw new ClientNotFoundException(clientName);
+        }
+        clientRepository.delete(client);
+    }
+
+    @Override
+    public ClientDto updateClient(UserDto userDto, UpdateClientDto updateClientDto) {
+        Client clientForUpdate = clientRepository.findClientByNameAndUserId(updateClientDto.getOldClientName(), userDto.getId());
+
+        if (clientForUpdate == null) {
+            throw new ClientNotFoundException(updateClientDto.getOldClientName());
+        }
+
+        if (updateClientDto.getNewName() != null){
+            clientForUpdate.setName(updateClientDto.getNewName());
+        }
+
+        if (updateClientDto.getDescription() != null){
+            clientForUpdate.setDescription(updateClientDto.getDescription());
+        }
+
+        if (updateClientDto.getPhone() != null){
+            clientForUpdate.setPhone(updateClientDto.getPhone());
+        }
+
+        if (updateClientDto.getPricePerHour() != null){
+            clientForUpdate.setPricePerHour(updateClientDto.getPricePerHour());
+        }
+
+        return saveClient(clientForUpdate);
+    }
+
+    private String generateUniqueClientName(String baseName, long userId, boolean isIdGenerationNeeded) {
+        List<Client> clientsWithThisName = clientRepository
+                .findAllByExactNameOrNameStartingWithAndEndingWithNumberAndUserId(baseName, userId);
 
         if (!clientsWithThisName.isEmpty() && !isIdGenerationNeeded) {
             throw new ClientDataIntegrityException("Клиент с таким именем уже существует");
         }
         if (!clientsWithThisName.isEmpty()) {
-            clientDto.setName(clientDto.getName() + " " + (clientsWithThisName.size() + 1));
+            return baseName + " " + (clientsWithThisName.size() + 1);
         }
+        return baseName;
+    }
 
-        User user = userRepository.findByUsername(userDto.getUsername());
+
+    private ClientDto saveClient(Client client) {
         try {
-            Client forSave = ClientMapper.mapToClient(clientDto);
-            forSave.setUser(user);
-            Client saved = clientRepository.save(forSave);
+            Client saved = clientRepository.save(client);
             return ClientMapper.mapToClientDto(saved);
         } catch (DataIntegrityViolationException ex) {
             String alias = DataIntegrityViolationExceptionHandler.getLocalizedMessage(ex);
@@ -81,12 +139,5 @@ public class ClientServiceImpl implements ClientService {
 
             throw new ClientDataIntegrityException(message);
         }
-    }
-
-    @Override
-    public List<ClientDto> getActiveClientsOrderedByPrice(UserDto userDto) {
-        return clientRepository.findClientByUserIdAndActiveOrderByPricePerHourDesc(userDto.getId(), true).stream()
-                .map(ClientMapper::mapToClientDto)
-                .toList();
     }
 }
