@@ -13,14 +13,10 @@ import org.telegram.telegrambots.meta.api.objects.Update;
 import org.telegram.telegrambots.meta.api.objects.replykeyboard.InlineKeyboardMarkup;
 import org.telegram.telegrambots.meta.api.objects.replykeyboard.ReplyKeyboard;
 import org.telegram.telegrambots.meta.api.objects.replykeyboard.buttons.InlineKeyboardButton;
-import ru.nesterov.bot.dto.GetActiveClientResponse;
 import ru.nesterov.bot.handlers.callback.ButtonCallback;
 import ru.nesterov.bot.handlers.service.ButtonCallbackService;
 import ru.nesterov.bot.integration.ClientRevenueAnalyzerIntegrationClient;
-import ru.nesterov.bot.utils.TelegramUpdateUtils;
 
-import java.util.ArrayList;
-import java.util.Comparator;
 import java.util.List;
 
 /**
