@@ -190,13 +190,13 @@ public class ClientRevenueAnalyzerIntegrationClient {
         );
     }
 
-    public List<UpdateClientResponse> updateClient(long userId, UpdateClientRequest updateClientRequest) {
+    public UpdateClientResponse updateClient(long userId, UpdateClientRequest updateClientRequest) {
 
-        return postForList(String.valueOf(userId),
+        return post(String.valueOf(userId),
                 updateClientRequest,
                 "/revenue-analyzer/client/update",
-                new ParameterizedTypeReference<>() {}
-        );
+                UpdateClientResponse.class
+        ).getBody();
     }
 
     private <T> ResponseEntity<T> get(String username, MultiValueMap<String, String> requestParams , String endpoint, Class<T> responseType) {
