@@ -13,9 +13,11 @@ import org.telegram.telegrambots.meta.exceptions.TelegramApiException;
 import ru.nesterov.bot.config.BotProperties;
 import ru.nesterov.bot.handlers.abstractions.CommandHandler;
 import ru.nesterov.bot.handlers.service.HandlersService;
+import ru.nesterov.bot.metric.MetricsService;
 import ru.nesterov.bot.utils.TelegramUpdateUtils;
 
 import java.util.List;
+import java.util.concurrent.TimeUnit;
 
 @Service
 @Slf4j
@@ -24,14 +26,16 @@ public class RevenueAnalyzerBot extends TelegramLongPollingBot {
     private final HandlersService handlersService;
     private final BotProperties botProperties;
     private final TaskExecutor taskExecutor;
+    private final MetricsService metricsService;
 
 
     public RevenueAnalyzerBot(BotProperties botProperties, HandlersService handlersService,
-                              @Qualifier("applicationTaskExecutor") TaskExecutor taskExecutor) {
+                              @Qualifier("applicationTaskExecutor") TaskExecutor taskExecutor, MetricsService metricsService) {
         super(botProperties.getApiToken());
         this.handlersService = handlersService;
         this.botProperties = botProperties;
         this.taskExecutor = taskExecutor;
+        this.metricsService = metricsService;
     }
 
     @Override
@@ -49,13 +53,27 @@ public class RevenueAnalyzerBot extends TelegramLongPollingBot {
             return;
         }
 
+        String handlerName = commandHandler.getClass().getSimpleName();
         log.debug("Выбранный CommandHandler = {}", commandHandler.getClass().getSimpleName());
 
         List<BotApiMethod<?>> sendMessage;
+        long start = System.nanoTime();
 
         try {
             sendMessage = commandHandler.handle(update);
+            metricsService.recordHandlerCall(
+                    handlerName,
+                    TimeUnit.NANOSECONDS.toMillis(System.nanoTime() - start),
+                    true,
+                    null
+            );
         } catch (Exception exception) {
+            metricsService.recordHandlerCall(
+                    handlerName,
+                    TimeUnit.NANOSECONDS.toMillis(System.nanoTime() - start),
+                    false,
+                    exception
+            );
             handlersService.resetBrokeHandler(commandHandler, chatId);
             sendMessage = buildTextMessage(update, exception.getMessage());
         } finally {

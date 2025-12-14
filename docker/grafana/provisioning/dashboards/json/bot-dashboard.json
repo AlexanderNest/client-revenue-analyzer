@@ -1,0 +1,119 @@
+{
+  "id": null,
+  "uid": "telegram-bot-dashboard",
+  "title": "Telegram Bot Metrics",
+  "tags": ["telegram", "bot", "metrics"],
+  "timezone": "browser",
+  "schemaVersion": 36,
+  "version": 1,
+  "refresh": "10s",
+  "panels": [
+    {
+      "type": "stat",
+      "title": "p50 Duration (ms)",
+      "gridPos": { "x": 0, "y": 0, "w": 6, "h": 4 },
+      "targets": [
+        {
+          "expr": "histogram_quantile(0.5, sum(rate(bot_handler_duration_seconds_bucket[1m])) by (le)) * 1000"
+        }
+      ]
+    },
+    {
+      "type": "stat",
+      "title": "p95 Duration (ms)",
+      "gridPos": { "x": 6, "y": 0, "w": 6, "h": 4 },
+      "targets": [
+        {
+          "expr": "histogram_quantile(0.95, sum(rate(bot_handler_duration_seconds_bucket[1m])) by (le)) * 1000"
+        }
+      ]
+    },
+    {
+      "type": "stat",
+      "title": "p99 Duration (ms)",
+      "gridPos": { "x": 12, "y": 0, "w": 6, "h": 4 },
+      "targets": [
+        {
+          "expr": "histogram_quantile(0.99, sum(rate(bot_handler_duration_seconds_bucket[1m])) by (le)) * 1000"
+        }
+      ]
+    },
+
+    {
+      "type": "timeseries",
+      "title": "Duration by Handler (avg ms)",
+      "gridPos": { "x": 0, "y": 4, "w": 12, "h": 6 },
+      "targets": [
+        {
+          "expr": "rate(bot_handler_duration_seconds_sum[1m]) / rate(bot_handler_duration_seconds_count[1m]) * 1000",
+          "legendFormat": "{{handler}}"
+        }
+      ]
+    },
+
+    {
+      "type": "timeseries",
+      "title": "Handler Calls per Minute",
+      "gridPos": { "x": 12, "y": 4, "w": 12, "h": 6 },
+      "targets": [
+        {
+          "expr": "rate(bot_handler_success_total[1m])",
+          "legendFormat": "{{handler}} success"
+        },
+        {
+          "expr": "rate(bot_handler_error_total[1m])",
+          "legendFormat": "{{handler}} error"
+        }
+      ]
+    },
+
+    {
+      "type": "barchart",
+      "title": "Errors by Handler",
+      "gridPos": { "x": 0, "y": 10, "w": 12, "h": 6 },
+      "targets": [
+        {
+          "expr": "sum by (handler) (rate(bot_handler_error_total[5m]))"
+        }
+      ]
+    },
+
+    {
+      "type": "barchart",
+      "title": "Errors by Exception Type",
+      "gridPos": { "x": 12, "y": 10, "w": 12, "h": 6 },
+      "targets": [
+        {
+          "expr": "sum by (exception) (rate(bot_handler_error_total[5m]))"
+        }
+      ]
+    },
+
+    {
+      "type": "timeseries",
+      "title": "Messages Processed per Minute",
+      "gridPos": { "x": 0, "y": 16, "w": 12, "h": 6 },
+      "targets": [
+        {
+          "expr": "rate(bot_handler_success_total[1m])"
+        }
+      ]
+    },
+
+    {
+      "type": "piechart",
+      "title": "Success vs Errors",
+      "gridPos": { "x": 12, "y": 16, "w": 12, "h": 6 },
+      "targets": [
+        {
+          "expr": "sum(rate(bot_handler_success_total[5m]))",
+          "legendFormat": "Success"
+        },
+        {
+          "expr": "sum(rate(bot_handler_error_total[5m]))",
+          "legendFormat": "Error"
+        }
+      ]
+    }
+  ]
+}
