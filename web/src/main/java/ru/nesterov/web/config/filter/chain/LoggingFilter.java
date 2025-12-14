@@ -21,6 +21,12 @@ public class LoggingFilter extends OncePerRequestFilter {
         CachedBodyHttpServletRequest wrappedRequest = new CachedBodyHttpServletRequest(request);
         CachedBodyHttpServletResponse wrappedResponse = new CachedBodyHttpServletResponse(response);
 
+        String uri = request.getRequestURI();
+        if (uri.startsWith("/revenue-analyzer/actuator/prometheus")) {
+            filterChain.doFilter(request, response);
+            return;
+        }
+
         StringBuilder logMessage = new StringBuilder();
 
         logMessage.append("\n=== HTTP Request ===\n")
