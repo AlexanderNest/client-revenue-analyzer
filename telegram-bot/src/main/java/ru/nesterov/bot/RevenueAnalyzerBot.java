@@ -12,9 +12,11 @@ import org.telegram.telegrambots.meta.api.objects.Update;
 import org.telegram.telegrambots.meta.exceptions.TelegramApiException;
 import ru.nesterov.bot.config.BotProperties;
 import ru.nesterov.bot.handlers.abstractions.CommandHandler;
+import ru.nesterov.bot.handlers.implementation.invocable.UpdateUserControlButtonsHandler;
 import ru.nesterov.bot.handlers.service.HandlersService;
 import ru.nesterov.bot.utils.TelegramUpdateUtils;
 
+import java.util.ArrayList;
 import java.util.List;
 
 @Service
@@ -24,14 +26,17 @@ public class RevenueAnalyzerBot extends TelegramLongPollingBot {
     private final HandlersService handlersService;
     private final BotProperties botProperties;
     private final TaskExecutor taskExecutor;
+    private final UpdateUserControlButtonsHandler updateUserControlButtonsHandler;
 
 
     public RevenueAnalyzerBot(BotProperties botProperties, HandlersService handlersService,
-                              @Qualifier("applicationTaskExecutor") TaskExecutor taskExecutor) {
+                              @Qualifier("applicationTaskExecutor") TaskExecutor taskExecutor,
+                              UpdateUserControlButtonsHandler updateUserControlButtonsHandler) {
         super(botProperties.getApiToken());
         this.handlersService = handlersService;
         this.botProperties = botProperties;
         this.taskExecutor = taskExecutor;
+        this.updateUserControlButtonsHandler = updateUserControlButtonsHandler;
     }
 
     @Override
@@ -51,17 +56,26 @@ public class RevenueAnalyzerBot extends TelegramLongPollingBot {
 
         log.debug("Выбранный CommandHandler = {}", commandHandler.getClass().getSimpleName());
 
-        List<BotApiMethod<?>> sendMessage;
+        List<BotApiMethod<?>> sendMessages;
 
         try {
-            sendMessage = commandHandler.handle(update);
+            sendMessages = commandHandler.handle(update);
         } catch (Exception exception) {
             handlersService.resetBrokeHandler(commandHandler, chatId);
-            sendMessage = buildTextMessage(update, exception.getMessage());
+            sendMessages = buildTextMessage(update, exception.getMessage());
         } finally {
             handlersService.resetFinishedHandlers(chatId);
         }
-        sendMessage(sendMessage);
+
+        sendMessages = enrichWithCommandButtons(sendMessages, update);
+        sendMessage(sendMessages);
+    }
+
+    private List<BotApiMethod<?>> enrichWithCommandButtons(List<BotApiMethod<?>> sendMessages, Update update) {
+        List<BotApiMethod<?>> mutableList = new ArrayList<>(sendMessages);
+        mutableList.addAll(updateUserControlButtonsHandler.handle(update));
+
+        return mutableList;
     }
 
     @Override
@@ -77,10 +91,10 @@ public class RevenueAnalyzerBot extends TelegramLongPollingBot {
         return List.of(message);
     }
 
-    private void sendMessage(List<BotApiMethod<?>> message) {
-        for (BotApiMethod<?> thisMessage : message) {
+    private void sendMessage(List<BotApiMethod<?>> sendMessages) {
+        for (BotApiMethod<?> message : sendMessages) {
             try {
-                execute(thisMessage);
+                execute(message);
             } catch (TelegramApiException e) {
                 log.error("Ошибка отправки сообщения", e);
             }
