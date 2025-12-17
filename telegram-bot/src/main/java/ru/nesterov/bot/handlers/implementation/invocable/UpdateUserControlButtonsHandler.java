@@ -26,6 +26,9 @@ import java.util.stream.Collectors;
 @RequiredArgsConstructor
 @Component
 public class UpdateUserControlButtonsHandler extends InvocableCommandHandler {
+    private static final String UPDATE_MESSAGE = "Меню было автоматически обновлено. " +
+            "Можно игнорировать это сообщение и продолжить ввод информации";
+
     private final List<DisplayedCommandHandler> sendingMessageCommandHandlers;
     private final BotProperties botProperties;
     private final ClientRevenueAnalyzerIntegrationClient analyzerIntegrationClient;
@@ -50,7 +53,7 @@ public class UpdateUserControlButtonsHandler extends InvocableCommandHandler {
         List<KeyboardRow> keyboardRows = buildKeyboardRows(update, buttonsPerLine);
 
         keyboardMarkup.setKeyboard(keyboardRows);
-        return getReplyKeyboard(TelegramUpdateUtils.getChatId(update), "Выберите опцию:", keyboardMarkup);
+        return getReplyKeyboard(TelegramUpdateUtils.getChatId(update), UPDATE_MESSAGE, keyboardMarkup);
     }
 
     @Override
