@@ -28,6 +28,7 @@ import ru.nesterov.calendar.integration.util.PlainTextMapper;
 import javax.annotation.Nullable;
 import java.io.FileInputStream;
 import java.io.IOException;
+import java.security.GeneralSecurityException;
 import java.time.Instant;
 import java.time.LocalDateTime;
 import java.time.ZoneId;
@@ -74,21 +75,22 @@ import java.util.stream.Stream;
 @Component
 @ConditionalOnProperty("app.google.calendar.integration.enabled")
 public class GoogleCalendarClient implements CalendarClient {
+    private static final String DEFAULT_EVENT_TYPE = "default";
+
     private final Calendar calendar;
     private final GoogleCalendarProperties properties;
     private final ObjectMapper objectMapper;
     private final EventStatusService eventStatusService;
 
     public GoogleCalendarClient(GoogleCalendarProperties properties, ObjectMapper objectMapper,
-                                EventStatusService eventStatusService) {
+                                EventStatusService eventStatusService) throws GeneralSecurityException, IOException {
         this.properties = properties;
         this.objectMapper = objectMapper;
         this.eventStatusService = eventStatusService;
         this.calendar = createCalendarService();
     }
 
-    @SneakyThrows
-    private Calendar createCalendarService() {
+    private Calendar createCalendarService() throws GeneralSecurityException, IOException {
         GoogleCredentials credentials = GoogleCredentials.fromStream(new FileInputStream(properties.getServiceAccountFilePath()))
                     .createScoped(List.of(CalendarScopes.CALENDAR_READONLY));
 
@@ -97,17 +99,14 @@ public class GoogleCalendarClient implements CalendarClient {
                 .build();
     }
 
-    @SneakyThrows
     public List<EventDto> getEventsBetweenDates(String calendarId, CalendarType calendarType, LocalDateTime leftDate, LocalDateTime rightDate) {
         return getEventsBetweenDatesInternal(calendarId, calendarType, leftDate, rightDate, null);
     }
 
-    @SneakyThrows
     public List<EventDto> getEventsBetweenDates(String calendarId, CalendarType calendarType, LocalDateTime leftDate, LocalDateTime rightDate, String clientName) {
         return getEventsBetweenDatesInternal(calendarId, calendarType, leftDate, rightDate, clientName);
     }
 
-    @SneakyThrows
     private List<EventDto> getEventsBetweenDatesInternal(String calendarId, CalendarType calendarType, LocalDateTime leftDate, LocalDateTime rightDate, String eventName) {
         Date startTime = Date.from(leftDate.atZone(ZoneId.systemDefault()).toInstant());
         Date endTime = Date.from(rightDate.atZone(ZoneId.systemDefault()).toInstant());
@@ -115,6 +114,7 @@ public class GoogleCalendarClient implements CalendarClient {
         List<Events> events = getEventsBetweenDates(calendarId, eventName, startTime, endTime);
         Stream<EventDto> eventDtoStream = events.stream()
                 .flatMap(e -> e.getItems().stream())
+                .filter(this::isDefaultEvent)
                 .map(event -> buildEvent(event, calendarType));
 
         if (eventName != null) {
@@ -124,7 +124,22 @@ public class GoogleCalendarClient implements CalendarClient {
         return eventDtoStream.toList();
     }
 
-    private List<Events> getEventsBetweenDates(String calendarId, String clientName, Date startTime, Date endTime) throws IOException {
+    private boolean isDefaultEvent(Event event) {
+        Object eventTypeObject = event.get("eventType");
+
+        if (eventTypeObject == null) {
+            return true; // скорее всего null невозможен и везде стоит default по умолчанию
+        }
+
+        if (eventTypeObject instanceof String eventType) {
+            return DEFAULT_EVENT_TYPE.equalsIgnoreCase(eventType);
+        }
+
+        return false;
+    }
+
+    @SneakyThrows
+    private List<Events> getEventsBetweenDates(String calendarId, String clientName, Date startTime, Date endTime) {
         int pageNumber = 1;
 
         List<Events> allEvents = new ArrayList<>();
