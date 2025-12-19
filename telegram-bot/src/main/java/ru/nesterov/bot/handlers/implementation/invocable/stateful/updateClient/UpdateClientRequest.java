@@ -8,7 +8,6 @@ public class UpdateClientRequest {
     private String newName;
     private Integer pricePerHour;
     private String description;
-    private Boolean idGenerationNeeded;
     private String phone;
 }
 

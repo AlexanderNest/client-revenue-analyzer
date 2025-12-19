@@ -43,7 +43,7 @@ public class DeleteClientHandler extends StatefulCommandHandler<State, DeleteCli
     private List<BotApiMethod<?>> handleClientNameAndRequestApprove(Update update) {
         ButtonCallback buttonCallback = buttonCallbackService.buildButtonCallback(update.getCallbackQuery().getData());
         getStateMachine(update).getMemory().setClientName(buttonCallback.getValue());
-        return getApproveKeyBoard(update, "Подтвердите удаление");
+        return getApproveKeyBoardMessage(update, "Подтвердите удаление");
     }
 
     private List<BotApiMethod<?>> handleDeleteClient(Update update) {

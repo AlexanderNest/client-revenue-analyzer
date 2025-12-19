@@ -1,6 +1,5 @@
 package ru.nesterov.bot.handlers.implementation.invocable.stateful.updateClient;
 
-import lombok.SneakyThrows;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Component;
 import org.telegram.telegrambots.meta.api.methods.BotApiMethod;
@@ -36,17 +35,17 @@ public class UpdateClientHandler extends StatefulCommandHandler<State, UpdateCli
                 .addTransition(State.APPROVE_NAME_CHANGE, Action.CALLBACK_TRUE, State.CHANGE_NAME, this::handleTrueAndAskForName)
                 .addTransition(State.CHANGE_NAME, Action.ANY_STRING, State.APPROVE_PRICE_CHANGE, this::handleClientNameInputAndAskForPriceChange)
 
-                .addTransition(State.APPROVE_PRICE_CHANGE, Action.CALLBACK_FALSE, State.APPROVE_DESCRIPTION_CHANGE, this::handleChangeDescriptionApprove)
-                .addTransition(State.APPROVE_PRICE_CHANGE, Action.CALLBACK_TRUE, State.CHANGE_PRICE, this::handlePricePerHourChange)
-                .addTransition(State.CHANGE_PRICE, Action.ANY_STRING, State.APPROVE_DESCRIPTION_CHANGE, this::handleChangeDescriptionApprove)
+                .addTransition(State.APPROVE_PRICE_CHANGE, Action.CALLBACK_FALSE, State.APPROVE_DESCRIPTION_CHANGE, this::handleFalseAndAskForChangeDescription)
+                .addTransition(State.APPROVE_PRICE_CHANGE, Action.CALLBACK_TRUE, State.CHANGE_PRICE, this::handleTrueAndAskForPrice)
+                .addTransition(State.CHANGE_PRICE, Action.ANY_STRING, State.APPROVE_DESCRIPTION_CHANGE, this::handlePriceInputAndAskForDescriptionChange)
 
-                .addTransition(State.APPROVE_DESCRIPTION_CHANGE, Action.CALLBACK_FALSE, State.APPROVE_PHONE_CHANGE, this::handleChangePhoneApprove)
-                .addTransition(State.APPROVE_DESCRIPTION_CHANGE, Action.CALLBACK_TRUE, State.CHANGE_DESCRIPTION, this::handleDescriptionChange)
-                .addTransition(State.CHANGE_DESCRIPTION, Action.ANY_STRING, State.APPROVE_PHONE_CHANGE, this::handleChangePhoneApprove)
+                .addTransition(State.APPROVE_DESCRIPTION_CHANGE, Action.CALLBACK_FALSE, State.APPROVE_PHONE_CHANGE, this::handleFalseAndAskForUpdatePhone)
+                .addTransition(State.APPROVE_DESCRIPTION_CHANGE, Action.CALLBACK_TRUE, State.CHANGE_DESCRIPTION, this::handleTrueAndAskForChangeDescription)
+                .addTransition(State.CHANGE_DESCRIPTION, Action.ANY_STRING, State.APPROVE_PHONE_CHANGE, this::handleDescriptionInputAndAskForChangePhone)
 
-                .addTransition(State.APPROVE_PHONE_CHANGE, Action.CALLBACK_FALSE, State.FINISH, this::handleUpdateClient)
-                .addTransition(State.APPROVE_PHONE_CHANGE, Action.CALLBACK_TRUE, State.CHANGE_PHONE, this::handlePhoneChange)
-                .addTransition(State.CHANGE_PHONE, Action.ANY_STRING, State.FINISH, this::handleUpdateClient);
+                .addTransition(State.APPROVE_PHONE_CHANGE, Action.CALLBACK_FALSE, State.FINISH, this::handleFalseAndAndUpdateClient)
+                .addTransition(State.APPROVE_PHONE_CHANGE, Action.CALLBACK_TRUE, State.CHANGE_PHONE, this::handleTrueAndAskForPhoneChange)
+                .addTransition(State.CHANGE_PHONE, Action.ANY_STRING, State.FINISH, this::handleInputPhoneAndUpdateClient);
     }
 
     public List<BotApiMethod<?>> handleCommandInputAndSendClientNamesKeyboard(Update update) {
@@ -57,32 +56,22 @@ public class UpdateClientHandler extends StatefulCommandHandler<State, UpdateCli
         return getPlainSendMessage(TelegramUpdateUtils.getChatId(update), "Введите новое имя:");
     }
 
-    private List<BotApiMethod<?>> handlePricePerHourChange(Update update) {
-        if (update.hasMessage()) {
-            getStateMachine(update).getMemory().setNewName(update.getMessage().getText());
-        }
-
-        return getPlainSendMessage(TelegramUpdateUtils.getChatId(update), "Введите новую стоимость в час");
+    private List<BotApiMethod<?>> handleTrueAndAskForPrice(Update update) {
+        return getPlainSendMessage(TelegramUpdateUtils.getChatId(update), "Введите новую стоимость клиента за час: ");
     }
 
-    private List<BotApiMethod<?>> handleDescriptionChange(Update update) {
-        if(update.hasMessage()) {
-            getStateMachine(update).getMemory().setPricePerHour(Integer.parseInt(update.getMessage().getText()));
-        }
-        return getPlainSendMessage(TelegramUpdateUtils.getChatId(update), "Введите новое описание: ");
-    }
 
-    private List<BotApiMethod<?>> handlePhoneChange(Update update) {
-        if(update.hasMessage()) {
-            getStateMachine(update).getMemory().setDescription(update.getMessage().getText());
-        }
+    private List<BotApiMethod<?>> handleTrueAndAskForPhoneChange(Update update) {
         return getPlainSendMessage(TelegramUpdateUtils.getChatId(update), "Введите новый номер телефона: ");
     }
 
-    private List<BotApiMethod<?>> handleUpdateClient(Update update){
-        if (update.hasMessage()) {
-            getStateMachine(update).getMemory().setPhone(update.getMessage().getText());
-        }
+    private List<BotApiMethod<?>> handleInputPhoneAndUpdateClient(Update update){
+        getStateMachine(update).getMemory().setPhone(update.getMessage().getText());
+        UpdateClientResponse updateClientResponse = client.updateClient(TelegramUpdateUtils.getChatId(update), getStateMachine(update).getMemory());
+        return getPlainSendMessage(TelegramUpdateUtils.getChatId(update), formatUpdateClients(updateClientResponse));
+    }
+
+    private List<BotApiMethod<?>> handleFalseAndAndUpdateClient(Update update){
         UpdateClientResponse updateClientResponse = client.updateClient(TelegramUpdateUtils.getChatId(update), getStateMachine(update).getMemory());
         return getPlainSendMessage(TelegramUpdateUtils.getChatId(update), formatUpdateClients(updateClientResponse));
     }
@@ -101,29 +90,42 @@ public class UpdateClientHandler extends StatefulCommandHandler<State, UpdateCli
     private List<BotApiMethod<?>> handleClientNameAndSendNameChangeApprove(Update update) {
         ButtonCallback buttonCallback = buttonCallbackService.buildButtonCallback(update.getCallbackQuery().getData());
         getStateMachine(update).getMemory().setClientName(buttonCallback.getValue());
-        return getApproveKeyBoard(update, "Обновить имя пользователя? ");
+        return getApproveKeyBoardMessage(update, "Обновить имя пользователя?");
     }
 
+
     private List<BotApiMethod<?>> handleFalseAndAskForPriceChange(Update update) {
-        return getApproveKeyBoard(update, "Обновить стоимость за час пользователя? ");
+        //return getApproveKeyBoard(update, "Обновить стоимость за час пользователя?");
+        return editMessage(TelegramUpdateUtils.getChatId(update), TelegramUpdateUtils.getMessageId(update), "Обновить стоимость за час пользователя?",  getApproveKeyboard());
     }
 
     private List<BotApiMethod<?>> handleClientNameInputAndAskForPriceChange(Update update) {
-        getStateMachine(update).getMemory().setClientName(update.getMessage().getText());
-        return getApproveKeyBoard(update, "Обновить стоимость за час пользователя? ");
+        getStateMachine(update).getMemory().setNewName(update.getMessage().getText());
+        return getApproveKeyBoardMessage(update, "Обновить стоимость за час пользователя?");
     }
 
-    private List<BotApiMethod<?>> handleChangeDescriptionApprove(Update update) {
-        if(update.hasMessage()) {
-            getStateMachine(update).getMemory().setPricePerHour(Integer.parseInt(update.getMessage().getText()));
-        }
-        return getApproveKeyBoard(update, "Обновить описание пользователя? ");
+    private List<BotApiMethod<?>> handlePriceInputAndAskForDescriptionChange(Update update) {
+        getStateMachine(update).getMemory().setPricePerHour(Integer.parseInt(update.getMessage().getText()));
+        return getApproveKeyBoardMessage(update, "Обновить описание пользователя?");
     }
 
-    private List<BotApiMethod<?>> handleChangePhoneApprove(Update update) {
-        if (update.hasMessage()) {
-            getStateMachine(update).getMemory().setDescription(update.getMessage().getText());
-        }
-        return getApproveKeyBoard(update, "Обновить номер телефона пользователя? ");
+
+    private List<BotApiMethod<?>> handleFalseAndAskForChangeDescription(Update update) {
+        return getApproveKeyBoardMessage(update, "Обновить описание пользователя?");
     }
+
+    private List<BotApiMethod<?>> handleFalseAndAskForUpdatePhone(Update update) {
+        return getApproveKeyBoardMessage(update, "Обновить номер телефона пользователя?");
+    }
+
+    private List<BotApiMethod<?>> handleTrueAndAskForChangeDescription(Update update) {
+        return getPlainSendMessage(TelegramUpdateUtils.getChatId(update), "Введите новое описание клиента: ");
+    }
+    private List<BotApiMethod<?>> handleDescriptionInputAndAskForChangePhone(Update update) {
+        getStateMachine(update).getMemory().setDescription(update.getMessage().getText());
+        return getApproveKeyBoardMessage(update, "Обновить номер телефона пользователя?");
+    }
+
 }
+
+

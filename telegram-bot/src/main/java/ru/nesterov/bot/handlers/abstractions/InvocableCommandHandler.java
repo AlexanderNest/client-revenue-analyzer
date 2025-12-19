@@ -56,7 +56,11 @@ public abstract class InvocableCommandHandler extends SendingMessageCommandHandl
         return getReplyKeyboard(TelegramUpdateUtils.getChatId(update), text, keyboardMarkup);
     }
 
-    public List<BotApiMethod<?>> getApproveKeyBoard(Update update, String message) {
+    public List<BotApiMethod<?>> getApproveKeyBoardMessage(Update update, String message) {
+        return getReplyKeyboard(TelegramUpdateUtils.getChatId(update), message, getApproveKeyboard());
+    }
+
+    public InlineKeyboardMarkup getApproveKeyboard() {
         InlineKeyboardMarkup keyboardMarkup = new InlineKeyboardMarkup();
         List<List<InlineKeyboardButton>> keyboard = new ArrayList<>();
         List<InlineKeyboardButton> rowInline = new ArrayList<>();
@@ -65,7 +69,7 @@ public abstract class InvocableCommandHandler extends SendingMessageCommandHandl
         keyboard.add(rowInline);
         keyboardMarkup.setKeyboard(keyboard);
 
-        return getReplyKeyboard(TelegramUpdateUtils.getChatId(update), message, keyboardMarkup);
+        return keyboardMarkup;
     }
 
     @Override
