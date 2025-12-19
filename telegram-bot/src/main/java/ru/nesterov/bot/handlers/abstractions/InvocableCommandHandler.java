@@ -56,6 +56,15 @@ public abstract class InvocableCommandHandler extends SendingMessageCommandHandl
         return getReplyKeyboard(TelegramUpdateUtils.getChatId(update), text, keyboardMarkup);
     }
 
+    public List<BotApiMethod<?>> editCurrentApproveKeyboardMessage(Update update, String message) {
+        return editMessage(
+                TelegramUpdateUtils.getChatId(update),
+                TelegramUpdateUtils.getMessageId(update),
+                message,
+                getApproveKeyboard()
+        );
+    }
+
     public List<BotApiMethod<?>> getApproveKeyBoardMessage(Update update, String message) {
         return getReplyKeyboard(TelegramUpdateUtils.getChatId(update), message, getApproveKeyboard());
     }

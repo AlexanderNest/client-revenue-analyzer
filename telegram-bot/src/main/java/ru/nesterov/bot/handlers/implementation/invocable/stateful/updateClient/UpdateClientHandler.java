@@ -1,6 +1,4 @@
 package ru.nesterov.bot.handlers.implementation.invocable.stateful.updateClient;
-
-import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Component;
 import org.telegram.telegrambots.meta.api.methods.BotApiMethod;
 import org.telegram.telegrambots.meta.api.objects.Update;
@@ -14,7 +12,6 @@ import java.util.List;
 import static ru.nesterov.bot.handlers.implementation.invocable.stateful.updateClient.State.STARTED;
 
 @Component
-@Slf4j
 public class UpdateClientHandler extends StatefulCommandHandler<State, UpdateClientRequest> {
     public UpdateClientHandler() {
         super(STARTED, UpdateClientRequest.class);
@@ -73,7 +70,8 @@ public class UpdateClientHandler extends StatefulCommandHandler<State, UpdateCli
 
     private List<BotApiMethod<?>> handleFalseAndAndUpdateClient(Update update){
         UpdateClientResponse updateClientResponse = client.updateClient(TelegramUpdateUtils.getChatId(update), getStateMachine(update).getMemory());
-        return getPlainSendMessage(TelegramUpdateUtils.getChatId(update), formatUpdateClients(updateClientResponse));
+        return editMessage(TelegramUpdateUtils.getChatId(update),TelegramUpdateUtils.getMessageId(update), formatUpdateClients(updateClientResponse), null);
+
     }
 
     private String formatUpdateClients (UpdateClientResponse response){
@@ -96,7 +94,7 @@ public class UpdateClientHandler extends StatefulCommandHandler<State, UpdateCli
 
     private List<BotApiMethod<?>> handleFalseAndAskForPriceChange(Update update) {
         //return getApproveKeyBoard(update, "Обновить стоимость за час пользователя?");
-        return editMessage(TelegramUpdateUtils.getChatId(update), TelegramUpdateUtils.getMessageId(update), "Обновить стоимость за час пользователя?",  getApproveKeyboard());
+        return editCurrentApproveKeyboardMessage(update, "Обновить стоимость за час пользователя?");
     }
 
     private List<BotApiMethod<?>> handleClientNameInputAndAskForPriceChange(Update update) {
@@ -111,11 +109,13 @@ public class UpdateClientHandler extends StatefulCommandHandler<State, UpdateCli
 
 
     private List<BotApiMethod<?>> handleFalseAndAskForChangeDescription(Update update) {
-        return getApproveKeyBoardMessage(update, "Обновить описание пользователя?");
+        //return getApproveKeyBoardMessage(update, "Обновить описание пользователя?");
+        return editCurrentApproveKeyboardMessage(update, "Обновить описание пользователя?");
     }
 
     private List<BotApiMethod<?>> handleFalseAndAskForUpdatePhone(Update update) {
-        return getApproveKeyBoardMessage(update, "Обновить номер телефона пользователя?");
+        //return getApproveKeyBoardMessage(update, "Обновить номер телефона пользователя?");
+        return editCurrentApproveKeyboardMessage(update, "Обновить номер телефона пользователя?");
     }
 
     private List<BotApiMethod<?>> handleTrueAndAskForChangeDescription(Update update) {
