@@ -37,6 +37,9 @@ import static org.mockito.Mockito.when;
         "bot.menu-buttons-per-line=1"
 })
 public class UpdateUserControlButtonsHandlerTest extends RegisteredUserHandlerTest {
+
+    private static final String UPDATE_MESSAGE = "Меню было автоматически обновлено. Можно игнорировать это сообщение и продолжить ввод информации";
+
     @Test
     public void testForRegisteredUser() {
         Update update = new Update();
@@ -74,7 +77,7 @@ public class UpdateUserControlButtonsHandlerTest extends RegisteredUserHandlerTe
 
         SendMessage sendMessage = (SendMessage) result.get(0);
         assertEquals("111", sendMessage.getChatId());
-        assertEquals("Выберите опцию:", sendMessage.getText());
+        assertEquals(UPDATE_MESSAGE, sendMessage.getText());
 
         ReplyKeyboardMarkup replyKeyboardMarkup = (ReplyKeyboardMarkup) sendMessage.getReplyMarkup();
         assertNotNull(replyKeyboardMarkup);
@@ -118,7 +121,7 @@ public class UpdateUserControlButtonsHandlerTest extends RegisteredUserHandlerTe
 
         SendMessage sendMessage = (SendMessage) result.get(0);
         assertEquals("111", sendMessage.getChatId());
-        assertEquals("Выберите опцию:", sendMessage.getText());
+        assertEquals(UPDATE_MESSAGE, sendMessage.getText());
 
         ReplyKeyboardMarkup replyKeyboardMarkup = (ReplyKeyboardMarkup) sendMessage.getReplyMarkup();
         assertNotNull(replyKeyboardMarkup);
