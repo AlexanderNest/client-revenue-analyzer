@@ -87,7 +87,7 @@ public class ClientRevenueAnalyzerIntegrationClient {
         return post(String.valueOf(userId), request, "/revenue-analyzer/ai/generateRecommendation", AiAnalyzerResponse.class).getBody();
     }
 
-    @Cacheable(value = "getUserByUsername", key = "#request.username", unless = "#result == null")
+    //@Cacheable(value = "getUserByUsername", key = "#request.username", unless = "#result == null")
     public GetUserResponse getUserByUsername(GetUserRequest request) {
         ResponseEntity<GetUserResponse> responseEntity = post(request.getUsername(), request, "/revenue-analyzer/user/getUserByUsername", GetUserResponse.class);
         if (responseEntity.getStatusCode().isSameCodeAs(HttpStatus.NOT_FOUND)) {

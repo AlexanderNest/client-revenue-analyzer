@@ -15,6 +15,7 @@ import ru.nesterov.bot.handlers.abstractions.Priority;
 import ru.nesterov.bot.handlers.implementation.invocable.stateful.createUser.CreateUserHandler;
 import ru.nesterov.bot.integration.ClientRevenueAnalyzerIntegrationClient;
 import ru.nesterov.bot.utils.TelegramUpdateUtils;
+import ru.nesterov.core.service.KeyboardCacheService;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -33,6 +34,7 @@ public class UpdateUserControlButtonsHandler extends InvocableCommandHandler {
     private final BotProperties botProperties;
     private final ClientRevenueAnalyzerIntegrationClient analyzerIntegrationClient;
     private final CreateUserHandler createUserHandler;
+    private final KeyboardCacheService keyboardCacheService;
 
     @Override
     public String getCommand() {
@@ -52,7 +54,10 @@ public class UpdateUserControlButtonsHandler extends InvocableCommandHandler {
 
         List<KeyboardRow> keyboardRows = buildKeyboardRows(update, buttonsPerLine);
 
-        keyboardMarkup.setKeyboard(keyboardRows);
+        if (keyboardCacheService.shouldUpdateKeyboard(TelegramUpdateUtils.getChatId(update))) {
+            keyboardMarkup.setKeyboard(keyboardRows);
+        }
+
         return getReplyKeyboard(TelegramUpdateUtils.getChatId(update), UPDATE_MESSAGE, keyboardMarkup);
     }
 

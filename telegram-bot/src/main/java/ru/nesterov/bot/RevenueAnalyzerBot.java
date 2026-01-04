@@ -67,7 +67,7 @@ public class RevenueAnalyzerBot extends TelegramLongPollingBot {
             handlersService.resetFinishedHandlers(chatId);
         }
 
-//        sendMessages = enrichWithCommandButtons(sendMessages, update);
+        sendMessages = enrichWithCommandButtons(sendMessages, update);
         sendMessage(sendMessages);
     }
 
