@@ -1,7 +1,9 @@
 package ru.nesterov.bot.handlers.implementation;
 
 import org.junit.jupiter.api.Test;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.context.properties.EnableConfigurationProperties;
+import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.TestPropertySource;
 import org.telegram.telegrambots.meta.api.methods.BotApiMethod;
@@ -17,7 +19,9 @@ import ru.nesterov.bot.config.BotProperties;
 import ru.nesterov.bot.dto.GetUserRequest;
 import ru.nesterov.bot.handlers.RegisteredUserHandlerTest;
 import ru.nesterov.bot.handlers.implementation.invocable.GetMonthStatisticsCommandHandler;
+import ru.nesterov.bot.handlers.implementation.invocable.UpdateUserControlButtonsHandler;
 import ru.nesterov.bot.handlers.implementation.invocable.stateful.getSchedule.GetClientScheduleCommandHandler;
+import ru.nesterov.bot.service.RedisCacheService;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -30,6 +34,7 @@ import static org.mockito.Mockito.when;
 @ContextConfiguration(classes = {
         GetClientScheduleCommandHandler.class,
         GetMonthStatisticsCommandHandler.class,
+        UpdateUserControlButtonsHandler.class,
         BotProperties.class
 })
 @EnableConfigurationProperties(BotProperties.class)
@@ -37,6 +42,11 @@ import static org.mockito.Mockito.when;
         "bot.menu-buttons-per-line=1"
 })
 public class UpdateUserControlButtonsHandlerTest extends RegisteredUserHandlerTest {
+
+    @MockBean
+    private RedisCacheService redisCacheService;
+    @Autowired
+    private UpdateUserControlButtonsHandler updateUserControlButtonsHandler;
     @Test
     public void testForRegisteredUser() {
         Update update = new Update();

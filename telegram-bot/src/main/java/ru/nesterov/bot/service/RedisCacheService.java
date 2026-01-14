@@ -25,7 +25,7 @@ public class RedisCacheService {
             return false;
         }
 
-        redisTemplate.opsForValue().set(key, LocalDateTime.now().toString(), botProperties.getButtonsUpdateIntervalHours(), TimeUnit.SECONDS);
+        redisTemplate.opsForValue().set(key, LocalDateTime.now().toString(), botProperties.getButtonsUpdateIntervalHours(), TimeUnit.HOURS);
         return true;
     }
 }
