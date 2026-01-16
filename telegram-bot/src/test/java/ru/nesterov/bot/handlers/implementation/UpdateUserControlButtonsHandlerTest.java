@@ -8,7 +8,6 @@ import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.TestPropertySource;
 import org.telegram.telegrambots.meta.api.methods.BotApiMethod;
 import org.telegram.telegrambots.meta.api.methods.send.SendMessage;
-import org.telegram.telegrambots.meta.api.objects.CallbackQuery;
 import org.telegram.telegrambots.meta.api.objects.Chat;
 import org.telegram.telegrambots.meta.api.objects.Message;
 import org.telegram.telegrambots.meta.api.objects.Update;
@@ -29,7 +28,6 @@ import java.util.List;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
-import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.when;
 
@@ -46,7 +44,8 @@ import static org.mockito.Mockito.when;
 public class UpdateUserControlButtonsHandlerTest extends RegisteredUserHandlerTest {
 
     @MockBean
-    private ShouldKeyboardUpdate shouldKeyboardUpdate;
+    private ShouldKeyboardUpdate redisCacheService;
+
     @Autowired
     private UpdateUserControlButtonsHandler updateUserControlButtonsHandler;
     @Test
@@ -60,11 +59,9 @@ public class UpdateUserControlButtonsHandlerTest extends RegisteredUserHandlerTe
         message.setFrom(user);
         message.setChat(chat);
         message.setText("/start");
+        update.setMessage(message);
 
-
-        when(shouldKeyboardUpdate.shouldUpdateKeyboard(any(Long.class))).thenReturn(false);
-        when(client.getUserByUsername(any())).thenReturn(null);
-
+        ReplyKeyboardMarkup replyKeyboardMarkupTest = new ReplyKeyboardMarkup();
         List<KeyboardRow> keyboardRows = new ArrayList<>();
         KeyboardRow keyboardRow1 = new KeyboardRow();
         keyboardRow1.add(new KeyboardButton("Узнать доход"));
@@ -74,34 +71,32 @@ public class UpdateUserControlButtonsHandlerTest extends RegisteredUserHandlerTe
         keyboardRow2.add(new KeyboardButton("Узнать расписание клиента"));
         keyboardRows.add(keyboardRow2);
 
+        replyKeyboardMarkupTest.setKeyboard(keyboardRows);
+
+
         GetUserRequest getUserRequest = new GetUserRequest();
         getUserRequest.setUsername(user.getUserName());
 
-        CallbackQuery callbackQuery = new CallbackQuery();
-        callbackQuery.setId("1");
-        callbackQuery.setFrom(user);
-        callbackQuery.setMessage(message);
-        update.setCallbackQuery(callbackQuery);
-
 
         List<BotApiMethod<?>> result = updateUserControlButtonsHandler.handle(update);
+
         assertNotNull(result);
         assertEquals(SendMessage.class, result.get(0).getClass());
 
         SendMessage sendMessage = (SendMessage) result.get(0);
         assertEquals("111", sendMessage.getChatId());
-        assertEquals(sendMessage.getText(), ("Выберите опцию:"));
+        assertEquals("Выберите опцию:", sendMessage.getText());
 
         ReplyKeyboardMarkup replyKeyboardMarkup = (ReplyKeyboardMarkup) sendMessage.getReplyMarkup();
         assertNotNull(replyKeyboardMarkup);
+        assertNotNull(replyKeyboardMarkup.getKeyboard());
+        assertEquals(keyboardRows, replyKeyboardMarkup.getKeyboard());
 
-        List<KeyboardRow> rows = replyKeyboardMarkup.getKeyboard();
-        assertNotNull(rows);
-        assertEquals(2, rows.size());
 
-        assertEquals("Узнать доход", rows.get(0).get(0).getText());
-        assertEquals("Узнать расписание клиента", rows.get(1).get(0).getText());
-
+        // проверяем, что количество кнопок на строке выставилось в соответствии с настройкой
+        replyKeyboardMarkup.getKeyboard().stream()
+                .map(ArrayList::size)
+                .forEach(size -> assertEquals(1, size));
     }
 
     @Test
