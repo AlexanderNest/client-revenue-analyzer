@@ -10,7 +10,7 @@ import java.util.concurrent.TimeUnit;
 
 @Service
 @RequiredArgsConstructor
-public class RedisCacheService {
+public class ShouldKeyboardUpdate {
     private static final String KEY_PREFIX = "keyboard:last-update:";
 
     private final StringRedisTemplate redisTemplate;

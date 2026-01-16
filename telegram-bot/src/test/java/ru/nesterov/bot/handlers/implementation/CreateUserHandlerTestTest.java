@@ -198,14 +198,18 @@ public class CreateUserHandlerTestTest extends RegisteredUserHandlerTest {
 
         CallbackQuery callbackQuery = new CallbackQuery();
         callbackQuery.setId(String.valueOf(3L));
+
         ButtonCallback callback = new ButtonCallback();
         callbackQuery.setFrom(user);
         callbackQuery.setMessage(message);
         callback.setCommand(COMMAND);
         callback.setValue(String.valueOf(request.isCancelledCalendarEnabled()));
-        callbackQuery.setData(objectMapper.writeValueAsString(callback));
+
+        String callbackData = buttonCallbackService.getTelegramButtonCallbackString(callback);
+        callbackQuery.setData(callbackData);
 
         update.setCallbackQuery(callbackQuery);
+        update.setMessage(null);
 
         CreateUserResponse createUserResponse = CreateUserResponse.builder()
                 .userIdentifier(request.getUserIdentifier())
@@ -219,7 +223,7 @@ public class CreateUserHandlerTestTest extends RegisteredUserHandlerTest {
                 .mainCalendarId("12345mc")
                 .build();
 
-        when(client.createUser(createUserRequest)).thenReturn(createUserResponse);
+        when(client.createUser(any(CreateUserRequest.class))).thenReturn(createUserResponse);
 
         botApiMethod = createUserHandler.handle(update);
         sendMessage = (SendMessage) botApiMethod.get(0);

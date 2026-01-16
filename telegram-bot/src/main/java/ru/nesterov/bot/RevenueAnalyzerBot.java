@@ -14,6 +14,7 @@ import ru.nesterov.bot.config.BotProperties;
 import ru.nesterov.bot.handlers.abstractions.CommandHandler;
 import ru.nesterov.bot.handlers.implementation.invocable.UpdateUserControlButtonsHandler;
 import ru.nesterov.bot.handlers.service.HandlersService;
+import ru.nesterov.bot.service.ShouldKeyboardUpdate;
 import ru.nesterov.bot.utils.TelegramUpdateUtils;
 
 import java.util.ArrayList;
@@ -27,16 +28,18 @@ public class RevenueAnalyzerBot extends TelegramLongPollingBot {
     private final BotProperties botProperties;
     private final TaskExecutor taskExecutor;
     private final UpdateUserControlButtonsHandler updateUserControlButtonsHandler;
+    private final ShouldKeyboardUpdate shouldKeyboardUpdate;
 
 
     public RevenueAnalyzerBot(BotProperties botProperties, HandlersService handlersService,
                               @Qualifier("applicationTaskExecutor") TaskExecutor taskExecutor,
-                              UpdateUserControlButtonsHandler updateUserControlButtonsHandler) {
+                              UpdateUserControlButtonsHandler updateUserControlButtonsHandler, ShouldKeyboardUpdate shouldKeyboardUpdate) {
         super(botProperties.getApiToken());
         this.handlersService = handlersService;
         this.botProperties = botProperties;
         this.taskExecutor = taskExecutor;
         this.updateUserControlButtonsHandler = updateUserControlButtonsHandler;
+        this.shouldKeyboardUpdate = shouldKeyboardUpdate;
     }
 
     @Override
@@ -73,7 +76,10 @@ public class RevenueAnalyzerBot extends TelegramLongPollingBot {
 
     private List<BotApiMethod<?>> enrichWithCommandButtons(List<BotApiMethod<?>> sendMessages, Update update) {
         List<BotApiMethod<?>> mutableList = new ArrayList<>(sendMessages);
-        mutableList.addAll(updateUserControlButtonsHandler.handle(update));
+
+        if (shouldKeyboardUpdate.shouldUpdateKeyboard(TelegramUpdateUtils.getChatId(update))) {
+            mutableList.addAll(updateUserControlButtonsHandler.handle(update));
+        }
 
         return mutableList;
     }
