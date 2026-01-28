@@ -4,8 +4,6 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Component;
 import org.telegram.telegrambots.meta.api.methods.BotApiMethod;
 import org.telegram.telegrambots.meta.api.objects.Update;
-import org.telegram.telegrambots.meta.api.objects.replykeyboard.InlineKeyboardMarkup;
-import org.telegram.telegrambots.meta.api.objects.replykeyboard.buttons.InlineKeyboardButton;
 import ru.nesterov.bot.dto.GetAllUsersByRoleAndSourceResponse;
 import ru.nesterov.bot.dto.SendMessageToUserRequest;
 import ru.nesterov.bot.handlers.abstractions.StatefulCommandHandler;
@@ -59,7 +57,7 @@ public class SendMessageToUsersHandler extends StatefulCommandHandler<State, Sen
 
     public List<BotApiMethod<?>> handleTextInput(Update update) {
         getStateMachine(update).getMemory().setMessage(update.getMessage().getText());
-        return getApproveKeyBoard(update, "Редактировать сообщение?");
+        return getApproveKeyBoardMessage(update, "Редактировать сообщение?");
     }
 
     public List<BotApiMethod<?>> sendMessageToUsers(Update update) {

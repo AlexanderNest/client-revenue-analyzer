@@ -42,6 +42,8 @@ import ru.nesterov.bot.dto.GetYearBusynessStatisticsResponse;
 import ru.nesterov.bot.dto.MakeEventsBackupResponse;
 import ru.nesterov.bot.exception.InternalException;
 import ru.nesterov.bot.exception.UserFriendlyException;
+import ru.nesterov.bot.handlers.implementation.invocable.stateful.updateClient.UpdateClientRequest;
+import ru.nesterov.bot.handlers.implementation.invocable.stateful.updateClient.UpdateClientResponse;
 import ru.nesterov.core.entity.Role;
 
 import java.net.URI;
@@ -186,6 +188,15 @@ public class ClientRevenueAnalyzerIntegrationClient {
                 params,
                 "/revenue-analyzer/client"
         );
+    }
+
+    public UpdateClientResponse updateClient(long userId, UpdateClientRequest updateClientRequest) {
+
+        return post(String.valueOf(userId),
+                updateClientRequest,
+                "/revenue-analyzer/client/update",
+                UpdateClientResponse.class
+        ).getBody();
     }
 
     private <T> ResponseEntity<T> get(String username, MultiValueMap<String, String> requestParams , String endpoint, Class<T> responseType) {
