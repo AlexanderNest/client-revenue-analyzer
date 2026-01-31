@@ -8,6 +8,7 @@ import ru.nesterov.bot.dto.GetYearBusynessStatisticsRequest;
 import ru.nesterov.bot.dto.GetYearBusynessStatisticsResponse;
 import ru.nesterov.bot.handlers.abstractions.StatefulCommandHandler;
 import ru.nesterov.bot.statemachine.dto.Action;
+import ru.nesterov.bot.statemachine.exception.InvalidInputException;
 import ru.nesterov.bot.utils.TelegramUpdateUtils;
 
 import java.util.List;
@@ -41,8 +42,9 @@ public class GetYearBusynessStatisticsHandler extends StatefulCommandHandler<Sta
         try {
             year = Integer.parseInt(update.getMessage().getText());
         } catch (NumberFormatException e) {
-            return getPlainSendMessage(update.getMessage().getChatId(), "Введите корректный год");
+            throw new InvalidInputException("Введите корректный год");
         }
+
         getStateMachine(update).getMemory().setYear(year);
         return sendYearStatistics(update);
     }

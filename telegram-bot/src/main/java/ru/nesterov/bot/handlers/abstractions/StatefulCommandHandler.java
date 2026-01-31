@@ -1,5 +1,6 @@
 package ru.nesterov.bot.handlers.abstractions;
 
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.telegram.telegrambots.meta.api.methods.BotApiMethod;
 import org.telegram.telegrambots.meta.api.objects.Message;
@@ -9,11 +10,13 @@ import ru.nesterov.bot.statemachine.StateMachine;
 import ru.nesterov.bot.statemachine.StateMachineProvider;
 import ru.nesterov.bot.statemachine.dto.Action;
 import ru.nesterov.bot.statemachine.dto.NextStateFunction;
+import ru.nesterov.bot.statemachine.exception.InvalidInputException;
 import ru.nesterov.bot.utils.TelegramUpdateUtils;
 
 import java.lang.reflect.InvocationTargetException;
 import java.util.List;
 
+@Slf4j
 public abstract class StatefulCommandHandler<STATE extends Enum<STATE>, MEMORY> extends DisplayedCommandHandler {
     @Autowired
     protected ActionService actionService;
@@ -85,9 +88,17 @@ public abstract class StatefulCommandHandler<STATE extends Enum<STATE>, MEMORY> 
             );
         }
 
-        List<BotApiMethod<?>> botApiMethod = nextStateFunction.getFunctionForTransition().apply(update);
-        stateMachine.applyNextState(action);
+        List<BotApiMethod<?>> botApiMethod;
+        try {
+            botApiMethod = nextStateFunction.getFunctionForTransition().apply(update);
+        } catch (InvalidInputException ex) {
+            return getPlainSendMessage(TelegramUpdateUtils.getChatId(update), ex.getMessage());
+        } catch (Exception ex) {
+            log.error("Ошибка во время выполнения функции перехода");
+            return getPlainSendMessage(TelegramUpdateUtils.getChatId(update), "Возникла ошибка. Обратитесь к разработчику");
+        }
 
+        stateMachine.applyNextState(action);
         return botApiMethod;
     }
 
