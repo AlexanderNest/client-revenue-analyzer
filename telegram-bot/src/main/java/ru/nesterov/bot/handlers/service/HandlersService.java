@@ -1,8 +1,10 @@
 package ru.nesterov.bot.handlers.service;
 
+import io.micrometer.core.instrument.MeterRegistry;
 import jakarta.annotation.Nullable;
 import jakarta.annotation.PostConstruct;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.stereotype.Component;
 import org.telegram.telegrambots.meta.api.objects.Update;
@@ -35,16 +37,19 @@ public class HandlersService {
 
     private final List<CommandHandler> commandHandlers;
 
+    private final MeterRegistry meterRegistry;
+
     public HandlersService(List<CommandHandler> commandHandlers,
                            List<StatefulCommandHandler<?, ?>> statefulCommandHandlers,
                            UndefinedHandler undefinedHandler,
                            CancelCommandHandler cancelCommandHandler,
-                           List<InvocableCommandHandler> invocableCommandHandlers) {
+                           List<InvocableCommandHandler> invocableCommandHandlers, MeterRegistry meterRegistry) {
         this.commandHandlers = commandHandlers;
         this.statefulCommandHandlers = statefulCommandHandlers;
         this.invocableCommandHandlers = invocableCommandHandlers;
         this.undefinedHandler = undefinedHandler;
         this.cancelCommandHandler = cancelCommandHandler;
+        this.meterRegistry = meterRegistry;
 
         highestPriorityCommandHandlers = commandHandlers.stream()
                 .filter(ch -> ch.getPriority() == Priority.HIGHEST)
@@ -94,7 +99,7 @@ public class HandlersService {
             return started;
         }
 
-        return Stream.of(highestPriorityCommandHandlers, normalPriorityCommandHandlers, lowestPriorityCommandHandlers)
+        CommandHandler commandHandler = Stream.of(highestPriorityCommandHandlers, normalPriorityCommandHandlers, lowestPriorityCommandHandlers)
                 .map(handlers -> selectHandler(handlers, update))
                 .filter(Objects::nonNull)
                 .findFirst()
@@ -102,6 +107,11 @@ public class HandlersService {
                     log.warn("Не удалось найти Handler для этого Update [{}]", update);
                     return undefinedHandler;
                 });
+
+        String createClientHandlerCounter = "%s_call_counter".formatted(commandHandler.getClass().getSimpleName());
+        this.meterRegistry.counter(createClientHandlerCounter, List.of()).increment();
+
+        return commandHandler;
     }
 
     public void resetBrokeHandler(CommandHandler commandHandler, long userId) {
