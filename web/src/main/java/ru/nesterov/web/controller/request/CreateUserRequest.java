@@ -1,4 +1,4 @@
-package ru.nesterov.bot.dto;
+package ru.nesterov.web.controller.request;
 
 import lombok.AllArgsConstructor;
 import lombok.Builder;

@@ -5,12 +5,13 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RestController;
-import ru.nesterov.bot.dto.CreateUserRequest;
-import ru.nesterov.bot.dto.CreateUserResponse;
+
 import ru.nesterov.core.service.dto.UserDto;
 import ru.nesterov.core.service.user.UserService;
+import ru.nesterov.web.controller.request.CreateUserRequest;
 import ru.nesterov.web.controller.request.GetAllUsersByRoleAndSourceRequest;
 import ru.nesterov.web.controller.request.GetUserRequest;
+import ru.nesterov.web.controller.response.CreateUserResponse;
 import ru.nesterov.web.controller.response.GetUserIdsResponse;
 import ru.nesterov.web.controller.response.GetUserResponse;
 import ru.nesterov.web.mapper.UserMapper;
@@ -19,7 +20,7 @@ import java.util.List;
 
 @RestController
 @AllArgsConstructor
-public class UserControllerImpl implements UserController{
+public class UserControllerImpl implements UserController {
     private UserService userService;
     private final UserMapper userMapper = new UserMapper();
 

@@ -1,4 +1,4 @@
-package ru.nesterov.bot.dto;
+package ru.nesterov.web.controller.response;
 
 import lombok.Builder;
 import lombok.Data;
@@ -12,3 +12,4 @@ public class CreateUserResponse {
     private String cancelledCalendarId;
     private boolean isCancelledCalendarEnabled;
 }
+
