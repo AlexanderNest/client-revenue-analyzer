@@ -6,9 +6,7 @@ scrape_configs:
     scrape_interval: 5s
     metrics_path: '/revenue-analyzer/actuator/prometheus'
     http_headers:
-      X-username:
-        values: [ "304671212" ]
       X-secret-token:
-        values: [ "secret-token" ]
+        values: [ "${SECRET_TOKEN}" ]
     static_configs:
       - targets: ['host.docker.internal:8080']

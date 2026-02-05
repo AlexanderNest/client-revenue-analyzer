@@ -36,19 +36,19 @@ public class HandlersService {
 
     private final List<CommandHandler> commandHandlers;
 
-    private final MeterRegistry meterRegistry;
+    private final MetricService meterService;
 
     public HandlersService(List<CommandHandler> commandHandlers,
                            List<StatefulCommandHandler<?, ?>> statefulCommandHandlers,
                            UndefinedHandler undefinedHandler,
                            CancelCommandHandler cancelCommandHandler,
-                           List<InvocableCommandHandler> invocableCommandHandlers, MeterRegistry meterRegistry) {
+                           List<InvocableCommandHandler> invocableCommandHandlers, MetricService meterService) {
         this.commandHandlers = commandHandlers;
         this.statefulCommandHandlers = statefulCommandHandlers;
         this.invocableCommandHandlers = invocableCommandHandlers;
         this.undefinedHandler = undefinedHandler;
         this.cancelCommandHandler = cancelCommandHandler;
-        this.meterRegistry = meterRegistry;
+        this.meterService = meterService;
 
         highestPriorityCommandHandlers = commandHandlers.stream()
                 .filter(ch -> ch.getPriority() == Priority.HIGHEST)
@@ -107,9 +107,7 @@ public class HandlersService {
                     return undefinedHandler;
                 });
 
-        String createClientHandlerCounter = "%s_call_counter".formatted(commandHandler.getClass().getSimpleName());
-        this.meterRegistry.counter(createClientHandlerCounter, List.of()).increment();
-
+        meterService.countHandlerMetric(commandHandler);
         return commandHandler;
     }
 
