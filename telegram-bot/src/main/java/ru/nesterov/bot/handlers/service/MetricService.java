@@ -5,8 +5,6 @@ import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.stereotype.Component;
 import ru.nesterov.bot.handlers.abstractions.CommandHandler;
 
-import java.util.List;
-
 @Component
 @ConditionalOnProperty("bot.enabled")
 public class MetricService {

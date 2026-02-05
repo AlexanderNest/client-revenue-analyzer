@@ -1,6 +1,5 @@
 package ru.nesterov.bot.handlers.service;
 
-import io.micrometer.core.instrument.MeterRegistry;
 import jakarta.annotation.Nullable;
 import jakarta.annotation.PostConstruct;
 import lombok.extern.slf4j.Slf4j;
