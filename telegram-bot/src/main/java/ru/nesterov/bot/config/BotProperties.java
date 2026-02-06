@@ -12,4 +12,5 @@ public class BotProperties {
     private String username;
     private String secretToken;
     private Integer menuButtonsPerLine;
+    private Integer buttonsUpdateIntervalHours;
 }

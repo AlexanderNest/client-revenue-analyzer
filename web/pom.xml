@@ -39,6 +39,7 @@
             <groupId>ru.nesterov</groupId>
             <artifactId>ai-integration</artifactId>
         </dependency>
+
         <dependency>
             <groupId>ru.nesterov</groupId>
             <artifactId>telegram-bot</artifactId>

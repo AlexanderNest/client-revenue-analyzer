@@ -1,5 +1,13 @@
 version: '3'
 services:
+  redis:
+    image: redis:7.2-alpine
+    container_name: redis-bot
+    ports:
+      - "6380:6379"
+    volumes:
+      - redis_data:/data
+    command: redis-server --appendonly yes --requirepass "your_strong_password"  # опционально: пароль
   elasticsearch:
     image: docker.elastic.co/elasticsearch/elasticsearch:7.10.1
     ports:
@@ -32,3 +40,6 @@ services:
       - elasticsearch
 networks:
   elk:
+
+volumes:
+  redis_data:

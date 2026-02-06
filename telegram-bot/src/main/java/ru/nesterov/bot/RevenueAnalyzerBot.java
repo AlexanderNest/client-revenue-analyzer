@@ -12,8 +12,8 @@ import org.telegram.telegrambots.meta.api.objects.Update;
 import org.telegram.telegrambots.meta.exceptions.TelegramApiException;
 import ru.nesterov.bot.config.BotProperties;
 import ru.nesterov.bot.handlers.abstractions.CommandHandler;
-import ru.nesterov.bot.handlers.implementation.invocable.UpdateUserControlButtonsHandler;
 import ru.nesterov.bot.handlers.service.HandlersService;
+import ru.nesterov.bot.service.KeyboardUpdateService;
 import ru.nesterov.bot.utils.TelegramUpdateUtils;
 
 import java.util.ArrayList;
@@ -26,17 +26,16 @@ public class RevenueAnalyzerBot extends TelegramLongPollingBot {
     private final HandlersService handlersService;
     private final BotProperties botProperties;
     private final TaskExecutor taskExecutor;
-    private final UpdateUserControlButtonsHandler updateUserControlButtonsHandler;
-
+    private final KeyboardUpdateService keyboardUpdateService;
 
     public RevenueAnalyzerBot(BotProperties botProperties, HandlersService handlersService,
                               @Qualifier("applicationTaskExecutor") TaskExecutor taskExecutor,
-                              UpdateUserControlButtonsHandler updateUserControlButtonsHandler) {
+                              KeyboardUpdateService keyboardUpdateService) {
         super(botProperties.getApiToken());
         this.handlersService = handlersService;
         this.botProperties = botProperties;
         this.taskExecutor = taskExecutor;
-        this.updateUserControlButtonsHandler = updateUserControlButtonsHandler;
+        this.keyboardUpdateService = keyboardUpdateService;
     }
 
     @Override
@@ -67,13 +66,13 @@ public class RevenueAnalyzerBot extends TelegramLongPollingBot {
             handlersService.resetFinishedHandlers(chatId);
         }
 
-//        sendMessages = enrichWithCommandButtons(sendMessages, update);
+        sendMessages = enrichWithCommandButtons(sendMessages, update);
         sendMessage(sendMessages);
     }
 
     private List<BotApiMethod<?>> enrichWithCommandButtons(List<BotApiMethod<?>> sendMessages, Update update) {
         List<BotApiMethod<?>> mutableList = new ArrayList<>(sendMessages);
-        mutableList.addAll(updateUserControlButtonsHandler.handle(update));
+        mutableList.addAll(keyboardUpdateService.getUpdateKeyboard(update));
 
         return mutableList;
     }

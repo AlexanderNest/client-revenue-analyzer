@@ -4,9 +4,11 @@ import lombok.Builder;
 import lombok.Data;
 import ru.nesterov.core.entity.Role;
 
+import java.io.Serializable;
+
 @Data
 @Builder
-public class GetUserResponse {
+public class GetUserResponse implements Serializable {
     private long userId;
     private String username;
     private String mainCalendarId;
