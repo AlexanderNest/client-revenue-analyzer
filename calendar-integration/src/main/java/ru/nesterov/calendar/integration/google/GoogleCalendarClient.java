@@ -38,6 +38,8 @@ import java.util.List;
 import java.util.stream.Stream;
 
 /*
+Из полезного: есть shared и private extended properties. Там можно хранить метаданные
+
 Основные методы Google Calendar API для работы с событиями:
 
 1. delete(String calendarId, String eventId)
