@@ -14,6 +14,10 @@
                         <loggerName/>
                         <message/>
                         <stackTrace/>
+                        <mdc>
+                            <includeMdcKeyName>traceId</includeMdcKeyName>
+                            <includeMdcKeyName>x-username</includeMdcKeyName>
+                        </mdc>
                     </providers>
                 </encoder>
             </appender>
@@ -25,11 +29,13 @@
             <appender name="console" class="ch.qos.logback.core.ConsoleAppender">
                 <encoder>
                     <pattern>
-                           %d{${LOG_DATEFORMAT_PATTERN:-yyyy-MM-dd HH:mm:ss.SSS}} <!--
+                        %d{${LOG_DATEFORMAT_PATTERN:-yyyy-MM-dd HH:mm:ss.SSS}} <!--
                         -->%highlight(${LOG_LEVEL_PATTERN:-%5p}) <!--
                         -->%magenta(${PID:- }) <!--
                         -->%white(---) <!--
                         -->[%t] <!--
+                        -->[%X{traceId:-}] <!--
+                        -->[%X{x-username:-}] <!--
                         -->%highlight(%-40.40logger{39}) <!--
                         -->%white(:) <!--
                         -->%m%n%ex

@@ -36,10 +36,16 @@
         <apache.httpcomponents.version>4.5.14</apache.httpcomponents.version>
         <springdoc.version>2.2.0</springdoc.version>
         <reflections.version>0.10.2</reflections.version>
+        <micrometer.trasing.version>1.7.0-M3</micrometer.trasing.version>
     </properties>
 
     <dependencyManagement>
         <dependencies>
+            <dependency>
+                <groupId>io.micrometer</groupId>
+                <artifactId>micrometer-tracing-bridge-brave</artifactId>
+                <version>${micrometer.trasing.version}</version>
+            </dependency>
             <dependency>
                 <groupId>org.springframework.boot</groupId>
                 <artifactId>spring-boot-starter-aop</artifactId>
