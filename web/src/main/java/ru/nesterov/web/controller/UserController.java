@@ -9,10 +9,10 @@ import io.swagger.v3.oas.annotations.tags.Tag;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
-import ru.nesterov.bot.dto.CreateUserRequest;
-import ru.nesterov.bot.dto.CreateUserResponse;
+import ru.nesterov.web.controller.request.CreateUserRequest;
 import ru.nesterov.web.controller.request.GetAllUsersByRoleAndSourceRequest;
 import ru.nesterov.web.controller.request.GetUserRequest;
+import ru.nesterov.web.controller.response.CreateUserResponse;
 import ru.nesterov.web.controller.response.GetUserIdsResponse;
 import ru.nesterov.web.controller.response.GetUserResponse;
 

@@ -5,13 +5,13 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.ArgumentMatchers;
 import org.springframework.http.MediaType;
-import ru.nesterov.bot.dto.GetForMonthRequest;
 import ru.nesterov.calendar.integration.dto.CalendarType;
 import ru.nesterov.calendar.integration.dto.EventDto;
 import ru.nesterov.calendar.integration.dto.EventExtensionDto;
 import ru.nesterov.calendar.integration.dto.EventStatus;
 import ru.nesterov.core.entity.Client;
 import ru.nesterov.core.entity.User;
+import ru.nesterov.web.controller.request.GetForMonthRequest;
 
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;

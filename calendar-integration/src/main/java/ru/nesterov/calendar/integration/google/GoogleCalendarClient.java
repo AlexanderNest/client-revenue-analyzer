@@ -38,6 +38,8 @@ import java.util.List;
 import java.util.stream.Stream;
 
 /*
+Из полезного: есть shared и private extended properties. Там можно хранить метаданные
+
 Основные методы Google Calendar API для работы с событиями:
 
 1. delete(String calendarId, String eventId)
@@ -121,7 +123,9 @@ public class GoogleCalendarClient implements CalendarClient {
             eventDtoStream = eventDtoStream.filter(eventDto -> eventDto.getSummary().equals(eventName));
         }
 
-        return eventDtoStream.toList();
+        List<EventDto> clientsList = eventDtoStream.toList();
+        log.debug("Извлеченные встречи: {}", clientsList);
+        return clientsList;
     }
 
     private boolean isDefaultEvent(Event event) {
@@ -159,7 +163,7 @@ public class GoogleCalendarClient implements CalendarClient {
     }
 
     private Events getEventsBetweenDates(String calendarId, String clientName, Date startTime, Date endTime, String nextPageToken) throws IOException {
-        log.debug("Send request to google");
+        log.info("Send request to google");
         Events events = calendar.events().list(calendarId)
                 .setTimeMin(new DateTime(startTime))
                 .setTimeMax(new DateTime(endTime))
@@ -168,7 +172,7 @@ public class GoogleCalendarClient implements CalendarClient {
                 .setPageToken(nextPageToken)
                 .setQ(clientName)
                 .execute();
-        log.debug("Response from google received");
+        log.info("Response from google received");
         return events;
     }
 
