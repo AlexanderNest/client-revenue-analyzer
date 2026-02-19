@@ -1,4 +1,5 @@
-version: '3'
+version: '3.7'
+name: ClientAnalyzerDocker
 services:
   elasticsearch:
     image: docker.elastic.co/elasticsearch/elasticsearch:7.10.1
@@ -30,5 +31,21 @@ services:
       - elk
     depends_on:
       - elasticsearch
+
+  prometheus:
+    image: prom/prometheus
+    ports:
+      - 9091:9090
+    volumes:
+      - ./config/prometheus.yml:/etc/prometheus/prometheus.yml
+
+  grafana:
+    image: grafana/grafana
+    ports:
+      - 3000:3000
+    environment:
+      - GF_SECURITY_ADMIN_USER=admin
+      - GF_SECURITY_ADMIN_PASSWORD=admin
+
 networks:
   elk:
