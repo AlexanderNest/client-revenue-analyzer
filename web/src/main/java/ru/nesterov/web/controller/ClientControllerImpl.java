@@ -13,6 +13,7 @@ import ru.nesterov.web.controller.request.CreateClientRequest;
 import ru.nesterov.web.controller.request.GetClientScheduleRequest;
 import ru.nesterov.web.controller.request.UpdateClientRequest;
 import ru.nesterov.web.controller.response.ClientResponse;
+import ru.nesterov.web.controller.response.ClientScheduleResponse;
 import ru.nesterov.web.controller.response.EventScheduleResponse;
 import ru.nesterov.web.mapper.ClientMapper;
 
@@ -24,12 +25,29 @@ public class ClientControllerImpl implements ClientController {
     private final ClientService clientService;
     private final UserService userService;
 
-    public List<EventScheduleResponse> getClientSchedule(@RequestHeader(name = "X-username") String username, @RequestBody GetClientScheduleRequest request) {
-        List<ClientScheduleDto> clientSchedule = clientService.getClientSchedule(userService.getUserByUsername(username), request.getClientName(), request.getLeftDate(), request.getRightDate());
+//    public List<EventScheduleResponse> getClientSchedule(@RequestHeader(name = "X-username") String username, @RequestBody GetClientScheduleRequest request) {
+//        List<ClientScheduleDto> clientSchedule = clientService.getClientSchedule(userService.getUserByUsername(username), request.getClientName(), request.getLeftDate(), request.getRightDate());
+//
+//        return clientSchedule.stream()
+//                .map(dto -> new EventScheduleResponse(dto.getEventStart(), dto.getEventEnd(), dto.isRequiresShift()))
+//                .toList();
+//    }
 
-        return clientSchedule.stream()
+    public ClientScheduleResponse getClientSchedule(@RequestHeader(name = "X-username") String username,
+                                                    @RequestBody GetClientScheduleRequest request) {
+        List<ClientScheduleDto> clientSchedule = clientService.getClientSchedule(
+                userService.getUserByUsername(username),
+                request.getClientName(),
+                request.getLeftDate(),
+                request.getRightDate());
+
+        List<EventScheduleResponse> events = clientSchedule.stream()
                 .map(dto -> new EventScheduleResponse(dto.getEventStart(), dto.getEventEnd(), dto.isRequiresShift()))
                 .toList();
+        String name = clientSchedule.isEmpty() ? request.getClientName() : clientSchedule.get(0).getClientName();
+
+        return new ClientScheduleResponse(name, events);
+
     }
 
     public ClientResponse createClient(
