@@ -25,14 +25,6 @@ public class ClientControllerImpl implements ClientController {
     private final ClientService clientService;
     private final UserService userService;
 
-//    public List<EventScheduleResponse> getClientSchedule(@RequestHeader(name = "X-username") String username, @RequestBody GetClientScheduleRequest request) {
-//        List<ClientScheduleDto> clientSchedule = clientService.getClientSchedule(userService.getUserByUsername(username), request.getClientName(), request.getLeftDate(), request.getRightDate());
-//
-//        return clientSchedule.stream()
-//                .map(dto -> new EventScheduleResponse(dto.getEventStart(), dto.getEventEnd(), dto.isRequiresShift()))
-//                .toList();
-//    }
-
     public ClientScheduleResponse getClientSchedule(@RequestHeader(name = "X-username") String username,
                                                     @RequestBody GetClientScheduleRequest request) {
         List<ClientScheduleDto> clientSchedule = clientService.getClientSchedule(
