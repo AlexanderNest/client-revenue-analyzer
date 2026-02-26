@@ -12,4 +12,3 @@ public class CreateUserResponse {
     private String cancelledCalendarId;
     private boolean isCancelledCalendarEnabled;
 }
-
