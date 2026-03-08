@@ -1,0 +1,12 @@
+global:
+  scrape_interval:     15s
+
+scrape_configs:
+  - job_name: 'revenue-analyzer'
+    scrape_interval: 5s
+    metrics_path: '/revenue-analyzer/actuator/prometheus'
+    http_headers:
+      X-secret-token:
+        values: [ "${SECRET_TOKEN}" ]
+    static_configs:
+      - targets: ['host.docker.internal:8080']
