@@ -3,6 +3,7 @@ package ru.nesterov.core.service.event;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 import ru.nesterov.calendar.integration.dto.EventDto;
 import ru.nesterov.calendar.integration.dto.EventStatus;
 import ru.nesterov.calendar.integration.dto.EventsFilter;
@@ -30,6 +31,7 @@ import java.util.Map;
 @Service
 @Slf4j
 @RequiredArgsConstructor
+@Transactional(readOnly = true)
 public class EventsAnalyzerServiceImpl implements EventsAnalyzerService {
     private final CalendarService calendarService;
     private final ClientRepository clientRepository;
@@ -62,8 +64,8 @@ public class EventsAnalyzerServiceImpl implements EventsAnalyzerService {
         Map<String, ClientMeetingsStatistic> meetingsStatistics = new HashMap<>();
         for (EventDto eventDto : eventDtos) {
             EventStatus eventStatus = eventDto.getStatus();
-            Client client = clientRepository.findClientByNameAndUserId(eventDto.getSummary(), userDto.getId());
-            ClientMeetingsStatistic clientMeetingsStatistic = meetingsStatistics.get(eventDto.getSummary());
+            Client client = clientRepository.findClientByNameIgnoreCaseAndUserId(eventDto.getSummary().trim(), userDto.getId());
+            ClientMeetingsStatistic clientMeetingsStatistic = meetingsStatistics.get(client != null ? client.getName() : eventDto.getSummary());
             if (clientMeetingsStatistic == null) {
                 if (client == null) {
                     throw new ClientNotFoundException(eventDto.getSummary());
@@ -126,7 +128,7 @@ public class EventsAnalyzerServiceImpl implements EventsAnalyzerService {
         for (EventDto eventDto : eventDtos) {
             EventStatus eventStatus = eventDto.getStatus();
 
-            Client client = clientRepository.findClientByNameAndUserId(eventDto.getSummary(), userDto.getId());
+            Client client = clientRepository.findClientByNameIgnoreCaseAndUserId(eventDto.getSummary().trim(), userDto.getId());
             if (client == null) {
                 throw new ClientNotFoundException(eventDto.getSummary(), eventDto.getStart());
             }

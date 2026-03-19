@@ -36,6 +36,10 @@
         </dependency>
         <dependency>
             <groupId>ru.nesterov</groupId>
+            <artifactId>calendar-integration</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>ru.nesterov</groupId>
             <artifactId>ai-integration</artifactId>
         </dependency>
         <dependency>
@@ -56,6 +60,12 @@
         <dependency>
             <groupId>org.springframework.boot</groupId>
             <artifactId>spring-boot-starter-actuator</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.projectlombok</groupId>
+            <artifactId>lombok</artifactId>
+            <version>${lombok.version}</version>
+            <scope>provided</scope>
         </dependency>
     </dependencies>
 

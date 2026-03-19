@@ -31,7 +31,7 @@ public class EventService {
     }
 
     public double getPricePerHourForDate(Client client, LocalDateTime dateTime) {
-        if (client.getPriceChangeHistory().isEmpty()) {
+        if (client.getPriceChangeHistory() == null || client.getPriceChangeHistory().isEmpty()) {
             return client.getPricePerHour();
         }
 

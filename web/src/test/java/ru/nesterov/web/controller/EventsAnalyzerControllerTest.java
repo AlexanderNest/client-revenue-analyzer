@@ -104,15 +104,15 @@ public class EventsAnalyzerControllerTest extends AbstractControllerTest {
         when(googleCalendarClient.getEventsBetweenDates(eq("someCalendar1"), eq(CalendarType.MAIN), any(), any(), isNull())).thenReturn(List.of(eventDto1, eventDto2, eventDto3, eventDto4, eventDto5, eventDto6, eventDto7, eventDto8));
     }
 
-    @AfterEach
-    public void cleanup() {
-        User user = userRepository.findByUsername(USERNAME);
-        Client client1 = clientRepository.findClientByNameAndUserId("testName1", user.getId());
-        clientRepository.delete(client1);
-        Client client2 = clientRepository.findClientByNameAndUserId("testName2", user.getId());
-        clientRepository.delete(client2);
-        userRepository.delete(user);
-    }
+//    @AfterEach
+//    public void cleanup() {
+//        User user = userRepository.findByUsername(USERNAME);
+//        Client client1 = clientRepository.findClientByNameIgnoreCaseAndUserId("testName1", user.getId());
+//        clientRepository.delete(client1);
+//        Client client2 = clientRepository.findClientByNameIgnoreCaseAndUserId("testName2", user.getId());
+//        clientRepository.delete(client2);
+//        userRepository.delete(user);
+//    }
 
     @Test
     public void getUnpaidEvents() throws Exception {

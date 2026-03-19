@@ -45,6 +45,9 @@ public class ClientMeetingsStatistic {
     }
 
     public long getServiceDuration() {
+        if (getStartDate() == null) {
+            return 0;
+        }
         return ChronoUnit.MONTHS.between(LocalDateTime.ofInstant(getStartDate().toInstant(), ZoneId.systemDefault()), LocalDateTime.now());
     }
 

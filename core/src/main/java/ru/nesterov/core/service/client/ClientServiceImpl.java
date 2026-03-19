@@ -32,7 +32,7 @@ public class ClientServiceImpl implements ClientService {
     private final UserRepository userRepository;
 
     public List<ClientScheduleDto> getClientSchedule(UserDto userDto, String clientName, LocalDateTime leftDate, LocalDateTime rightDate) {
-        Client client = clientRepository.findClientByNameAndUserId(clientName, userDto.getId());
+        Client client = clientRepository.findClientByNameIgnoreCaseAndUserId(clientName, userDto.getId());
         if (client == null) {
             throw new ClientNotFoundException(clientName);
         }
@@ -48,7 +48,7 @@ public class ClientServiceImpl implements ClientService {
         List<EventDto> eventDtos = calendarService.getEventsBetweenDates(eventsFilter);
 
         return eventDtos.stream()
-                .filter(event -> event.getSummary().equals(client.getName()))
+                .filter(event -> event.getSummary().equalsIgnoreCase(client.getName()))
                 .filter(event -> !event.getStatus().isCancelledStatus())
                 .map(event -> ClientScheduleDto.builder()
                         .clientName(client.getName())
@@ -79,7 +79,7 @@ public class ClientServiceImpl implements ClientService {
 
     @Override
     public void deleteClient(UserDto userDto, String clientName) {
-        Client client = clientRepository.findClientByNameAndUserId(clientName, userDto.getId());
+        Client client = clientRepository.findClientByNameIgnoreCaseAndUserId(clientName, userDto.getId());
         if (client == null) {
             throw new ClientNotFoundException(clientName);
         }
@@ -88,7 +88,7 @@ public class ClientServiceImpl implements ClientService {
 
     @Override
     public ClientDto updateClient(UserDto userDto, UpdateClientDto updateClientDto) {
-        Client clientForUpdate = clientRepository.findClientByNameAndUserId(updateClientDto.getOldClientName(), userDto.getId());
+        Client clientForUpdate = clientRepository.findClientByNameIgnoreCaseAndUserId(updateClientDto.getOldClientName(), userDto.getId());
 
         if (clientForUpdate == null) {
             throw new ClientNotFoundException(updateClientDto.getOldClientName());
@@ -129,7 +129,7 @@ public class ClientServiceImpl implements ClientService {
 
     private ClientDto saveClient(Client client) {
         try {
-            Client saved = clientRepository.save(client);
+            Client saved = clientRepository.saveAndFlush(client);
             return ClientMapper.mapToClientDto(saved);
         } catch (DataIntegrityViolationException ex) {
             String alias = DataIntegrityViolationExceptionHandler.getLocalizedMessage(ex);
