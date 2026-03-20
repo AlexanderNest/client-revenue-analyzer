@@ -34,7 +34,7 @@
         <google.api-version>v3-rev411-1.25.0</google.api-version>
         <google.oauth2-version>1.24.0</google.oauth2-version>
         <apache.httpcomponents.version>4.5.14</apache.httpcomponents.version>
-        <springdoc.version>2.2.0</springdoc.version>
+        <springdoc.version>2.8.9</springdoc.version>
         <reflections.version>0.10.2</reflections.version>
         <micrometer.trasing.version>1.7.0-M3</micrometer.trasing.version>
     </properties>
