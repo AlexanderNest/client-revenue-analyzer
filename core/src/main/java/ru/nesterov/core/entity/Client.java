@@ -13,7 +13,6 @@ import jakarta.persistence.Table;
 import lombok.Data;
 import org.hibernate.annotations.CreationTimestamp;
 
-import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 
@@ -23,7 +22,7 @@ import java.util.List;
 public class Client {
     @Id
     @GeneratedValue(strategy = GenerationType.SEQUENCE, generator = "client_seq_gen")
-    @SequenceGenerator(name = "client_seq_gen", sequenceName = "client_id_seq", allocationSize = 1)
+    @SequenceGenerator(name = "client_seq_gen", sequenceName = "client_seq", allocationSize = 1)
     private long id;
 
     private String name;
@@ -38,7 +37,7 @@ public class Client {
     private Date startDate;
     private String phone;
 
-    @OneToMany(fetch = FetchType.EAGER)
+    @OneToMany(fetch = FetchType.LAZY)
     @JoinColumn(name = "CLIENT_ID")
-    private List<PriceChangeHistory> priceChangeHistory = new ArrayList<>();
+    private List<PriceChangeHistory> priceChangeHistory;
 }

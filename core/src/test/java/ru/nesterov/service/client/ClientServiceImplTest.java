@@ -57,14 +57,14 @@ public class ClientServiceImplTest {
         client1.setName("testClient1");
         client1.setPricePerHour(1000);
         client1.setUser(user);
-        when(clientRepository.findClientByNameIgnoreCaseAndUserId(client1.getName(), user.getId())).thenReturn(client1);
+        when(clientRepository.findClientByNameAndUserId(client1.getName(), user.getId())).thenReturn(client1);
 
         Client client2 = new Client();
         client2.setId(1);
         client2.setName("testClient2");
         client2.setPricePerHour(1000);
         client2.setUser(user);
-        when(clientRepository.findClientByNameIgnoreCaseAndUserId(client2.getName(), user.getId())).thenReturn(client2);
+        when(clientRepository.findClientByNameAndUserId(client2.getName(), user.getId())).thenReturn(client2);
 
         EventDto eventDto1 = EventDto.builder()
                 .summary("testClient1")

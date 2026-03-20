@@ -37,7 +37,6 @@
         <springdoc.version>2.2.0</springdoc.version>
         <reflections.version>0.10.2</reflections.version>
         <micrometer.trasing.version>1.7.0-M3</micrometer.trasing.version>
-        <lombok.version>1.18.34</lombok.version>
     </properties>
 
     <dependencyManagement>

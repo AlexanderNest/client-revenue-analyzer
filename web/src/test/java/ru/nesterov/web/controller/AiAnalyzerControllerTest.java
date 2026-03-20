@@ -1,8 +1,8 @@
 package ru.nesterov.web.controller;
 
 import org.junit.jupiter.api.Test;
+import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.http.MediaType;
-import org.springframework.test.context.bean.override.mockito.MockitoBean;
 import ru.nesterov.ai.AIIntegrationService;
 import ru.nesterov.web.controller.request.GetForMonthRequest;
 import ru.nesterov.web.controller.response.GetClientAnalyticResponse;
@@ -15,7 +15,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 
 public class AiAnalyzerControllerTest extends AbstractControllerTest {
     private final static String USERNAME = "testAiAnalyzerUser";
-    @MockitoBean
+    @MockBean
     private AIIntegrationService AIIntegrationService;
 
     @Test
