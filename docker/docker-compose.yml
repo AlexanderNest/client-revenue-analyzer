@@ -1,5 +1,19 @@
-version: '3'
+version: '3.8'
 services:
+  db:
+    image: postgres:16-alpine
+    container_name: client-revenue-analyzer
+    ports:
+      - "5432:5432"
+
+    environment:
+      - POSTGRES_USER=clientAnalyzer
+      - POSTGRES_PASSWORD=clientAnalyzer
+      - POSTGRES_DB=postgres
+    volumes:
+      - pgdata:/var/lib/postgresql/data
+
+
   elasticsearch:
     image: docker.elastic.co/elasticsearch/elasticsearch:7.10.1
     ports:

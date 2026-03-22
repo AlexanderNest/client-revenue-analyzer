@@ -13,7 +13,13 @@ import java.util.List;
 public interface ClientRepository extends JpaRepository<Client, Long> {
     Client findClientByNameAndUserId(String name, long userId);
 
-    @Query(value = "SELECT * FROM client WHERE (name = :name OR name REGEXP '^' || :name || '\\s\\d+$') and user_id = :userId", nativeQuery = true)
+    @Query(value = """
+            SELECT id, name, description, price_per_hour, active, user_id, start_date, phone
+            FROM client 
+            WHERE (name = :name
+                OR REGEXP_LIKE(name, CONCAT('^', :name, ' [0-9]+$'))) 
+            AND user_id = :userId
+            """, nativeQuery = true)
     List<Client> findAllByExactNameOrNameStartingWithAndEndingWithNumberAndUserId(@Param("name") String name, @Param("userId") long userId);
 
     List<Client> findClientByUserIdAndActiveOrderByPricePerHourDesc(long userId, boolean active);
