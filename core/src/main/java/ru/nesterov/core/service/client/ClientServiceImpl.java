@@ -51,6 +51,7 @@ public class ClientServiceImpl implements ClientService {
                 .filter(event -> event.getSummary().equals(client.getName()))
                 .filter(event -> !event.getStatus().isCancelledStatus())
                 .map(event -> ClientScheduleDto.builder()
+                        .clientName(client.getName())
                         .eventStart(event.getStart())
                         .eventEnd(event.getEnd())
                         .requiresShift(event.getStatus() == EventStatus.REQUIRES_SHIFT)

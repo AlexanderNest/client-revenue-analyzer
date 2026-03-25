@@ -15,7 +15,7 @@ import ru.nesterov.web.controller.request.CreateClientRequest;
 import ru.nesterov.web.controller.request.GetClientScheduleRequest;
 import ru.nesterov.web.controller.request.UpdateClientRequest;
 import ru.nesterov.web.controller.response.ClientResponse;
-import ru.nesterov.web.controller.response.EventScheduleResponse;
+import ru.nesterov.web.controller.response.ClientScheduleResponse;
 
 import java.util.List;
 
@@ -37,7 +37,7 @@ public interface ClientController {
             }
     )
     @PostMapping("/getSchedule")
-    List<EventScheduleResponse> getClientSchedule(@RequestHeader(name = "X-username") String username, @RequestBody GetClientScheduleRequest request);
+    ClientScheduleResponse getClientSchedule(@RequestHeader(name = "X-username") String username, @RequestBody GetClientScheduleRequest request);
 
     @Operation(
             summary = "Создать клиента",

@@ -372,12 +372,13 @@ class ClientControllerTest extends AbstractControllerTest {
                         .content(objectMapper.writeValueAsString(request)))
 
                 .andExpect(status().isOk())
-                .andExpect(jsonPath("$", hasSize(2)))
-                .andExpect(jsonPath("$[0].eventStart").value("2024-08-11T11:30:00"))
-                .andExpect(jsonPath("$[0].eventEnd").value("2024-08-11T12:30:00"))
-                .andExpect(jsonPath("$[0].requiresShift").value(true))
-                .andExpect(jsonPath("$[1].eventStart").value("2024-08-12T11:30:00"))
-                .andExpect(jsonPath("$[1].eventEnd").value("2024-08-12T12:30:00"))
-                .andExpect(jsonPath("$[1].requiresShift").value(false));
+                .andExpect(jsonPath("$.clientName").value(client.getName()))
+                .andExpect(jsonPath("$.events", hasSize(2)))
+                .andExpect(jsonPath("$.events[0].eventStart").value("2024-08-11T11:30:00"))
+                .andExpect(jsonPath("$.events[0].eventEnd").value("2024-08-11T12:30:00"))
+                .andExpect(jsonPath("$.events[0].requiresShift").value(true))
+                .andExpect(jsonPath("$.events[1].eventStart").value("2024-08-12T11:30:00"))
+                .andExpect(jsonPath("$.events[1].eventEnd").value("2024-08-12T12:30:00"))
+                .andExpect(jsonPath("$.events[1].requiresShift").value(false));
     }
 }

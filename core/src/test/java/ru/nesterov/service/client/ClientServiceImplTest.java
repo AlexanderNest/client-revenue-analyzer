@@ -128,11 +128,13 @@ public class ClientServiceImplTest {
 
         List<ClientScheduleDto> expected = List.of(
                 ClientScheduleDto.builder()
+                        .clientName("testClient1")
                         .eventStart(LocalDateTime.of(2024, 8, 9, 11, 30))
                         .eventEnd(LocalDateTime.of(2024, 8, 9, 12, 30))
                         .requiresShift(false)
                         .build(),
                 ClientScheduleDto.builder()
+                        .clientName("testClient1")
                         .eventStart(LocalDateTime.of(2024, 8, 10, 11, 30))
                         .eventEnd(LocalDateTime.of(2024, 8, 10, 12, 30))
                         .requiresShift(false)
@@ -163,6 +165,7 @@ public class ClientServiceImplTest {
 
         List<ClientScheduleDto> expected = List.of(
                 ClientScheduleDto.builder()
+                        .clientName("testClient2")
                         .eventStart(LocalDateTime.of(2024, 8, 11, 11, 30))
                         .eventEnd(LocalDateTime.of(2024, 8, 11, 12, 30))
                         .requiresShift(false)
