@@ -10,6 +10,7 @@ import org.springframework.web.bind.annotation.RestController;
 import ru.nesterov.calendar.integration.dto.EventStatus;
 import ru.nesterov.core.service.dto.ClientMeetingsStatistic;
 import ru.nesterov.core.service.dto.IncomeAnalysisResult;
+import ru.nesterov.core.service.dto.UserDto;
 import ru.nesterov.core.service.event.EventsAnalyzerService;
 import ru.nesterov.core.service.user.UserService;
 import ru.nesterov.web.controller.request.GetForMonthRequest;
@@ -56,5 +57,11 @@ public class EventsAnalyzerControllerImpl implements EventsAnalyzerController {
         return eventsAnalyzerService.getUnpaidEvents(userService.getUserByUsername(username)).stream()
                 .map(event -> new EventResponse(event.getSummary(), event.getStart()))
                 .toList();
+    }
+
+    public ResponseEntity<Double> getAverageMeetingPriceForMonth(@RequestHeader("X-username") String username, @RequestBody GetForMonthRequest request) {
+        UserDto user = userService.getUserByUsername(username);
+        Double average = eventsAnalyzerService.getAverageMeetingPrice(user, request.getMonthName());
+        return new ResponseEntity<>(average, HttpStatus.OK);
     }
 }

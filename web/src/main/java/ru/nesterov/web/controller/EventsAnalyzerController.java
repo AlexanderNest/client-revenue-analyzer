@@ -104,4 +104,21 @@ public interface EventsAnalyzerController {
     )
     @GetMapping("/getUnpaidEvents")
     List<EventResponse> getUnpaidEvents(@RequestHeader(name = "X-username") String username);
+
+    @Operation(
+            summary = "Получить среднюю стоимость встречи за месяц",
+            description = "Рассчитывает средний доход за одну успешно проведенную встречу в указанном месяце",
+            requestBody = @RequestBody(
+                    description = "Запрос для получения средней стоимости встречи за месяц",
+                    required = true,
+                    content = @Content(schema = @Schema(implementation = GetForMonthRequest.class))
+            ),
+            responses = {
+                    @ApiResponse(responseCode = "200", description = "Успешный ответ"),
+                    @ApiResponse(responseCode = "400", description = "Некорректный запрос"),
+                    @ApiResponse(responseCode = "500", description = "Внутренняя ошибка сервера")
+            }
+    )
+    @PostMapping("/getAverageMeetingPriceForMonth")
+    ResponseEntity<Double> getAverageMeetingPriceForMonth(@RequestHeader(name = "X-username") String username, @RequestBody GetForMonthRequest request);
 }
