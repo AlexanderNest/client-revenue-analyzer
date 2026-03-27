@@ -11,7 +11,6 @@ import ru.nesterov.core.entity.Client;
 import ru.nesterov.core.exception.ClientNotFoundException;
 import ru.nesterov.core.exception.UnknownEventStatusException;
 import ru.nesterov.core.repository.ClientRepository;
-import ru.nesterov.core.service.client.ClientService;
 import ru.nesterov.core.service.date.helper.MonthDatesPair;
 import ru.nesterov.core.service.date.helper.MonthHelper;
 import ru.nesterov.core.service.date.helper.WeekHelper;
@@ -279,12 +278,14 @@ public class EventsAnalyzerServiceImpl implements EventsAnalyzerService {
         int countOfMeetings = 0;
 
         for (EventDto eventDto : eventDtos) {
-            if (eventDto.getStatus() == EventStatus.SUCCESS || eventDto.getStatus() == EventStatus.PLANNED ) {
+            if (eventDto.getStatus() == EventStatus.SUCCESS) {
                 Client client = clientRepository.findClientByNameAndUserId(eventDto.getSummary(), userDto.getId());
-                if (client != null) {
-                    totalIncome += eventService.getEventIncome(client, eventDto);
-                    countOfMeetings++;
+                if (client == null) {
+                    throw new ClientNotFoundException(eventDto.getSummary(), eventDto.getStart());
                 }
+
+                totalIncome += eventService.getEventIncome(client, eventDto);
+                countOfMeetings++;
             }
         }
         return (countOfMeetings == 0) ? 0.0 : totalIncome / countOfMeetings;

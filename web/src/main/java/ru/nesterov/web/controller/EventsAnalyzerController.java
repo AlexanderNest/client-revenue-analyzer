@@ -17,6 +17,7 @@ import ru.nesterov.core.service.dto.ClientMeetingsStatistic;
 import ru.nesterov.core.service.dto.GetBetweenDatesRequest;
 import ru.nesterov.core.service.dto.IncomeAnalysisResult;
 import ru.nesterov.web.controller.request.GetForMonthRequest;
+import ru.nesterov.web.controller.response.AveragePriceResponse;
 import ru.nesterov.web.controller.response.ClientMeetingsStatisticResponse;
 import ru.nesterov.web.controller.response.EventResponse;
 
@@ -121,5 +122,5 @@ public interface EventsAnalyzerController {
             }
     )
     @PostMapping("/getAverageMeetingPriceBetweenDates")
-    ResponseEntity<Double> getAverageMeetingPriceBetweenDates(@RequestHeader(name = "X-username") String username, @RequestBody GetBetweenDatesRequest request);
+    AveragePriceResponse getAverageMeetingPriceBetweenDates(@RequestHeader(name = "X-username") String username, @RequestBody GetBetweenDatesRequest request);
 }

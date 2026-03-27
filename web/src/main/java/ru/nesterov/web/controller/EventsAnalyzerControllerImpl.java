@@ -15,6 +15,7 @@ import ru.nesterov.core.service.dto.UserDto;
 import ru.nesterov.core.service.event.EventsAnalyzerService;
 import ru.nesterov.core.service.user.UserService;
 import ru.nesterov.web.controller.request.GetForMonthRequest;
+import ru.nesterov.web.controller.response.AveragePriceResponse;
 import ru.nesterov.web.controller.response.ClientMeetingsStatisticResponse;
 import ru.nesterov.web.controller.response.EventResponse;
 import ru.nesterov.web.mapper.ClientMapper;
@@ -60,9 +61,9 @@ public class EventsAnalyzerControllerImpl implements EventsAnalyzerController {
                 .toList();
     }
 
-    public ResponseEntity<Double> getAverageMeetingPriceBetweenDates(@RequestHeader("X-username") String username, @RequestBody GetBetweenDatesRequest request) {
+    public AveragePriceResponse getAverageMeetingPriceBetweenDates(@RequestHeader("X-username") String username, @RequestBody GetBetweenDatesRequest request) {
         UserDto user = userService.getUserByUsername(username);
         Double average = eventsAnalyzerService.getAverageMeetingPriceBetweenDates(user, request.getStartDate(), request.getEndDate());
-        return new ResponseEntity<>(average, HttpStatus.OK);
+        return new AveragePriceResponse(average);
     }
 }
