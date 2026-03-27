@@ -273,15 +273,13 @@ public class EventsAnalyzerServiceImpl implements EventsAnalyzerService {
         return result;
     }
 
-    @Override
-    public Double getAverageMeetingPrice(UserDto userDto, String monthName) {
-        List<EventDto> eventDtos = getEventsByMonth(userDto, monthName);
+    public Double calculateAverageMeetingPrice(UserDto userDto, List<EventDto> eventDtos) {
 
         double totalIncome = 0.0;
         int countOfMeetings = 0;
 
         for (EventDto eventDto : eventDtos) {
-            if (eventDto.getStatus() == EventStatus.SUCCESS) {
+            if (eventDto.getStatus() == EventStatus.SUCCESS || eventDto.getStatus() == EventStatus.PLANNED ) {
                 Client client = clientRepository.findClientByNameAndUserId(eventDto.getSummary(), userDto.getId());
                 if (client != null) {
                     totalIncome += eventService.getEventIncome(client, eventDto);
@@ -291,4 +289,21 @@ public class EventsAnalyzerServiceImpl implements EventsAnalyzerService {
         }
         return (countOfMeetings == 0) ? 0.0 : totalIncome / countOfMeetings;
     }
+
+    @Override
+    public Double getAverageMeetingPriceBetweenDates(UserDto userDto, LocalDateTime start, LocalDateTime end){
+        EventsFilter eventsFilter = EventsFilter.builder()
+                .mainCalendar(userDto.getMainCalendar())
+                .cancelledCalendar(userDto.getCancelledCalendar())
+                .leftDate(start)
+                .rightDate(end)
+                .isCancelledCalendarEnabled(userDto.isCancelledCalendarEnabled())
+                .build();
+
+        List<EventDto> eventDtos = calendarService.getEventsBetweenDates(eventsFilter);
+
+        return calculateAverageMeetingPrice(userDto, eventDtos);
+    }
+
+
 }

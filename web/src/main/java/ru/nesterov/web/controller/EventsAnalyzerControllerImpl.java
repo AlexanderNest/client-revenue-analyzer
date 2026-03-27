@@ -9,6 +9,7 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 import ru.nesterov.calendar.integration.dto.EventStatus;
 import ru.nesterov.core.service.dto.ClientMeetingsStatistic;
+import ru.nesterov.core.service.dto.GetBetweenDatesRequest;
 import ru.nesterov.core.service.dto.IncomeAnalysisResult;
 import ru.nesterov.core.service.dto.UserDto;
 import ru.nesterov.core.service.event.EventsAnalyzerService;
@@ -59,9 +60,9 @@ public class EventsAnalyzerControllerImpl implements EventsAnalyzerController {
                 .toList();
     }
 
-    public ResponseEntity<Double> getAverageMeetingPriceForMonth(@RequestHeader("X-username") String username, @RequestBody GetForMonthRequest request) {
+    public ResponseEntity<Double> getAverageMeetingPriceBetweenDates(@RequestHeader("X-username") String username, @RequestBody GetBetweenDatesRequest request) {
         UserDto user = userService.getUserByUsername(username);
-        Double average = eventsAnalyzerService.getAverageMeetingPrice(user, request.getMonthName());
+        Double average = eventsAnalyzerService.getAverageMeetingPriceBetweenDates(user, request.getStartDate(), request.getEndDate());
         return new ResponseEntity<>(average, HttpStatus.OK);
     }
 }

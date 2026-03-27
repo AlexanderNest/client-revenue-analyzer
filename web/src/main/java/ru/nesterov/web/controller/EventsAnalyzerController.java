@@ -14,6 +14,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import ru.nesterov.calendar.integration.dto.EventStatus;
 import ru.nesterov.core.service.dto.ClientMeetingsStatistic;
+import ru.nesterov.core.service.dto.GetBetweenDatesRequest;
 import ru.nesterov.core.service.dto.IncomeAnalysisResult;
 import ru.nesterov.web.controller.request.GetForMonthRequest;
 import ru.nesterov.web.controller.response.ClientMeetingsStatisticResponse;
@@ -106,10 +107,10 @@ public interface EventsAnalyzerController {
     List<EventResponse> getUnpaidEvents(@RequestHeader(name = "X-username") String username);
 
     @Operation(
-            summary = "Получить среднюю стоимость встречи за месяц",
-            description = "Рассчитывает средний доход за одну успешно проведенную встречу в указанном месяце",
+            summary = "Получить среднюю стоимость встречи за выбранный период",
+            description = "Рассчитывает средний доход за одну успешно проведенную встречу в указанном периоде",
             requestBody = @RequestBody(
-                    description = "Запрос для получения средней стоимости встречи за месяц",
+                    description = "Запрос для получения средней стоимости встречи за выбранный период",
                     required = true,
                     content = @Content(schema = @Schema(implementation = GetForMonthRequest.class))
             ),
@@ -119,6 +120,6 @@ public interface EventsAnalyzerController {
                     @ApiResponse(responseCode = "500", description = "Внутренняя ошибка сервера")
             }
     )
-    @PostMapping("/getAverageMeetingPriceForMonth")
-    ResponseEntity<Double> getAverageMeetingPriceForMonth(@RequestHeader(name = "X-username") String username, @RequestBody GetForMonthRequest request);
+    @PostMapping("/getAverageMeetingPriceBetweenDates")
+    ResponseEntity<Double> getAverageMeetingPriceBetweenDates(@RequestHeader(name = "X-username") String username, @RequestBody GetBetweenDatesRequest request);
 }
