@@ -36,9 +36,9 @@ public class EventService {
         }
 
         return client.getPriceChangeHistory().stream()
-                .filter(pch -> pch.getChangeDate().isAfter(dateTime))
-                .min(Comparator.comparing(PriceChangeHistory::getChangeDate))
-                .map(PriceChangeHistory::getPreviousPrice)
+                .filter(pch -> pch.getChangeDate().isBefore(dateTime) || pch.getChangeDate().isEqual(dateTime))
+                .max(Comparator.comparing(PriceChangeHistory::getChangeDate))
+                .map(PriceChangeHistory::getPrice)
                 .orElse(client.getPricePerHour());
     }
 

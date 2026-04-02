@@ -20,11 +20,8 @@ public class PriceChangeHistory {
     @Column(name = "CLIENT_ID", nullable = false)
     private Long clientId;
 
-    @Column(name = "PREVIOUS_PRICE")
-    private Integer previousPrice;
-
-    @Column(name = "NEW_PRICE")
-    private Integer newPrice;
+    @Column(name = "PRICE")
+    private Integer price;
 
     @Column(name = "CHANGE_DATE", nullable = false)
     @CreationTimestamp

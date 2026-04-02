@@ -6,6 +6,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.test.context.ContextConfiguration;
+import org.springframework.test.context.bean.override.mockito.MockitoBean;
 import ru.nesterov.calendar.integration.dto.EventDto;
 import ru.nesterov.calendar.integration.dto.EventStatus;
 import ru.nesterov.calendar.integration.dto.EventsFilter;
@@ -14,6 +15,7 @@ import ru.nesterov.core.entity.Client;
 import ru.nesterov.core.entity.User;
 import ru.nesterov.core.exception.ClientNotFoundException;
 import ru.nesterov.core.repository.ClientRepository;
+import ru.nesterov.core.repository.PriceChangeHistoryRepository;
 import ru.nesterov.core.repository.UserRepository;
 import ru.nesterov.core.service.client.ClientService;
 import ru.nesterov.core.service.client.ClientServiceImpl;
@@ -36,12 +38,14 @@ import static org.mockito.Mockito.when;
 public class ClientServiceImplTest {
     @Autowired
     private ClientService clientService;
-    @MockBean
+    @MockitoBean
     private ClientRepository clientRepository;
-    @MockBean
+    @MockitoBean
     private CalendarService calendarService;
-    @MockBean
+    @MockitoBean
     private UserRepository userRepository;
+    @MockitoBean
+    private PriceChangeHistoryRepository priceChangeHistoryRepository;
 
     @BeforeEach
     public void init() {

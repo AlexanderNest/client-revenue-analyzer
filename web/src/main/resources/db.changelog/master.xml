@@ -380,4 +380,10 @@
         </createTable>
     </changeSet>
 
+    <changeSet id="refactor price history" author="Alex">
+        <modifyDataType tableName="PRICE_CHANGE_HISTORY" columnName="change_date" newDataType="TIMESTAMP"/>
+        <dropColumn tableName="PRICE_CHANGE_HISTORY" columnName="PREVIOUS_PRICE"/>
+        <renameColumn tableName="PRICE_CHANGE_HISTORY" oldColumnName="NEW_PRICE" newColumnName="PRICE"/>
+    </changeSet>
+
 </databaseChangeLog>

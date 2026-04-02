@@ -16,7 +16,15 @@ public interface ClientRepository extends JpaRepository<Client, Long> {
     @Query(value = "SELECT * FROM client WHERE (name = :name OR name REGEXP '^' || :name || '\\s\\d+$') and user_id = :userId", nativeQuery = true)
     List<Client> findAllByExactNameOrNameStartingWithAndEndingWithNumberAndUserId(@Param("name") String name, @Param("userId") long userId);
 
-    List<Client> findClientByUserIdAndActiveOrderByPricePerHourDesc(long userId, boolean active);
+    @Query(value = """
+            SELECT c.id, c.name, c.description, c.price_per_hour, c.active, c.user_id, c.start_date, c.phone FROM client c
+            JOIN price_change_history pch ON c.id = pch.client_id
+            WHERE c.user_id = :userId
+            AND c.active = :active
+            AND pch.change_date = (SELECT MAX(change_date) FROM price_change_history WHERE client_id = :clientId)
+            ORDER BY pch.price DESC
+            """, nativeQuery = true)
+    List<Client> findClientByUserIdAndActiveOrderByPricePerHourDesc(@Param("userId") long userId, @Param("active") boolean active);
 
     int deleteClientByNameAndUserId(String name, long userId);
 }
