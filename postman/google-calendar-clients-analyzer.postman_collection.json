@@ -621,6 +621,47 @@
 			]
 		},
 		{
+			"name": "Получить среднее значение стоимости встречи в пределах выбранного периода",
+			"item": [
+				{
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "X-username",
+								"value": "{{X-username}}",
+								"type": "text"
+							},
+							{
+								"key": "X-secret-token",
+								"value": "{{X-secret-token}}",
+								"type": "text"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"startDate\": \"2026-03-01T00:00:00\",n    \"endDate\": \"2026-03-21T23:59:59\"\n}"
+						},
+						"url": {
+							"raw": "http://localhost:8080/revenue-analyzer/events/analyzer/getAverageMeetingPriceBetweenDates",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "8080",
+							"path": [
+								"revenue-analyzer",
+								"events",
+								"analyzer",
+								"getAverageMeetingPriceBetweenDates"
+							]
+						}
+					},
+					"response": []
+				}
+			]
+		},
+		{
 			"name": "Получить всех пользователей по роли и источнику",
 			"request": {
 				"method": "POST",
