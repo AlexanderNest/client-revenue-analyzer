@@ -8,6 +8,8 @@ import ru.nesterov.calendar.integration.dto.EventExtensionDto;
 import ru.nesterov.core.entity.Client;
 import ru.nesterov.core.entity.PriceChangeHistory;
 import ru.nesterov.core.exception.ClientNotFoundException;
+import ru.nesterov.core.exception.NoPriceChangeHistoryException;
+import ru.nesterov.core.service.client.ClientService;
 
 import java.time.Duration;
 import java.time.LocalDateTime;
@@ -17,6 +19,8 @@ import java.util.Comparator;
 @Slf4j
 @AllArgsConstructor
 public class EventService {
+    private final ClientService clientService;
+
     public double getEventIncome(Client client, EventDto eventDto) {
         if (client == null) {
             throw new ClientNotFoundException(eventDto.getSummary(), eventDto.getStart());
@@ -27,21 +31,8 @@ public class EventService {
             return extension.getIncome();
         }
 
-        return getEventDuration(eventDto) * getPricePerHourForDate(client, eventDto.getStart());
+        return getEventDuration(eventDto) * clientService.getPricePerHourForDate(client, eventDto.getStart());
     }
-
-    public double getPricePerHourForDate(Client client, LocalDateTime dateTime) {
-        if (client.getPriceChangeHistory().isEmpty()) {
-            return client.getPricePerHour();
-        }
-
-        return client.getPriceChangeHistory().stream()
-                .filter(pch -> pch.getChangeDate().isBefore(dateTime) || pch.getChangeDate().isEqual(dateTime))
-                .max(Comparator.comparing(PriceChangeHistory::getChangeDate))
-                .map(PriceChangeHistory::getPrice)
-                .orElse(client.getPricePerHour());
-    }
-
 
     public double getEventDuration(EventDto eventDto) {
         if (eventDto.getStart().isAfter(eventDto.getEnd())) {

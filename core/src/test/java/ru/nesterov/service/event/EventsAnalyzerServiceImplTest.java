@@ -12,6 +12,7 @@ import ru.nesterov.calendar.integration.dto.EventStatus;
 import ru.nesterov.calendar.integration.google.EventStatusServiceImpl;
 import ru.nesterov.calendar.integration.google.GoogleCalendarService;
 import ru.nesterov.core.entity.Client;
+import ru.nesterov.core.entity.PriceChangeHistory;
 import ru.nesterov.core.entity.User;
 import ru.nesterov.core.repository.ClientRepository;
 import ru.nesterov.core.repository.UserRepository;
@@ -55,7 +56,8 @@ class EventsAnalyzerServiceImplTest {
         Client client = new Client();
         client.setId(1);
         client.setName("testName");
-        client.setPricePerHour(1000);
+        PriceChangeHistory pch3 = new PriceChangeHistory();
+        pch3.setPrice(1000);
         client.setDescription("description");
         client.setStartDate(new Date(2025, Calendar.JUNE, 1));
         client.setPhone("phone");

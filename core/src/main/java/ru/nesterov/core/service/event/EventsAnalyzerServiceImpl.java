@@ -35,6 +35,7 @@ public class EventsAnalyzerServiceImpl implements EventsAnalyzerService {
     private final ClientRepository clientRepository;
     private final EventsAnalyzerProperties eventsAnalyzerProperties;
     private final EventService eventService;
+    private final ClientService clientService;
 
     @Nullable
     public ClientMeetingsStatistic getStatisticsByClientMeetings(UserDto userDto, String clientName) {
@@ -69,7 +70,7 @@ public class EventsAnalyzerServiceImpl implements EventsAnalyzerService {
                     throw new ClientNotFoundException(eventDto.getSummary());
                 }
 
-                clientMeetingsStatistic = new ClientMeetingsStatistic(client.getPricePerHour()); //TODO тут именно эта цена, чтобы просто показать текущую цену. Но надо доработать и сделать так, чтобы указывались изменения по стоимости
+                clientMeetingsStatistic = new ClientMeetingsStatistic(clientService.getPricePerHourForDate(client, eventDto.getStart())); //TODO тут именно эта цена, чтобы просто показать текущую цену. Но надо доработать и сделать так, чтобы указывались изменения по стоимости
                 clientMeetingsStatistic.setName(client.getName());
                 clientMeetingsStatistic.setId(client.getId());
                 clientMeetingsStatistic.setDescription(client.getDescription());

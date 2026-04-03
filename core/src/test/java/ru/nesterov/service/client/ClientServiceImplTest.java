@@ -12,6 +12,7 @@ import ru.nesterov.calendar.integration.dto.EventStatus;
 import ru.nesterov.calendar.integration.dto.EventsFilter;
 import ru.nesterov.calendar.integration.service.CalendarService;
 import ru.nesterov.core.entity.Client;
+import ru.nesterov.core.entity.PriceChangeHistory;
 import ru.nesterov.core.entity.User;
 import ru.nesterov.core.exception.ClientNotFoundException;
 import ru.nesterov.core.repository.ClientRepository;
@@ -59,14 +60,16 @@ public class ClientServiceImplTest {
         Client client1 = new Client();
         client1.setId(1);
         client1.setName("testClient1");
-        client1.setPricePerHour(1000);
+        PriceChangeHistory pch1 = new PriceChangeHistory();
+        pch1.setPrice(1000);
         client1.setUser(user);
         when(clientRepository.findClientByNameAndUserId(client1.getName(), user.getId())).thenReturn(client1);
 
         Client client2 = new Client();
         client2.setId(1);
         client2.setName("testClient2");
-        client2.setPricePerHour(1000);
+        PriceChangeHistory pch2 = new PriceChangeHistory();
+        pch2.setPrice(1000);
         client2.setUser(user);
         when(clientRepository.findClientByNameAndUserId(client2.getName(), user.getId())).thenReturn(client2);
 
