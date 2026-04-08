@@ -17,7 +17,7 @@ public interface ClientRepository extends JpaRepository<Client, Long> {
             SELECT id, name, description, price_per_hour, active, user_id, start_date, phone
             FROM client 
             WHERE (name = :name
-                OR REGEXP_LIKE(name, CONCAT('^', :name, ' [0-9]+$'))) 
+                OR name ~ CONCAT ('^', :name, ' [0-9]+$'))
             AND user_id = :userId
             """, nativeQuery = true)
     List<Client> findAllByExactNameOrNameStartingWithAndEndingWithNumberAndUserId(@Param("name") String name, @Param("userId") long userId);
