@@ -16,7 +16,6 @@ import ru.nesterov.core.repository.PriceChangeHistoryRepository;
 import ru.nesterov.core.repository.UserRepository;
 
 import java.time.LocalDateTime;
-import java.util.List;
 
 @AutoConfigureMockMvc
 @SpringBootTest

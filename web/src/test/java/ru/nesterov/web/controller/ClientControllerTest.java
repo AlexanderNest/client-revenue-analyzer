@@ -313,7 +313,7 @@ class ClientControllerTest extends AbstractControllerTest {
         client3.setName("c");
         client3.setDescription("ccc");
         client3.setUser(user);
-        client3 = saveClientWithPriceHistory(client3, 200);
+        saveClientWithPriceHistory(client3, 200);
 
         mockMvc.perform(
                         post(GET_ACTIVE_CLIENTS_URL)

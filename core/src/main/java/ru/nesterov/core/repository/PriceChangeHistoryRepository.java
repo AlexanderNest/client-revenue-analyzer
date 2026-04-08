@@ -11,7 +11,7 @@ import java.util.List;
 
 @Repository
 public interface PriceChangeHistoryRepository extends JpaRepository<PriceChangeHistory, Long> {
-    List<PriceChangeHistory> findByClientId(Long id);
+    List<PriceChangeHistory> findByClientId(Long clientId);
 
     @Transactional
     @Modifying

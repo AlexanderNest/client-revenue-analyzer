@@ -6,14 +6,10 @@ import org.springframework.stereotype.Service;
 import ru.nesterov.calendar.integration.dto.EventDto;
 import ru.nesterov.calendar.integration.dto.EventExtensionDto;
 import ru.nesterov.core.entity.Client;
-import ru.nesterov.core.entity.PriceChangeHistory;
 import ru.nesterov.core.exception.ClientNotFoundException;
-import ru.nesterov.core.exception.NoPriceChangeHistoryException;
 import ru.nesterov.core.service.client.ClientService;
 
 import java.time.Duration;
-import java.time.LocalDateTime;
-import java.util.Comparator;
 
 @Service
 @Slf4j
