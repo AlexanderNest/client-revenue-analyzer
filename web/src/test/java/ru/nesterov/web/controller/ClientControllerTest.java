@@ -7,6 +7,7 @@ import ru.nesterov.calendar.integration.dto.CalendarType;
 import ru.nesterov.calendar.integration.dto.EventDto;
 import ru.nesterov.calendar.integration.dto.EventStatus;
 import ru.nesterov.core.entity.Client;
+import ru.nesterov.core.entity.PriceChangeHistory;
 import ru.nesterov.core.entity.User;
 import ru.nesterov.web.controller.request.CreateClientRequest;
 import ru.nesterov.web.controller.request.GetClientScheduleRequest;
@@ -23,6 +24,7 @@ import static org.springframework.test.web.servlet.request.MockMvcRequestBuilder
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
+import java.util.Comparator;
 
 @Slf4j
 class ClientControllerTest extends AbstractControllerTest {
@@ -125,9 +127,8 @@ class ClientControllerTest extends AbstractControllerTest {
         client.setActive(true);
         client.setName("toDelete");
         client.setDescription("deleteDesc");
-        client.setPricePerHour(300);
         client.setUser(user);
-        client = clientRepository.save(client);
+        client = saveClientWithPriceHistory(client, 300);
 
         mockMvc.perform(
                         delete("/client")
@@ -169,9 +170,8 @@ class ClientControllerTest extends AbstractControllerTest {
         client.setName("oldName");
         client.setDescription("oldDesc");
         client.setPhone("89000000000");
-        client.setPricePerHour(500);
         client.setUser(user);
-        clientRepository.save(client);
+        saveClientWithPriceHistory(client, 500);
 
         UpdateClientRequest updateRequest = new UpdateClientRequest();
         updateRequest.setClientName("oldName");
@@ -298,28 +298,22 @@ class ClientControllerTest extends AbstractControllerTest {
         client1.setActive(true);
         client1.setName("a");
         client1.setDescription("aa");
-        client1.setPricePerHour(100);
         client1.setUser(user);
-
-        clientRepository.save(client1);
+        client1 = saveClientWithPriceHistory(client1, 100);
 
         Client client2 = new Client();
         client2.setActive(true);
         client2.setName("b");
         client2.setDescription("bbb");
-        client2.setPricePerHour(200);
         client2.setUser(user);
-
-        clientRepository.save(client2);
+        client2 = saveClientWithPriceHistory(client2, 200);
 
         Client client3 = new Client();
         client3.setActive(false);
         client3.setName("c");
         client3.setDescription("ccc");
-        client3.setPricePerHour(200);
         client3.setUser(user);
-
-        clientRepository.save(client3);
+        client3 = saveClientWithPriceHistory(client3, 200);
 
         mockMvc.perform(
                         post(GET_ACTIVE_CLIENTS_URL)
@@ -330,12 +324,12 @@ class ClientControllerTest extends AbstractControllerTest {
                 .andExpect(jsonPath("$[0].id").value(client2.getId()))
                 .andExpect(jsonPath("$[0].name").value(client2.getName()))
                 .andExpect(jsonPath("$[0].description").value(client2.getDescription()))
-                .andExpect(jsonPath("$[0].pricePerHour").value(client2.getPricePerHour()))
+                .andExpect(jsonPath("$[0].pricePerHour").value(getCurrentPrice(client2)))
                 .andExpect(jsonPath("$[0].active").value(client2.isActive()))
                 .andExpect(jsonPath("$[1].id").value(client1.getId()))
                 .andExpect(jsonPath("$[1].name").value(client1.getName()))
                 .andExpect(jsonPath("$[1].description").value(client1.getDescription()))
-                .andExpect(jsonPath("$[1].pricePerHour").value(client1.getPricePerHour()))
+                .andExpect(jsonPath("$[1].pricePerHour").value(getCurrentPrice(client1)))
                 .andExpect(jsonPath("$[1].active").value(client1.isActive()));
     }
 
@@ -381,4 +375,12 @@ class ClientControllerTest extends AbstractControllerTest {
                 .andExpect(jsonPath("$.events[1].eventEnd").value("2024-08-12T12:30:00"))
                 .andExpect(jsonPath("$.events[1].requiresShift").value(false));
     }
+
+    private int getCurrentPrice(Client client) {
+        return priceChangeHistoryRepository.findByClientId(client.getId()).stream()
+                .max(Comparator.comparing(PriceChangeHistory::getChangeDate))
+                .map(PriceChangeHistory::getPrice)
+                .orElse(0);
+    }
+
 }

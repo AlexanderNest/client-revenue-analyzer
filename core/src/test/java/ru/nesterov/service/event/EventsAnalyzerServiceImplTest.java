@@ -4,8 +4,8 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
-import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.test.context.ContextConfiguration;
+import org.springframework.test.context.bean.override.mockito.MockitoBean;
 import ru.nesterov.calendar.integration.dto.EventDto;
 import ru.nesterov.calendar.integration.dto.EventExtensionDto;
 import ru.nesterov.calendar.integration.dto.EventStatus;
@@ -15,7 +15,9 @@ import ru.nesterov.core.entity.Client;
 import ru.nesterov.core.entity.PriceChangeHistory;
 import ru.nesterov.core.entity.User;
 import ru.nesterov.core.repository.ClientRepository;
+import ru.nesterov.core.repository.PriceChangeHistoryRepository;
 import ru.nesterov.core.repository.UserRepository;
+import ru.nesterov.core.service.client.ClientService;
 import ru.nesterov.core.service.dto.ClientMeetingsStatistic;
 import ru.nesterov.core.service.dto.IncomeAnalysisResult;
 import ru.nesterov.core.service.dto.UserDto;
@@ -31,6 +33,7 @@ import java.util.Map;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.when;
 
 @SpringBootTest
@@ -44,25 +47,31 @@ class EventsAnalyzerServiceImplTest {
     @Autowired
     private EventsAnalyzerServiceImpl eventsAnalyzerService;
 
-    @MockBean
+    @MockitoBean
     private ClientRepository clientRepository;
-    @MockBean
+    @MockitoBean
+    private ClientService clientService;
+    @MockitoBean
     private UserRepository userRepository;
-    @MockBean
+    @MockitoBean
     private GoogleCalendarService googleCalendarService;
+    @MockitoBean
+    private PriceChangeHistoryRepository priceChangeHistoryRepository;
 
     @BeforeEach
     public void init() {
         Client client = new Client();
         client.setId(1);
         client.setName("testName");
-        PriceChangeHistory pch3 = new PriceChangeHistory();
-        pch3.setPrice(1000);
+        PriceChangeHistory pch = new PriceChangeHistory();
+        pch.setPrice(1000);
+        pch.setChangeDate(LocalDateTime.of(2024, 8, 9, 0, 0));
         client.setDescription("description");
         client.setStartDate(new Date(2025, Calendar.JUNE, 1));
         client.setPhone("phone");
-        client.setPriceChangeHistory(List.of());
+        client.setPriceChangeHistory(List.of(pch));
         when(clientRepository.findClientByNameAndUserId("testName", 1)).thenReturn(client);
+        when(clientService.getPricePerHourForDate(eq(client), any(LocalDateTime.class))).thenReturn(1000.0);
 
         User user = new User();
         user.setId(1);

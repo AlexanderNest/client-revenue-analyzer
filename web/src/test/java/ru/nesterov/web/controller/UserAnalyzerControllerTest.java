@@ -31,8 +31,7 @@ class UserAnalyzerControllerTest extends AbstractControllerTest {
         Client client1 = new Client();
         client1.setUser(user);
         client1.setName("testName2");
-        client1.setPricePerHour(1000);
-        clientRepository.save(client1);
+        saveClientWithPriceHistory(client1, 1000);
 
         EventDto eventDto1 = EventDto.builder()
                 .summary("paid1")

@@ -108,8 +108,10 @@ public class EventsAnalyzerControllerTest extends AbstractControllerTest {
     public void cleanup() {
         User user = userRepository.findByUsername(USERNAME);
         Client client1 = clientRepository.findClientByNameAndUserId("testName1", user.getId());
+        priceChangeHistoryRepository.deleteByClientId(client1.getId());
         clientRepository.delete(client1);
         Client client2 = clientRepository.findClientByNameAndUserId("testName2", user.getId());
+        priceChangeHistoryRepository.deleteByClientId(client2.getId());
         clientRepository.delete(client2);
         userRepository.delete(user);
     }
@@ -220,6 +222,7 @@ public class EventsAnalyzerControllerTest extends AbstractControllerTest {
                 .andExpect(jsonPath("$.plannedCancelledEventsCount").value(1))
                 .andExpect(jsonPath("$.notPlannedCancelledEventsCount").value(1));
 
+        priceChangeHistoryRepository.deleteByClientId(client.getId());
         clientRepository.delete(client);
         userRepository.delete(user);
     }

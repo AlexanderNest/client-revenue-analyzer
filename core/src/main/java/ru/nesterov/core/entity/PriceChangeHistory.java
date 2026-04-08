@@ -6,7 +6,6 @@ import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
 import lombok.Data;
-import org.hibernate.annotations.CreationTimestamp;
 
 import java.time.LocalDateTime;
 
@@ -24,6 +23,5 @@ public class PriceChangeHistory {
     private Integer price;
 
     @Column(name = "CHANGE_DATE", nullable = false)
-    @CreationTimestamp
     private LocalDateTime changeDate;
 }

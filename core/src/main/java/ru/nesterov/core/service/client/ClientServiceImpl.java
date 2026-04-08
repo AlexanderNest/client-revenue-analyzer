@@ -38,7 +38,7 @@ public class ClientServiceImpl implements ClientService {
     private final PriceChangeHistoryRepository priceChangeHistoryRepository;
 
     public double getPricePerHourForDate(Client client, LocalDateTime dateTime) {
-        return client.getPriceChangeHistory().stream()
+        return priceChangeHistoryRepository.findByClientId(client.getId()).stream()
                 .filter(pch -> pch.getChangeDate().isBefore(dateTime) || pch.getChangeDate().isEqual(dateTime))
                 .max(Comparator.comparing(PriceChangeHistory::getChangeDate))
                 .map(PriceChangeHistory::getPrice)
@@ -86,10 +86,13 @@ public class ClientServiceImpl implements ClientService {
         Client savedClient = clientRepository.save(forSave);
 
         savePriceToHistory(savedClient.getId(), clientDto.getPricePerHour());
+        Client reloaded = clientRepository.findById(savedClient.getId()).orElseThrow(() -> new ClientNotFoundException(savedClient.getName()));
 
         log.info("Создан новый клиент: {} с начальной ценой: {}", savedClient.getName(), clientDto.getPricePerHour());
 
-        return ClientMapper.mapToClientDto(savedClient);
+        ClientDto response = ClientMapper.mapToClientDto(reloaded);
+        response.setPricePerHour(clientDto.getPricePerHour());
+        return response;
     }
 
     @Override
@@ -100,11 +103,13 @@ public class ClientServiceImpl implements ClientService {
     }
 
     @Override
+    @Transactional
     public void deleteClient(UserDto userDto, String clientName) {
         Client client = clientRepository.findClientByNameAndUserId(clientName, userDto.getId());
         if (client == null) {
             throw new ClientNotFoundException(clientName);
         }
+        priceChangeHistoryRepository.deleteByClientId(client.getId());
         clientRepository.delete(client);
     }
 
@@ -129,15 +134,20 @@ public class ClientServiceImpl implements ClientService {
             clientForUpdate.setPhone(updateClientDto.getPhone());
         }
 
+        Integer currentPrice =clientForUpdate.getPriceChangeHistory().stream()
+                .max(Comparator.comparing(PriceChangeHistory::getChangeDate))
+                .map(PriceChangeHistory::getPrice)
+                .orElse(0);
+        Integer responsePrice = currentPrice;
+
         if (updateClientDto.getPricePerHour() != null){
-            Integer currentPrice = clientForUpdate.getPriceChangeHistory().stream()
-                    .max(Comparator.comparing(PriceChangeHistory::getChangeDate))
-                    .map(PriceChangeHistory::getPrice)
-                    .orElse(0);
+            savePriceToHistory(clientForUpdate.getId(), updateClientDto.getPricePerHour());
+            responsePrice = updateClientDto.getPricePerHour();
         }
         Client savedClient = clientRepository.save(clientForUpdate);
-
-        return ClientMapper.mapToClientDto(savedClient);
+        ClientDto response = ClientMapper.mapToClientDto(savedClient);
+        response.setPricePerHour(responsePrice);
+        return response;
     }
 
     private String generateUniqueClientName(String baseName, long userId, boolean isIdGenerationNeeded) {

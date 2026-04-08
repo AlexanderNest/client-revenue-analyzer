@@ -4,7 +4,6 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
-import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.bean.override.mockito.MockitoBean;
 import ru.nesterov.calendar.integration.dto.EventDto;
@@ -24,6 +23,7 @@ import ru.nesterov.core.service.dto.ClientScheduleDto;
 import ru.nesterov.core.service.dto.UserDto;
 
 import java.time.LocalDateTime;
+import java.util.ArrayList;
 import java.util.List;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
@@ -62,7 +62,8 @@ public class ClientServiceImplTest {
         client1.setName("testClient1");
         PriceChangeHistory pch1 = new PriceChangeHistory();
         pch1.setPrice(1000);
-        client1.setUser(user);
+        pch1.setChangeDate(LocalDateTime.now());
+        client1.setPriceChangeHistory(new ArrayList<>(List.of(pch1)));
         when(clientRepository.findClientByNameAndUserId(client1.getName(), user.getId())).thenReturn(client1);
 
         Client client2 = new Client();
@@ -70,6 +71,8 @@ public class ClientServiceImplTest {
         client2.setName("testClient2");
         PriceChangeHistory pch2 = new PriceChangeHistory();
         pch2.setPrice(1000);
+        pch2.setChangeDate(LocalDateTime.now());
+        client2.setPriceChangeHistory(new ArrayList<>(List.of(pch2)));
         client2.setUser(user);
         when(clientRepository.findClientByNameAndUserId(client2.getName(), user.getId())).thenReturn(client2);
 
