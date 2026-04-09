@@ -28,7 +28,7 @@ import java.util.List;
 public class PdfReportService {
 
     private static final String FONT_PATH = "/fonts/arial.ttf";
-    private static final DateTimeFormatter dtf = DateTimeFormatter.ofPattern("dd.MM.yyyy HH:mm");
+    private static final DateTimeFormatter DATE_FORMATTER = DateTimeFormatter.ofPattern("dd.MM.yyyy HH:mm");
     private final EventService eventService;
 
     public PdfReportService(EventService eventService) {
@@ -42,16 +42,16 @@ public class PdfReportService {
 
             document.open();
 
-            BaseFont bf = BaseFont.createFont(FONT_PATH, BaseFont.IDENTITY_H, BaseFont.EMBEDDED);
-            Font titleFont = new Font(bf, 18, Font.BOLD);
-            Font baseFont = new Font(bf, 14, Font.BOLD);
-            Font normalFont = new Font(bf, 12, Font.NORMAL);
+            BaseFont baseF = BaseFont.createFont(FONT_PATH, BaseFont.IDENTITY_H, BaseFont.EMBEDDED);
+            Font titleFont = new Font(baseF, 18, Font.BOLD);
+            Font baseFont = new Font(baseF, 14, Font.BOLD);
+            Font normalFont = new Font(baseF, 12, Font.NORMAL);
 
             Paragraph title = new Paragraph("Отчет по клиенту: " + stats.getName(), titleFont);
             title.setAlignment(Element.ALIGN_CENTER);
             document.add(title);
 
-            Paragraph period = new Paragraph("за период с " + start.format(dtf) + " по " + end.format(dtf), baseFont);
+            Paragraph period = new Paragraph("за период с " + start.format(DATE_FORMATTER) + " по " + end.format(DATE_FORMATTER), baseFont);
             period.setAlignment(Element.ALIGN_CENTER);
             document.add(period);
             document.add(new Paragraph(" "));
@@ -72,8 +72,8 @@ public class PdfReportService {
             addTableCell(table, "Доход", baseFont);
 
             for (EventDto event : events) {
-                addTableCell(table, event.getStart().format(dtf), normalFont);
-                addTableCell(table, event.getEnd().format(dtf), normalFont);
+                addTableCell(table, event.getStart().format(DATE_FORMATTER), normalFont);
+                addTableCell(table, event.getEnd().format(DATE_FORMATTER), normalFont);
                 addTableCell(table, event.getStatus().toString(), normalFont);
                 addTableCell(table, String.format("%.0f", eventService.getEventIncome(client, event)), normalFont);
             }

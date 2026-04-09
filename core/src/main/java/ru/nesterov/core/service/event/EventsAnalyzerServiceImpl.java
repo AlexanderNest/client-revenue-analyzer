@@ -289,7 +289,7 @@ public class EventsAnalyzerServiceImpl implements EventsAnalyzerService {
 
         if (periodStats == null) {
             Client client = clientRepository.findClientByNameAndUserId(clientName, userDto.getId());
-            if (client == null) throw new ClientNotFoundException(clientName);
+            if (client == null) {throw new ClientNotFoundException(clientName);}
             periodStats = new ClientMeetingsStatistic(client.getPricePerHour());
             periodStats.setName(clientName);
         }
