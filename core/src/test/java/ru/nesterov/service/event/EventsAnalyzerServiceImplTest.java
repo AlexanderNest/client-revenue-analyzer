@@ -21,6 +21,7 @@ import ru.nesterov.core.service.dto.UserDto;
 import ru.nesterov.core.service.event.EventService;
 import ru.nesterov.core.service.event.EventsAnalyzerProperties;
 import ru.nesterov.core.service.event.EventsAnalyzerServiceImpl;
+import ru.nesterov.core.service.report.PdfReportService;
 
 import java.time.LocalDateTime;
 import java.util.Calendar;
@@ -37,7 +38,8 @@ import static org.mockito.Mockito.when;
         EventsAnalyzerServiceImpl.class,
         EventStatusServiceImpl.class,
         EventsAnalyzerProperties.class,
-        EventService.class
+        EventService.class,
+        PdfReportService.class
 })
 class EventsAnalyzerServiceImplTest {
     @Autowired
