@@ -1,13 +1,5 @@
 package ru.nesterov.core.service.event;
 
-import com.lowagie.text.Document;
-import com.lowagie.text.Font;
-import com.lowagie.text.FontFactory;
-import com.lowagie.text.PageSize;
-import com.lowagie.text.Paragraph;
-import com.lowagie.text.pdf.BaseFont;
-import com.lowagie.text.pdf.PdfPTable;
-import com.lowagie.text.pdf.PdfWriter;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
@@ -29,7 +21,6 @@ import ru.nesterov.core.service.dto.UserDto;
 import ru.nesterov.core.service.report.PdfReportService;
 
 import javax.annotation.Nullable;
-import java.io.ByteArrayOutputStream;
 import java.time.LocalDateTime;
 import java.util.HashMap;
 import java.util.LinkedHashMap;
