@@ -6,6 +6,7 @@ import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.parameters.RequestBody;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.tags.Tag;
+import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -16,6 +17,7 @@ import ru.nesterov.calendar.integration.dto.EventStatus;
 import ru.nesterov.core.service.dto.ClientMeetingsStatistic;
 import ru.nesterov.core.service.dto.IncomeAnalysisResult;
 import ru.nesterov.web.controller.request.GetForMonthRequest;
+import ru.nesterov.web.controller.request.PdfReportRequest;
 import ru.nesterov.web.controller.response.ClientMeetingsStatisticResponse;
 import ru.nesterov.web.controller.response.EventResponse;
 
@@ -104,4 +106,14 @@ public interface EventsAnalyzerController {
     )
     @GetMapping("/getUnpaidEvents")
     List<EventResponse> getUnpaidEvents(@RequestHeader(name = "X-username") String username);
-}
+
+    @Operation(
+            summary = "Сгенерировать PDF-отчет по клиенту",
+            description = "Создает PDF-файл со статистикой встреч и доходов клиента за выбранный период времени"
+    )
+    @PostMapping(value = "/generatePdfReport", produces = MediaType.APPLICATION_PDF_VALUE)
+    ResponseEntity<byte[]> generateReport(@RequestHeader("X-username") String username, @RequestBody PdfReportRequest request);
+
+
+
+    }

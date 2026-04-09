@@ -22,4 +22,6 @@ public interface EventsAnalyzerService {
     List<EventDto> getUnpaidEventsBetweenDates(UserDto userDto, LocalDateTime leftDate, LocalDateTime rightDate);
     List<EventDto> getUnpaidEvents(UserDto userDto);
     BusynessAnalysisResult getBusynessStatisticsByYear(UserDto userDto, int year);
+
+    byte[] generateClientStatisticPdf(UserDto userDto, String clientName, LocalDateTime leftDate, LocalDateTime rightDate);
 }

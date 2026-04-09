@@ -1,5 +1,13 @@
 package ru.nesterov.core.service.event;
 
+import com.lowagie.text.Document;
+import com.lowagie.text.Font;
+import com.lowagie.text.FontFactory;
+import com.lowagie.text.PageSize;
+import com.lowagie.text.Paragraph;
+import com.lowagie.text.pdf.BaseFont;
+import com.lowagie.text.pdf.PdfPTable;
+import com.lowagie.text.pdf.PdfWriter;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
@@ -11,7 +19,6 @@ import ru.nesterov.core.entity.Client;
 import ru.nesterov.core.exception.ClientNotFoundException;
 import ru.nesterov.core.exception.UnknownEventStatusException;
 import ru.nesterov.core.repository.ClientRepository;
-import ru.nesterov.core.service.client.ClientService;
 import ru.nesterov.core.service.date.helper.MonthDatesPair;
 import ru.nesterov.core.service.date.helper.MonthHelper;
 import ru.nesterov.core.service.date.helper.WeekHelper;
@@ -19,8 +26,10 @@ import ru.nesterov.core.service.dto.BusynessAnalysisResult;
 import ru.nesterov.core.service.dto.ClientMeetingsStatistic;
 import ru.nesterov.core.service.dto.IncomeAnalysisResult;
 import ru.nesterov.core.service.dto.UserDto;
+import ru.nesterov.core.service.report.PdfReportService;
 
 import javax.annotation.Nullable;
+import java.io.ByteArrayOutputStream;
 import java.time.LocalDateTime;
 import java.util.HashMap;
 import java.util.LinkedHashMap;
@@ -35,6 +44,7 @@ public class EventsAnalyzerServiceImpl implements EventsAnalyzerService {
     private final ClientRepository clientRepository;
     private final EventsAnalyzerProperties eventsAnalyzerProperties;
     private final EventService eventService;
+    private final PdfReportService pdfReportService;
 
     @Nullable
     public ClientMeetingsStatistic getStatisticsByClientMeetings(UserDto userDto, String clientName) {
@@ -82,7 +92,7 @@ public class EventsAnalyzerServiceImpl implements EventsAnalyzerService {
                 handleSuccessfulEvent(clientMeetingsStatistic, eventDto, client);
             } else if (eventStatus == EventStatus.PLANNED_CANCELLED || eventStatus == EventStatus.UNPLANNED_CANCELLED && EventExtensionService.isPlannedStatus(eventDto)) {
                 handlePlannedCancelledEvent(clientMeetingsStatistic, eventDto);
-            } else if (eventStatus == EventStatus.UNPLANNED_CANCELLED ) {
+            } else if (eventStatus == EventStatus.UNPLANNED_CANCELLED) {
                 handleUnplannedCancelledEvent(clientMeetingsStatistic, eventDto);
             }
         }
@@ -90,7 +100,7 @@ public class EventsAnalyzerServiceImpl implements EventsAnalyzerService {
         return meetingsStatistics;
     }
 
-    private void handleSuccessfulEvent(ClientMeetingsStatistic clientMeetingsStatistic, EventDto eventDto, Client client){
+    private void handleSuccessfulEvent(ClientMeetingsStatistic clientMeetingsStatistic, EventDto eventDto, Client client) {
         double eventDuration = eventService.getEventDuration(eventDto);
         clientMeetingsStatistic.increaseSuccessfulHours(eventDuration);
         clientMeetingsStatistic.increaseSuccessfulEvents(1);
@@ -99,13 +109,13 @@ public class EventsAnalyzerServiceImpl implements EventsAnalyzerService {
         clientMeetingsStatistic.increaseIncome(actualPricePerHourForDate * eventDuration);
     }
 
-    private void handlePlannedCancelledEvent(ClientMeetingsStatistic clientMeetingsStatistic, EventDto eventDto){
+    private void handlePlannedCancelledEvent(ClientMeetingsStatistic clientMeetingsStatistic, EventDto eventDto) {
         double eventDuration = eventService.getEventDuration(eventDto);
         clientMeetingsStatistic.increaseCancelledHours(eventDuration);
         clientMeetingsStatistic.increasePlannedCancelledEvents(1);
     }
 
-    private void handleUnplannedCancelledEvent(ClientMeetingsStatistic clientMeetingsStatistic, EventDto eventDto){
+    private void handleUnplannedCancelledEvent(ClientMeetingsStatistic clientMeetingsStatistic, EventDto eventDto) {
         double eventDuration = eventService.getEventDuration(eventDto);
         clientMeetingsStatistic.increaseCancelledHours(eventDuration);
         clientMeetingsStatistic.increaseNotPlannedCancelledEvents(1);
@@ -140,7 +150,7 @@ public class EventsAnalyzerServiceImpl implements EventsAnalyzerService {
             } else if (eventStatus.isCancelledStatus()) {
                 lostIncome += eventPrice;
 
-                if(isHoliday(holidayDtos, eventDto)) {
+                if (isHoliday(holidayDtos, eventDto)) {
                     lostIncomeDueToHoliday += eventPrice;
                 }
             } else if (eventStatus == EventStatus.REQUIRES_SHIFT || eventStatus == EventStatus.PLANNED) {
@@ -271,5 +281,29 @@ public class EventsAnalyzerServiceImpl implements EventsAnalyzerService {
         result.setDays(sortedWeekDayHours);
 
         return result;
+    }
+
+    @Override
+    public byte[] generateClientStatisticPdf(UserDto userDto, String clientName, LocalDateTime start, LocalDateTime end) {
+        EventsFilter filter = EventsFilter.builder()
+                .mainCalendar(userDto.getMainCalendar())
+                .clientName(clientName)
+                .leftDate(start)
+                .rightDate(end)
+                .build();
+        List<EventDto> events = calendarService.getEventsBetweenDates(filter);
+
+        Map<String, ClientMeetingsStatistic> statsMap = getStatisticsOfClientMeetings(userDto, events);
+        ClientMeetingsStatistic periodStats = statsMap.get(clientName);
+
+        if (periodStats == null) {
+            Client client = clientRepository.findClientByNameAndUserId(clientName, userDto.getId());
+            if (client == null) throw new ClientNotFoundException(clientName);
+            periodStats = new ClientMeetingsStatistic(client.getPricePerHour());
+            periodStats.setName(clientName);
+        }
+        Client client = clientRepository.findClientByNameAndUserId(clientName, userDto.getId());
+
+        return pdfReportService.generateClientReportPdf(periodStats, events, client, start, end);
     }
 }
