@@ -134,7 +134,7 @@ public class ClientServiceImpl implements ClientService {
             clientForUpdate.setPhone(updateClientDto.getPhone());
         }
 
-        Integer currentPrice =clientForUpdate.getPriceChangeHistory().stream()
+        Integer currentPrice = clientForUpdate.getPriceChangeHistory().stream()
                 .max(Comparator.comparing(PriceChangeHistory::getChangeDate))
                 .map(PriceChangeHistory::getPrice)
                 .orElse(0);

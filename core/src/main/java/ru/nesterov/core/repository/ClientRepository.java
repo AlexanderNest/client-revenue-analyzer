@@ -23,7 +23,7 @@ public interface ClientRepository extends JpaRepository<Client, Long> {
             AND c.active = :active
             AND pch.change_date = (SELECT MAX(change_date) FROM price_change_history WHERE client_id = c.id)
             ORDER BY pch.price DESC
-           \s""", nativeQuery = true)
+           """, nativeQuery = true)
     List<Client> findClientByUserIdAndActiveOrderByPricePerHourDesc(@Param("userId") long userId, @Param("active") boolean active);
 
     int deleteClientByNameAndUserId(String name, long userId);

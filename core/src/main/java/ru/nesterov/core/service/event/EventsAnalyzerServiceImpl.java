@@ -70,7 +70,7 @@ public class EventsAnalyzerServiceImpl implements EventsAnalyzerService {
                     throw new ClientNotFoundException(eventDto.getSummary());
                 }
 
-                clientMeetingsStatistic = new ClientMeetingsStatistic(clientService.getPricePerHourForDate(client, eventDto.getStart())); //TODO тут именно эта цена, чтобы просто показать текущую цену. Но надо доработать и сделать так, чтобы указывались изменения по стоимости
+                clientMeetingsStatistic = new ClientMeetingsStatistic(clientService.getPricePerHourForDate(client, eventDto.getStart()));
                 clientMeetingsStatistic.setName(client.getName());
                 clientMeetingsStatistic.setId(client.getId());
                 clientMeetingsStatistic.setDescription(client.getDescription());
