@@ -24,8 +24,6 @@ import ru.nesterov.web.mapper.ClientMapper;
 import org.springframework.core.io.Resource;
 import org.springframework.core.io.InputStreamResource;
 
-import java.io.InputStream;
-import java.time.LocalDate;
 import java.util.List;
 import java.util.Map;
 
