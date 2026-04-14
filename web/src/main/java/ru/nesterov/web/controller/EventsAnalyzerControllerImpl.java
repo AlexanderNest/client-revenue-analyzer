@@ -1,7 +1,6 @@
 package ru.nesterov.web.controller;
 
 import lombok.RequiredArgsConstructor;
-import org.springframework.http.ContentDisposition;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
@@ -13,6 +12,7 @@ import org.springframework.web.bind.annotation.RestController;
 import ru.nesterov.calendar.integration.dto.EventStatus;
 import ru.nesterov.core.service.dto.ClientMeetingsStatistic;
 import ru.nesterov.core.service.dto.IncomeAnalysisResult;
+import ru.nesterov.core.service.dto.PdfReportResultDto;
 import ru.nesterov.core.service.dto.UserDto;
 import ru.nesterov.core.service.event.EventsAnalyzerService;
 import ru.nesterov.core.service.user.UserService;
@@ -21,7 +21,10 @@ import ru.nesterov.web.controller.request.PdfReportRequest;
 import ru.nesterov.web.controller.response.ClientMeetingsStatisticResponse;
 import ru.nesterov.web.controller.response.EventResponse;
 import ru.nesterov.web.mapper.ClientMapper;
+import org.springframework.core.io.Resource;
+import org.springframework.core.io.InputStreamResource;
 
+import java.io.InputStream;
 import java.time.LocalDate;
 import java.util.List;
 import java.util.Map;
@@ -64,25 +67,19 @@ public class EventsAnalyzerControllerImpl implements EventsAnalyzerController {
                 .toList();
     }
 
-    public ResponseEntity<byte[]> generateReport(@RequestHeader("X-username") String username, @RequestBody PdfReportRequest request) {
+    public ResponseEntity<Resource> generateReport(@RequestHeader("X-username") String username, PdfReportRequest request) {
         UserDto userDto = userService.getUserByUsername(username);
 
-        byte[] pdfReport = eventsAnalyzerService.generateClientStatisticPdf(
+        PdfReportResultDto report = eventsAnalyzerService.generateClientStatisticPdf(
                 userDto,
                 request.getClientName(),
                 request.getStartDate(),
                 request.getEndDate()
         );
 
-        String fileName = String.format("report_%s_%s.pdf", request.getClientName(), LocalDate.now());
-
-        HttpHeaders headers = new HttpHeaders();
-        headers.setContentType(MediaType.APPLICATION_PDF);
-        headers.setContentDisposition(ContentDisposition.attachment()
-                .filename(fileName)
-                .build());
-
-        return new ResponseEntity<>(pdfReport, headers, HttpStatus.OK);
-
+        return ResponseEntity.ok()
+                .contentType(MediaType.APPLICATION_PDF)
+                .header(HttpHeaders.CONTENT_DISPOSITION, "attachment; fileName=\"" + report.getFileName() + "\"")
+                .body(new InputStreamResource(report.getContent()));
     }
 }

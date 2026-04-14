@@ -17,10 +17,14 @@ import ru.nesterov.core.service.date.helper.WeekHelper;
 import ru.nesterov.core.service.dto.BusynessAnalysisResult;
 import ru.nesterov.core.service.dto.ClientMeetingsStatistic;
 import ru.nesterov.core.service.dto.IncomeAnalysisResult;
+import ru.nesterov.core.service.dto.PdfReportDataDto;
+import ru.nesterov.core.service.dto.PdfReportResultDto;
 import ru.nesterov.core.service.dto.UserDto;
 import ru.nesterov.core.service.report.PdfReportService;
 
 import javax.annotation.Nullable;
+import java.io.InputStream;
+import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.HashMap;
 import java.util.LinkedHashMap;
@@ -275,7 +279,7 @@ public class EventsAnalyzerServiceImpl implements EventsAnalyzerService {
     }
 
     @Override
-    public byte[] generateClientStatisticPdf(UserDto userDto, String clientName, LocalDateTime start, LocalDateTime end) {
+    public PdfReportResultDto generateClientStatisticPdf(UserDto userDto, String clientName, LocalDateTime start, LocalDateTime end) {
         EventsFilter filter = EventsFilter.builder()
                 .mainCalendar(userDto.getMainCalendar())
                 .clientName(clientName)
@@ -287,14 +291,27 @@ public class EventsAnalyzerServiceImpl implements EventsAnalyzerService {
         Map<String, ClientMeetingsStatistic> statsMap = getStatisticsOfClientMeetings(userDto, events);
         ClientMeetingsStatistic periodStats = statsMap.get(clientName);
 
+        Client client = clientRepository.findClientByNameAndUserId(clientName, userDto.getId());
+        if (client == null) {
+            throw new ClientNotFoundException(clientName);
+        }
+
         if (periodStats == null) {
-            Client client = clientRepository.findClientByNameAndUserId(clientName, userDto.getId());
-            if (client == null) {throw new ClientNotFoundException(clientName);}
             periodStats = new ClientMeetingsStatistic(client.getPricePerHour());
             periodStats.setName(clientName);
         }
-        Client client = clientRepository.findClientByNameAndUserId(clientName, userDto.getId());
 
-        return pdfReportService.generateClientReportPdf(periodStats, events, client, start, end);
+        PdfReportDataDto reportData = PdfReportDataDto.builder()
+                .stats(periodStats)
+                .events(events)
+                .client(client)
+                .start(start)
+                .end(end)
+                .build();
+
+        String fileName = String.format("report_%s_%s.pdf", clientName, LocalDate.now());
+        InputStream pdfStream = pdfReportService.generateClientReportPdf(reportData);
+
+        return new PdfReportResultDto(pdfStream, fileName);
     }
 }

@@ -27,7 +27,7 @@
             ],
             "body": {
               "mode": "raw",
-              "raw": "{\r\n    \"name\" : \"Test2\",\r\n    \"pricePerHour\": 9,\r\n    \"description\" : \"description 1\",\r\n    \"idGenerationNeeded\": false\r\n}",
+              "raw": "{\r\n    \"name\" : \"Test2\",\r\n    \"pricePerHour\": 10000,\r\n    \"description\" : \"description 1\",\r\n    \"idGenerationNeeded\": false\r\n}",
               "options": {
                 "raw": {
                   "language": "json"
@@ -169,6 +169,9 @@
         },
         {
           "name": "Получить информацию о клиенте за два года",
+          "protocolProfileBehavior": {
+            "disableBodyPruning": true
+          },
           "request": {
             "method": "GET",
             "header": [
@@ -183,6 +186,15 @@
                 "type": "text"
               }
             ],
+            "body": {
+              "mode": "raw",
+              "raw": "",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
             "url": {
               "raw": "localhost:8080/revenue-analyzer/events/analyzer/getClientStatistic?clientName=Гриша",
               "host": [
@@ -326,8 +338,11 @@
         },
         {
           "name": "Генерация PDF отчета по клиенту",
+          "protocolProfileBehavior": {
+            "disableBodyPruning": true
+          },
           "request": {
-            "method": "POST",
+            "method": "GET",
             "header": [
               {
                 "key": "X-username",
@@ -350,7 +365,7 @@
               }
             },
             "url": {
-              "raw": "http://localhost:8080/revenue-analyzer/events/analyzer/generatePdfReport",
+              "raw": "http://localhost:8080/revenue-analyzer/events/analyzer/generatePdfReport?clientName=Test2&startDate=2026-01-01T00:00:00&endDate=2026-12-31T23:59:59",
               "protocol": "http",
               "host": [
                 "localhost"
@@ -361,6 +376,20 @@
                 "events",
                 "analyzer",
                 "generatePdfReport"
+              ],
+              "query": [
+                {
+                  "key": "clientName",
+                  "value": "Test2"
+                },
+                {
+                  "key": "startDate",
+                  "value": "2026-01-01T00:00:00"
+                },
+                {
+                  "key": "endDate",
+                  "value": "2026-12-31T23:59:59"
+                }
               ]
             }
           },
@@ -515,7 +544,7 @@
             ],
             "body": {
               "mode": "raw",
-              "raw": "{ \r\n    \"userIdentifier\": \"AlexTest\",\r\n    \"mainCalendarId\" : \"79fbbdffa18aca0931d4333bffce5b20a0c75b1292f7119a257ec90d2ece5f4a@group.calendar.google.com\",\r\n    \"isCancelledCalendarEnabled\" : true,\r\n    \"cancelledCalendarId\" : \"cancelledcalendar1\"\r\n}\r\n    ",
+              "raw": "{ \r\n    \"userIdentifier\": \"AlexTest2\",\r\n    \"mainCalendarId\" : \"79fbbdffa18aca0931d4333bffce5b20a0c75b1292f7119a257ec90d2ece5f4a@group.calendar.google.com\",\r\n    \"isCancelledCalendarEnabled\" : true,\r\n    \"cancelledCalendarId\" : \"cancelledcalendar1\"\r\n}\r\n    ",
               "options": {
                 "raw": {
                   "language": "json"

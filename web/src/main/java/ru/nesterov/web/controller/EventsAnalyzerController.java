@@ -6,6 +6,7 @@ import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.parameters.RequestBody;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.tags.Tag;
+import org.springframework.core.io.Resource;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -111,8 +112,8 @@ public interface EventsAnalyzerController {
             summary = "Сгенерировать PDF-отчет по клиенту",
             description = "Создает PDF-файл со статистикой встреч и доходов клиента за выбранный период времени"
     )
-    @PostMapping(value = "/generatePdfReport", produces = MediaType.APPLICATION_PDF_VALUE)
-    ResponseEntity<byte[]> generateReport(@RequestHeader("X-username") String username, @RequestBody PdfReportRequest request);
+    @GetMapping(value = "/generatePdfReport", produces = MediaType.APPLICATION_PDF_VALUE)
+    ResponseEntity<Resource> generateReport(@RequestHeader("X-username") String username, PdfReportRequest request);
 
 
 
