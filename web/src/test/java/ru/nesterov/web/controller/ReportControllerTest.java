@@ -20,7 +20,7 @@ public class ReportControllerTest extends AbstractControllerTest {
 
     @Test
     void generateClientReportShouldReturnPdfStream() throws Exception {
-        String username = "testUser";
+        String username = "genClRprtRetPdfStrm";
         createUser(username);
 
         PdfReportResultDto mockResult = new PdfReportResultDto(

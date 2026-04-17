@@ -16,5 +16,4 @@ public class PdfReportDataDto {
     Client client;
     LocalDateTime start;
     LocalDateTime end;
-
 }
