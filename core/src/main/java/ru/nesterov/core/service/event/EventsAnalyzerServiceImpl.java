@@ -3,6 +3,7 @@ package ru.nesterov.core.service.event;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
+import org.springframework.web.servlet.mvc.method.annotation.StreamingResponseBody;
 import ru.nesterov.calendar.integration.dto.EventDto;
 import ru.nesterov.calendar.integration.dto.EventStatus;
 import ru.nesterov.calendar.integration.dto.EventsFilter;
@@ -20,10 +21,8 @@ import ru.nesterov.core.service.dto.IncomeAnalysisResult;
 import ru.nesterov.core.service.dto.PdfReportDataDto;
 import ru.nesterov.core.service.dto.PdfReportResultDto;
 import ru.nesterov.core.service.dto.UserDto;
-import ru.nesterov.core.service.report.PdfReportService;
 
 import javax.annotation.Nullable;
-import java.io.InputStream;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.HashMap;
@@ -39,20 +38,22 @@ public class EventsAnalyzerServiceImpl implements EventsAnalyzerService {
     private final ClientRepository clientRepository;
     private final EventsAnalyzerProperties eventsAnalyzerProperties;
     private final EventService eventService;
-    private final PdfReportService pdfReportService;
+
+    private EventsFilter createEventsFilter(UserDto userDto, String clientName, LocalDateTime start, LocalDateTime end) {
+        return EventsFilter.builder()
+                .mainCalendar(userDto.getMainCalendar())
+                .cancelledCalendar(userDto.getCancelledCalendar())
+                .isCancelledCalendarEnabled(userDto.isCancelledCalendarEnabled())
+                .clientName(clientName)
+                .leftDate(start)
+                .rightDate(end)
+                .build();
+    }
 
     @Nullable
     public ClientMeetingsStatistic getStatisticsByClientMeetings(UserDto userDto, String clientName) {
-        EventsFilter eventsFilter = EventsFilter.builder()
-                .mainCalendar(userDto.getMainCalendar())
-                .cancelledCalendar(userDto.getCancelledCalendar())
-                .leftDate(LocalDateTime.now().minusYears(2))
-                .rightDate(LocalDateTime.now())
-                .isCancelledCalendarEnabled(userDto.isCancelledCalendarEnabled())
-                .clientName(clientName)
-                .build();
-
-        List<EventDto> eventDtos = calendarService.getEventsBetweenDates(eventsFilter);
+        EventsFilter filter = createEventsFilter(userDto, clientName, LocalDateTime.now().minusYears(2), LocalDateTime.now());
+        List<EventDto> eventDtos = calendarService.getEventsBetweenDates(filter);
 
         return getStatisticsOfClientMeetings(userDto, eventDtos).get(clientName);
     }
@@ -172,15 +173,9 @@ public class EventsAnalyzerServiceImpl implements EventsAnalyzerService {
 
     @Override
     public List<EventDto> getUnpaidEventsBetweenDates(UserDto userDto, LocalDateTime leftDate, LocalDateTime rightDate) {
-        EventsFilter eventsFilter = EventsFilter.builder()
-                .mainCalendar(userDto.getMainCalendar())
-                .cancelledCalendar(userDto.getCancelledCalendar())
-                .rightDate(rightDate)
-                .leftDate(leftDate)
-                .isCancelledCalendarEnabled(userDto.isCancelledCalendarEnabled())
-                .build();
+        EventsFilter filter = createEventsFilter(userDto, null, leftDate, rightDate);
 
-        return calendarService.getEventsBetweenDates(eventsFilter).stream()
+        return calendarService.getEventsBetweenDates(filter).stream()
                 .filter(event -> {
                     EventStatus eventStatus = event.getStatus();
                     return eventStatus == EventStatus.PLANNED || eventStatus == EventStatus.REQUIRES_SHIFT;
@@ -223,27 +218,15 @@ public class EventsAnalyzerServiceImpl implements EventsAnalyzerService {
 
     private List<EventDto> getEventsByMonth(UserDto userDto, String monthName) {
         MonthDatesPair monthDatesPair = MonthHelper.getFirstAndLastDayOfMonth(monthName);
-        EventsFilter eventsFilter = EventsFilter.builder()
-                .mainCalendar(userDto.getMainCalendar())
-                .cancelledCalendar(userDto.getCancelledCalendar())
-                .leftDate(monthDatesPair.getFirstDate())
-                .rightDate(monthDatesPair.getLastDate())
-                .isCancelledCalendarEnabled(userDto.isCancelledCalendarEnabled())
-                .build();
-        return calendarService.getEventsBetweenDates(eventsFilter);
+        EventsFilter filter = createEventsFilter(userDto, null, monthDatesPair.getFirstDate(), monthDatesPair.getLastDate());
+        return calendarService.getEventsBetweenDates(filter);
     }
 
     private List<EventDto> getEventsByYear(UserDto userDto, int year) {
         LocalDateTime startOfYear = LocalDateTime.of(year, 1, 1, 0, 0);
         LocalDateTime endOfYear = LocalDateTime.of(year, 12, 31, 23, 59);
-        EventsFilter eventsFilter = EventsFilter.builder()
-                .mainCalendar(userDto.getMainCalendar())
-                .cancelledCalendar(userDto.getCancelledCalendar())
-                .leftDate(startOfYear)
-                .rightDate(endOfYear)
-                .isCancelledCalendarEnabled(userDto.isCancelledCalendarEnabled())
-                .build();
-        return calendarService.getEventsBetweenDates(eventsFilter);
+        EventsFilter filter = createEventsFilter(userDto, null, startOfYear, endOfYear);
+        return calendarService.getEventsBetweenDates(filter);
     }
 
     @Override
@@ -278,40 +261,27 @@ public class EventsAnalyzerServiceImpl implements EventsAnalyzerService {
         return result;
     }
 
-    @Override
-    public PdfReportResultDto generateClientStatisticPdf(UserDto userDto, String clientName, LocalDateTime start, LocalDateTime end) {
-        EventsFilter filter = EventsFilter.builder()
-                .mainCalendar(userDto.getMainCalendar())
-                .clientName(clientName)
-                .leftDate(start)
-                .rightDate(end)
-                .build();
+    public PdfReportDataDto getReportData(UserDto userDto, String clientName, LocalDateTime start, LocalDateTime end) {
+        Client client = clientRepository.findClientByNameAndUserId(clientName, userDto.getId());
+        if (client == null) {
+            throw new ClientNotFoundException(clientName);
+        }
+        EventsFilter filter = createEventsFilter(userDto, clientName, start, end);
         List<EventDto> events = calendarService.getEventsBetweenDates(filter);
 
         Map<String, ClientMeetingsStatistic> statsMap = getStatisticsOfClientMeetings(userDto, events);
         ClientMeetingsStatistic periodStats = statsMap.get(clientName);
 
-        Client client = clientRepository.findClientByNameAndUserId(clientName, userDto.getId());
-        if (client == null) {
-            throw new ClientNotFoundException(clientName);
-        }
-
         if (periodStats == null) {
             periodStats = new ClientMeetingsStatistic(client.getPricePerHour());
             periodStats.setName(clientName);
         }
-
-        PdfReportDataDto reportData = PdfReportDataDto.builder()
+        return PdfReportDataDto.builder()
                 .stats(periodStats)
                 .events(events)
                 .client(client)
                 .start(start)
                 .end(end)
                 .build();
-
-        String fileName = String.format("report_%s_%s.pdf", clientName, LocalDate.now());
-        InputStream pdfStream = pdfReportService.generateClientReportPdf(reportData);
-
-        return new PdfReportResultDto(pdfStream, fileName);
     }
 }

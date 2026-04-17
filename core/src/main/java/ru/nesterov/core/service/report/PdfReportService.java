@@ -14,20 +14,27 @@ import org.openpdf.text.pdf.PdfWriter;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
+import org.springframework.web.servlet.mvc.method.annotation.StreamingResponseBody;
 import ru.nesterov.calendar.integration.dto.EventDto;
 import ru.nesterov.core.service.dto.PdfReportDataDto;
+import ru.nesterov.core.service.dto.PdfReportResultDto;
+import ru.nesterov.core.service.dto.UserDto;
 import ru.nesterov.core.service.event.EventService;
+import ru.nesterov.core.service.event.EventsAnalyzerService;
 
-import java.io.ByteArrayInputStream;
-import java.io.ByteArrayOutputStream;
 import java.io.IOException;
-import java.io.InputStream;
+
+import java.io.OutputStream;
+import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 
 @Service
 @Slf4j
 @RequiredArgsConstructor
 public class PdfReportService {
+    private final EventsAnalyzerService eventsAnalyzerService;
+    private final EventService eventService;
 
     private static final String FONT_PATH = "/fonts/arial.ttf";
     private static final DateTimeFormatter DATE_FORMATTER = DateTimeFormatter.ofPattern("dd.MM.yyyy HH:mm");
@@ -39,14 +46,19 @@ public class PdfReportService {
     private static final int[] COLUMN_WIDTHS = {3, 3, 2, 2};
     private static final int CELL_PADDING = 5;
 
-    private final EventService eventService;
+    public PdfReportResultDto generateClientReportPdf(UserDto userDto, String clientName, LocalDateTime start, LocalDateTime end) {
+        PdfReportDataDto reportData = eventsAnalyzerService.getReportData(userDto, clientName, start, end);
+        String fileName = String.format("report_%s_%s.pdf", clientName, LocalDate.now());
+        StreamingResponseBody responseBody =  outputStream -> {
+            renderPdfToStream(reportData, outputStream);
+        };
+        return new PdfReportResultDto(responseBody, fileName);
+    }
 
-    public InputStream generateClientReportPdf(PdfReportDataDto dataDto) {
-        ByteArrayOutputStream out = new ByteArrayOutputStream();
-
+    private void renderPdfToStream(PdfReportDataDto dataDto, OutputStream outputStream) {
         try {
             Document document = new Document(PageSize.A4);
-            PdfWriter.getInstance(document, out);
+            PdfWriter.getInstance(document, outputStream);
             document.open();
 
             BaseFont baseF = BaseFont.createFont(FONT_PATH, BaseFont.IDENTITY_H, BaseFont.EMBEDDED);
@@ -86,7 +98,6 @@ public class PdfReportService {
             }
             document.add(table);
             document.close();
-            return new ByteArrayInputStream(out.toByteArray());
         } catch (DocumentException | IOException e) {
             log.error("Ошибка при генерации PDF отчета", e);
             throw new RuntimeException("Не удалось создать PDF отчет",e);

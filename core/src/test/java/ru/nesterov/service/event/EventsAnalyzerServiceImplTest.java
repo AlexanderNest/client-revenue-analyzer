@@ -4,8 +4,8 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
-import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.test.context.ContextConfiguration;
+import org.springframework.test.context.bean.override.mockito.MockitoBean;
 import ru.nesterov.calendar.integration.dto.EventDto;
 import ru.nesterov.calendar.integration.dto.EventExtensionDto;
 import ru.nesterov.calendar.integration.dto.EventStatus;
@@ -17,11 +17,11 @@ import ru.nesterov.core.repository.ClientRepository;
 import ru.nesterov.core.repository.UserRepository;
 import ru.nesterov.core.service.dto.ClientMeetingsStatistic;
 import ru.nesterov.core.service.dto.IncomeAnalysisResult;
+import ru.nesterov.core.service.dto.PdfReportDataDto;
 import ru.nesterov.core.service.dto.UserDto;
 import ru.nesterov.core.service.event.EventService;
 import ru.nesterov.core.service.event.EventsAnalyzerProperties;
 import ru.nesterov.core.service.event.EventsAnalyzerServiceImpl;
-import ru.nesterov.core.service.report.PdfReportService;
 
 import java.time.LocalDateTime;
 import java.util.Calendar;
@@ -30,6 +30,7 @@ import java.util.List;
 import java.util.Map;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.when;
 
@@ -39,17 +40,16 @@ import static org.mockito.Mockito.when;
         EventStatusServiceImpl.class,
         EventsAnalyzerProperties.class,
         EventService.class,
-        PdfReportService.class
 })
 class EventsAnalyzerServiceImplTest {
     @Autowired
     private EventsAnalyzerServiceImpl eventsAnalyzerService;
 
-    @MockBean
+    @MockitoBean
     private ClientRepository clientRepository;
-    @MockBean
+    @MockitoBean
     private UserRepository userRepository;
-    @MockBean
+    @MockitoBean
     private GoogleCalendarService googleCalendarService;
 
     @BeforeEach
@@ -210,5 +210,20 @@ class EventsAnalyzerServiceImplTest {
         assertEquals(3, meetingsStatistics.getSuccessfulEventsCount());
         assertEquals(2, meetingsStatistics.getPlannedCancelledEventsCount());
         assertEquals(1, meetingsStatistics.getNotPlannedCancelledEventsCount());
+    }
+
+    @Test
+    void getReportDataShouldReturnCorrectDto() {
+        UserDto userDto = UserDto.builder().id(1).username("testUsername").build();
+        String clientName = "testName";
+        LocalDateTime startDate = LocalDateTime.now().minusDays(30);
+        LocalDateTime endDate = LocalDateTime.now();
+
+        PdfReportDataDto result = eventsAnalyzerService.getReportData(userDto, clientName, startDate, endDate);
+
+        assertNotNull(result);
+        assertEquals(clientName, result.getStats().getName());
+        assertNotNull(result.getEvents());
+        assertEquals(clientName, result.getStats().getName());
     }
 }

@@ -9,6 +9,7 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestHeader;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.servlet.mvc.method.annotation.StreamingResponseBody;
 import ru.nesterov.calendar.integration.dto.EventStatus;
 import ru.nesterov.core.service.dto.ClientMeetingsStatistic;
 import ru.nesterov.core.service.dto.IncomeAnalysisResult;
@@ -21,8 +22,6 @@ import ru.nesterov.web.controller.request.PdfReportRequest;
 import ru.nesterov.web.controller.response.ClientMeetingsStatisticResponse;
 import ru.nesterov.web.controller.response.EventResponse;
 import ru.nesterov.web.mapper.ClientMapper;
-import org.springframework.core.io.Resource;
-import org.springframework.core.io.InputStreamResource;
 
 import java.util.List;
 import java.util.Map;
@@ -63,21 +62,5 @@ public class EventsAnalyzerControllerImpl implements EventsAnalyzerController {
         return eventsAnalyzerService.getUnpaidEvents(userService.getUserByUsername(username)).stream()
                 .map(event -> new EventResponse(event.getSummary(), event.getStart()))
                 .toList();
-    }
-
-    public ResponseEntity<Resource> generateReport(@RequestHeader("X-username") String username, PdfReportRequest request) {
-        UserDto userDto = userService.getUserByUsername(username);
-
-        PdfReportResultDto report = eventsAnalyzerService.generateClientStatisticPdf(
-                userDto,
-                request.getClientName(),
-                request.getStartDate(),
-                request.getEndDate()
-        );
-
-        return ResponseEntity.ok()
-                .contentType(MediaType.APPLICATION_PDF)
-                .header(HttpHeaders.CONTENT_DISPOSITION, "attachment; fileName=\"" + report.getFileName() + "\"")
-                .body(new InputStreamResource(report.getContent()));
     }
 }

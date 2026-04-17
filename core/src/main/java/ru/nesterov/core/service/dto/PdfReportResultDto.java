@@ -1,11 +1,10 @@
 package ru.nesterov.core.service.dto;
 
 import lombok.Value;
-
-import java.io.InputStream;
+import org.springframework.web.servlet.mvc.method.annotation.StreamingResponseBody;
 
 @Value
 public class PdfReportResultDto {
-    InputStream content;
+    StreamingResponseBody responseBody;
     String fileName;
 }

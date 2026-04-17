@@ -5,6 +5,7 @@ import ru.nesterov.calendar.integration.dto.EventStatus;
 import ru.nesterov.core.service.dto.BusynessAnalysisResult;
 import ru.nesterov.core.service.dto.ClientMeetingsStatistic;
 import ru.nesterov.core.service.dto.IncomeAnalysisResult;
+import ru.nesterov.core.service.dto.PdfReportDataDto;
 import ru.nesterov.core.service.dto.PdfReportResultDto;
 import ru.nesterov.core.service.dto.UserDto;
 
@@ -23,6 +24,5 @@ public interface EventsAnalyzerService {
     List<EventDto> getUnpaidEventsBetweenDates(UserDto userDto, LocalDateTime leftDate, LocalDateTime rightDate);
     List<EventDto> getUnpaidEvents(UserDto userDto);
     BusynessAnalysisResult getBusynessStatisticsByYear(UserDto userDto, int year);
-
-    PdfReportResultDto generateClientStatisticPdf(UserDto userDto, String clientName, LocalDateTime leftDate, LocalDateTime rightDate);
+    PdfReportDataDto getReportData(UserDto userDto, String clientName, LocalDateTime leftDate, LocalDateTime rightDate);
 }

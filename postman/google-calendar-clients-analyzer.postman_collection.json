@@ -335,65 +335,6 @@
             }
           },
           "response": []
-        },
-        {
-          "name": "Генерация PDF отчета по клиенту",
-          "protocolProfileBehavior": {
-            "disableBodyPruning": true
-          },
-          "request": {
-            "method": "GET",
-            "header": [
-              {
-                "key": "X-username",
-                "value": "{{X-username}}",
-                "type": "text"
-              },
-              {
-                "key": "X-secret-token",
-                "value": "{{X-secret-token}}",
-                "type": "text"
-              }
-            ],
-            "body": {
-              "mode": "raw",
-              "raw": "{\r\n  \"clientName\": \"Test2\",\r\n  \"startDate\": \"2026-01-01T00:00:00\",\r\n  \"endDate\": \"2026-12-31T23:59:59\"\r\n}",
-              "options": {
-                "raw": {
-                  "language": "json"
-                }
-              }
-            },
-            "url": {
-              "raw": "http://localhost:8080/revenue-analyzer/events/analyzer/generatePdfReport?clientName=Test2&startDate=2026-01-01T00:00:00&endDate=2026-12-31T23:59:59",
-              "protocol": "http",
-              "host": [
-                "localhost"
-              ],
-              "port": "8080",
-              "path": [
-                "revenue-analyzer",
-                "events",
-                "analyzer",
-                "generatePdfReport"
-              ],
-              "query": [
-                {
-                  "key": "clientName",
-                  "value": "Test2"
-                },
-                {
-                  "key": "startDate",
-                  "value": "2026-01-01T00:00:00"
-                },
-                {
-                  "key": "endDate",
-                  "value": "2026-12-31T23:59:59"
-                }
-              ]
-            }
-          },
-          "response": []
         }
       ],
       "description": "Функционал управления клиентами, вывод информации по отдельному клиенту"
@@ -726,6 +667,69 @@
                 "revenue-analyzer",
                 "ai",
                 "generateRecommendation"
+              ]
+            }
+          },
+          "response": []
+        }
+      ]
+    },
+    {
+      "name": "Отчеты",
+      "item": [
+        {
+          "name": "Генерация PDF отчета по клиенту",
+          "protocolProfileBehavior": {
+            "disableBodyPruning": true
+          },
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "X-username",
+                "value": "{{X-username}}",
+                "type": "text"
+              },
+              {
+                "key": "X-secret-token",
+                "value": "{{X-secret-token}}",
+                "type": "text"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\r\n  \"clientName\": \"Test2\",\r\n  \"startDate\": \"2026-01-01T00:00:00\",\r\n  \"endDate\": \"2026-12-31T23:59:59\"\r\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "http://localhost:8080/revenue-analyzer/reports/client-statistic?clientName=Test2&startDate=2026-01-01T00:00:00&endDate=2026-12-31T23:59:59",
+              "protocol": "http",
+              "host": [
+                "localhost"
+              ],
+              "port": "8080",
+              "path": [
+                "revenue-analyzer",
+                "reports",
+                "client-statistic"
+              ],
+              "query": [
+                {
+                  "key": "clientName",
+                  "value": "Test2"
+                },
+                {
+                  "key": "startDate",
+                  "value": "2026-01-01T00:00:00"
+                },
+                {
+                  "key": "endDate",
+                  "value": "2026-12-31T23:59:59"
+                }
               ]
             }
           },
