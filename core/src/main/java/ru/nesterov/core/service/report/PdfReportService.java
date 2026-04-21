@@ -19,7 +19,6 @@ import ru.nesterov.calendar.integration.service.CalendarService;
 import ru.nesterov.core.entity.Client;
 import ru.nesterov.core.exception.CannotCreatePDFReportException;
 import ru.nesterov.core.repository.ClientRepository;
-import ru.nesterov.core.service.client.ClientService;
 import ru.nesterov.core.service.dto.ClientMeetingsStatistic;
 import ru.nesterov.core.service.dto.CreatePdfReportDto;
 import ru.nesterov.core.service.event.EventService;
