@@ -210,18 +210,4 @@ class EventsAnalyzerServiceImplTest {
         assertEquals(1, meetingsStatistics.getNotPlannedCancelledEventsCount());
     }
 
-//    @Test
-//    void getReportDataShouldReturnCorrectDto() {
-//        UserDto userDto = UserDto.builder().id(1).username("testUsername").build();
-//        String clientName = "testName";
-//        LocalDateTime startDate = LocalDateTime.now().minusDays(30);
-//        LocalDateTime endDate = LocalDateTime.now();
-//
-//        PdfReportDataDto result = eventsAnalyzerService.getReportData(userDto, clientName, startDate, endDate);
-//
-//        assertNotNull(result);
-//        assertEquals(clientName, result.getStats().getName());
-//        assertNotNull(result.getEvents());
-//        assertEquals(clientName, result.getStats().getName());
-//    }
 }
