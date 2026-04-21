@@ -1,6 +1,5 @@
 package ru.nesterov.core.service.event;
 
-import com.google.api.services.calendar.Calendar;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
@@ -18,10 +17,8 @@ import ru.nesterov.core.service.date.helper.WeekHelper;
 import ru.nesterov.core.service.dto.BusynessAnalysisResult;
 import ru.nesterov.core.service.dto.ClientMeetingsStatistic;
 import ru.nesterov.core.service.dto.IncomeAnalysisResult;
-import ru.nesterov.core.service.dto.PdfReportDataDto;
 import ru.nesterov.core.service.dto.UserDto;
 
-import javax.annotation.Nullable;
 import java.time.LocalDateTime;
 import java.util.HashMap;
 import java.util.LinkedHashMap;
@@ -37,7 +34,6 @@ public class EventsAnalyzerServiceImpl implements EventsAnalyzerService {
     private final EventsAnalyzerProperties eventsAnalyzerProperties;
     private final EventService eventService;
 
-    @Nullable
     public ClientMeetingsStatistic getStatisticsByClientMeetings(UserDto userDto, String clientName) {
         EventsFilter eventsFilter = EventsFilter.builder()
                 .mainCalendar(userDto.getMainCalendar())
@@ -306,42 +302,4 @@ public class EventsAnalyzerServiceImpl implements EventsAnalyzerService {
 
         return calculateAverageMeetingPrice(userDto, eventDtos);
     }
-
-    @Override
-    public PdfReportDataDto getReportData (UserDto userDto, String clientName, LocalDateTime leftDate, LocalDateTime rightDate) {
-        Client client = clientRepository.findClientByNameAndUserId(clientName, userDto.getId());
-        if (client == null) {
-            throw new ClientNotFoundException(clientName);
-        }
-        EventsFilter eventsFilter = EventsFilter.builder()
-                .mainCalendar(userDto.getMainCalendar())
-                .cancelledCalendar(userDto.getCancelledCalendar())
-                .leftDate(leftDate)
-                .rightDate(rightDate)
-                .isCancelledCalendarEnabled(userDto.isCancelledCalendarEnabled())
-                .clientName(clientName)
-                .build();
-
-        List<EventDto> eventDtos = calendarService.getEventsBetweenDates(eventsFilter);
-        Map<String, ClientMeetingsStatistic> statisticsMap = getStatisticsOfClientMeetings(userDto, eventDtos);
-
-        ClientMeetingsStatistic stats = statisticsMap.get(clientName);
-
-        if (stats == null) {
-            stats = new ClientMeetingsStatistic(client.getPricePerHour());
-            stats.setName(client.getName());
-            stats.setStartDate(client.getStartDate());
-            stats.setPhone(client.getPhone());
-        }
-
-        return PdfReportDataDto.builder()
-                .client(client)
-                .stats(stats)
-                .events(eventDtos)
-                .start(leftDate)
-                .end(rightDate)
-                .build();
-    }
-
-
 }

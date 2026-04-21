@@ -1,7 +1,6 @@
 package ru.nesterov.core.service.report;
 
 import org.openpdf.text.Document;
-import org.openpdf.text.DocumentException;
 import org.openpdf.text.Element;
 import org.openpdf.text.Font;
 import org.openpdf.text.PageSize;
@@ -15,15 +14,21 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import ru.nesterov.calendar.integration.dto.EventDto;
-import ru.nesterov.core.service.dto.PdfReportDataDto;
-import ru.nesterov.core.service.dto.UserDto;
+import ru.nesterov.calendar.integration.dto.EventsFilter;
+import ru.nesterov.calendar.integration.service.CalendarService;
+import ru.nesterov.core.entity.Client;
+import ru.nesterov.core.exception.CannotCreatePDFReportException;
+import ru.nesterov.core.repository.ClientRepository;
+import ru.nesterov.core.service.client.ClientService;
+import ru.nesterov.core.service.dto.ClientMeetingsStatistic;
+import ru.nesterov.core.service.dto.CreatePdfReportDto;
 import ru.nesterov.core.service.event.EventService;
 import ru.nesterov.core.service.event.EventsAnalyzerService;
 
 import java.io.IOException;
+import java.util.List;
 
 import java.io.OutputStream;
-import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 
 @Service
@@ -32,6 +37,8 @@ import java.time.format.DateTimeFormatter;
 public class PdfReportService {
     private final EventsAnalyzerService eventsAnalyzerService;
     private final EventService eventService;
+    private final CalendarService calendarService;
+    private final ClientRepository clientRepository;
 
     private static final String FONT_PATH = "/fonts/arial.ttf";
     private static final DateTimeFormatter DATE_FORMATTER = DateTimeFormatter.ofPattern("dd.MM.yyyy HH:mm");
@@ -43,48 +50,48 @@ public class PdfReportService {
     private static final int[] COLUMN_WIDTHS = {3, 3, 2, 2};
     private static final int CELL_PADDING = 5;
 
-    public void generateClientReportPdf(UserDto userDto, String clientName, LocalDateTime start, LocalDateTime end, OutputStream outputStream) {
-        PdfReportDataDto reportData = eventsAnalyzerService.getReportData(userDto, clientName, start, end);
-        renderPdfToStream(reportData, outputStream);
+    public void generateClientReportPdf(CreatePdfReportDto createPdfReportDto) {
+
+        try {
+            createPdfAndRenderToStream(createPdfReportDto, createPdfReportDto.getOutputStream());
+        } catch (Exception e) {
+            log.error("Ошибка во время генерации отчета. User = [{}], client = [{}]",
+                    createPdfReportDto.getUserDto().getUsername(), createPdfReportDto.getClientName(), e);
+
+            throw new CannotCreatePDFReportException(e.getMessage());
+        }
     }
 
-    private void renderPdfToStream(PdfReportDataDto dataDto, OutputStream outputStream) {
-        BaseFont baseF;
-        try {
-            baseF = BaseFont.createFont(FONT_PATH, BaseFont.IDENTITY_H, BaseFont.EMBEDDED);
-        } catch (DocumentException | IOException e) {
-            log.error("Ошибка при загрузке шрифтов для PDF: {}", FONT_PATH, e);
-            throw new RuntimeException("Не удалось инициализировать шрифты отчета", e);
-        }
+    private void createPdfAndRenderToStream(CreatePdfReportDto reportDto, OutputStream outputStream) throws IOException {
+        BaseFont baseF = BaseFont.createFont(FONT_PATH, BaseFont.IDENTITY_H, BaseFont.EMBEDDED);
+
         Font titleFont = new Font(baseF, TITTLE_FONT_SIZE, Font.BOLD);
         Font baseFont = new Font(baseF, BASE_FONT_SIZE, Font.BOLD);
         Font normalFont = new Font(baseF, NORMAL_FONT_SIZE, Font.BOLD);
         Document document = new Document(PageSize.A4);
-        try{
-            PdfWriter.getInstance(document, outputStream);
-            document.open();
-            fillDocumentContent(document, dataDto, titleFont, baseFont, normalFont);
-            document.close();
-        } catch (DocumentException e) {
-            log.error("Ошибка при генерации PDF отчета", e);
-            throw new RuntimeException("Не удалось создать PDF отчет",e);
-        }
+
+        PdfWriter.getInstance(document, outputStream);
+        document.open();
+        fillDocumentContent(document, reportDto, titleFont, baseFont, normalFont);
+        document.close();
     }
 
-    private void fillDocumentContent(Document document, PdfReportDataDto dataDto, Font titleFont, Font baseFont, Font normalFont) throws DocumentException {
-        Paragraph title = new Paragraph("Отчет по клиенту: " + dataDto.getStats().getName(), titleFont);
+    private void fillDocumentContent(Document document, CreatePdfReportDto reportDto, Font titleFont, Font baseFont, Font normalFont) {
+        ClientMeetingsStatistic statistics = eventsAnalyzerService.getStatisticsByClientMeetings(reportDto.getUserDto(), reportDto.getClientName());
+
+        Paragraph title = new Paragraph("Отчет по клиенту: " + reportDto.getClientName(), titleFont);
         title.setAlignment(Element.ALIGN_CENTER);
         document.add(title);
 
-        Paragraph period = new Paragraph("за период с " + dataDto.getStart().format(DATE_FORMATTER) + " по " + dataDto.getEnd().format(DATE_FORMATTER), baseFont);
+        Paragraph period = new Paragraph("за период с " + reportDto.getStart().format(DATE_FORMATTER) + " по " + reportDto.getEnd().format(DATE_FORMATTER), baseFont);
         period.setAlignment(Element.ALIGN_CENTER);
         document.add(period);
         document.add(new Paragraph(" "));
 
         document.add(new Paragraph("Статистика за указанный период: ", normalFont));
-        document.add(new Paragraph("Доход: " + (long) dataDto.getStats().getActualIncome() + " руб.", normalFont));
-        document.add(new Paragraph("Часов отработано: " + dataDto.getStats().getSuccessfulMeetingsHours(), normalFont));
-        document.add(new Paragraph("Всего встреч: " + dataDto.getStats().getSuccessfulEventsCount(), normalFont));
+        document.add(new Paragraph("Доход: " + (long) statistics.getActualIncome() + " руб.", normalFont));
+        document.add(new Paragraph("Часов отработано: " + statistics.getSuccessfulMeetingsHours(), normalFont));
+        document.add(new Paragraph("Всего встреч: " + statistics.getSuccessfulEventsCount(), normalFont));
         document.add(new Paragraph(" "));
 
         PdfPTable table = new PdfPTable(4);
@@ -96,11 +103,23 @@ public class PdfReportService {
         addTableCell(table, "Статус", baseFont);
         addTableCell(table, "Доход", baseFont);
 
-        for (EventDto event : dataDto.getEvents()) {
+        EventsFilter eventsFilter = EventsFilter.builder()
+                .mainCalendar(reportDto.getUserDto().getMainCalendar())
+                .cancelledCalendar(reportDto.getUserDto().getCancelledCalendar())
+                .isCancelledCalendarEnabled(reportDto.getUserDto().isCancelledCalendarEnabled())
+                .clientName(reportDto.getClientName())
+                .leftDate(reportDto.getStart())
+                .rightDate(reportDto.getEnd())
+                .build();
+
+        List<EventDto> eventDtoList = calendarService.getEventsBetweenDates(eventsFilter);
+        Client client = clientRepository.findClientByNameAndUserId(reportDto.getClientName(), reportDto.getUserDto().getId());
+
+        for (EventDto event : eventDtoList) {
             addTableCell(table, event.getStart().format(DATE_FORMATTER), normalFont);
             addTableCell(table, event.getEnd().format(DATE_FORMATTER), normalFont);
             addTableCell(table, event.getStatus().toString(), normalFont);
-            addTableCell(table, String.format("%.0f", eventService.getEventIncome(dataDto.getClient(), event)), normalFont);
+            addTableCell(table, String.format("%.0f", eventService.getEventIncome(client, event)), normalFont);
         }
         document.add(table);
     }
