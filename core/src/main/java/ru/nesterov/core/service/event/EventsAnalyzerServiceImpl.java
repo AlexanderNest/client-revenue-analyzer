@@ -1,5 +1,6 @@
 package ru.nesterov.core.service.event;
 
+import com.google.api.services.calendar.Calendar;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
@@ -36,21 +37,18 @@ public class EventsAnalyzerServiceImpl implements EventsAnalyzerService {
     private final EventsAnalyzerProperties eventsAnalyzerProperties;
     private final EventService eventService;
 
-    private EventsFilter createEventsFilter(UserDto userDto, String clientName, LocalDateTime start, LocalDateTime end) {
-        return EventsFilter.builder()
-                .mainCalendar(userDto.getMainCalendar())
-                .cancelledCalendar(userDto.getCancelledCalendar())
-                .isCancelledCalendarEnabled(userDto.isCancelledCalendarEnabled())
-                .clientName(clientName)
-                .leftDate(start)
-                .rightDate(end)
-                .build();
-    }
-
     @Nullable
     public ClientMeetingsStatistic getStatisticsByClientMeetings(UserDto userDto, String clientName) {
-        EventsFilter filter = createEventsFilter(userDto, clientName, LocalDateTime.now().minusYears(2), LocalDateTime.now());
-        List<EventDto> eventDtos = calendarService.getEventsBetweenDates(filter);
+        EventsFilter eventsFilter = EventsFilter.builder()
+                .mainCalendar(userDto.getMainCalendar())
+                .cancelledCalendar(userDto.getCancelledCalendar())
+                .leftDate(LocalDateTime.now().minusYears(2))
+                .rightDate(LocalDateTime.now())
+                .isCancelledCalendarEnabled(userDto.isCancelledCalendarEnabled())
+                .clientName(clientName)
+                .build();
+
+        List<EventDto> eventDtos = calendarService.getEventsBetweenDates(eventsFilter);
 
         return getStatisticsOfClientMeetings(userDto, eventDtos).get(clientName);
     }
@@ -85,7 +83,7 @@ public class EventsAnalyzerServiceImpl implements EventsAnalyzerService {
                 handleSuccessfulEvent(clientMeetingsStatistic, eventDto, client);
             } else if (eventStatus == EventStatus.PLANNED_CANCELLED || eventStatus == EventStatus.UNPLANNED_CANCELLED && EventExtensionService.isPlannedStatus(eventDto)) {
                 handlePlannedCancelledEvent(clientMeetingsStatistic, eventDto);
-            } else if (eventStatus == EventStatus.UNPLANNED_CANCELLED) {
+            } else if (eventStatus == EventStatus.UNPLANNED_CANCELLED ) {
                 handleUnplannedCancelledEvent(clientMeetingsStatistic, eventDto);
             }
         }
@@ -93,7 +91,7 @@ public class EventsAnalyzerServiceImpl implements EventsAnalyzerService {
         return meetingsStatistics;
     }
 
-    private void handleSuccessfulEvent(ClientMeetingsStatistic clientMeetingsStatistic, EventDto eventDto, Client client) {
+    private void handleSuccessfulEvent(ClientMeetingsStatistic clientMeetingsStatistic, EventDto eventDto, Client client){
         double eventDuration = eventService.getEventDuration(eventDto);
         clientMeetingsStatistic.increaseSuccessfulHours(eventDuration);
         clientMeetingsStatistic.increaseSuccessfulEvents(1);
@@ -102,13 +100,13 @@ public class EventsAnalyzerServiceImpl implements EventsAnalyzerService {
         clientMeetingsStatistic.increaseIncome(actualPricePerHourForDate * eventDuration);
     }
 
-    private void handlePlannedCancelledEvent(ClientMeetingsStatistic clientMeetingsStatistic, EventDto eventDto) {
+    private void handlePlannedCancelledEvent(ClientMeetingsStatistic clientMeetingsStatistic, EventDto eventDto){
         double eventDuration = eventService.getEventDuration(eventDto);
         clientMeetingsStatistic.increaseCancelledHours(eventDuration);
         clientMeetingsStatistic.increasePlannedCancelledEvents(1);
     }
 
-    private void handleUnplannedCancelledEvent(ClientMeetingsStatistic clientMeetingsStatistic, EventDto eventDto) {
+    private void handleUnplannedCancelledEvent(ClientMeetingsStatistic clientMeetingsStatistic, EventDto eventDto){
         double eventDuration = eventService.getEventDuration(eventDto);
         clientMeetingsStatistic.increaseCancelledHours(eventDuration);
         clientMeetingsStatistic.increaseNotPlannedCancelledEvents(1);
@@ -143,7 +141,7 @@ public class EventsAnalyzerServiceImpl implements EventsAnalyzerService {
             } else if (eventStatus.isCancelledStatus()) {
                 lostIncome += eventPrice;
 
-                if (isHoliday(holidayDtos, eventDto)) {
+                if(isHoliday(holidayDtos, eventDto)) {
                     lostIncomeDueToHoliday += eventPrice;
                 }
             } else if (eventStatus == EventStatus.REQUIRES_SHIFT || eventStatus == EventStatus.PLANNED) {
@@ -170,9 +168,15 @@ public class EventsAnalyzerServiceImpl implements EventsAnalyzerService {
 
     @Override
     public List<EventDto> getUnpaidEventsBetweenDates(UserDto userDto, LocalDateTime leftDate, LocalDateTime rightDate) {
-        EventsFilter filter = createEventsFilter(userDto, null, leftDate, rightDate);
+        EventsFilter eventsFilter = EventsFilter.builder()
+                .mainCalendar(userDto.getMainCalendar())
+                .cancelledCalendar(userDto.getCancelledCalendar())
+                .rightDate(rightDate)
+                .leftDate(leftDate)
+                .isCancelledCalendarEnabled(userDto.isCancelledCalendarEnabled())
+                .build();
 
-        return calendarService.getEventsBetweenDates(filter).stream()
+        return calendarService.getEventsBetweenDates(eventsFilter).stream()
                 .filter(event -> {
                     EventStatus eventStatus = event.getStatus();
                     return eventStatus == EventStatus.PLANNED || eventStatus == EventStatus.REQUIRES_SHIFT;
@@ -215,15 +219,27 @@ public class EventsAnalyzerServiceImpl implements EventsAnalyzerService {
 
     private List<EventDto> getEventsByMonth(UserDto userDto, String monthName) {
         MonthDatesPair monthDatesPair = MonthHelper.getFirstAndLastDayOfMonth(monthName);
-        EventsFilter filter = createEventsFilter(userDto, null, monthDatesPair.getFirstDate(), monthDatesPair.getLastDate());
-        return calendarService.getEventsBetweenDates(filter);
+        EventsFilter eventsFilter = EventsFilter.builder()
+                .mainCalendar(userDto.getMainCalendar())
+                .cancelledCalendar(userDto.getCancelledCalendar())
+                .leftDate(monthDatesPair.getFirstDate())
+                .rightDate(monthDatesPair.getLastDate())
+                .isCancelledCalendarEnabled(userDto.isCancelledCalendarEnabled())
+                .build();
+        return calendarService.getEventsBetweenDates(eventsFilter);
     }
 
     private List<EventDto> getEventsByYear(UserDto userDto, int year) {
         LocalDateTime startOfYear = LocalDateTime.of(year, 1, 1, 0, 0);
         LocalDateTime endOfYear = LocalDateTime.of(year, 12, 31, 23, 59);
-        EventsFilter filter = createEventsFilter(userDto, null, startOfYear, endOfYear);
-        return calendarService.getEventsBetweenDates(filter);
+        EventsFilter eventsFilter = EventsFilter.builder()
+                .mainCalendar(userDto.getMainCalendar())
+                .cancelledCalendar(userDto.getCancelledCalendar())
+                .leftDate(startOfYear)
+                .rightDate(endOfYear)
+                .isCancelledCalendarEnabled(userDto.isCancelledCalendarEnabled())
+                .build();
+        return calendarService.getEventsBetweenDates(eventsFilter);
     }
 
     @Override
@@ -258,27 +274,74 @@ public class EventsAnalyzerServiceImpl implements EventsAnalyzerService {
         return result;
     }
 
-    public PdfReportDataDto getReportData(UserDto userDto, String clientName, LocalDateTime start, LocalDateTime end) {
+    public Double calculateAverageMeetingPrice(UserDto userDto, List<EventDto> eventDtos) {
+
+        double totalIncome = 0.0;
+        int countOfMeetings = 0;
+
+        for (EventDto eventDto : eventDtos) {
+            if (eventDto.getStatus() == EventStatus.SUCCESS) {
+                Client client = clientRepository.findClientByNameAndUserId(eventDto.getSummary(), userDto.getId());
+                if (client == null) {
+                    throw new ClientNotFoundException(eventDto.getSummary(), eventDto.getStart());
+                }
+
+                totalIncome += eventService.getEventIncome(client, eventDto);
+                countOfMeetings++;
+            }
+        }
+        return (countOfMeetings == 0) ? 0.0 : totalIncome / countOfMeetings;
+    }
+
+    public Double getAverageMeetingPriceBetweenDates(UserDto userDto, LocalDateTime start, LocalDateTime end){
+        EventsFilter eventsFilter = EventsFilter.builder()
+                .mainCalendar(userDto.getMainCalendar())
+                .cancelledCalendar(userDto.getCancelledCalendar())
+                .leftDate(start)
+                .rightDate(end)
+                .isCancelledCalendarEnabled(userDto.isCancelledCalendarEnabled())
+                .build();
+
+        List<EventDto> eventDtos = calendarService.getEventsBetweenDates(eventsFilter);
+
+        return calculateAverageMeetingPrice(userDto, eventDtos);
+    }
+
+    @Override
+    public PdfReportDataDto getReportData (UserDto userDto, String clientName, LocalDateTime leftDate, LocalDateTime rightDate) {
         Client client = clientRepository.findClientByNameAndUserId(clientName, userDto.getId());
         if (client == null) {
             throw new ClientNotFoundException(clientName);
         }
-        EventsFilter filter = createEventsFilter(userDto, clientName, start, end);
-        List<EventDto> events = calendarService.getEventsBetweenDates(filter);
+        EventsFilter eventsFilter = EventsFilter.builder()
+                .mainCalendar(userDto.getMainCalendar())
+                .cancelledCalendar(userDto.getCancelledCalendar())
+                .leftDate(leftDate)
+                .rightDate(rightDate)
+                .isCancelledCalendarEnabled(userDto.isCancelledCalendarEnabled())
+                .clientName(clientName)
+                .build();
 
-        Map<String, ClientMeetingsStatistic> statsMap = getStatisticsOfClientMeetings(userDto, events);
-        ClientMeetingsStatistic periodStats = statsMap.get(clientName);
+        List<EventDto> eventDtos = calendarService.getEventsBetweenDates(eventsFilter);
+        Map<String, ClientMeetingsStatistic> statisticsMap = getStatisticsOfClientMeetings(userDto, eventDtos);
 
-        if (periodStats == null) {
-            periodStats = new ClientMeetingsStatistic(client.getPricePerHour());
-            periodStats.setName(clientName);
+        ClientMeetingsStatistic stats = statisticsMap.get(clientName);
+
+        if (stats == null) {
+            stats = new ClientMeetingsStatistic(client.getPricePerHour());
+            stats.setName(client.getName());
+            stats.setStartDate(client.getStartDate());
+            stats.setPhone(client.getPhone());
         }
+
         return PdfReportDataDto.builder()
-                .stats(periodStats)
-                .events(events)
                 .client(client)
-                .start(start)
-                .end(end)
+                .stats(stats)
+                .events(eventDtos)
+                .start(leftDate)
+                .end(rightDate)
                 .build();
     }
+
+
 }
