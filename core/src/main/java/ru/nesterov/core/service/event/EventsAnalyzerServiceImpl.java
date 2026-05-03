@@ -11,7 +11,6 @@ import ru.nesterov.core.entity.Client;
 import ru.nesterov.core.exception.ClientNotFoundException;
 import ru.nesterov.core.exception.UnknownEventStatusException;
 import ru.nesterov.core.repository.ClientRepository;
-import ru.nesterov.core.service.client.ClientService;
 import ru.nesterov.core.service.date.helper.MonthDatesPair;
 import ru.nesterov.core.service.date.helper.MonthHelper;
 import ru.nesterov.core.service.date.helper.WeekHelper;
@@ -96,7 +95,7 @@ public class EventsAnalyzerServiceImpl implements EventsAnalyzerService {
         clientMeetingsStatistic.increaseSuccessfulEvents(1);
 
         double actualPricePerHourForDate = eventService.getEventIncome(client, eventDto);
-        clientMeetingsStatistic.increaseIncome(actualPricePerHourForDate * eventDuration);
+        clientMeetingsStatistic.increaseIncome(actualPricePerHourForDate);
     }
 
     private void handlePlannedCancelledEvent(ClientMeetingsStatistic clientMeetingsStatistic, EventDto eventDto){
