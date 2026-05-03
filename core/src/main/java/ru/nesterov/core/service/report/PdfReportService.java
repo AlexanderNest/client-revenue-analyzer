@@ -76,7 +76,7 @@ public class PdfReportService {
     }
 
     private void fillDocumentContent(Document document, CreatePdfReportDto reportDto, Font titleFont, Font baseFont, Font normalFont) {
-        ClientMeetingsStatistic statistics = eventsAnalyzerService.getStatisticsByClientMeetings(reportDto.getUserDto(), reportDto.getClientName());
+        ClientMeetingsStatistic statistics = eventsAnalyzerService.getStatisticByClientMeetingsBetweenDates(reportDto.getUserDto(), reportDto.getClientName(), reportDto.getStart(), reportDto.getEnd());
 
         Paragraph title = new Paragraph("Отчет по клиенту: " + reportDto.getClientName(), titleFont);
         title.setAlignment(Element.ALIGN_CENTER);

@@ -87,6 +87,23 @@ public class EventsAnalyzerServiceImpl implements EventsAnalyzerService {
         return meetingsStatistics;
     }
 
+    @Override
+    public ClientMeetingsStatistic getStatisticByClientMeetingsBetweenDates(UserDto userDto, String clientName, LocalDateTime leftDate, LocalDateTime rightDate) {
+        EventsFilter eventsFilter = EventsFilter.builder()
+                .mainCalendar(userDto.getMainCalendar())
+                .cancelledCalendar(userDto.getCancelledCalendar())
+                .leftDate(leftDate)
+                .rightDate(rightDate)
+                .isCancelledCalendarEnabled(userDto.isCancelledCalendarEnabled())
+                .clientName(clientName)
+                .build();
+
+        List<EventDto> eventDtos = calendarService.getEventsBetweenDates(eventsFilter);
+
+        Map<String, ClientMeetingsStatistic> statsMap = getStatisticsOfClientMeetings(userDto, eventDtos);
+        return statsMap.get(clientName);
+    }
+
     private void handleSuccessfulEvent(ClientMeetingsStatistic clientMeetingsStatistic, EventDto eventDto, Client client){
         double eventDuration = eventService.getEventDuration(eventDto);
         clientMeetingsStatistic.increaseSuccessfulHours(eventDuration);
@@ -268,38 +285,5 @@ public class EventsAnalyzerServiceImpl implements EventsAnalyzerService {
         result.setDays(sortedWeekDayHours);
 
         return result;
-    }
-
-    public Double calculateAverageMeetingPrice(UserDto userDto, List<EventDto> eventDtos) {
-
-        double totalIncome = 0.0;
-        int countOfMeetings = 0;
-
-        for (EventDto eventDto : eventDtos) {
-            if (eventDto.getStatus() == EventStatus.SUCCESS) {
-                Client client = clientRepository.findClientByNameAndUserId(eventDto.getSummary(), userDto.getId());
-                if (client == null) {
-                    throw new ClientNotFoundException(eventDto.getSummary(), eventDto.getStart());
-                }
-
-                totalIncome += eventService.getEventIncome(client, eventDto);
-                countOfMeetings++;
-            }
-        }
-        return (countOfMeetings == 0) ? 0.0 : totalIncome / countOfMeetings;
-    }
-
-    public Double getAverageMeetingPriceBetweenDates(UserDto userDto, LocalDateTime start, LocalDateTime end){
-        EventsFilter eventsFilter = EventsFilter.builder()
-                .mainCalendar(userDto.getMainCalendar())
-                .cancelledCalendar(userDto.getCancelledCalendar())
-                .leftDate(start)
-                .rightDate(end)
-                .isCancelledCalendarEnabled(userDto.isCancelledCalendarEnabled())
-                .build();
-
-        List<EventDto> eventDtos = calendarService.getEventsBetweenDates(eventsFilter);
-
-        return calculateAverageMeetingPrice(userDto, eventDtos);
     }
 }

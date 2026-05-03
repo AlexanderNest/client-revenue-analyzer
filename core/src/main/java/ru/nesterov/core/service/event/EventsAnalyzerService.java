@@ -14,6 +14,7 @@ import java.util.Map;
 public interface EventsAnalyzerService {
     Map<EventStatus, Integer> getEventStatusesBetweenDates(UserDto userDto, LocalDateTime leftDate, LocalDateTime rightDate);
     Map<EventStatus, Integer> getEventStatusesByMonthName(UserDto userDto, String monthName);
+    ClientMeetingsStatistic getStatisticByClientMeetingsBetweenDates(UserDto userDto, String clientName, LocalDateTime leftDate, LocalDateTime rightDate);
     IncomeAnalysisResult getIncomeAnalysisByMonth(UserDto userDto, String monthName);
     ClientMeetingsStatistic getStatisticsByClientMeetings(UserDto userDto, String clientName);
     Map<String, ClientMeetingsStatistic> getStatisticsOfEachClientMeetingsForMonth(UserDto userDto, String monthName);
