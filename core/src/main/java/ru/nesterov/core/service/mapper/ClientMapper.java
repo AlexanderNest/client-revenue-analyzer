@@ -1,23 +1,14 @@
 package ru.nesterov.core.service.mapper;
 
 import ru.nesterov.core.entity.Client;
-import ru.nesterov.core.entity.PriceChangeHistory;
 import ru.nesterov.core.service.dto.ClientDto;
-
-import java.util.Comparator;
 
 
 public class ClientMapper {
-    public static ClientDto mapToClientDto(Client client) {
-        Integer currentPrice = client.getPriceChangeHistory() == null ? 0 :
-                client.getPriceChangeHistory().stream()
-                        .max(Comparator.comparing(PriceChangeHistory::getChangeDate))
-                        .map(PriceChangeHistory::getPrice)
-                .orElse(0);
-
+    public static ClientDto mapToClientDto(Client client, Integer price) {
         return ClientDto.builder()
                 .description(client.getDescription())
-                .pricePerHour(currentPrice)
+                .pricePerHour(price)
                 .name(client.getName())
                 .id(client.getId())
                 .active(client.isActive())

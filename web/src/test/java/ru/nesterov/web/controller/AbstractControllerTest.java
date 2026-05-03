@@ -16,6 +16,8 @@ import ru.nesterov.core.repository.PriceChangeHistoryRepository;
 import ru.nesterov.core.repository.UserRepository;
 
 import java.time.LocalDateTime;
+import java.util.ArrayList;
+import java.util.List;
 
 @AutoConfigureMockMvc
 @SpringBootTest
@@ -59,10 +61,9 @@ public abstract class AbstractControllerTest {
     }
 
     protected Client saveClientWithPriceHistory(Client client, int price) {
-        Client savedClient = clientRepository.save(client);
-        PriceChangeHistory priceChangeHistory = createPriceHistory(price);
-        priceChangeHistory.setClientId(savedClient.getId());
-        priceChangeHistoryRepository.save(priceChangeHistory);
-        return savedClient;
+        PriceChangeHistory history = createPriceHistory(price);
+        history.setClient(client);
+        client.setPriceChangeHistory(new ArrayList<>(List.of(history)));
+        return clientRepository.save(client);
     }
 }

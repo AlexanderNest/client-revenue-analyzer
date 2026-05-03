@@ -5,7 +5,6 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RestController;
-
 import ru.nesterov.core.service.dto.UserDto;
 import ru.nesterov.core.service.user.UserService;
 import ru.nesterov.web.controller.request.CreateUserRequest;

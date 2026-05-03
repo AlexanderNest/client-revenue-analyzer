@@ -2,7 +2,6 @@ package ru.nesterov.core.service.client;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import ru.nesterov.calendar.integration.dto.EventDto;
@@ -25,6 +24,7 @@ import ru.nesterov.core.service.dto.UserDto;
 import ru.nesterov.core.service.mapper.ClientMapper;
 
 import java.time.LocalDateTime;
+import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.List;
 
@@ -83,22 +83,27 @@ public class ClientServiceImpl implements ClientService {
         Client forSave = ClientMapper.mapToClient(clientDto);
         forSave.setUser(user);
 
+        PriceChangeHistory history = new PriceChangeHistory();
+        history.setPrice(clientDto.getPricePerHour());
+        history.setChangeDate(LocalDateTime.now());
+        history.setClient(forSave);
+
+        forSave.setPriceChangeHistory(new ArrayList<>(List.of(history)));
+
         Client savedClient = clientRepository.save(forSave);
-
-        savePriceToHistory(savedClient.getId(), clientDto.getPricePerHour());
-        Client reloaded = clientRepository.findById(savedClient.getId()).orElseThrow(() -> new ClientNotFoundException(savedClient.getName()));
-
         log.info("Создан новый клиент: {} с начальной ценой: {}", savedClient.getName(), clientDto.getPricePerHour());
 
-        ClientDto response = ClientMapper.mapToClientDto(reloaded);
-        response.setPricePerHour(clientDto.getPricePerHour());
+        ClientDto response = ClientMapper.mapToClientDto(savedClient, clientDto.getPricePerHour());
         return response;
     }
 
     @Override
     public List<ClientDto> getActiveClientsOrderedByPrice(UserDto userDto) {
         return clientRepository.findClientByUserIdAndActiveOrderByPricePerHourDesc(userDto.getId(), true).stream()
-                .map(ClientMapper::mapToClientDto)
+                .map(client -> {
+                    int actualPrice = (int) getPricePerHourForDate(client, LocalDateTime.now());
+                    return ClientMapper.mapToClientDto(client, actualPrice);
+                })
                 .toList();
     }
 
@@ -109,7 +114,6 @@ public class ClientServiceImpl implements ClientService {
         if (client == null) {
             throw new ClientNotFoundException(clientName);
         }
-        priceChangeHistoryRepository.deleteByClientId(client.getId());
         clientRepository.delete(client);
     }
 
@@ -134,20 +138,14 @@ public class ClientServiceImpl implements ClientService {
             clientForUpdate.setPhone(updateClientDto.getPhone());
         }
 
-        Integer currentPrice = clientForUpdate.getPriceChangeHistory().stream()
-                .max(Comparator.comparing(PriceChangeHistory::getChangeDate))
-                .map(PriceChangeHistory::getPrice)
-                .orElse(0);
-        Integer responsePrice = currentPrice;
-
         if (updateClientDto.getPricePerHour() != null){
-            savePriceToHistory(clientForUpdate.getId(), updateClientDto.getPricePerHour());
-            responsePrice = updateClientDto.getPricePerHour();
+            savePriceToHistory(clientForUpdate, updateClientDto.getPricePerHour());
         }
+
         Client savedClient = clientRepository.save(clientForUpdate);
-        ClientDto response = ClientMapper.mapToClientDto(savedClient);
-        response.setPricePerHour(responsePrice);
-        return response;
+        int actualPrice = (int) getPricePerHourForDate(savedClient, LocalDateTime.now());
+
+        return ClientMapper.mapToClientDto(savedClient, actualPrice);
     }
 
     private String generateUniqueClientName(String baseName, long userId, boolean isIdGenerationNeeded) {
@@ -163,25 +161,9 @@ public class ClientServiceImpl implements ClientService {
         return baseName;
     }
 
-
-    private ClientDto saveClient(Client client) {
-        try {
-            Client saved = clientRepository.save(client);
-            return ClientMapper.mapToClientDto(saved);
-        } catch (DataIntegrityViolationException ex) {
-            String alias = DataIntegrityViolationExceptionHandler.getLocalizedMessage(ex);
-
-            String message = (alias != null)
-                    ? String.format("%s уже используется", alias)
-                    : "Одно из значений, указанных для этого клиента уже используется";
-
-            throw new ClientDataIntegrityException(message);
-        }
-    }
-
-    private void savePriceToHistory(Long clientId, Integer price) {
+    private void savePriceToHistory(Client client, Integer price) {
         PriceChangeHistory history = new PriceChangeHistory();
-        history.setClientId(clientId);
+        history.setClient(client);
         history.setPrice(price);
         history.setChangeDate(LocalDateTime.now());
         priceChangeHistoryRepository.save(history);

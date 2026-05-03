@@ -4,8 +4,8 @@ import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.context.SpringBootTest;
-import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.test.context.TestPropertySource;
+import org.springframework.test.context.bean.override.mockito.MockitoBean;
 import ru.nesterov.calendar.integration.google.GoogleCalendarClient;
 import ru.nesterov.core.entity.EventBackup;
 import ru.nesterov.core.entity.User;
@@ -28,7 +28,7 @@ public class EventsBackupServiceTest {
     private EventsBackupRepository eventsBackupRepository;
     @Autowired
     private EventsBackupService eventsBackupService;
-    @MockBean
+    @MockitoBean
     private GoogleCalendarClient googleCalendarClient;
 
     private User createUser(int suffix) {

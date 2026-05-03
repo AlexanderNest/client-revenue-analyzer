@@ -14,6 +14,7 @@ import ru.nesterov.web.controller.request.GetClientScheduleRequest;
 import ru.nesterov.web.controller.request.UpdateClientRequest;
 
 import java.time.LocalDateTime;
+import java.util.Comparator;
 import java.util.List;
 
 import static org.hamcrest.Matchers.hasSize;
@@ -24,7 +25,6 @@ import static org.springframework.test.web.servlet.request.MockMvcRequestBuilder
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
-import java.util.Comparator;
 
 @Slf4j
 class ClientControllerTest extends AbstractControllerTest {

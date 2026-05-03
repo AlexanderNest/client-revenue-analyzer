@@ -1,7 +1,7 @@
 package ru.nesterov.core.entity;
 
+import jakarta.persistence.CascadeType;
 import jakarta.persistence.Entity;
-import jakarta.persistence.FetchType;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
@@ -36,7 +36,6 @@ public class Client {
     private Date startDate;
     private String phone;
 
-    @OneToMany(fetch = FetchType.LAZY)
-    @JoinColumn(name = "CLIENT_ID")
+    @OneToMany(mappedBy = "client", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<PriceChangeHistory> priceChangeHistory;
 }
