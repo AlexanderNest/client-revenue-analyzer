@@ -21,8 +21,7 @@ import java.util.List;
 @Table(name = "CLIENT")
 public class Client {
     @Id
-    @GeneratedValue(strategy = GenerationType.SEQUENCE, generator = "client_seq_gen")
-    @SequenceGenerator(name = "client_seq_gen", sequenceName = "client_seq", allocationSize = 1)
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
     private long id;
 
     private String name;
