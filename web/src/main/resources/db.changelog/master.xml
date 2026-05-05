@@ -10,18 +10,17 @@
                 <tableExists tableName="client"/>
             </not>
         </preConditions>
-        <sql>
-            CREATE SEQUENCE client_seq START WITH 1 INCREMENT BY 1;
-
-            CREATE TABLE CLIENT
-            (
-                ID             BIGINT DEFAULT NEXT VALUE FOR client_seq PRIMARY KEY,
-                NAME           VARCHAR(255),
-                DESCRIPTION    VARCHAR(255),
-                PRICE_PER_HOUR INT
-            );
-            CREATE INDEX IDX_CLIENT_ID ON CLIENT (ID);
-        </sql>
+        <createTable tableName="client">
+            <column name="id" type="BIGSERIAL">
+                <constraints primaryKey="true" nullable="false"/>
+            </column>
+            <column name="name" type="VARCHAR"/>
+            <column name="description" type="VARCHAR"/>
+            <column name="price_per_hour" type="INT"/>
+        </createTable>
+        <createIndex tableName="client" indexName="idx_client_id">
+            <column name="id"/>
+        </createIndex>
     </changeSet>
 
     <changeSet id="add active row" author="nestrov">
@@ -286,9 +285,7 @@
         <preConditions onFail="MARK_RAN">
             <indexExists tableName="event" indexName="idx_event_event_extension_is"/>
         </preConditions>
-        <sql>
-            DROP INDEX idx_event_event_extension_is ON event;
-        </sql>
+        <dropIndex tableName="event" indexName="idx_event_event_extension_is"/>
     </changeSet>
 
     <changeSet id="drop-event_extension_id-and-add-event_extension-to-event-table" author="Lizogubov Eugeny">
@@ -385,7 +382,7 @@
         <dropColumn tableName="PRICE_CHANGE_HISTORY" columnName="PREVIOUS_PRICE"/>
         <renameColumn tableName="PRICE_CHANGE_HISTORY" oldColumnName="NEW_PRICE" newColumnName="PRICE"/>
     </changeSet>
-    
+
     <changeSet id="drop-column-price-per-hour" author="Alex">
         <preConditions onFail="MARK_RAN">
             <columnExists tableName="client" columnName="price_per_hour"/>
