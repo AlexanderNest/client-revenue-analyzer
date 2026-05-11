@@ -14,8 +14,8 @@ public interface ClientRepository extends JpaRepository<Client, Long> {
     Client findClientByNameAndUserId(String name, long userId);
 
     @Query(value = """
-            SELECT id, name, description, price_per_hour, active, user_id, start_date, phone
-            FROM client 
+            SELECT id, name, description, active, user_id, start_date, phone
+            FROM client
             WHERE (name = :name
                 OR name ~ CONCAT ('^', :name, ' [0-9]+$'))
             AND user_id = :userId
@@ -28,7 +28,7 @@ public interface ClientRepository extends JpaRepository<Client, Long> {
             WHERE c.user.id = :userId
             AND c.active = :active
             AND pch.changeDate = (
-                      SELECT MAX(p.changeDate) 
+                      SELECT MAX(p.changeDate)
                       FROM PriceChangeHistory p
                       WHERE p.client.id = c.id)
             ORDER BY pch.price DESC
