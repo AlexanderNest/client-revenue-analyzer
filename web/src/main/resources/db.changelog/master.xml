@@ -382,7 +382,7 @@
         <dropColumn tableName="PRICE_CHANGE_HISTORY" columnName="PREVIOUS_PRICE"/>
         <renameColumn tableName="PRICE_CHANGE_HISTORY" oldColumnName="NEW_PRICE" newColumnName="PRICE"/>
     </changeSet>
-
+    
     <changeSet id="drop-column-price-per-hour" author="Alex">
         <preConditions onFail="MARK_RAN">
             <columnExists tableName="client" columnName="price_per_hour"/>
