@@ -109,15 +109,14 @@ public interface EventsAnalyzerController {
 
     @Operation(
             summary = "Получить среднюю стоимость встречи за выбранный период",
-            description = "Рассчитывает средний доход за одну успешно проведенную встречу в указанном периоде",
+            description = "Рассчитывает средний чек: суммарный фактический доход, деленный на количество успешно проведенных встреч (статус SUCCESS)",
             requestBody = @RequestBody(
                     description = "Запрос для получения средней стоимости встречи за выбранный период",
                     required = true,
-                    content = @Content(schema = @Schema(implementation = GetForMonthRequest.class))
+                    content = @Content(schema = @Schema(implementation = GetBetweenDatesRequest.class))
             ),
             responses = {
                     @ApiResponse(responseCode = "200", description = "Успешный ответ"),
-                    @ApiResponse(responseCode = "400", description = "Некорректный запрос"),
                     @ApiResponse(responseCode = "500", description = "Внутренняя ошибка сервера")
             }
     )

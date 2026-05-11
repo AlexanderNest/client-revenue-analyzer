@@ -6,6 +6,6 @@ import lombok.Value;
 @Value
 @Schema(description = "Ответ со значением средней стоимости встречи")
 public class AveragePriceResponse {
-    @Schema(description = "Рассчитанная средняя стоимость занятия")
+    @Schema(description = "Рассчитанная средняя стоимость встречи")
     Double averagePrice;
 }
