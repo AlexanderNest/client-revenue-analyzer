@@ -9,6 +9,7 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 import ru.nesterov.calendar.integration.dto.EventStatus;
 import ru.nesterov.core.service.dto.ClientMeetingsStatistic;
+import ru.nesterov.core.service.dto.GetStatisticsByClientMeetingsDto;
 import ru.nesterov.core.service.dto.IncomeAnalysisResult;
 import ru.nesterov.core.service.event.EventsAnalyzerService;
 import ru.nesterov.core.service.user.UserService;
@@ -17,6 +18,7 @@ import ru.nesterov.web.controller.response.ClientMeetingsStatisticResponse;
 import ru.nesterov.web.controller.response.EventResponse;
 import ru.nesterov.web.mapper.ClientMapper;
 
+import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Map;
 
@@ -31,7 +33,14 @@ public class EventsAnalyzerControllerImpl implements EventsAnalyzerController {
     }
 
     public ResponseEntity<ClientMeetingsStatisticResponse> getClientStatistic(@RequestHeader(name = "X-username") String username, @RequestParam String clientName) {
-        ClientMeetingsStatistic clientMeetingsStatistic = eventsAnalyzerService.getStatisticsByClientMeetings(userService.getUserByUsername(username), clientName);
+        GetStatisticsByClientMeetingsDto statsDto = GetStatisticsByClientMeetingsDto.builder()
+                .userDto(userService.getUserByUsername(username))
+                .clientName(clientName)
+                .leftDate(LocalDateTime.now().minusYears(2))
+                .rightDate(LocalDateTime.now())
+                .build();
+
+        ClientMeetingsStatistic clientMeetingsStatistic = eventsAnalyzerService.getStatisticsByClientMeetings(statsDto);
 
         if (clientMeetingsStatistic == null) {
             return new ResponseEntity<>(HttpStatus.NOT_FOUND);

@@ -4,6 +4,7 @@ import ru.nesterov.calendar.integration.dto.EventDto;
 import ru.nesterov.calendar.integration.dto.EventStatus;
 import ru.nesterov.core.service.dto.BusynessAnalysisResult;
 import ru.nesterov.core.service.dto.ClientMeetingsStatistic;
+import ru.nesterov.core.service.dto.GetStatisticsByClientMeetingsDto;
 import ru.nesterov.core.service.dto.IncomeAnalysisResult;
 import ru.nesterov.core.service.dto.UserDto;
 
@@ -14,9 +15,8 @@ import java.util.Map;
 public interface EventsAnalyzerService {
     Map<EventStatus, Integer> getEventStatusesBetweenDates(UserDto userDto, LocalDateTime leftDate, LocalDateTime rightDate);
     Map<EventStatus, Integer> getEventStatusesByMonthName(UserDto userDto, String monthName);
-    ClientMeetingsStatistic getStatisticByClientMeetingsBetweenDates(UserDto userDto, String clientName, LocalDateTime leftDate, LocalDateTime rightDate);
     IncomeAnalysisResult getIncomeAnalysisByMonth(UserDto userDto, String monthName);
-    ClientMeetingsStatistic getStatisticsByClientMeetings(UserDto userDto, String clientName);
+    ClientMeetingsStatistic getStatisticsByClientMeetings(GetStatisticsByClientMeetingsDto statsDto);
     Map<String, ClientMeetingsStatistic> getStatisticsOfEachClientMeetingsForMonth(UserDto userDto, String monthName);
     List<EventDto> getUnpaidEventsBetweenDates(UserDto userDto, LocalDateTime leftDate, LocalDateTime rightDate);
     List<EventDto> getUnpaidEvents(UserDto userDto);

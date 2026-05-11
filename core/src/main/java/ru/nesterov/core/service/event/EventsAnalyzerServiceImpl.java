@@ -16,6 +16,7 @@ import ru.nesterov.core.service.date.helper.MonthHelper;
 import ru.nesterov.core.service.date.helper.WeekHelper;
 import ru.nesterov.core.service.dto.BusynessAnalysisResult;
 import ru.nesterov.core.service.dto.ClientMeetingsStatistic;
+import ru.nesterov.core.service.dto.GetStatisticsByClientMeetingsDto;
 import ru.nesterov.core.service.dto.IncomeAnalysisResult;
 import ru.nesterov.core.service.dto.UserDto;
 
@@ -34,19 +35,20 @@ public class EventsAnalyzerServiceImpl implements EventsAnalyzerService {
     private final EventsAnalyzerProperties eventsAnalyzerProperties;
     private final EventService eventService;
 
-    public ClientMeetingsStatistic getStatisticsByClientMeetings(UserDto userDto, String clientName) {
+    public ClientMeetingsStatistic getStatisticsByClientMeetings(GetStatisticsByClientMeetingsDto statsDto) {
         EventsFilter eventsFilter = EventsFilter.builder()
-                .mainCalendar(userDto.getMainCalendar())
-                .cancelledCalendar(userDto.getCancelledCalendar())
-                .leftDate(LocalDateTime.now().minusYears(2))
-                .rightDate(LocalDateTime.now())
-                .isCancelledCalendarEnabled(userDto.isCancelledCalendarEnabled())
-                .clientName(clientName)
+                .mainCalendar(statsDto.getUserDto().getMainCalendar())
+                .cancelledCalendar(statsDto.getUserDto().getCancelledCalendar())
+                .leftDate(statsDto.getLeftDate())
+                .rightDate(statsDto.getRightDate())
+                .isCancelledCalendarEnabled(statsDto.getUserDto().isCancelledCalendarEnabled())
+                .clientName(statsDto.getClientName())
                 .build();
 
         List<EventDto> eventDtos = calendarService.getEventsBetweenDates(eventsFilter);
 
-        return getStatisticsOfClientMeetings(userDto, eventDtos).get(clientName);
+        Map<String, ClientMeetingsStatistic> statsMap = getStatisticsOfClientMeetings(statsDto.getUserDto(), eventDtos);
+        return statsMap.get(statsDto.getClientName());
     }
 
     public Map<String, ClientMeetingsStatistic> getStatisticsOfEachClientMeetingsForMonth(UserDto userDto, String monthName) {
@@ -85,23 +87,6 @@ public class EventsAnalyzerServiceImpl implements EventsAnalyzerService {
         }
 
         return meetingsStatistics;
-    }
-
-    @Override
-    public ClientMeetingsStatistic getStatisticByClientMeetingsBetweenDates(UserDto userDto, String clientName, LocalDateTime leftDate, LocalDateTime rightDate) {
-        EventsFilter eventsFilter = EventsFilter.builder()
-                .mainCalendar(userDto.getMainCalendar())
-                .cancelledCalendar(userDto.getCancelledCalendar())
-                .leftDate(leftDate)
-                .rightDate(rightDate)
-                .isCancelledCalendarEnabled(userDto.isCancelledCalendarEnabled())
-                .clientName(clientName)
-                .build();
-
-        List<EventDto> eventDtos = calendarService.getEventsBetweenDates(eventsFilter);
-
-        Map<String, ClientMeetingsStatistic> statsMap = getStatisticsOfClientMeetings(userDto, eventDtos);
-        return statsMap.get(clientName);
     }
 
     private void handleSuccessfulEvent(ClientMeetingsStatistic clientMeetingsStatistic, EventDto eventDto, Client client){

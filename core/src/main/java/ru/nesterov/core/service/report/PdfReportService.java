@@ -1,5 +1,7 @@
 package ru.nesterov.core.service.report;
 
+import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.openpdf.text.Document;
 import org.openpdf.text.Element;
 import org.openpdf.text.Font;
@@ -10,8 +12,6 @@ import org.openpdf.text.pdf.BaseFont;
 import org.openpdf.text.pdf.PdfPCell;
 import org.openpdf.text.pdf.PdfPTable;
 import org.openpdf.text.pdf.PdfWriter;
-import lombok.RequiredArgsConstructor;
-import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import ru.nesterov.calendar.integration.dto.EventDto;
 import ru.nesterov.calendar.integration.dto.EventsFilter;
@@ -21,14 +21,14 @@ import ru.nesterov.core.exception.CannotCreatePDFReportException;
 import ru.nesterov.core.repository.ClientRepository;
 import ru.nesterov.core.service.dto.ClientMeetingsStatistic;
 import ru.nesterov.core.service.dto.CreatePdfReportDto;
+import ru.nesterov.core.service.dto.GetStatisticsByClientMeetingsDto;
 import ru.nesterov.core.service.event.EventService;
 import ru.nesterov.core.service.event.EventsAnalyzerService;
 
 import java.io.IOException;
-import java.util.List;
-
 import java.io.OutputStream;
 import java.time.format.DateTimeFormatter;
+import java.util.List;
 
 @Service
 @Slf4j
@@ -76,7 +76,14 @@ public class PdfReportService {
     }
 
     private void fillDocumentContent(Document document, CreatePdfReportDto reportDto, Font titleFont, Font baseFont, Font normalFont) {
-        ClientMeetingsStatistic statistics = eventsAnalyzerService.getStatisticByClientMeetingsBetweenDates(reportDto.getUserDto(), reportDto.getClientName(), reportDto.getStart(), reportDto.getEnd());
+        GetStatisticsByClientMeetingsDto statsDto = GetStatisticsByClientMeetingsDto.builder()
+                .userDto(reportDto.getUserDto())
+                .clientName(reportDto.getClientName())
+                .leftDate(reportDto.getStart())
+                .rightDate(reportDto.getEnd())
+                .build();
+
+        ClientMeetingsStatistic statistics = eventsAnalyzerService.getStatisticsByClientMeetings(statsDto);
 
         Paragraph title = new Paragraph("Отчет по клиенту: " + reportDto.getClientName(), titleFont);
         title.setAlignment(Element.ALIGN_CENTER);
