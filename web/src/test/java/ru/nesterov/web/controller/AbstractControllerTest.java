@@ -4,7 +4,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.context.SpringBootTest;
-import org.springframework.boot.test.mock.mockito.MockBean;
+import org.springframework.test.context.bean.override.mockito.MockitoBean;
 import org.springframework.test.web.servlet.MockMvc;
 import ru.nesterov.calendar.integration.google.GoogleCalendarClient;
 import ru.nesterov.calendar.integration.service.CalendarService;
@@ -27,7 +27,7 @@ public abstract class AbstractControllerTest {
     @Autowired
     private CalendarService calendarService;
 
-    @MockBean
+    @MockitoBean
     protected GoogleCalendarClient googleCalendarClient;
 
     protected User createUser(String username) {
