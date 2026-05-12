@@ -11,16 +11,15 @@ import ru.nesterov.core.entity.Client;
 import ru.nesterov.core.exception.ClientNotFoundException;
 import ru.nesterov.core.exception.UnknownEventStatusException;
 import ru.nesterov.core.repository.ClientRepository;
-import ru.nesterov.core.service.client.ClientService;
 import ru.nesterov.core.service.date.helper.MonthDatesPair;
 import ru.nesterov.core.service.date.helper.MonthHelper;
 import ru.nesterov.core.service.date.helper.WeekHelper;
 import ru.nesterov.core.service.dto.BusynessAnalysisResult;
 import ru.nesterov.core.service.dto.ClientMeetingsStatistic;
+import ru.nesterov.core.service.dto.GetStatisticsByClientMeetingsDto;
 import ru.nesterov.core.service.dto.IncomeAnalysisResult;
 import ru.nesterov.core.service.dto.UserDto;
 
-import javax.annotation.Nullable;
 import java.time.LocalDateTime;
 import java.util.HashMap;
 import java.util.LinkedHashMap;
@@ -36,20 +35,20 @@ public class EventsAnalyzerServiceImpl implements EventsAnalyzerService {
     private final EventsAnalyzerProperties eventsAnalyzerProperties;
     private final EventService eventService;
 
-    @Nullable
-    public ClientMeetingsStatistic getStatisticsByClientMeetings(UserDto userDto, String clientName) {
+    public ClientMeetingsStatistic getStatisticsByClientMeetings(GetStatisticsByClientMeetingsDto statsDto) {
         EventsFilter eventsFilter = EventsFilter.builder()
-                .mainCalendar(userDto.getMainCalendar())
-                .cancelledCalendar(userDto.getCancelledCalendar())
-                .leftDate(LocalDateTime.now().minusYears(2))
-                .rightDate(LocalDateTime.now())
-                .isCancelledCalendarEnabled(userDto.isCancelledCalendarEnabled())
-                .clientName(clientName)
+                .mainCalendar(statsDto.getUserDto().getMainCalendar())
+                .cancelledCalendar(statsDto.getUserDto().getCancelledCalendar())
+                .leftDate(statsDto.getLeftDate())
+                .rightDate(statsDto.getRightDate())
+                .isCancelledCalendarEnabled(statsDto.getUserDto().isCancelledCalendarEnabled())
+                .clientName(statsDto.getClientName())
                 .build();
 
         List<EventDto> eventDtos = calendarService.getEventsBetweenDates(eventsFilter);
 
-        return getStatisticsOfClientMeetings(userDto, eventDtos).get(clientName);
+        Map<String, ClientMeetingsStatistic> statsMap = getStatisticsOfClientMeetings(statsDto.getUserDto(), eventDtos);
+        return statsMap.get(statsDto.getClientName());
     }
 
     public Map<String, ClientMeetingsStatistic> getStatisticsOfEachClientMeetingsForMonth(UserDto userDto, String monthName) {

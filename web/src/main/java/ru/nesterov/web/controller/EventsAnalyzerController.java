@@ -105,3 +105,4 @@ public interface EventsAnalyzerController {
     @GetMapping("/getUnpaidEvents")
     List<EventResponse> getUnpaidEvents(@RequestHeader(name = "X-username") String username);
 }
+

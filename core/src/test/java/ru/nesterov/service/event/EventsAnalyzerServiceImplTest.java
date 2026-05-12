@@ -4,8 +4,8 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
-import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.test.context.ContextConfiguration;
+import org.springframework.test.context.bean.override.mockito.MockitoBean;
 import ru.nesterov.calendar.integration.dto.EventDto;
 import ru.nesterov.calendar.integration.dto.EventExtensionDto;
 import ru.nesterov.calendar.integration.dto.EventStatus;
@@ -16,6 +16,7 @@ import ru.nesterov.core.entity.User;
 import ru.nesterov.core.repository.ClientRepository;
 import ru.nesterov.core.repository.UserRepository;
 import ru.nesterov.core.service.dto.ClientMeetingsStatistic;
+import ru.nesterov.core.service.dto.GetStatisticsByClientMeetingsDto;
 import ru.nesterov.core.service.dto.IncomeAnalysisResult;
 import ru.nesterov.core.service.dto.UserDto;
 import ru.nesterov.core.service.event.EventService;
@@ -37,17 +38,17 @@ import static org.mockito.Mockito.when;
         EventsAnalyzerServiceImpl.class,
         EventStatusServiceImpl.class,
         EventsAnalyzerProperties.class,
-        EventService.class
+        EventService.class,
 })
 class EventsAnalyzerServiceImplTest {
     @Autowired
     private EventsAnalyzerServiceImpl eventsAnalyzerService;
 
-    @MockBean
+    @MockitoBean
     private ClientRepository clientRepository;
-    @MockBean
+    @MockitoBean
     private UserRepository userRepository;
-    @MockBean
+    @MockitoBean
     private GoogleCalendarService googleCalendarService;
 
     @BeforeEach
@@ -193,7 +194,15 @@ class EventsAnalyzerServiceImplTest {
 
         Date date = new Date(2025, Calendar.JUNE, 1);
 
-        ClientMeetingsStatistic meetingsStatistics = eventsAnalyzerService.getStatisticsByClientMeetings(userDto, "testName");
+        GetStatisticsByClientMeetingsDto dto = GetStatisticsByClientMeetingsDto.builder()
+                .userDto(userDto)
+                .clientName("testName")
+                .leftDate(LocalDateTime.now().minusYears(2))
+                .rightDate(LocalDateTime.now())
+                .build();
+
+
+        ClientMeetingsStatistic meetingsStatistics = eventsAnalyzerService.getStatisticsByClientMeetings(dto);
         assertEquals("testName", meetingsStatistics.getName());
         assertEquals(1, meetingsStatistics.getId());
         assertEquals("description", meetingsStatistics.getDescription());
@@ -209,4 +218,5 @@ class EventsAnalyzerServiceImplTest {
         assertEquals(2, meetingsStatistics.getPlannedCancelledEventsCount());
         assertEquals(1, meetingsStatistics.getNotPlannedCancelledEventsCount());
     }
+
 }
