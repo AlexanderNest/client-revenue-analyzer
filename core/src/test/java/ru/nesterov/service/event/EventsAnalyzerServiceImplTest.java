@@ -4,6 +4,7 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.bean.override.mockito.MockitoBean;
 import ru.nesterov.calendar.integration.dto.EventDto;
@@ -12,9 +13,12 @@ import ru.nesterov.calendar.integration.dto.EventStatus;
 import ru.nesterov.calendar.integration.google.EventStatusServiceImpl;
 import ru.nesterov.calendar.integration.google.GoogleCalendarService;
 import ru.nesterov.core.entity.Client;
+import ru.nesterov.core.entity.PriceChangeHistory;
 import ru.nesterov.core.entity.User;
 import ru.nesterov.core.repository.ClientRepository;
+import ru.nesterov.core.repository.PriceChangeHistoryRepository;
 import ru.nesterov.core.repository.UserRepository;
+import ru.nesterov.core.service.client.ClientService;
 import ru.nesterov.core.service.dto.ClientMeetingsStatistic;
 import ru.nesterov.core.service.dto.GetStatisticsByClientMeetingsDto;
 import ru.nesterov.core.service.dto.IncomeAnalysisResult;
@@ -31,6 +35,7 @@ import java.util.Map;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.when;
 
 @SpringBootTest
@@ -38,7 +43,7 @@ import static org.mockito.Mockito.when;
         EventsAnalyzerServiceImpl.class,
         EventStatusServiceImpl.class,
         EventsAnalyzerProperties.class,
-        EventService.class,
+        EventService.class
 })
 class EventsAnalyzerServiceImplTest {
     @Autowired
@@ -47,21 +52,28 @@ class EventsAnalyzerServiceImplTest {
     @MockitoBean
     private ClientRepository clientRepository;
     @MockitoBean
+    private ClientService clientService;
+    @MockitoBean
     private UserRepository userRepository;
     @MockitoBean
     private GoogleCalendarService googleCalendarService;
+    @MockitoBean
+    private PriceChangeHistoryRepository priceChangeHistoryRepository;
 
     @BeforeEach
     public void init() {
         Client client = new Client();
         client.setId(1);
         client.setName("testName");
-        client.setPricePerHour(1000);
+        PriceChangeHistory pch = new PriceChangeHistory();
+        pch.setPrice(1000);
+        pch.setChangeDate(LocalDateTime.of(2024, 8, 9, 0, 0));
         client.setDescription("description");
         client.setStartDate(new Date(2025, Calendar.JUNE, 1));
         client.setPhone("phone");
-        client.setPriceChangeHistory(List.of());
+        client.setPriceChangeHistory(List.of(pch));
         when(clientRepository.findClientByNameAndUserId("testName", 1)).thenReturn(client);
+        when(clientService.getPricePerHourForDate(eq(client), any(LocalDateTime.class))).thenReturn(1000.0);
 
         User user = new User();
         user.setId(1);
@@ -218,5 +230,4 @@ class EventsAnalyzerServiceImplTest {
         assertEquals(2, meetingsStatistics.getPlannedCancelledEventsCount());
         assertEquals(1, meetingsStatistics.getNotPlannedCancelledEventsCount());
     }
-
 }

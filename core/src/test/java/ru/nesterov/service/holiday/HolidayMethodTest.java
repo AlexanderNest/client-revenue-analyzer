@@ -5,8 +5,8 @@ import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.test.context.SpringBootTest;
-import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.test.context.ContextConfiguration;
+import org.springframework.test.context.bean.override.mockito.MockitoBean;
 import ru.nesterov.calendar.integration.dto.CalendarType;
 import ru.nesterov.calendar.integration.dto.EventDto;
 import ru.nesterov.calendar.integration.dto.EventExtensionDto;
@@ -27,7 +27,7 @@ import static org.mockito.Mockito.when;
 public class HolidayMethodTest {
     @Autowired
     private GoogleCalendarService googleCalendarService;
-    @MockBean
+    @MockitoBean
     private GoogleCalendarClient googleCalendarClient;
 
     @Value("${app.google.calendar.holiday.calendar}")

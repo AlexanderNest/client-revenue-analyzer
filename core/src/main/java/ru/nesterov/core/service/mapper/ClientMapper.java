@@ -5,10 +5,10 @@ import ru.nesterov.core.service.dto.ClientDto;
 
 
 public class ClientMapper {
-    public static ClientDto mapToClientDto(Client client) {
+    public static ClientDto mapToClientDto(Client client, Integer price) {
         return ClientDto.builder()
                 .description(client.getDescription())
-                .pricePerHour(client.getPricePerHour())
+                .pricePerHour(price)
                 .name(client.getName())
                 .id(client.getId())
                 .active(client.isActive())
@@ -22,7 +22,6 @@ public class ClientMapper {
         client.setDescription(clientDto.getDescription());
         client.setId(clientDto.getId());
         client.setName(clientDto.getName());
-        client.setPricePerHour(clientDto.getPricePerHour());
         client.setActive(clientDto.isActive());
         client.setPhone(clientDto.getPhone());
         client.setStartDate(clientDto.getStartDate());
