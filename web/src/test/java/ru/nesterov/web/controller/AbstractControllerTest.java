@@ -50,18 +50,13 @@ public abstract class AbstractControllerTest {
         Client client1 = new Client();
         client1.setUser(user);
         client1.setName(name);
-        return saveClientWithPriceHistory(client1, 1000);
+        return saveClientWithPrice(client1, 1000);
     }
 
-    protected PriceChangeHistory createPriceHistory(int price) {
-        PriceChangeHistory priceChangeHistory = new PriceChangeHistory();
-        priceChangeHistory.setPrice(price);
-        priceChangeHistory.setChangeDate(LocalDateTime.of(2024, 1, 1, 0, 0));
-        return priceChangeHistory;
-    }
-
-    protected Client saveClientWithPriceHistory(Client client, int price) {
-        PriceChangeHistory history = createPriceHistory(price);
+    protected Client saveClientWithPrice(Client client, int price) {
+        PriceChangeHistory history = new PriceChangeHistory();
+        history.setPrice(price);
+        history.setChangeDate(LocalDateTime.of(2024, 1, 1, 0, 0));
         history.setClient(client);
         client.setPriceChangeHistory(new ArrayList<>(List.of(history)));
         return clientRepository.save(client);
