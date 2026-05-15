@@ -6,17 +6,17 @@ import org.springframework.stereotype.Service;
 import ru.nesterov.calendar.integration.dto.EventDto;
 import ru.nesterov.calendar.integration.dto.EventExtensionDto;
 import ru.nesterov.core.entity.Client;
-import ru.nesterov.core.entity.PriceChangeHistory;
 import ru.nesterov.core.exception.ClientNotFoundException;
+import ru.nesterov.core.service.client.ClientService;
 
 import java.time.Duration;
-import java.time.LocalDateTime;
-import java.util.Comparator;
 
 @Service
 @Slf4j
 @AllArgsConstructor
 public class EventService {
+    private final ClientService clientService;
+
     public double getEventIncome(Client client, EventDto eventDto) {
         if (client == null) {
             throw new ClientNotFoundException(eventDto.getSummary(), eventDto.getStart());
@@ -27,21 +27,8 @@ public class EventService {
             return extension.getIncome();
         }
 
-        return getEventDuration(eventDto) * getPricePerHourForDate(client, eventDto.getStart());
+        return getEventDuration(eventDto) * clientService.getPricePerHourForDate(client, eventDto.getStart());
     }
-
-    public double getPricePerHourForDate(Client client, LocalDateTime dateTime) {
-        if (client.getPriceChangeHistory().isEmpty()) {
-            return client.getPricePerHour();
-        }
-
-        return client.getPriceChangeHistory().stream()
-                .filter(pch -> pch.getChangeDate().isAfter(dateTime))
-                .min(Comparator.comparing(PriceChangeHistory::getChangeDate))
-                .map(PriceChangeHistory::getPreviousPrice)
-                .orElse(client.getPricePerHour());
-    }
-
 
     public double getEventDuration(EventDto eventDto) {
         if (eventDto.getStart().isAfter(eventDto.getEnd())) {

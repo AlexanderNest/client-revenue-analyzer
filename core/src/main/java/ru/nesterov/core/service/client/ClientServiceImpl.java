@@ -2,17 +2,20 @@ package ru.nesterov.core.service.client;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 import ru.nesterov.calendar.integration.dto.EventDto;
 import ru.nesterov.calendar.integration.dto.EventStatus;
 import ru.nesterov.calendar.integration.dto.EventsFilter;
 import ru.nesterov.calendar.integration.service.CalendarService;
 import ru.nesterov.core.entity.Client;
+import ru.nesterov.core.entity.PriceChangeHistory;
 import ru.nesterov.core.entity.User;
 import ru.nesterov.core.exception.ClientDataIntegrityException;
 import ru.nesterov.core.exception.ClientNotFoundException;
+import ru.nesterov.core.exception.NoPriceChangeHistoryException;
 import ru.nesterov.core.repository.ClientRepository;
+import ru.nesterov.core.repository.PriceChangeHistoryRepository;
 import ru.nesterov.core.repository.UserRepository;
 import ru.nesterov.core.service.dto.ClientDto;
 import ru.nesterov.core.service.dto.ClientScheduleDto;
@@ -21,6 +24,8 @@ import ru.nesterov.core.service.dto.UserDto;
 import ru.nesterov.core.service.mapper.ClientMapper;
 
 import java.time.LocalDateTime;
+import java.util.ArrayList;
+import java.util.Comparator;
 import java.util.List;
 
 @Service
@@ -30,6 +35,15 @@ public class ClientServiceImpl implements ClientService {
     private final CalendarService calendarService;
     private final ClientRepository clientRepository;
     private final UserRepository userRepository;
+    private final PriceChangeHistoryRepository priceChangeHistoryRepository;
+
+    public double getPricePerHourForDate(Client client, LocalDateTime dateTime) {
+        return priceChangeHistoryRepository.findByClientId(client.getId()).stream()
+                .filter(pch -> pch.getChangeDate().isBefore(dateTime) || pch.getChangeDate().isEqual(dateTime))
+                .max(Comparator.comparing(PriceChangeHistory::getChangeDate))
+                .map(PriceChangeHistory::getPrice)
+                .orElseThrow(NoPriceChangeHistoryException::new);
+    }
 
     public List<ClientScheduleDto> getClientSchedule(UserDto userDto, String clientName, LocalDateTime leftDate, LocalDateTime rightDate) {
         Client client = clientRepository.findClientByNameAndUserId(clientName, userDto.getId());
@@ -59,6 +73,8 @@ public class ClientServiceImpl implements ClientService {
                 .toList();
     }
 
+    @Override
+    @Transactional
     public ClientDto createClient(UserDto userDto, ClientDto clientDto, boolean isIdGenerationNeeded) throws ClientDataIntegrityException {
         String uniqueName = generateUniqueClientName(clientDto.getName(), userDto.getId(), isIdGenerationNeeded);
         clientDto.setName(uniqueName);
@@ -67,17 +83,32 @@ public class ClientServiceImpl implements ClientService {
         Client forSave = ClientMapper.mapToClient(clientDto);
         forSave.setUser(user);
 
-        return saveClient(forSave);
+        PriceChangeHistory history = new PriceChangeHistory();
+        history.setPrice(clientDto.getPricePerHour());
+        history.setChangeDate(LocalDateTime.now());
+        history.setClient(forSave);
+
+        forSave.setPriceChangeHistory(new ArrayList<>(List.of(history)));
+
+        Client savedClient = clientRepository.save(forSave);
+        log.info("Создан новый клиент: {} с начальной ценой: {}", savedClient.getName(), clientDto.getPricePerHour());
+
+        ClientDto response = ClientMapper.mapToClientDto(savedClient, clientDto.getPricePerHour());
+        return response;
     }
 
     @Override
     public List<ClientDto> getActiveClientsOrderedByPrice(UserDto userDto) {
         return clientRepository.findClientByUserIdAndActiveOrderByPricePerHourDesc(userDto.getId(), true).stream()
-                .map(ClientMapper::mapToClientDto)
+                .map(client -> {
+                    int actualPrice = (int) getPricePerHourForDate(client, LocalDateTime.now());
+                    return ClientMapper.mapToClientDto(client, actualPrice);
+                })
                 .toList();
     }
 
     @Override
+    @Transactional
     public void deleteClient(UserDto userDto, String clientName) {
         Client client = clientRepository.findClientByNameAndUserId(clientName, userDto.getId());
         if (client == null) {
@@ -87,6 +118,7 @@ public class ClientServiceImpl implements ClientService {
     }
 
     @Override
+    @Transactional
     public ClientDto updateClient(UserDto userDto, UpdateClientDto updateClientDto) {
         Client clientForUpdate = clientRepository.findClientByNameAndUserId(updateClientDto.getOldClientName(), userDto.getId());
 
@@ -107,10 +139,13 @@ public class ClientServiceImpl implements ClientService {
         }
 
         if (updateClientDto.getPricePerHour() != null){
-            clientForUpdate.setPricePerHour(updateClientDto.getPricePerHour());
+            savePriceToHistory(clientForUpdate, updateClientDto.getPricePerHour());
         }
 
-        return saveClient(clientForUpdate);
+        Client savedClient = clientRepository.save(clientForUpdate);
+        int actualPrice = (int) getPricePerHourForDate(savedClient, LocalDateTime.now());
+
+        return ClientMapper.mapToClientDto(savedClient, actualPrice);
     }
 
     private String generateUniqueClientName(String baseName, long userId, boolean isIdGenerationNeeded) {
@@ -126,19 +161,11 @@ public class ClientServiceImpl implements ClientService {
         return baseName;
     }
 
-
-    private ClientDto saveClient(Client client) {
-        try {
-            Client saved = clientRepository.save(client);
-            return ClientMapper.mapToClientDto(saved);
-        } catch (DataIntegrityViolationException ex) {
-            String alias = DataIntegrityViolationExceptionHandler.getLocalizedMessage(ex);
-
-            String message = (alias != null)
-                    ? String.format("%s уже используется", alias)
-                    : "Одно из значений, указанных для этого клиента уже используется";
-
-            throw new ClientDataIntegrityException(message);
-        }
+    private void savePriceToHistory(Client client, Integer price) {
+        PriceChangeHistory history = new PriceChangeHistory();
+        history.setClient(client);
+        history.setPrice(price);
+        history.setChangeDate(LocalDateTime.now());
+        priceChangeHistoryRepository.save(history);
     }
 }
