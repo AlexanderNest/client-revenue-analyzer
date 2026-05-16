@@ -22,4 +22,5 @@ public interface EventsAnalyzerService {
     List<EventDto> getUnpaidEventsBetweenDates(UserDto userDto, LocalDateTime leftDate, LocalDateTime rightDate);
     List<EventDto> getUnpaidEvents(UserDto userDto);
     BusynessAnalysisResult getBusynessStatisticsByYear(UserDto userDto, int year);
+    Double getAverageMeetingPriceBetweenDates(UserDto userDto, LocalDateTime start, LocalDateTime end);
 }
