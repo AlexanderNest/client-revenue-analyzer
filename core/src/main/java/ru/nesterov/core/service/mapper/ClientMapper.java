@@ -21,7 +21,7 @@ public class ClientMapper {
         Client client = new Client();
         client.setDescription(clientDto.getDescription());
         client.setId(clientDto.getId());
-        client.setName(clientDto.getName());
+        client.setName(clientDto.getName().trim());
         client.setActive(clientDto.isActive());
         client.setPhone(clientDto.getPhone());
         client.setStartDate(clientDto.getStartDate());
