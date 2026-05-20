@@ -195,7 +195,7 @@ public class GoogleCalendarClient implements CalendarClient {
         try {
             return EventDto.builder()
                     .status(eventStatus)
-                    .summary(event.getSummary())
+                    .summary(event.getSummary().trim())
                     .start(getLocalDateTime(event.getStart()))
                     .end(getLocalDateTime(event.getEnd()))
                     .eventExtensionDto(buildEventExtension(event, calendarType))
