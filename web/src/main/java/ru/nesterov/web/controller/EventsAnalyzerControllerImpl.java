@@ -9,10 +9,13 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 import ru.nesterov.calendar.integration.dto.EventStatus;
 import ru.nesterov.core.service.dto.ClientMeetingsStatistic;
+import ru.nesterov.core.service.dto.GetBetweenDatesRequest;
 import ru.nesterov.core.service.dto.IncomeAnalysisResult;
+import ru.nesterov.core.service.dto.UserDto;
 import ru.nesterov.core.service.event.EventsAnalyzerService;
 import ru.nesterov.core.service.user.UserService;
 import ru.nesterov.web.controller.request.GetForMonthRequest;
+import ru.nesterov.web.controller.response.AveragePriceResponse;
 import ru.nesterov.web.controller.response.ClientMeetingsStatisticResponse;
 import ru.nesterov.web.controller.response.EventResponse;
 import ru.nesterov.web.mapper.ClientMapper;
@@ -56,5 +59,11 @@ public class EventsAnalyzerControllerImpl implements EventsAnalyzerController {
         return eventsAnalyzerService.getUnpaidEvents(userService.getUserByUsername(username)).stream()
                 .map(event -> new EventResponse(event.getSummary(), event.getStart()))
                 .toList();
+    }
+
+    public AveragePriceResponse getAverageMeetingPriceBetweenDates(@RequestHeader("X-username") String username, @RequestBody GetBetweenDatesRequest request) {
+        UserDto user = userService.getUserByUsername(username);
+        Double average = eventsAnalyzerService.getAverageMeetingPriceBetweenDates(user, request.getStartDate(), request.getEndDate());
+        return new AveragePriceResponse(average);
     }
 }
