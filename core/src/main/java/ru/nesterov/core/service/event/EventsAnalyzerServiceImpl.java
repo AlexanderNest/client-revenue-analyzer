@@ -97,7 +97,7 @@ public class EventsAnalyzerServiceImpl implements EventsAnalyzerService {
         clientMeetingsStatistic.increaseSuccessfulEvents(1);
 
         double actualPricePerHourForDate = eventService.getEventIncome(client, eventDto);
-        clientMeetingsStatistic.increaseIncome(actualPricePerHourForDate * eventDuration);
+        clientMeetingsStatistic.increaseIncome(actualPricePerHourForDate);
     }
 
     private void handlePlannedCancelledEvent(ClientMeetingsStatistic clientMeetingsStatistic, EventDto eventDto){
