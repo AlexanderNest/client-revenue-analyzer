@@ -1,6 +1,6 @@
 {
   "info": {
-    "_postman_id": "377a8540-b866-4571-89ac-c0e258c82af1",
+    "_postman_id": "3fa42bcc-9ffa-4b55-8322-225a04093461",
     "name": "google-calendar-clients-analyzer",
     "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
     "_exporter_id": "42429703"
@@ -27,7 +27,7 @@
             ],
             "body": {
               "mode": "raw",
-              "raw": "{\r\n    \"name\" : \"Test2\",\r\n    \"pricePerHour\": 10000,\r\n    \"description\" : \"description 1\",\r\n    \"idGenerationNeeded\": false\r\n}",
+              "raw": "{\r\n    \"name\" : \"Test3\",\r\n    \"pricePerHour\": 1000,\r\n    \"description\" : \"description 2\",\r\n    \"idGenerationNeeded\": false\r\n}",
               "options": {
                 "raw": {
                   "language": "json"
@@ -169,9 +169,6 @@
         },
         {
           "name": "Получить информацию о клиенте за два года",
-          "protocolProfileBehavior": {
-            "disableBodyPruning": true
-          },
           "request": {
             "method": "GET",
             "header": [
@@ -186,15 +183,6 @@
                 "type": "text"
               }
             ],
-            "body": {
-              "mode": "raw",
-              "raw": "",
-              "options": {
-                "raw": {
-                  "language": "json"
-                }
-              }
-            },
             "url": {
               "raw": "localhost:8080/revenue-analyzer/events/analyzer/getClientStatistic?clientName=Гриша",
               "host": [
@@ -272,7 +260,7 @@
             ],
             "body": {
               "mode": "raw",
-              "raw": "{\n    \"clientName\" : \"Test4\",\n    \"pricePerHour\": 9999\n}",
+              "raw": "{\n    \"clientName\" : \"C new\",\n    \"newName\": \"newName\",\n    \"description\" : \"description 2\"\n}",
               "options": {
                 "raw": {
                   "language": "json"
@@ -280,57 +268,15 @@
               }
             },
             "url": {
-              "raw": "localhost:8080/revenue-analyzer/client/update",
+              "raw": "localhost:8081/revenue-analyzer/client/update",
               "host": [
                 "localhost"
               ],
-              "port": "8080",
+              "port": "8081",
               "path": [
                 "revenue-analyzer",
                 "client",
                 "update"
-              ]
-            }
-          },
-          "response": []
-        },
-        {
-          "name": "Получить среднее значение стоимости встречи в пределах выбранного периода",
-          "request": {
-            "method": "POST",
-            "header": [
-              {
-                "key": "X-username",
-                "value": "{{X-username}}",
-                "type": "text"
-              },
-              {
-                "key": "X-secret-token",
-                "value": "{{X-secret-token}}",
-                "type": "text"
-              }
-            ],
-            "body": {
-              "mode": "raw",
-              "raw": "{\r\n    \"startDate\": \"2026-03-01T00:00:00\",\r\n    \"endDate\": \"2026-03-21T23:59:59\"\r\n}",
-              "options": {
-                "raw": {
-                  "language": "json"
-                }
-              }
-            },
-            "url": {
-              "raw": "http://localhost:8080/revenue-analyzer/events/analyzer/getAverageMeetingPriceBetweenDates",
-              "protocol": "http",
-              "host": [
-                "localhost"
-              ],
-              "port": "8080",
-              "path": [
-                "revenue-analyzer",
-                "events",
-                "analyzer",
-                "getAverageMeetingPriceBetweenDates"
               ]
             }
           },
@@ -485,7 +431,7 @@
             ],
             "body": {
               "mode": "raw",
-              "raw": "{ \r\n    \"userIdentifier\": \"AlexTest2\",\r\n    \"mainCalendarId\" : \"79fbbdffa18aca0931d4333bffce5b20a0c75b1292f7119a257ec90d2ece5f4a@group.calendar.google.com\",\r\n    \"isCancelledCalendarEnabled\" : true,\r\n    \"cancelledCalendarId\" : \"cancelledcalendar1\"\r\n}\r\n    ",
+              "raw": "{ \r\n    \"userIdentifier\": \"AlexTest1000\",\r\n    \"mainCalendarId\" : \"79fbbdffa18aca0931d4333bffce5b20a0c75b1292f7119a257ec90d2ece5f4a@group.calendar.google.com\",\r\n    \"isCancelledCalendarEnabled\" : false,\r\n    \"cancelledCalendarId\" : \"cancelledcalendar1\"\r\n}\r\n    ",
               "options": {
                 "raw": {
                   "language": "json"
@@ -698,7 +644,7 @@
             ],
             "body": {
               "mode": "raw",
-              "raw": "{\r\n  \"clientName\": \"Test2\",\r\n  \"startDate\": \"2026-01-01T00:00:00\",\r\n  \"endDate\": \"2026-12-31T23:59:59\"\r\n}",
+              "raw": "",
               "options": {
                 "raw": {
                   "language": "json"
@@ -779,42 +725,10 @@
       "response": []
     }
   ],
-  "event": [
-    {
-      "listen": "prerequest",
-      "script": {
-        "type": "text/javascript",
-        "packages": {},
-        "requests": {},
-        "exec": [
-          ""
-        ]
-      }
-    },
-    {
-      "listen": "test",
-      "script": {
-        "type": "text/javascript",
-        "packages": {},
-        "requests": {},
-        "exec": [
-          ""
-        ]
-      }
-    }
-  ],
   "variable": [
     {
       "key": "X-secret-token",
       "value": "secret-token"
-    },
-    {
-      "key": "baseUrl",
-      "value": ""
-    },
-    {
-      "key": "X-username",
-      "value": ""
     }
   ]
 }
