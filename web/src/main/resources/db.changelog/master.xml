@@ -382,7 +382,18 @@
         <dropColumn tableName="PRICE_CHANGE_HISTORY" columnName="PREVIOUS_PRICE"/>
         <renameColumn tableName="PRICE_CHANGE_HISTORY" oldColumnName="NEW_PRICE" newColumnName="PRICE"/>
     </changeSet>
-    
+
+    <changeSet id="migration-data-from-price-per-hour-to-price-history" author="Alex">
+        <preConditions onFail="MARK_RAN">
+            <columnExists tableName="client" columnName="price_per_hour"/>
+        </preConditions>
+        <sql>
+            INSERT INTO PRICE_CHANGE_HISTORY (CLIENT_ID, PRICE, CHANGE_DATE)
+            SELECT id, price_per_hour, current_timestamp FROM client
+            WHERE price_per_hour IS NOT NULL
+        </sql>
+    </changeSet>
+
     <changeSet id="drop-column-price-per-hour" author="Alex">
         <preConditions onFail="MARK_RAN">
             <columnExists tableName="client" columnName="price_per_hour"/>
