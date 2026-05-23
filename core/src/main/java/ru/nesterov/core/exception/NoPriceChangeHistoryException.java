@@ -1,7 +1,7 @@
 package ru.nesterov.core.exception;
 
 public class NoPriceChangeHistoryException extends CoreException {
-    public NoPriceChangeHistoryException() {
-        super("No price change history found");
+    public NoPriceChangeHistoryException(String clientName) {
+        super("Не найдена цена для клиента " + clientName);
     }
 }

@@ -38,11 +38,20 @@ public class ClientServiceImpl implements ClientService {
     private final PriceChangeHistoryRepository priceChangeHistoryRepository;
 
     public double getPricePerHourForDate(Client client, LocalDateTime dateTime) {
-        return priceChangeHistoryRepository.findByClientId(client.getId()).stream()
+        Integer actualPrice = client.getPriceChangeHistory().stream()
                 .filter(pch -> pch.getChangeDate().isBefore(dateTime) || pch.getChangeDate().isEqual(dateTime))
                 .max(Comparator.comparing(PriceChangeHistory::getChangeDate))
                 .map(PriceChangeHistory::getPrice)
-                .orElseThrow(NoPriceChangeHistoryException::new);
+                .orElse(null);
+
+        if (actualPrice != null) {
+            return actualPrice;
+        }
+
+        return client.getPriceChangeHistory().stream()
+                .min(Comparator.comparing(PriceChangeHistory::getChangeDate))
+                .map(PriceChangeHistory::getPrice)
+                .orElseThrow(() -> new NoPriceChangeHistoryException(client.getName()));
     }
 
     public List<ClientScheduleDto> getClientSchedule(UserDto userDto, String clientName, LocalDateTime leftDate, LocalDateTime rightDate) {

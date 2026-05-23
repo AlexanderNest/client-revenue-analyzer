@@ -83,7 +83,7 @@ class EventsAnalyzerServiceImplTest {
         user.setCancelledCalendarEnabled(true);
         when(userRepository.findByUsername("testUsername")).thenReturn(user);
 
-        LocalDateTime start = LocalDateTime.of(2024, 8, 9, 22, 30);
+        LocalDateTime start = LocalDateTime.of(2024, 8, 9, 20, 30);
         LocalDateTime end = LocalDateTime.of(2024, 8, 9, 23, 30);
 
         EventDto eventDto1 = EventDto.builder()
@@ -174,11 +174,11 @@ class EventsAnalyzerServiceImplTest {
                 .build();
 
         IncomeAnalysisResult incomeAnalysisResult = eventsAnalyzerService.getIncomeAnalysisByMonth(userDto, "august");
-        assertEquals(3000, incomeAnalysisResult.getLostIncome());
-        assertEquals(4500, incomeAnalysisResult.getActualIncome());
-        assertEquals(9500, incomeAnalysisResult.getPotentialIncome());
-        assertEquals(6500, incomeAnalysisResult.getExpectedIncome());
-        assertEquals(3000, incomeAnalysisResult.getLostIncomeDueToHoliday());
+        assertEquals(9000, incomeAnalysisResult.getLostIncome());
+        assertEquals(8500, incomeAnalysisResult.getActualIncome());
+        assertEquals(23500, incomeAnalysisResult.getPotentialIncome());
+        assertEquals(14500, incomeAnalysisResult.getExpectedIncome());
+        assertEquals(9000, incomeAnalysisResult.getLostIncomeDueToHoliday());
     }
 
     @Test
@@ -220,11 +220,11 @@ class EventsAnalyzerServiceImplTest {
         assertEquals("description", meetingsStatistics.getDescription());
         assertEquals(date, meetingsStatistics.getStartDate());
         assertEquals("phone", meetingsStatistics.getPhone());
-        assertEquals(3, meetingsStatistics.getSuccessfulMeetingsHours());
-        assertEquals(3, meetingsStatistics.getCancelledMeetingsHours());
+        assertEquals(9, meetingsStatistics.getSuccessfulMeetingsHours());
+        assertEquals(9, meetingsStatistics.getCancelledMeetingsHours());
         assertEquals(50, meetingsStatistics.getSuccessfulMeetingsPercentage());
-        assertEquals(3000, meetingsStatistics.getLostIncome());
-        assertEquals(3000, meetingsStatistics.getActualIncome());
+        assertEquals(9000, meetingsStatistics.getLostIncome());
+        assertEquals(9000, meetingsStatistics.getActualIncome());
         assertEquals(1000, meetingsStatistics.getIncomePerHour());
         assertEquals(3, meetingsStatistics.getSuccessfulEventsCount());
         assertEquals(2, meetingsStatistics.getPlannedCancelledEventsCount());
