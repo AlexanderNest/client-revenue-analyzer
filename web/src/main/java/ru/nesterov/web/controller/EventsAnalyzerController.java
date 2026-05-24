@@ -14,8 +14,10 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import ru.nesterov.calendar.integration.dto.EventStatus;
 import ru.nesterov.core.service.dto.ClientMeetingsStatistic;
+import ru.nesterov.core.service.dto.GetBetweenDatesRequest;
 import ru.nesterov.core.service.dto.IncomeAnalysisResult;
 import ru.nesterov.web.controller.request.GetForMonthRequest;
+import ru.nesterov.web.controller.response.AveragePriceResponse;
 import ru.nesterov.web.controller.response.ClientMeetingsStatisticResponse;
 import ru.nesterov.web.controller.response.EventResponse;
 
@@ -104,4 +106,20 @@ public interface EventsAnalyzerController {
     )
     @GetMapping("/getUnpaidEvents")
     List<EventResponse> getUnpaidEvents(@RequestHeader(name = "X-username") String username);
+
+    @Operation(
+            summary = "Получить среднюю стоимость встречи за выбранный период",
+            description = "Рассчитывает средний чек: суммарный фактический доход, деленный на количество успешно проведенных встреч (статус SUCCESS)",
+            requestBody = @RequestBody(
+                    description = "Запрос для получения средней стоимости встречи за выбранный период",
+                    required = true,
+                    content = @Content(schema = @Schema(implementation = GetBetweenDatesRequest.class))
+            ),
+            responses = {
+                    @ApiResponse(responseCode = "200", description = "Успешный ответ"),
+                    @ApiResponse(responseCode = "500", description = "Внутренняя ошибка сервера")
+            }
+    )
+    @PostMapping("/getAverageMeetingPriceBetweenDates")
+    AveragePriceResponse getAverageMeetingPriceBetweenDates(@RequestHeader(name = "X-username") String username, @RequestBody GetBetweenDatesRequest request);
 }
