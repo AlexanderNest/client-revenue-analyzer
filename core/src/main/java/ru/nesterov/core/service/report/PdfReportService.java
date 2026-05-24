@@ -95,7 +95,7 @@ public class PdfReportService {
         document.add(new Paragraph(" "));
 
         if (statistics.getTotalEventsCount() == 0) {
-            Paragraph noData = new Paragraph("статистика встреч отсутствует (в заданный период встречи не назначены)", normalFont);
+            Paragraph noData = new Paragraph("статистика встреч отсутствует (в заданный период встречи не назначались)", normalFont);
             noData.setAlignment(Element.ALIGN_CENTER);
             document.add(noData);
             return;
