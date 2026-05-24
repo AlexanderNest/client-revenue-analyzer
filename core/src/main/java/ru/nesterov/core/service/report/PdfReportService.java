@@ -94,10 +94,18 @@ public class PdfReportService {
         document.add(period);
         document.add(new Paragraph(" "));
 
+        if (statistics.getTotalEventsCount() == 0) {
+            Paragraph noData = new Paragraph("статистика встреч отсутствует (в заданный период встречи не назначены)", normalFont);
+            noData.setAlignment(Element.ALIGN_CENTER);
+            document.add(noData);
+            return;
+        }
+
         document.add(new Paragraph("Статистика за указанный период: ", normalFont));
         document.add(new Paragraph("Доход: " + (long) statistics.getActualIncome() + " руб.", normalFont));
         document.add(new Paragraph("Часов отработано: " + statistics.getSuccessfulMeetingsHours(), normalFont));
-        document.add(new Paragraph("Всего встреч: " + statistics.getSuccessfulEventsCount(), normalFont));
+        document.add(new Paragraph("Всего встреч было запланировано: " + statistics.getTotalEventsCount(), normalFont));
+        document.add(new Paragraph("Из них проведено успешно: " + statistics.getSuccessfulEventsCount(), normalFont));
         document.add(new Paragraph(" "));
 
         PdfPTable table = new PdfPTable(4);

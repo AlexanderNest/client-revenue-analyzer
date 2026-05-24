@@ -26,6 +26,7 @@ import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 
 @Service
 @Slf4j
@@ -50,13 +51,22 @@ public class EventsAnalyzerServiceImpl implements EventsAnalyzerService {
         List<EventDto> eventDtos = calendarService.getEventsBetweenDates(eventsFilter);
 
         Map<String, ClientMeetingsStatistic> statsMap = getStatisticsOfClientMeetings(statsDto.getUserDto(), eventDtos);
-        return statsMap.get(statsDto.getClientName());
+        return Optional.ofNullable(statsMap.get(statsDto.getClientName()))
+                .orElseGet(() -> createEmptyStatistic(statsDto));
     }
 
     public Map<String, ClientMeetingsStatistic> getStatisticsOfEachClientMeetingsForMonth(UserDto userDto, String monthName) {
         List<EventDto> eventDtos = getEventsByMonth(userDto, monthName);
 
         return getStatisticsOfClientMeetings(userDto, eventDtos);
+    }
+    private ClientMeetingsStatistic createEmptyStatistic(GetStatisticsByClientMeetingsDto statsDto) {
+        Client client = clientRepository.findClientByNameAndUserId(statsDto.getClientName(), statsDto.getUserDto().getId());
+        if (client == null) throw new ClientNotFoundException(statsDto.getClientName());
+
+        ClientMeetingsStatistic emptyStat = new ClientMeetingsStatistic(clientService.getPricePerHourForDate(client, LocalDateTime.now()));
+        emptyStat.setName(client.getName());
+        return emptyStat;
     }
 
     private Map<String, ClientMeetingsStatistic> getStatisticsOfClientMeetings(UserDto userDto, List<EventDto> eventDtos) {
