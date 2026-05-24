@@ -389,7 +389,7 @@
         </preConditions>
         <sql>
             INSERT INTO PRICE_CHANGE_HISTORY (CLIENT_ID, PRICE, CHANGE_DATE)
-            SELECT id, price_per_hour, current_timestamp FROM client
+            SELECT id, price_per_hour, start_date FROM client
             WHERE price_per_hour IS NOT NULL
         </sql>
     </changeSet>
