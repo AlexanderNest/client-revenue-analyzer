@@ -62,7 +62,9 @@ public class EventsAnalyzerServiceImpl implements EventsAnalyzerService {
     }
     private ClientMeetingsStatistic createEmptyStatistic(GetStatisticsByClientMeetingsDto statsDto) {
         Client client = clientRepository.findClientByNameAndUserId(statsDto.getClientName(), statsDto.getUserDto().getId());
-        if (client == null) throw new ClientNotFoundException(statsDto.getClientName());
+        if (client == null) {
+            throw new ClientNotFoundException(statsDto.getClientName());
+        }
 
         ClientMeetingsStatistic emptyStat = new ClientMeetingsStatistic(clientService.getPricePerHourForDate(client, LocalDateTime.now()));
         emptyStat.setName(client.getName());

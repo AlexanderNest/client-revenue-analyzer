@@ -212,7 +212,6 @@ class EventsAnalyzerServiceImplTest {
                 .rightDate(LocalDateTime.now())
                 .build();
 
-
         ClientMeetingsStatistic meetingsStatistics = eventsAnalyzerService.getStatisticsByClientMeetings(dto);
         assertEquals("testName", meetingsStatistics.getName());
         assertEquals(1, meetingsStatistics.getId());

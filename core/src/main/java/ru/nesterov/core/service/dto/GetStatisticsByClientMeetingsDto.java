@@ -12,5 +12,4 @@ public class GetStatisticsByClientMeetingsDto {
     private String clientName;
     private LocalDateTime leftDate;
     private LocalDateTime rightDate;
-
 }
