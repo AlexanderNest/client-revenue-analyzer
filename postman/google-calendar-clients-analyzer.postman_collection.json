@@ -1,6 +1,6 @@
 {
   "info": {
-    "_postman_id": "3fa42bcc-9ffa-4b55-8322-225a04093461",
+    "_postman_id": "08e18944-8f2e-439a-b308-13306a5242f5",
     "name": "google-calendar-clients-analyzer",
     "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
     "_exporter_id": "42429703"
@@ -655,6 +655,69 @@
                 "revenue-analyzer",
                 "ai",
                 "generateRecommendation"
+              ]
+            }
+          },
+          "response": []
+        }
+      ]
+    },
+    {
+      "name": "Отчеты",
+      "item": [
+        {
+          "name": "Генерация PDF отчета по клиенту",
+          "protocolProfileBehavior": {
+            "disableBodyPruning": true
+          },
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "X-username",
+                "value": "{{X-username}}",
+                "type": "text"
+              },
+              {
+                "key": "X-secret-token",
+                "value": "{{X-secret-token}}",
+                "type": "text"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "http://localhost:8080/revenue-analyzer/reports/client-statistic?clientName=Test2&startDate=2026-01-01T00:00:00&endDate=2026-12-31T23:59:59",
+              "protocol": "http",
+              "host": [
+                "localhost"
+              ],
+              "port": "8080",
+              "path": [
+                "revenue-analyzer",
+                "reports",
+                "client-statistic"
+              ],
+              "query": [
+                {
+                  "key": "clientName",
+                  "value": "Test2"
+                },
+                {
+                  "key": "startDate",
+                  "value": "2026-01-01T00:00:00"
+                },
+                {
+                  "key": "endDate",
+                  "value": "2026-12-31T23:59:59"
+                }
               ]
             }
           },

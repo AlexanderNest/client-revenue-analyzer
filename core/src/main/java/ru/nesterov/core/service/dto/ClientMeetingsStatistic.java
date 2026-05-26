@@ -77,6 +77,10 @@ public class ClientMeetingsStatistic {
                 || notPlannedCancelledEventsCount != 0;
     }
 
+    public int getTotalEventsCount() {
+        return successfulEventsCount + plannedCancelledEventsCount + notPlannedCancelledEventsCount;
+    }
+
     @Override
     public String toString() {
         return "ClientMeetingsStatistic{" +

@@ -38,5 +38,9 @@
             <groupId>ru.nesterov</groupId>
             <artifactId>ai-integration</artifactId>
         </dependency>
+        <dependency>
+            <groupId>com.github.librepdf</groupId>
+            <artifactId>openpdf</artifactId>
+        </dependency>
     </dependencies>
 </project>

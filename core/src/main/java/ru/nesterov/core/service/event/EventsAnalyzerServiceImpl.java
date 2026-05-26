@@ -17,15 +17,16 @@ import ru.nesterov.core.service.date.helper.MonthHelper;
 import ru.nesterov.core.service.date.helper.WeekHelper;
 import ru.nesterov.core.service.dto.BusynessAnalysisResult;
 import ru.nesterov.core.service.dto.ClientMeetingsStatistic;
+import ru.nesterov.core.service.dto.GetStatisticsByClientMeetingsDto;
 import ru.nesterov.core.service.dto.IncomeAnalysisResult;
 import ru.nesterov.core.service.dto.UserDto;
 
-import javax.annotation.Nullable;
 import java.time.LocalDateTime;
 import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 
 @Service
 @Slf4j
@@ -37,26 +38,37 @@ public class EventsAnalyzerServiceImpl implements EventsAnalyzerService {
     private final EventService eventService;
     private final ClientService clientService;
 
-    @Nullable
-    public ClientMeetingsStatistic getStatisticsByClientMeetings(UserDto userDto, String clientName) {
+    public ClientMeetingsStatistic getStatisticsByClientMeetings(GetStatisticsByClientMeetingsDto statsDto) {
         EventsFilter eventsFilter = EventsFilter.builder()
-                .mainCalendar(userDto.getMainCalendar())
-                .cancelledCalendar(userDto.getCancelledCalendar())
-                .leftDate(LocalDateTime.now().minusYears(2))
-                .rightDate(LocalDateTime.now())
-                .isCancelledCalendarEnabled(userDto.isCancelledCalendarEnabled())
-                .clientName(clientName)
+                .mainCalendar(statsDto.getUserDto().getMainCalendar())
+                .cancelledCalendar(statsDto.getUserDto().getCancelledCalendar())
+                .leftDate(statsDto.getLeftDate())
+                .rightDate(statsDto.getRightDate())
+                .isCancelledCalendarEnabled(statsDto.getUserDto().isCancelledCalendarEnabled())
+                .clientName(statsDto.getClientName())
                 .build();
 
         List<EventDto> eventDtos = calendarService.getEventsBetweenDates(eventsFilter);
 
-        return getStatisticsOfClientMeetings(userDto, eventDtos).get(clientName);
+        Map<String, ClientMeetingsStatistic> statsMap = getStatisticsOfClientMeetings(statsDto.getUserDto(), eventDtos);
+        return Optional.ofNullable(statsMap.get(statsDto.getClientName()))
+                .orElseGet(() -> createEmptyStatistic(statsDto));
     }
 
     public Map<String, ClientMeetingsStatistic> getStatisticsOfEachClientMeetingsForMonth(UserDto userDto, String monthName) {
         List<EventDto> eventDtos = getEventsByMonth(userDto, monthName);
 
         return getStatisticsOfClientMeetings(userDto, eventDtos);
+    }
+    private ClientMeetingsStatistic createEmptyStatistic(GetStatisticsByClientMeetingsDto statsDto) {
+        Client client = clientRepository.findClientByNameAndUserId(statsDto.getClientName(), statsDto.getUserDto().getId());
+        if (client == null) {
+            throw new ClientNotFoundException(statsDto.getClientName());
+        }
+
+        ClientMeetingsStatistic emptyStat = new ClientMeetingsStatistic(clientService.getPricePerHourForDate(client, LocalDateTime.now()));
+        emptyStat.setName(client.getName());
+        return emptyStat;
     }
 
     private Map<String, ClientMeetingsStatistic> getStatisticsOfClientMeetings(UserDto userDto, List<EventDto> eventDtos) {

@@ -19,6 +19,7 @@ import ru.nesterov.core.repository.PriceChangeHistoryRepository;
 import ru.nesterov.core.repository.UserRepository;
 import ru.nesterov.core.service.client.ClientService;
 import ru.nesterov.core.service.dto.ClientMeetingsStatistic;
+import ru.nesterov.core.service.dto.GetStatisticsByClientMeetingsDto;
 import ru.nesterov.core.service.dto.IncomeAnalysisResult;
 import ru.nesterov.core.service.dto.UserDto;
 import ru.nesterov.core.service.event.EventService;
@@ -204,7 +205,14 @@ class EventsAnalyzerServiceImplTest {
 
         Date date = new Date(2025, Calendar.JUNE, 1);
 
-        ClientMeetingsStatistic meetingsStatistics = eventsAnalyzerService.getStatisticsByClientMeetings(userDto, "testName");
+        GetStatisticsByClientMeetingsDto dto = GetStatisticsByClientMeetingsDto.builder()
+                .userDto(userDto)
+                .clientName("testName")
+                .leftDate(LocalDateTime.now().minusYears(2))
+                .rightDate(LocalDateTime.now())
+                .build();
+
+        ClientMeetingsStatistic meetingsStatistics = eventsAnalyzerService.getStatisticsByClientMeetings(dto);
         assertEquals("testName", meetingsStatistics.getName());
         assertEquals(1, meetingsStatistics.getId());
         assertEquals("description", meetingsStatistics.getDescription());
