@@ -1,5 +1,6 @@
 package ru.nesterov.web.config.filter.chain;
 
+import com.ebay.ejmask.core.EJMask;
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
@@ -26,9 +27,9 @@ public class LoggingFilter extends OncePerRequestFilter {
         logMessage.append("\n=== HTTP Request ===\n")
                 .append("Method: ").append(wrappedRequest.getMethod()).append("\n\n")
                 .append("URI: ").append(wrappedRequest.getRequestURI()).append("\n\n")
-                .append("Headers:\n").append(formatHeaders(wrappedRequest)).append("\n")
+                .append("Headers:\n").append(EJMask.mask(formatHeaders(wrappedRequest))).append("\n")
                 .append("Parameters:\n").append(formatParameters(wrappedRequest.getParameterMap())).append("\n")
-                .append("Body:\n").append(wrappedRequest.getCachedBody()).append("\n");
+                .append("Body:\n").append(EJMask.mask(wrappedRequest.getCachedBody())).append("\n");
 
         logger.info(logMessage.toString());
 
@@ -37,7 +38,7 @@ public class LoggingFilter extends OncePerRequestFilter {
         logMessage.setLength(0);
         logMessage.append("\n=== HTTP Response ===\n")
                 .append("Status: ").append(response.getStatus()).append("\n\n")
-                .append("Body:\n").append(wrappedResponse.getCachedBody()).append("\n");
+                .append("Body:\n").append(EJMask.mask(wrappedResponse.getCachedBody())).append("\n");
 
         logger.info(logMessage.toString());
     }
@@ -47,7 +48,7 @@ public class LoggingFilter extends OncePerRequestFilter {
         Enumeration<String> headerNames = request.getHeaderNames();
         while (headerNames.hasMoreElements()) {
             String headerName = headerNames.nextElement();
-            headers.append("  ").append(headerName).append(": ").append(request.getHeader(headerName)).append("\n");
+            headers.append("  ").append(headerName).append("=").append(request.getHeader(headerName)).append("\n");
         }
         return headers.toString();
     }
