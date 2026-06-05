@@ -17,6 +17,7 @@ import ru.nesterov.core.service.dto.ClientMeetingsStatistic;
 import ru.nesterov.core.service.dto.GetBetweenDatesRequest;
 import ru.nesterov.core.service.dto.IncomeAnalysisResult;
 import ru.nesterov.web.controller.request.GetForMonthRequest;
+import ru.nesterov.web.controller.request.GetForYearAndMonthRequest;
 import ru.nesterov.web.controller.response.AveragePriceResponse;
 import ru.nesterov.web.controller.response.ClientMeetingsStatisticResponse;
 import ru.nesterov.web.controller.response.EventResponse;
@@ -78,7 +79,7 @@ public interface EventsAnalyzerController {
             }
     )
     @PostMapping("/getEventsStatusesForMonth")
-    Map<EventStatus, Integer> getEventsStatusesForMonth(@RequestHeader(name = "X-username") String username, @RequestBody GetForMonthRequest request);
+    Map<EventStatus, Integer> getEventsStatusesForMonth(@RequestHeader(name = "X-username") String username, @RequestBody GetForYearAndMonthRequest request);
 
     @Operation(
             summary = "Получить анализ доходов за месяц",
@@ -94,7 +95,7 @@ public interface EventsAnalyzerController {
             }
     )
     @PostMapping("/getIncomeAnalysisForMonth")
-    ResponseEntity<IncomeAnalysisResult> getIncomeAnalysisForMonth(@RequestHeader(name = "X-username") String username, @RequestBody GetForMonthRequest request);
+    ResponseEntity<IncomeAnalysisResult> getIncomeAnalysisForMonth(@RequestHeader(name = "X-username") String username, @RequestBody GetForYearAndMonthRequest request);
 
     @Operation(
             summary = "Получить неоплаченные события",
