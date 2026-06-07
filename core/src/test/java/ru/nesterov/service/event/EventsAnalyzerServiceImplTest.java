@@ -9,6 +9,7 @@ import org.springframework.test.context.bean.override.mockito.MockitoBean;
 import ru.nesterov.calendar.integration.dto.EventDto;
 import ru.nesterov.calendar.integration.dto.EventExtensionDto;
 import ru.nesterov.calendar.integration.dto.EventStatus;
+import ru.nesterov.calendar.integration.dto.EventsFilter;
 import ru.nesterov.calendar.integration.google.EventStatusServiceImpl;
 import ru.nesterov.calendar.integration.google.GoogleCalendarService;
 import ru.nesterov.core.entity.Client;
@@ -34,6 +35,7 @@ import java.util.Map;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.argThat;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.when;
 
@@ -120,6 +122,7 @@ class EventsAnalyzerServiceImplTest {
                 .end(end)
                 .build();
 
+
         EventExtensionDto eventExtensionDto = new EventExtensionDto();
         eventExtensionDto.setIncome(2500);
         EventDto eventDto6 = EventDto.builder()
@@ -157,8 +160,16 @@ class EventsAnalyzerServiceImplTest {
                 .end(end)
                 .build();
 
+        EventDto eventDto9 = EventDto.builder()
+                .summary("testName")
+                .start(LocalDateTime.of(2025, 10, 7, 10, 10))
+                .end(LocalDateTime.of(2025, 10, 7, 11, 10))
+                .status(EventStatus.SUCCESS)
+                .build();
+
         when(googleCalendarService.getHolidays(any(), any())).thenReturn(List.of(holidayEvent));
-        when(googleCalendarService.getEventsBetweenDates(any())).thenReturn(List.of(eventDto1, eventDto2, eventDto3, eventDto4, eventDto5, eventDto6, eventDto7, eventDto8));
+        when(googleCalendarService.getEventsBetweenDates(argThat(f -> f != null && f.getLeftDate().getYear() == 2024))).thenReturn(List.of(eventDto1, eventDto2, eventDto3, eventDto4, eventDto5, eventDto6, eventDto7, eventDto8));
+        when(googleCalendarService.getEventsBetweenDates(argThat(f -> f != null && f.getLeftDate().getYear() == 2025))).thenReturn(List.of(eventDto9));
     }
 
     @Test
@@ -172,12 +183,27 @@ class EventsAnalyzerServiceImplTest {
                 .id(1)
                 .build();
 
-        IncomeAnalysisResult incomeAnalysisResult = eventsAnalyzerService.getIncomeAnalysisByMonth(userDto, "august");
+        IncomeAnalysisResult incomeAnalysisResult = eventsAnalyzerService.getIncomeAnalysisByMonth(userDto, "august", 2024);
         assertEquals(9000, incomeAnalysisResult.getLostIncome());
         assertEquals(8500, incomeAnalysisResult.getActualIncome());
         assertEquals(23500, incomeAnalysisResult.getPotentialIncome());
         assertEquals(14500, incomeAnalysisResult.getExpectedIncome());
         assertEquals(9000, incomeAnalysisResult.getLostIncomeDueToHoliday());
+    }
+
+    @Test
+    void getIncomeAnalysisByMonthAndYear() {
+        UserDto userDto = UserDto.builder()
+                .username("testUsername")
+                .id(1)
+                .build();
+
+        IncomeAnalysisResult incomeAnalysisResult = eventsAnalyzerService.getIncomeAnalysisByMonth(userDto, "august", 2025);
+        assertEquals(0, incomeAnalysisResult.getLostIncome());
+        assertEquals(1000.0, incomeAnalysisResult.getActualIncome());
+        assertEquals(1000.0, incomeAnalysisResult.getPotentialIncome());
+        assertEquals(1000.0, incomeAnalysisResult.getExpectedIncome());
+        assertEquals(0, incomeAnalysisResult.getLostIncomeDueToHoliday());
     }
 
     @Test
@@ -187,7 +213,7 @@ class EventsAnalyzerServiceImplTest {
                 .id(1)
                 .build();
 
-        Map<EventStatus, Integer> statuses = eventsAnalyzerService.getEventStatusesByMonthName(userDto, "august");
+        Map<EventStatus, Integer> statuses = eventsAnalyzerService.getEventStatusesByMonthName(userDto, "august", 2024);
         assertEquals(5, statuses.size());
         assertEquals(3, statuses.get(EventStatus.SUCCESS));
         assertEquals(2, statuses.get(EventStatus.PLANNED_CANCELLED));

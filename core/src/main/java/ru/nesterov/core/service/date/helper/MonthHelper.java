@@ -55,9 +55,7 @@ public class MonthHelper {
             throw new IllegalArgumentException("Invalid month name: " + monthName);
         }
 
-//        int year = LocalDate.now().getYear();
         YearMonth yearMonth = YearMonth.of(year, month);
-
         LocalDateTime firstDay = yearMonth.atDay(1).atStartOfDay();
         LocalDateTime lastDay = yearMonth.atEndOfMonth().atTime(23, 59, 59, 999999999);
 
