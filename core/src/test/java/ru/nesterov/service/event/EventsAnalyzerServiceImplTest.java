@@ -9,7 +9,6 @@ import org.springframework.test.context.bean.override.mockito.MockitoBean;
 import ru.nesterov.calendar.integration.dto.EventDto;
 import ru.nesterov.calendar.integration.dto.EventExtensionDto;
 import ru.nesterov.calendar.integration.dto.EventStatus;
-import ru.nesterov.calendar.integration.dto.EventsFilter;
 import ru.nesterov.calendar.integration.google.EventStatusServiceImpl;
 import ru.nesterov.calendar.integration.google.GoogleCalendarService;
 import ru.nesterov.core.entity.Client;
@@ -192,7 +191,7 @@ class EventsAnalyzerServiceImplTest {
     }
 
     @Test
-    void getIncomeAnalysisByMonthAndYear() {
+    void test_shouldReturnCorrectIncomeValues_whenAnalyzingAugust2025() {
         UserDto userDto = UserDto.builder()
                 .username("testUsername")
                 .id(1)
