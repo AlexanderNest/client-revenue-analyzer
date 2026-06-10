@@ -56,7 +56,8 @@ public class EventsAnalyzerServiceImpl implements EventsAnalyzerService {
     }
 
     public Map<String, ClientMeetingsStatistic> getStatisticsOfEachClientMeetingsForMonth(UserDto userDto, String monthName) {
-        List<EventDto> eventDtos = getEventsByMonth(userDto, monthName);
+        int year = LocalDateTime.now().getYear();
+        List<EventDto> eventDtos = getEventsByMonth(userDto, monthName, year);
 
         return getStatisticsOfClientMeetings(userDto, eventDtos);
     }
@@ -124,8 +125,8 @@ public class EventsAnalyzerServiceImpl implements EventsAnalyzerService {
         clientMeetingsStatistic.increaseNotPlannedCancelledEvents(1);
     }
 
-    public IncomeAnalysisResult getIncomeAnalysisByMonth(UserDto userDto, String monthName) {
-        List<EventDto> eventDtos = getEventsByMonth(userDto, monthName);
+    public IncomeAnalysisResult getIncomeAnalysisByMonth(UserDto userDto, String monthName, int year) {
+        List<EventDto> eventDtos = getEventsByMonth(userDto, monthName, year);
 
         double actualIncome = 0;
         double lostIncome = 0;
@@ -133,7 +134,7 @@ public class EventsAnalyzerServiceImpl implements EventsAnalyzerService {
         double expectedIncome = 0;
         double lostIncomeDueToHoliday = 0;
 
-        MonthDatesPair monthDatesPair = MonthHelper.getFirstAndLastDayOfMonth(monthName);
+        MonthDatesPair monthDatesPair = MonthHelper.getFirstAndLastDayOfMonth(monthName, year);
         List<EventDto> holidayDtos = calendarService.getHolidays(monthDatesPair.getFirstDate(), monthDatesPair.getLastDate());
 
         for (EventDto eventDto : eventDtos) {
@@ -203,8 +204,8 @@ public class EventsAnalyzerServiceImpl implements EventsAnalyzerService {
         return getUnpaidEventsBetweenDates(userDto, requiredDateTime, LocalDateTime.now());
     }
 
-    public Map<EventStatus, Integer> getEventStatusesByMonthName(UserDto userDto, String monthName) {
-        MonthDatesPair monthDatesPair = MonthHelper.getFirstAndLastDayOfMonth(monthName);
+    public Map<EventStatus, Integer> getEventStatusesByMonthName(UserDto userDto, String monthName, int year) {
+        MonthDatesPair monthDatesPair = MonthHelper.getFirstAndLastDayOfMonth(monthName, year);
         return getEventStatusesBetweenDates(userDto, monthDatesPair.getFirstDate(), monthDatesPair.getLastDate());
     }
 
@@ -229,8 +230,8 @@ public class EventsAnalyzerServiceImpl implements EventsAnalyzerService {
         return statuses;
     }
 
-    private List<EventDto> getEventsByMonth(UserDto userDto, String monthName) {
-        MonthDatesPair monthDatesPair = MonthHelper.getFirstAndLastDayOfMonth(monthName);
+    private List<EventDto> getEventsByMonth(UserDto userDto, String monthName, int year) {
+        MonthDatesPair monthDatesPair = MonthHelper.getFirstAndLastDayOfMonth(monthName, year);
         EventsFilter eventsFilter = EventsFilter.builder()
                 .mainCalendar(userDto.getMainCalendar())
                 .cancelledCalendar(userDto.getCancelledCalendar())

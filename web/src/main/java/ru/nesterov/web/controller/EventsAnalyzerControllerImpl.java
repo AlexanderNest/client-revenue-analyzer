@@ -1,5 +1,6 @@
 package ru.nesterov.web.controller;
 
+import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -16,6 +17,7 @@ import ru.nesterov.core.service.dto.UserDto;
 import ru.nesterov.core.service.event.EventsAnalyzerService;
 import ru.nesterov.core.service.user.UserService;
 import ru.nesterov.web.controller.request.GetForMonthRequest;
+import ru.nesterov.web.controller.request.GetForYearAndMonthRequest;
 import ru.nesterov.web.controller.response.AveragePriceResponse;
 import ru.nesterov.web.controller.response.ClientMeetingsStatisticResponse;
 import ru.nesterov.web.controller.response.EventResponse;
@@ -54,12 +56,12 @@ public class EventsAnalyzerControllerImpl implements EventsAnalyzerController {
         );
     }
 
-    public Map<EventStatus, Integer> getEventsStatusesForMonth(@RequestHeader(name = "X-username") String username, @RequestBody GetForMonthRequest request) {
-        return eventsAnalyzerService.getEventStatusesByMonthName(userService.getUserByUsername(username), request.getMonthName());
+    public Map<EventStatus, Integer> getEventsStatusesForMonth(@RequestHeader(name = "X-username") String username, @RequestBody GetForYearAndMonthRequest request) {
+        return eventsAnalyzerService.getEventStatusesByMonthName(userService.getUserByUsername(username), request.getMonthName(), request.getYear());
     }
 
-    public ResponseEntity<IncomeAnalysisResult> getIncomeAnalysisForMonth(@RequestHeader(name = "X-username") String username, @RequestBody GetForMonthRequest request) {
-        IncomeAnalysisResult result = eventsAnalyzerService.getIncomeAnalysisByMonth(userService.getUserByUsername(username), request.getMonthName());
+    public ResponseEntity<IncomeAnalysisResult> getIncomeAnalysisForMonth(@RequestHeader(name = "X-username") String username, @Valid @RequestBody GetForYearAndMonthRequest request) {
+        IncomeAnalysisResult result = eventsAnalyzerService.getIncomeAnalysisByMonth(userService.getUserByUsername(username), request.getMonthName(), request.getYear());
 
         return new ResponseEntity<>(result, HttpStatus.OK);
     }

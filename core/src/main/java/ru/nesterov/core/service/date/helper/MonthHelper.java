@@ -1,12 +1,10 @@
 package ru.nesterov.core.service.date.helper;
 
-import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.Month;
 import java.time.YearMonth;
 import java.util.HashMap;
 import java.util.Map;
-import java.util.concurrent.ExecutorService;
 
 public class MonthHelper {
     private static final Map<String, Month> MONTH_MAP = new HashMap<>();
@@ -50,16 +48,14 @@ public class MonthHelper {
     }
 
 
-    public static MonthDatesPair getFirstAndLastDayOfMonth(String monthName) {
+    public static MonthDatesPair getFirstAndLastDayOfMonth(String monthName, int year) {
         monthName = monthName.toLowerCase();
         Month month = MONTH_MAP.get(monthName.toLowerCase());
         if (month == null) {
             throw new IllegalArgumentException("Invalid month name: " + monthName);
         }
 
-        int year = LocalDate.now().getYear();
         YearMonth yearMonth = YearMonth.of(year, month);
-
         LocalDateTime firstDay = yearMonth.atDay(1).atStartOfDay();
         LocalDateTime lastDay = yearMonth.atEndOfMonth().atTime(23, 59, 59, 999999999);
 
