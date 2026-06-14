@@ -27,7 +27,7 @@ public class LogbookSecurityConfig {
     }
 
     private Predicate<String> paramPredicate = param -> {
-        String paramLowerCase = param.toLowerCase();
+        final String paramLowerCase = param.toLowerCase();
         return paramLowerCase.toLowerCase().contains("token") ||
                 paramLowerCase.toLowerCase().contains("secret") ||
                 paramLowerCase.toLowerCase().contains("key") ||
