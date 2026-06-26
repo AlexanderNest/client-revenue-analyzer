@@ -27,6 +27,7 @@ import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
+import java.util.Set;
 
 @Service
 @Slf4j
@@ -258,9 +259,14 @@ public class EventsAnalyzerServiceImpl implements EventsAnalyzerService {
     @Override
     public BusynessAnalysisResult getBusynessStatisticsByYear(UserDto userDto, int year) {
         List<EventDto> eventDtos = getEventsByYear(userDto, year);
+        Set<String> allClientNamesByUser = clientRepository.findClientNamesByUserId(userDto.getId());
         Map<String, Double> monthHours = new HashMap<>();
         Map<String, Double> weekHours = new HashMap<>();
         for (EventDto eventDto : eventDtos) {
+            if (!allClientNamesByUser.contains(eventDto.getSummary())) {
+                throw new ClientNotFoundException(eventDto.getSummary(), eventDto.getStart());
+            }
+
             if (eventDto.getStatus() == EventStatus.SUCCESS) {
                 double eventDuration = eventService.getEventDuration(eventDto);
                 String monthName = MonthHelper.getMonthNameByNumber(eventDto.getStart().getMonthValue());
