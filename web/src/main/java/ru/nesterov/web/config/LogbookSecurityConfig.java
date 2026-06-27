@@ -7,6 +7,7 @@ import org.zalando.logbook.core.HeaderFilters;
 import org.zalando.logbook.core.QueryFilters;
 import org.zalando.logbook.json.JsonBodyFilters;
 
+import java.util.Set;
 import java.util.function.Predicate;
 
 import static org.zalando.logbook.core.HeaderFilters.defaultValue;
@@ -15,6 +16,7 @@ import static org.zalando.logbook.core.HeaderFilters.defaultValue;
 public class LogbookSecurityConfig {
 
     private static final String REPLACEMENT = "<masked>";
+    private static final Set<String> SENSITIVE_DATA_FIELDS = Set.of("token", "secret", "key", "cvv", "credit", "pass", "phone");
 
     @Bean
     public Logbook logbook() {
@@ -28,12 +30,6 @@ public class LogbookSecurityConfig {
 
     private final Predicate<String> paramPredicate = param -> {
         String paramLowerCase = param.toLowerCase();
-        return paramLowerCase.toLowerCase().contains("token") ||
-                paramLowerCase.toLowerCase().contains("secret") ||
-                paramLowerCase.toLowerCase().contains("key") ||
-                paramLowerCase.toLowerCase().contains("cvv") ||
-                paramLowerCase.toLowerCase().contains("credit") ||
-                paramLowerCase.toLowerCase().contains("pass") ||
-                paramLowerCase.toLowerCase().contains("phone");
+        return SENSITIVE_DATA_FIELDS.stream().anyMatch(paramLowerCase::contains);
     };
 }

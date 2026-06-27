@@ -11,6 +11,10 @@
 
     <artifactId>web</artifactId>
 
+    <properties>
+        <zalando.version>4.0.4</zalando.version>
+    </properties>
+
     <dependencies>
         <dependency>
             <groupId>io.micrometer</groupId>
@@ -61,13 +65,13 @@
         <dependency>
             <groupId>org.zalando</groupId>
             <artifactId>logbook-spring-boot-starter</artifactId>
-            <version>4.0.4</version>
+            <version>${zalando.version}</version>
             <scope>compile</scope>
         </dependency>
         <dependency>
             <groupId>org.zalando</groupId>
             <artifactId>logbook-json</artifactId>
-            <version>4.0.4</version>
+            <version>${zalando.version}</version>
         </dependency>
     </dependencies>
 
