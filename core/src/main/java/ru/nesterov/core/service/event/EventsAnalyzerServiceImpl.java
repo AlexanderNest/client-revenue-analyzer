@@ -27,6 +27,7 @@ import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
+import java.util.stream.Collectors;
 
 @Service
 @Slf4j
@@ -292,15 +293,16 @@ public class EventsAnalyzerServiceImpl implements EventsAnalyzerService {
         double totalIncome = 0.0;
         int countOfMeetings = 0;
 
+        Map<String, Client> clientsMap = clientRepository.findAllByUserId(userDto.getId()).stream()
+                .collect(Collectors.toMap(Client::getName, c -> c, (a, b) -> a));
+
         for (EventDto eventDto : eventDtos) {
             if (eventDto.getStatus() == EventStatus.SUCCESS) {
-                Client client = clientRepository.findClientByNameAndUserId(eventDto.getSummary(), userDto.getId());
-                if (client == null) {
-                    throw new ClientNotFoundException(eventDto.getSummary(), eventDto.getStart());
+                Client client = clientsMap.get(eventDto.getSummary());
+                if (client != null) {
+                    totalIncome += eventService.getEventIncome(client, eventDto);
+                    countOfMeetings++;
                 }
-
-                totalIncome += eventService.getEventIncome(client, eventDto);
-                countOfMeetings++;
             }
         }
         return (countOfMeetings == 0) ? 0.0 : totalIncome / countOfMeetings;
