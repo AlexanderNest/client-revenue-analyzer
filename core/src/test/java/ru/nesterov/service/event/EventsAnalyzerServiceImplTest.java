@@ -286,6 +286,7 @@ class EventsAnalyzerServiceImplTest {
         assertEquals(3.0, result.getMonths().get("Август"));
         assertEquals(3.0, result.getDays().get("Пятница"));
     }
+
     @Test
     void getStatisticsByOneClientMeetings() {
         UserDto userDto = UserDto.builder()

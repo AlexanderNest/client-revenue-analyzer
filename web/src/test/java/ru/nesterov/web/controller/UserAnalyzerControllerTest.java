@@ -22,7 +22,7 @@ class UserAnalyzerControllerTest extends AbstractControllerTest {
     private static final String GET_YEAR_STATISTICS_URL = "/user/analyzer/getYearBusynessStatistics";
 
     @Test
-    void getYearStatistics() throws Exception {
+    void getYearStatistics_ShouldReturnYearStatistics_WhenClientExistsInDatabase() throws Exception {
         User user = new User();
         user.setUsername("UACT_testUser1");
         user.setMainCalendar("someCalendar1");
@@ -34,14 +34,14 @@ class UserAnalyzerControllerTest extends AbstractControllerTest {
         saveClientWithPrice(client1, 1000);
 
         EventDto eventDto1 = EventDto.builder()
-                .summary("paid1")
+                .summary("testName2")
                 .status(EventStatus.SUCCESS)
                 .start(LocalDateTime.of(2024, 8, 12, 12, 30))
                 .end(LocalDateTime.of(2024, 8, 12, 15, 0))
                 .build();
 
         EventDto eventDto2 = EventDto.builder()
-                .summary("paid1")
+                .summary("testName2")
                 .status(EventStatus.SUCCESS)
                 .start(LocalDateTime.of(2024, 8, 14, 12, 45))
                 .end(LocalDateTime.of(2024, 8, 14, 20, 0))
@@ -63,5 +63,34 @@ class UserAnalyzerControllerTest extends AbstractControllerTest {
                 .andExpect(jsonPath("$.months.Август").value(9.75))
                 .andExpect(jsonPath("$.days.Среда").value(7.25))
                 .andExpect(jsonPath("$.days.Понедельник").value(2.5));
+    }
+
+    @Test
+    void getYearStatistics_ShouldReturnInternalServerError_WhenClientNotExistsInDatabase() throws Exception {
+        User user = new User();
+        user.setUsername("UACT_testUser2");
+        user.setMainCalendar("someCalendar1");
+        userRepository.save(user);
+
+        EventDto eventDto1 = EventDto.builder()
+                .summary("paid1")
+                .status(EventStatus.SUCCESS)
+                .start(LocalDateTime.of(2024, 8, 12, 12, 30))
+                .end(LocalDateTime.of(2024, 8, 12, 15, 0))
+                .build();
+
+        when(googleCalendarClient.getEventsBetweenDates(eq("someCalendar1"), any(), any(), any(), any())).thenReturn(List.of(eventDto1));
+        when(googleCalendarClient.getEventsBetweenDates(eq("someCalendar1"), any(), any(), any())).thenReturn(List.of(eventDto1));
+
+        GetForYearRequest getForYearRequest = new GetForYearRequest();
+        getForYearRequest.setYear(2024);
+
+        mockMvc.perform(
+                        post(GET_YEAR_STATISTICS_URL)
+                                .header("X-username", user.getUsername())
+                                .contentType(MediaType.APPLICATION_JSON)
+                                .content(objectMapper.writeValueAsString(getForYearRequest))
+                )
+                .andExpect(status().isInternalServerError());
     }
 }
