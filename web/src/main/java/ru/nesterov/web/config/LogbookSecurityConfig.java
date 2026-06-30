@@ -16,7 +16,7 @@ import static org.zalando.logbook.core.HeaderFilters.defaultValue;
 public class LogbookSecurityConfig {
 
     private static final String REPLACEMENT = "<masked>";
-    private static final Set<String> SENSITIVE_DATA_FIELDS = Set.of("token", "secret", "key", "cvv", "credit", "pass", "phone");
+    private static final Set<String> SENSITIVE_DATA_FIELDS = Set.of("token", "secret", "key", "pass");
 
     @Bean
     public Logbook logbook() {

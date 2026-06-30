@@ -11,10 +11,6 @@
 
     <artifactId>web</artifactId>
 
-    <properties>
-        <zalando.version>4.0.4</zalando.version>
-    </properties>
-
     <dependencies>
         <dependency>
             <groupId>io.micrometer</groupId>

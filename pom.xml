@@ -38,6 +38,7 @@
         <reflections.version>0.10.2</reflections.version>
         <micrometer.trasing.version>1.7.0-M3</micrometer.trasing.version>
         <openpdf.version>3.0.3</openpdf.version>
+        <zalando.version>4.0.4</zalando.version>
     </properties>
 
     <dependencyManagement>
