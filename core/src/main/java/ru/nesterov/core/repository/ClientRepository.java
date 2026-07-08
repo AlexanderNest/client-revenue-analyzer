@@ -36,4 +36,6 @@ public interface ClientRepository extends JpaRepository<Client, Long> {
     List<Client> findClientByUserIdAndActiveOrderByPricePerHourDesc(@Param("userId") long userId, @Param("active") boolean active);
 
     int deleteClientByNameAndUserId(String name, long userId);
+
+    List<Client> findAllByUserId(long userId);
 }
