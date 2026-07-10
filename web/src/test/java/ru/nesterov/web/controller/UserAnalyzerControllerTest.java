@@ -22,7 +22,7 @@ class UserAnalyzerControllerTest extends AbstractControllerTest {
     private static final String GET_YEAR_STATISTICS_URL = "/user/analyzer/getYearBusynessStatistics";
 
     @Test
-    void getYearStatistics_ShouldReturnYearStatistics_WhenClientExistsInDatabase() throws Exception {
+    void getYearStatisticsShouldReturnYearStatisticsWhenClientExistsInDatabase() throws Exception {
         User user = new User();
         user.setUsername("UACT_testUser1");
         user.setMainCalendar("someCalendar1");
@@ -66,7 +66,7 @@ class UserAnalyzerControllerTest extends AbstractControllerTest {
     }
 
     @Test
-    void getYearStatistics_ShouldReturnInternalServerError_WhenClientNotExistsInDatabase() throws Exception {
+    void getYearStatisticsShouldReturnInternalServerErrorWhenClientNotExistsInDatabase() throws Exception {
         User user = new User();
         user.setUsername("UACT_testUser2");
         user.setMainCalendar("someCalendar1");
