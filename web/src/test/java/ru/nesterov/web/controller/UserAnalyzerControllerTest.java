@@ -91,6 +91,7 @@ class UserAnalyzerControllerTest extends AbstractControllerTest {
                                 .contentType(MediaType.APPLICATION_JSON)
                                 .content(objectMapper.writeValueAsString(getForYearRequest))
                 )
-                .andExpect(status().isInternalServerError());
+                .andExpect(status().isInternalServerError())
+                .andExpect(jsonPath("$.message").value("Клиент с именем [" + eventDto1.getSummary() + "] от даты [" + eventDto1.getStart() + "] не найден в базе"));
     }
 }
