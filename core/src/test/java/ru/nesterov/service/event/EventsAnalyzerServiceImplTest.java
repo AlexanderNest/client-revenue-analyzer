@@ -226,7 +226,7 @@ class EventsAnalyzerServiceImplTest {
     }
 
     @Test
-    void getBusynessStatisticsByYear_shouldThrowClientNotFoundException_whenClientIsNotInDatabase() {
+    void getBusynessStatisticsByYearShouldThrowClientNotFoundExceptionWhenClientIsNotInDatabase() {
         UserDto userDto = UserDto.builder()
                 .username("testUsername")
                 .id(1)
@@ -259,7 +259,7 @@ class EventsAnalyzerServiceImplTest {
     }
 
     @Test
-    void getBusynessStatisticsByYear_shouldReturnStatistics_whenClientExistsInDatabase() {
+    void getBusynessStatisticsByYearShouldReturnStatisticsWhenClientExistsInDatabase() {
         UserDto userDto = UserDto.builder()
                 .username("testUsername")
                 .id(1)
