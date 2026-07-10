@@ -14,10 +14,12 @@ import ru.nesterov.calendar.integration.google.GoogleCalendarService;
 import ru.nesterov.core.entity.Client;
 import ru.nesterov.core.entity.PriceChangeHistory;
 import ru.nesterov.core.entity.User;
+import ru.nesterov.core.exception.ClientNotFoundException;
 import ru.nesterov.core.repository.ClientRepository;
 import ru.nesterov.core.repository.PriceChangeHistoryRepository;
 import ru.nesterov.core.repository.UserRepository;
 import ru.nesterov.core.service.client.ClientService;
+import ru.nesterov.core.service.dto.BusynessAnalysisResult;
 import ru.nesterov.core.service.dto.ClientMeetingsStatistic;
 import ru.nesterov.core.service.dto.GetStatisticsByClientMeetingsDto;
 import ru.nesterov.core.service.dto.IncomeAnalysisResult;
@@ -31,8 +33,10 @@ import java.util.Calendar;
 import java.util.Date;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.argThat;
 import static org.mockito.ArgumentMatchers.eq;
@@ -219,6 +223,68 @@ class EventsAnalyzerServiceImplTest {
         assertEquals(1, statuses.get(EventStatus.UNPLANNED_CANCELLED));
         assertEquals(1, statuses.get(EventStatus.PLANNED));
         assertEquals(1, statuses.get(EventStatus.REQUIRES_SHIFT));
+    }
+
+    @Test
+    void getBusynessStatisticsByYearShouldThrowClientNotFoundExceptionWhenClientIsNotInDatabase() {
+        UserDto userDto = UserDto.builder()
+                .username("testUsername")
+                .id(1)
+                .build();
+
+        when(clientRepository.findClientNamesByUserId(1)).thenReturn(Set.of("testName"));
+
+        LocalDateTime start = LocalDateTime.of(2024, 8, 9, 20, 30);
+        LocalDateTime end = LocalDateTime.of(2024, 8, 9, 23, 30);
+
+        EventDto unknownClientEvent = EventDto.builder()
+                .summary("unknownClient")
+                .status(EventStatus.SUCCESS)
+                .start(start)
+                .end(end)
+                .build();
+
+        when(googleCalendarService.getEventsBetweenDates(argThat(f -> f != null && f.getLeftDate().getYear() == 2024)))
+                .thenReturn(List.of(unknownClientEvent));
+
+        ClientNotFoundException exception = assertThrows(
+                ClientNotFoundException.class,
+                () -> eventsAnalyzerService.getBusynessStatisticsByYear(userDto, 2024)
+        );
+
+        assertEquals(
+                "Клиент с именем [unknownClient] от даты [" + start + "] не найден в базе",
+                exception.getMessage()
+        );
+    }
+
+    @Test
+    void getBusynessStatisticsByYearShouldReturnStatisticsWhenClientExistsInDatabase() {
+        UserDto userDto = UserDto.builder()
+                .username("testUsername")
+                .id(1)
+                .build();
+
+        when(clientRepository.findClientNamesByUserId(1)).thenReturn(Set.of("testName"));
+
+        LocalDateTime start = LocalDateTime.of(2024, 8, 9, 20, 30);
+        LocalDateTime end = LocalDateTime.of(2024, 8, 9, 23, 30);
+
+        EventDto knownClientEvent = EventDto.builder()
+                .summary("testName")
+                .status(EventStatus.SUCCESS)
+                .start(start)
+                .end(end)
+                .build();
+
+        when(googleCalendarService.getEventsBetweenDates(
+                argThat(f -> f != null && f.getLeftDate().getYear() == 2024)))
+                .thenReturn(List.of(knownClientEvent));
+
+        BusynessAnalysisResult result = eventsAnalyzerService.getBusynessStatisticsByYear(userDto, 2024);
+
+        assertEquals(3.0, result.getMonths().get("Август"));
+        assertEquals(3.0, result.getDays().get("Пятница"));
     }
 
     @Test

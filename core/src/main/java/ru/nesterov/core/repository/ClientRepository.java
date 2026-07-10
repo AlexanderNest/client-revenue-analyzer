@@ -7,6 +7,7 @@ import org.springframework.stereotype.Repository;
 import ru.nesterov.core.entity.Client;
 
 import java.util.List;
+import java.util.Set;
 
 
 @Repository
@@ -34,6 +35,9 @@ public interface ClientRepository extends JpaRepository<Client, Long> {
             ORDER BY pch.price DESC
             """)
     List<Client> findClientByUserIdAndActiveOrderByPricePerHourDesc(@Param("userId") long userId, @Param("active") boolean active);
+
+    @Query("SELECT c.name FROM Client c WHERE c.user.id = :userId")
+    Set<String> findClientNamesByUserId(@Param("userId") long userId);
 
     int deleteClientByNameAndUserId(String name, long userId);
 }
