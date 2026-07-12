@@ -4,6 +4,7 @@ import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.http.MediaType;
+import org.springframework.test.web.servlet.ResultActions;
 import ru.nesterov.calendar.integration.dto.CalendarType;
 import ru.nesterov.calendar.integration.dto.EventDto;
 import ru.nesterov.calendar.integration.dto.EventExtensionDto;
@@ -11,11 +12,13 @@ import ru.nesterov.calendar.integration.dto.EventStatus;
 import ru.nesterov.core.entity.Client;
 import ru.nesterov.core.entity.User;
 import ru.nesterov.web.controller.request.GetForMonthRequest;
+import ru.nesterov.web.controller.request.GetForYearAndMonthRequest;
 
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.List;
 
+import static org.hamcrest.Matchers.aMapWithSize;
 import static org.hamcrest.Matchers.hasSize;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.eq;
@@ -135,6 +138,40 @@ public class EventsAnalyzerControllerTest extends AbstractControllerTest {
                 .andExpect(jsonPath("$[1].eventStart").value(expectedEventStart2.format(formatter)))
                 .andExpect(jsonPath("$[2].summary").value("testName1"))
                 .andExpect(jsonPath("$[2].eventStart").value(expectedEventStart3.format(formatter)));
+    }
+
+    @Test
+    public void getEventsStatusesForMonthTest() throws Exception {
+        User user = createUser("eventsUser", "calendar1");
+        Client client = createClient("clientStat", user);
+
+        EventDto eventDto1 = EventDto.builder()
+                .summary(client.getName())
+                .status(EventStatus.PLANNED)
+                .start(LocalDateTime.of(2024, 8, 9, 11, 30))
+                .end(LocalDateTime.of(2024, 8, 9, 12, 30))
+                .build();
+
+        when(googleCalendarClient.getEventsBetweenDates(eq(user.getMainCalendar()), eq(CalendarType.MAIN), any(), any(), isNull()))
+                .thenReturn(List.of(eventDto1));
+
+        GetForYearAndMonthRequest request = new GetForYearAndMonthRequest();
+        request.setMonthName("July");
+
+        ResultActions resultActions = mockMvc.perform(post("/events/analyzer/getEventsStatusesForMonth")
+                .header("X-username", user.getUsername())
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(objectMapper.writeValueAsString(request))
+        );
+
+        resultActions
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$", aMapWithSize(5)))
+                .andExpect(jsonPath("$.PLANNED_CANCELLED").value(0))
+                .andExpect(jsonPath("$.UNPLANNED_CANCELLED").value(0))
+                .andExpect(jsonPath("$.PLANNED").value(1))
+                .andExpect(jsonPath("$.SUCCESS").value(0))
+                .andExpect(jsonPath("$.REQUIRES_SHIFT").value(0));
     }
 
     @Test

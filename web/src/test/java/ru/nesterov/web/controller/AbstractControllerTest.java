@@ -46,6 +46,14 @@ public abstract class AbstractControllerTest {
         return userRepository.save(user1);
     }
 
+    protected User createUser(String username, String calendarName) {
+        User user1 = new User();
+        user1.setUsername(username);
+        user1.setMainCalendar(calendarName);
+
+        return userRepository.save(user1);
+    }
+
     protected Client createClient(String name, User user) {
         Client client1 = new Client();
         client1.setUser(user);
