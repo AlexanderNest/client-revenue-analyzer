@@ -22,6 +22,7 @@ import ru.nesterov.core.service.dto.IncomeAnalysisResult;
 import ru.nesterov.core.service.dto.UserDto;
 
 import java.time.LocalDateTime;
+import java.util.Arrays;
 import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.List;
@@ -62,6 +63,7 @@ public class EventsAnalyzerServiceImpl implements EventsAnalyzerService {
 
         return getStatisticsOfClientMeetings(userDto, eventDtos);
     }
+
     private ClientMeetingsStatistic createEmptyStatistic(GetStatisticsByClientMeetingsDto statsDto) {
         Client client = clientRepository.findClientByNameAndUserId(statsDto.getClientName(), statsDto.getUserDto().getId());
         if (client == null) {
@@ -97,7 +99,7 @@ public class EventsAnalyzerServiceImpl implements EventsAnalyzerService {
                 handleSuccessfulEvent(clientMeetingsStatistic, eventDto, client);
             } else if (eventStatus == EventStatus.PLANNED_CANCELLED || eventStatus == EventStatus.UNPLANNED_CANCELLED && EventExtensionService.isPlannedStatus(eventDto)) {
                 handlePlannedCancelledEvent(clientMeetingsStatistic, eventDto);
-            } else if (eventStatus == EventStatus.UNPLANNED_CANCELLED ) {
+            } else if (eventStatus == EventStatus.UNPLANNED_CANCELLED) {
                 handleUnplannedCancelledEvent(clientMeetingsStatistic, eventDto);
             }
         }
@@ -105,7 +107,7 @@ public class EventsAnalyzerServiceImpl implements EventsAnalyzerService {
         return meetingsStatistics;
     }
 
-    private void handleSuccessfulEvent(ClientMeetingsStatistic clientMeetingsStatistic, EventDto eventDto, Client client){
+    private void handleSuccessfulEvent(ClientMeetingsStatistic clientMeetingsStatistic, EventDto eventDto, Client client) {
         double eventDuration = eventService.getEventDuration(eventDto);
         clientMeetingsStatistic.increaseSuccessfulHours(eventDuration);
         clientMeetingsStatistic.increaseSuccessfulEvents(1);
@@ -114,13 +116,13 @@ public class EventsAnalyzerServiceImpl implements EventsAnalyzerService {
         clientMeetingsStatistic.increaseIncome(actualPricePerHourForDate);
     }
 
-    private void handlePlannedCancelledEvent(ClientMeetingsStatistic clientMeetingsStatistic, EventDto eventDto){
+    private void handlePlannedCancelledEvent(ClientMeetingsStatistic clientMeetingsStatistic, EventDto eventDto) {
         double eventDuration = eventService.getEventDuration(eventDto);
         clientMeetingsStatistic.increaseCancelledHours(eventDuration);
         clientMeetingsStatistic.increasePlannedCancelledEvents(1);
     }
 
-    private void handleUnplannedCancelledEvent(ClientMeetingsStatistic clientMeetingsStatistic, EventDto eventDto){
+    private void handleUnplannedCancelledEvent(ClientMeetingsStatistic clientMeetingsStatistic, EventDto eventDto) {
         double eventDuration = eventService.getEventDuration(eventDto);
         clientMeetingsStatistic.increaseCancelledHours(eventDuration);
         clientMeetingsStatistic.increaseNotPlannedCancelledEvents(1);
@@ -155,7 +157,7 @@ public class EventsAnalyzerServiceImpl implements EventsAnalyzerService {
             } else if (eventStatus.isCancelledStatus()) {
                 lostIncome += eventPrice;
 
-                if(isHoliday(holidayDtos, eventDto)) {
+                if (isHoliday(holidayDtos, eventDto)) {
                     lostIncomeDueToHoliday += eventPrice;
                 }
             } else if (eventStatus == EventStatus.REQUIRES_SHIFT || eventStatus == EventStatus.PLANNED) {
@@ -222,10 +224,11 @@ public class EventsAnalyzerServiceImpl implements EventsAnalyzerService {
         List<EventDto> eventDtos = calendarService.getEventsBetweenDates(eventsFilter);
 
         Map<EventStatus, Integer> statuses = new HashMap<>();
+        Arrays.stream(EventStatus.values()).forEach(v -> statuses.computeIfAbsent(v, k -> 0));
+
         for (EventDto eventDto : eventDtos) {
             EventStatus eventStatus = eventDto.getStatus();
-
-            statuses.put(eventStatus, statuses.getOrDefault(eventStatus, 0) + 1);
+            statuses.computeIfPresent(eventStatus, (k, v) -> v + 1);
         }
 
         return statuses;
@@ -313,7 +316,7 @@ public class EventsAnalyzerServiceImpl implements EventsAnalyzerService {
     }
 
     @Override
-    public Double getAverageMeetingPriceBetweenDates(UserDto userDto, LocalDateTime start, LocalDateTime end){
+    public Double getAverageMeetingPriceBetweenDates(UserDto userDto, LocalDateTime start, LocalDateTime end) {
         EventsFilter eventsFilter = EventsFilter.builder()
                 .mainCalendar(userDto.getMainCalendar())
                 .cancelledCalendar(userDto.getCancelledCalendar())
@@ -326,6 +329,4 @@ public class EventsAnalyzerServiceImpl implements EventsAnalyzerService {
 
         return calculateAverageMeetingPrice(userDto, eventDtos);
     }
-
-
 }
