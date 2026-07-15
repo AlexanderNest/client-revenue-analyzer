@@ -132,7 +132,7 @@ public class PdfReportService {
         for (EventDto event : eventDtoList) {
             addTableCell(table, event.getStart().format(DATE_FORMATTER), normalFont);
             addTableCell(table, event.getEnd().format(DATE_FORMATTER), normalFont);
-            addTableCell(table, event.getStatus().toString(), normalFont);
+            addTableCell(table, event.getStatus().getDescription(), normalFont);
             addTableCell(table, String.format("%.0f", eventService.getEventIncome(client, event)), normalFont);
         }
         document.add(table);
