@@ -9,4 +9,5 @@ import java.util.List;
 public interface CalendarService {
     List<EventDto> getEventsBetweenDates(EventsFilter eventsFilter);
     List<EventDto> getHolidays(LocalDateTime leftDate, LocalDateTime rightDate);
+    EventDto createEvent(String summary, String description, String startDataTime, String endDataTime);
 }

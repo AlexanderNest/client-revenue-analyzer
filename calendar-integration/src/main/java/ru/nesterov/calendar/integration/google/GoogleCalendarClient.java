@@ -94,7 +94,7 @@ public class GoogleCalendarClient implements CalendarClient {
 
     private Calendar createCalendarService() throws GeneralSecurityException, IOException {
         GoogleCredentials credentials = GoogleCredentials.fromStream(new FileInputStream(properties.getServiceAccountFilePath()))
-                    .createScoped(List.of(CalendarScopes.CALENDAR_READONLY));
+                    .createScoped(List.of(CalendarScopes.CALENDAR));
 
         return new Calendar.Builder(GoogleNetHttpTransport.newTrustedTransport(), GsonFactory.getDefaultInstance(), new HttpCredentialsAdapter(credentials))
                 .setApplicationName(properties.getApplicationName())
@@ -107,6 +107,32 @@ public class GoogleCalendarClient implements CalendarClient {
 
     public List<EventDto> getEventsBetweenDates(String calendarId, CalendarType calendarType, LocalDateTime leftDate, LocalDateTime rightDate, String clientName) {
         return getEventsBetweenDatesInternal(calendarId, calendarType, leftDate, rightDate, clientName);
+    }
+
+    public EventDto createEvent(String summary, String description, String startDataTime, String endDataTime) {
+        Event newEvent  = new Event()
+                .setSummary(summary)
+                .setDescription(description);
+
+        DateTime start = new DateTime(startDataTime);
+        EventDateTime startEventDateTime = new EventDateTime().setDateTime(start);
+        newEvent.setStart(startEventDateTime);
+
+        DateTime end = new DateTime(endDataTime);
+        EventDateTime endEventDateTime = new EventDateTime().setDateTime(end);
+        newEvent.setEnd(endEventDateTime);
+
+        Event createdEvent;
+
+        try {
+            createdEvent = calendar.events().insert("lenya.vel@mail.ru", newEvent).execute();
+        } catch (IOException e) {
+            throw new RuntimeException(e);
+        }
+
+        EventDto eventDto = buildEvent(createdEvent, null);
+
+        return eventDto;
     }
 
     private List<EventDto> getEventsBetweenDatesInternal(String calendarId, CalendarType calendarType, LocalDateTime leftDate, LocalDateTime rightDate, String eventName) {

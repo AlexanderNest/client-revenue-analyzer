@@ -8,4 +8,6 @@ import java.util.List;
 
 public interface CalendarClient {
     List<EventDto> getEventsBetweenDates(String calendarId, CalendarType calendarType, LocalDateTime from, LocalDateTime to);
+
+    EventDto createEvent(String summary, String description, String startDataTime, String endDataTime);
 }
