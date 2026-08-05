@@ -48,30 +48,21 @@ public class TestDataService {
     }
 
     public TestDataCreationStatus tryToCreateTestData(String username) { //TODO пересмотреть решение
-        AtomicReference<TestDataCreationStatus> status = new AtomicReference<>(TestDataCreationStatus.LIMIT_NOT_REACHED);
 
-        if(requestCounterMap.getOrDefault(username, (byte) 0) == 3) {
-            status.set(TestDataCreationStatus.ALREADY_CREATED);
-            return status.get();
+        int requestsCount = requestCounterMap.merge(username, START_COUNT, (oldValue, newValue) -> (byte) (oldValue + 1));
+
+        TestDataCreationStatus status = TestDataCreationStatus.LIMIT_NOT_REACHED;
+
+        if (requestsCount >= MAX_COUNT) {
+            try {
+                createTestData(username);
+                status = TestDataCreationStatus.CREATED_NOW;
+            } catch (Exception e) {
+                status = TestDataCreationStatus.ERROR;
+            }
         }
 
-        requestCounterMap.merge(username, START_COUNT, (oldValue, newValue) -> {
-            newValue = 1;
-            byte result = (byte) (oldValue + newValue);
-
-            if (result >= MAX_COUNT) {
-                try { //TODO на подумать. надо защититься и всегда (даже если будет ошибка вернуть null
-                    createTestData(username);
-                    status.set(TestDataCreationStatus.CREATED_NOW);
-                } catch (Exception e) {
-                    status.set(TestDataCreationStatus.ERROR);
-                }
-            }
-
-            return result;
-        });
-
-        return status.get();
+        return status;
     }
 
     private void createTestData(String username) {
