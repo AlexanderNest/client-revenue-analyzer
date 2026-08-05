@@ -1,4 +1,4 @@
-package ru.nesterov.web.controller.enums;
+package ru.nesterov.core.entity;
 
 public enum TestDataCreationStatus {
         ALREADY_CREATED,

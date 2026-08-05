@@ -5,6 +5,7 @@ import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RestController;
 import ru.nesterov.core.service.testdata.TestDataService;
+import ru.nesterov.core.entity.TestDataCreationStatus;
 import ru.nesterov.web.controller.request.CreateTestDataRequest;
 import ru.nesterov.web.controller.request.DeleteTestDataRequest;
 import ru.nesterov.web.controller.response.CreateTestDataResponse;
@@ -18,10 +19,22 @@ public class TestDataControllerImpl implements TestDataController {
 
     @Override
     public CreateTestDataResponse createTestData(@RequestBody CreateTestDataRequest createTestDataRequest) {
-        String message = "Вы точно хотите создать тестовых клиентов?";
+        String message = "";
+        TestDataCreationStatus status = testDataService.tryToCreateTestData(createTestDataRequest.getUsername());
 
-        if (testDataService.tryToCreateTestData(createTestDataRequest.getUsername())) {
-            message = "Тестовые клиенты были созданы";
+        switch (status) {
+            case ALREADY_CREATED:
+                message = "Тестовые данные уже были созданы ранее.";
+                break;
+            case CREATED_NOW:
+                message = "Тестовые данные были созданы";
+                break;
+            case LIMIT_NOT_REACHED:
+                message = "Вы точно хотите создать тестовые данные?";
+                break;
+            case ERROR:
+                message = "Ошибка при создании тестовых данных";
+                break;
         }
 
         return CreateTestDataResponse.builder()

@@ -7,7 +7,7 @@ import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
 import ru.nesterov.calendar.integration.dto.EventStatus;
 import ru.nesterov.calendar.integration.google.GoogleCalendarService;
-import ru.nesterov.core.entity.Event;
+import ru.nesterov.core.entity.TestDataCreationStatus;
 import ru.nesterov.core.service.client.ClientService;
 import ru.nesterov.core.service.dto.ClientDto;
 import ru.nesterov.core.service.dto.UserDto;
@@ -16,7 +16,6 @@ import ru.nesterov.core.service.user.UserService;
 import java.util.Date;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
-import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicReference;
 
 @ConditionalOnProperty(name = "app.test.data.enabled", havingValue = "true")
@@ -48,8 +47,13 @@ public class TestDataService {
         }
     }
 
-    public boolean tryToCreateTestData(String username) {
-        AtomicBoolean success = new AtomicBoolean(false);
+    public TestDataCreationStatus tryToCreateTestData(String username) {
+        AtomicReference<TestDataCreationStatus> status = new AtomicReference<>(TestDataCreationStatus.LIMIT_NOT_REACHED);
+
+        if(requestCounterMap.getOrDefault(username, (byte) 0) == 3) {
+            status.set(TestDataCreationStatus.ALREADY_CREATED);
+            return status.get();
+        }
 
         requestCounterMap.merge(username, START_COUNT, (oldValue, newValue) -> {
             newValue = 1;
@@ -58,20 +62,16 @@ public class TestDataService {
             if (result >= MAX_COUNT) {
                 try { //TODO на подумать. надо защититься и всегда (даже если будет ошибка вернуть null
                     createTestData(username);
-                    success.set(true);
+                    status.set(TestDataCreationStatus.CREATED_NOW);
                 } catch (Exception e) {
-                    success.set(false);
-                } finally {
-                    result = 0;
-//                    return null;
+                    status.set(TestDataCreationStatus.ERROR);
                 }
-
             }
 
             return result;
         });
 
-        return success.get();
+        return status.get();
     }
 
     private void createTestData(String username) {
@@ -121,7 +121,7 @@ public class TestDataService {
         googleCalendarService.createEvent(userDto.getMainCalendar(), testClientAnton.getName(), testClientAnton.getDescription(), "2026-08-03T09:00:00.000Z", "2026-08-03T10:00:00.000Z", EventStatus.PLANNED);
         googleCalendarService.createEvent(userDto.getMainCalendar(), testClientAnton.getName(), testClientAnton.getDescription(), "2026-08-04T09:00:00.000Z", "2026-08-04T10:00:00.000Z", EventStatus.PLANNED);
         googleCalendarService.createEvent(userDto.getMainCalendar(), testClientAnton.getName(), testClientAnton.getDescription(), "2026-08-05T09:00:00.000Z", "2026-08-05T10:00:00.000Z", EventStatus.PLANNED);
-        googleCalendarService.createEvent(userDto.getMainCalendar(), testClientAnton.getName(), testClientAnton.getDescription(), "2026-08-06T09:00:00.000Z", "2026-08-06T10:00:00.000Z",EventStatus.SUCCESS);
+        googleCalendarService.createEvent(userDto.getMainCalendar(), testClientAnton.getName(), testClientAnton.getDescription(), "2026-08-06T09:00:00.000Z", "2026-08-06T10:00:00.000Z", EventStatus.SUCCESS);
         googleCalendarService.createEvent(userDto.getMainCalendar(), testClientAnton.getName(), testClientAnton.getDescription(), "2026-08-07T09:00:00.000Z", "2026-08-07T10:00:00.000Z", EventStatus.PLANNED_CANCELLED);
         googleCalendarService.createEvent(userDto.getMainCalendar(), testClientAnton.getName(), testClientAnton.getDescription(), "2026-08-08T09:00:00.000Z", "2026-08-08T10:00:00.000Z", EventStatus.UNPLANNED_CANCELLED);
         googleCalendarService.createEvent(userDto.getMainCalendar(), testClientAnton.getName(), testClientAnton.getDescription(), "2026-08-09T09:00:00.000Z", "2026-08-09T10:00:00.000Z", EventStatus.REQUIRES_SHIFT);
