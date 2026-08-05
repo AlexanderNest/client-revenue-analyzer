@@ -5,20 +5,21 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
-import ru.nesterov.calendar.integration.google.GoogleCalendarClient;
+import ru.nesterov.calendar.integration.dto.EventStatus;
 import ru.nesterov.calendar.integration.google.GoogleCalendarService;
+import ru.nesterov.core.entity.Event;
 import ru.nesterov.core.service.client.ClientService;
 import ru.nesterov.core.service.dto.ClientDto;
 import ru.nesterov.core.service.dto.UserDto;
 import ru.nesterov.core.service.user.UserService;
 
-import java.io.IOException;
 import java.util.Date;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.atomic.AtomicBoolean;
+import java.util.concurrent.atomic.AtomicReference;
 
-@ConditionalOnProperty(name = "test.data.enabled", havingValue = "true")
+@ConditionalOnProperty(name = "app.test.data.enabled", havingValue = "true")
 @Service
 @Slf4j
 @RequiredArgsConstructor
@@ -56,7 +57,7 @@ public class TestDataService {
 
             if (result >= MAX_COUNT) {
                 try { //TODO на подумать. надо защититься и всегда (даже если будет ошибка вернуть null
-                    createTestData(username);//TODO execute
+                    createTestData(username);
                     success.set(true);
                 } catch (Exception e) {
                     success.set(false);
@@ -101,14 +102,65 @@ public class TestDataService {
                 .phone("89656061512")
                 .build();
 
-        UserDto userDto = userService.getUserByUsername(username);
+        ClientDto testClientArtem = ClientDto.builder()
+                .name("Артём")
+                .pricePerHour(3000)
+                .description("Описание клиента Артём")
+                .active(false)
+                .startDate(new Date())
+                .phone("89936061512")
+                .build();
 
-        googleCalendarService.createEvent(testClientAnton.getName(), testClientAnton.getDescription(), "2026-08-02T17:00:00.000Z", "2026-08-02T18:00:00.000Z");
-        googleCalendarService.createEvent(testClientPavel.getName(), testClientPavel.getDescription(), "2026-08-02T19:00:00.000Z", "2026-08-02T20:00:00.000Z");
-        googleCalendarService.createEvent(testClientVasiliy.getName(), testClientVasiliy.getDescription(), "2026-08-02T10:00:00.000Z", "2026-08-02T11:00:00.000Z");
+        UserDto userDto = userService.getUserByUsername(username);
 
         clientService.createClient(userDto, testClientVasiliy, false);
         clientService.createClient(userDto, testClientAnton, false);
         clientService.createClient(userDto, testClientPavel, false);
+        clientService.createClient(userDto, testClientArtem, false);
+
+        googleCalendarService.createEvent(userDto.getMainCalendar(), testClientAnton.getName(), testClientAnton.getDescription(), "2026-08-03T09:00:00.000Z", "2026-08-03T10:00:00.000Z", EventStatus.PLANNED);
+        googleCalendarService.createEvent(userDto.getMainCalendar(), testClientAnton.getName(), testClientAnton.getDescription(), "2026-08-04T09:00:00.000Z", "2026-08-04T10:00:00.000Z", EventStatus.PLANNED);
+        googleCalendarService.createEvent(userDto.getMainCalendar(), testClientAnton.getName(), testClientAnton.getDescription(), "2026-08-05T09:00:00.000Z", "2026-08-05T10:00:00.000Z", EventStatus.PLANNED);
+        googleCalendarService.createEvent(userDto.getMainCalendar(), testClientAnton.getName(), testClientAnton.getDescription(), "2026-08-06T09:00:00.000Z", "2026-08-06T10:00:00.000Z",EventStatus.SUCCESS);
+        googleCalendarService.createEvent(userDto.getMainCalendar(), testClientAnton.getName(), testClientAnton.getDescription(), "2026-08-07T09:00:00.000Z", "2026-08-07T10:00:00.000Z", EventStatus.PLANNED_CANCELLED);
+        googleCalendarService.createEvent(userDto.getMainCalendar(), testClientAnton.getName(), testClientAnton.getDescription(), "2026-08-08T09:00:00.000Z", "2026-08-08T10:00:00.000Z", EventStatus.UNPLANNED_CANCELLED);
+        googleCalendarService.createEvent(userDto.getMainCalendar(), testClientAnton.getName(), testClientAnton.getDescription(), "2026-08-09T09:00:00.000Z", "2026-08-09T10:00:00.000Z", EventStatus.REQUIRES_SHIFT);
+
+        googleCalendarService.createEvent(userDto.getMainCalendar(), testClientVasiliy.getName(), testClientVasiliy.getDescription(), "2026-08-03T10:00:00.000Z", "2026-08-03T11:00:00.000Z", EventStatus.PLANNED);
+        googleCalendarService.createEvent(userDto.getMainCalendar(), testClientVasiliy.getName(), testClientVasiliy.getDescription(), "2026-08-04T10:00:00.000Z", "2026-08-04T11:00:00.000Z", EventStatus.PLANNED);
+        googleCalendarService.createEvent(userDto.getMainCalendar(), testClientVasiliy.getName(), testClientVasiliy.getDescription(), "2026-08-05T10:00:00.000Z", "2026-08-05T11:00:00.000Z", EventStatus.PLANNED);
+        googleCalendarService.createEvent(userDto.getMainCalendar(), testClientVasiliy.getName(), testClientVasiliy.getDescription(), "2026-08-06T10:00:00.000Z", "2026-08-06T11:00:00.000Z", EventStatus.PLANNED);
+        googleCalendarService.createEvent(userDto.getMainCalendar(), testClientVasiliy.getName(), testClientVasiliy.getDescription(), "2026-08-07T10:00:00.000Z", "2026-08-07T11:00:00.000Z", EventStatus.PLANNED);
+        googleCalendarService.createEvent(userDto.getMainCalendar(), testClientVasiliy.getName(), testClientVasiliy.getDescription(), "2026-08-08T10:00:00.000Z", "2026-08-08T11:00:00.000Z", EventStatus.PLANNED);
+        googleCalendarService.createEvent(userDto.getMainCalendar(), testClientVasiliy.getName(), testClientVasiliy.getDescription(), "2026-08-09T10:00:00.000Z", "2026-08-09T11:00:00.000Z", EventStatus.PLANNED);
+
+        googleCalendarService.createEvent(userDto.getMainCalendar(), testClientArtem.getName(), testClientArtem.getDescription(), "2026-08-03T11:00:00.000Z", "2026-08-03T12:00:00.000Z", EventStatus.SUCCESS);
+        googleCalendarService.createEvent(userDto.getMainCalendar(), testClientArtem.getName(), testClientArtem.getDescription(), "2026-08-04T11:00:00.000Z", "2026-08-04T12:00:00.000Z", EventStatus.SUCCESS);
+        googleCalendarService.createEvent(userDto.getMainCalendar(), testClientArtem.getName(), testClientArtem.getDescription(), "2026-08-05T11:00:00.000Z", "2026-08-05T12:00:00.000Z", EventStatus.SUCCESS);
+        googleCalendarService.createEvent(userDto.getMainCalendar(), testClientArtem.getName(), testClientArtem.getDescription(), "2026-08-06T11:00:00.000Z", "2026-08-06T12:00:00.000Z", EventStatus.SUCCESS);
+        googleCalendarService.createEvent(userDto.getMainCalendar(), testClientArtem.getName(), testClientArtem.getDescription(), "2026-08-07T11:00:00.000Z", "2026-08-07T12:00:00.000Z", EventStatus.SUCCESS);
+        googleCalendarService.createEvent(userDto.getMainCalendar(), testClientArtem.getName(), testClientArtem.getDescription(), "2026-08-08T11:00:00.000Z", "2026-08-08T12:00:00.000Z", EventStatus.SUCCESS);
+        googleCalendarService.createEvent(userDto.getMainCalendar(), testClientArtem.getName(), testClientArtem.getDescription(), "2026-08-09T11:00:00.000Z", "2026-08-09T12:00:00.000Z", EventStatus.SUCCESS);
+
+        googleCalendarService.createEvent(userDto.getMainCalendar(), testClientPavel.getName(), testClientPavel.getDescription(), "2026-08-03T12:00:00.000Z", "2026-08-03T13:00:00.000Z", EventStatus.REQUIRES_SHIFT);
+        googleCalendarService.createEvent(userDto.getMainCalendar(), testClientPavel.getName(), testClientPavel.getDescription(), "2026-08-04T12:00:00.000Z", "2026-08-04T13:00:00.000Z", EventStatus.REQUIRES_SHIFT);
+        googleCalendarService.createEvent(userDto.getMainCalendar(), testClientPavel.getName(), testClientPavel.getDescription(), "2026-08-05T12:00:00.000Z", "2026-08-05T13:00:00.000Z", EventStatus.PLANNED);
+        googleCalendarService.createEvent(userDto.getMainCalendar(), testClientPavel.getName(), testClientPavel.getDescription(), "2026-08-06T12:00:00.000Z", "2026-08-06T13:00:00.000Z", EventStatus.PLANNED_CANCELLED);
+        googleCalendarService.createEvent(userDto.getMainCalendar(), testClientPavel.getName(), testClientPavel.getDescription(), "2026-08-07T12:00:00.000Z", "2026-08-07T13:00:00.000Z", EventStatus.PLANNED);
+        googleCalendarService.createEvent(userDto.getMainCalendar(), testClientPavel.getName(), testClientPavel.getDescription(), "2026-08-08T12:00:00.000Z", "2026-08-08T13:00:00.000Z", EventStatus.SUCCESS);
+        googleCalendarService.createEvent(userDto.getMainCalendar(), testClientPavel.getName(), testClientPavel.getDescription(), "2026-08-09T12:00:00.000Z", "2026-08-09T13:00:00.000Z", EventStatus.REQUIRES_SHIFT);
+
+    }
+
+    public void deleteTestData(String username) {
+//        requestCounterMap.remove(username);
+
+        UserDto userDto = userService.getUserByUsername(username);
+
+        clientService.deleteClient(userDto, "Василий");
+        clientService.deleteClient(userDto, "Антон");
+        clientService.deleteClient(userDto, "Павел");
+        clientService.deleteClient(userDto, "Артём");
+
     }
 }

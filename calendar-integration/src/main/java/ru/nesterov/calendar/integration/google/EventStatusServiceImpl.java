@@ -8,6 +8,7 @@ import ru.nesterov.calendar.integration.exception.UnknownEventColorIdIntegration
 import ru.nesterov.calendar.integration.service.EventStatusService;
 
 import java.util.List;
+import java.util.Random;
 
 @Service
 public class EventStatusServiceImpl implements EventStatusService {
@@ -26,10 +27,10 @@ public class EventStatusServiceImpl implements EventStatusService {
         boolean nullWasUsed = false;
         this.successColorCodes = successColorCodes;
         nullWasUsed = addNullCode(successColorCodes, nullWasUsed);
-        
+
         this.plannedCancelledColorCodes = plannedCancelledColorCodes;
         nullWasUsed = addNullCode(plannedCancelledColorCodes, nullWasUsed);
-        
+
         this.requiresShiftColorCodes = requiresShiftColorCodes;
         nullWasUsed = addNullCode(requiresShiftColorCodes, nullWasUsed);
 
@@ -57,6 +58,24 @@ public class EventStatusServiceImpl implements EventStatusService {
         throw new UnknownEventColorIdIntegrationException(primaryEventData.getColorId(), primaryEventData.getName(), primaryEventData.getEventStart());
     }
 
+    public String getColorId(EventStatus eventStatus) {
+        if (eventStatus == EventStatus.PLANNED) {
+            return plannedColorCodes.getFirst();
+        } else if (eventStatus == EventStatus.SUCCESS) {
+            Random random = new Random();
+            int index = random.nextInt(successColorCodes.size());
+            return successColorCodes.get(index);
+        } else if (eventStatus == EventStatus.REQUIRES_SHIFT) {
+            return requiresShiftColorCodes.getFirst();
+        } else if (eventStatus == EventStatus.PLANNED_CANCELLED) {
+            plannedCancelledColorCodes.getFirst();
+        } else if (eventStatus == EventStatus.UNPLANNED_CANCELLED) {
+            plannedCancelledColorCodes.getFirst();
+        }
+
+        return null; // исправить
+    }
+
     private boolean addNullCode(List<String> codes, boolean nullWasUsed) {
         if (codes.isEmpty()) {
             if (nullWasUsed) {
@@ -65,7 +84,7 @@ public class EventStatusServiceImpl implements EventStatusService {
             codes.add(null);
             return true;
         }
-        
+
         return false;
     }
 }

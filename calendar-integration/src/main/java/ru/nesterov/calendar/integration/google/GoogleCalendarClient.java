@@ -94,7 +94,7 @@ public class GoogleCalendarClient implements CalendarClient {
 
     private Calendar createCalendarService() throws GeneralSecurityException, IOException {
         GoogleCredentials credentials = GoogleCredentials.fromStream(new FileInputStream(properties.getServiceAccountFilePath()))
-                    .createScoped(List.of(CalendarScopes.CALENDAR));
+                .createScoped(List.of(CalendarScopes.CALENDAR));
 
         return new Calendar.Builder(GoogleNetHttpTransport.newTrustedTransport(), GsonFactory.getDefaultInstance(), new HttpCredentialsAdapter(credentials))
                 .setApplicationName(properties.getApplicationName())
@@ -109,28 +109,26 @@ public class GoogleCalendarClient implements CalendarClient {
         return getEventsBetweenDatesInternal(calendarId, calendarType, leftDate, rightDate, clientName);
     }
 
-    public EventDto createEvent(String summary, String description, String startDataTime, String endDataTime) {
-        Event newEvent  = new Event()
+    public EventDto createEvent(String mainCalendarId, String summary, String description, String startDateTime, String endDateTime, EventStatus status) {
+        String colorId = eventStatusService.getColorId(status);
+
+        Event newEvent = new Event()
                 .setSummary(summary)
-                .setDescription(description);
+                .setDescription(description)
+                        .setColorId(colorId);
 
-        DateTime start = new DateTime(startDataTime);
-        EventDateTime startEventDateTime = new EventDateTime().setDateTime(start);
-        newEvent.setStart(startEventDateTime);
-
-        DateTime end = new DateTime(endDataTime);
-        EventDateTime endEventDateTime = new EventDateTime().setDateTime(end);
-        newEvent.setEnd(endEventDateTime);
+        newEvent.setStart(new EventDateTime().setDateTime(new DateTime(startDateTime)));
+        newEvent.setEnd(new EventDateTime().setDateTime(new DateTime(endDateTime)));
 
         Event createdEvent;
 
         try {
-            createdEvent = calendar.events().insert("lenya.vel@mail.ru", newEvent).execute();
+            createdEvent = calendar.events().insert(mainCalendarId, newEvent).execute();
         } catch (IOException e) {
             throw new RuntimeException(e);
         }
 
-        EventDto eventDto = buildEvent(createdEvent, null);
+        EventDto eventDto = buildEvent(createdEvent, CalendarType.MAIN);
 
         return eventDto;
     }
@@ -215,7 +213,8 @@ public class GoogleCalendarClient implements CalendarClient {
                     .eventStart(event.getStart().getDateTime())
                     .build();
 
-            eventStatus = eventStatusService.getEventStatus(primaryEventData);
+                eventStatus = eventStatusService.getEventStatus(primaryEventData);
+
         }
 
         try {
@@ -231,9 +230,9 @@ public class GoogleCalendarClient implements CalendarClient {
         }
     }
 
-    private LocalDateTime getLocalDateTime (EventDateTime eventDateTime) {
+    private LocalDateTime getLocalDateTime(EventDateTime eventDateTime) {
         DateTime date;
-        if(eventDateTime.getDateTime() != null) {
+        if (eventDateTime.getDateTime() != null) {
             date = eventDateTime.getDateTime();  // событие со временем и датой
         } else {
             date = eventDateTime.getDate(); // событие с датой на весь день

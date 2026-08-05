@@ -5,4 +5,5 @@ import ru.nesterov.calendar.integration.dto.PrimaryEventData;
 
 public interface EventStatusService {
     EventStatus getEventStatus(PrimaryEventData primaryEventData);
+    String getColorId(EventStatus eventStatus);
 }
