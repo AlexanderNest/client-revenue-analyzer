@@ -19,26 +19,18 @@ public class TestDataControllerImpl implements TestDataController {
 
     @Override
     public CreateTestDataResponse createTestData(@RequestBody CreateTestDataRequest createTestDataRequest) {
-        String message = "";
         TestDataCreationStatus status = testDataService.tryToCreateTestData(createTestDataRequest.getUsername());
 
-        switch (status) {
-            case ALREADY_CREATED:
-                message = "Тестовые данные уже были созданы ранее.";
-                break;
-            case CREATED_NOW:
-                message = "Тестовые данные были созданы";
-                break;
-            case LIMIT_NOT_REACHED:
-                message = "Вы точно хотите создать тестовые данные?";
-                break;
-            case ERROR:
-                message = "Ошибка при создании тестовых данных";
-                break;
-        }
+        String message = switch (status) {
+            case ALREADY_CREATED -> "Тестовые данные уже были созданы ранее.";
+            case CREATED_NOW -> "Тестовые данные были созданы";
+            case LIMIT_NOT_REACHED -> "Вы точно хотите создать тестовые данные?";
+            case ERROR -> "Ошибка при создании тестовых данных";
+        };
 
         return CreateTestDataResponse.builder()
-                .message(message).build();
+                .message(message)
+                .build();
     }
 
     @Override

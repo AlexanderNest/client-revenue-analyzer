@@ -109,28 +109,20 @@ public class GoogleCalendarClient implements CalendarClient {
         return getEventsBetweenDatesInternal(calendarId, calendarType, leftDate, rightDate, clientName);
     }
 
-    public EventDto createEvent(String mainCalendarId, String summary, String description, String startDateTime, String endDateTime, EventStatus status) {
+    @SneakyThrows
+    public EventDto createEvent(String calendarId, String summary, String description, String startDateTime, String endDateTime, EventStatus status) {
         String colorId = eventStatusService.getColorId(status);
 
         Event newEvent = new Event()
                 .setSummary(summary)
                 .setDescription(description)
-                        .setColorId(colorId);
+                .setColorId(colorId)
+                .setStart(new EventDateTime().setDateTime(new DateTime(startDateTime)))
+                .setEnd(new EventDateTime().setDateTime(new DateTime(endDateTime)));
 
-        newEvent.setStart(new EventDateTime().setDateTime(new DateTime(startDateTime)));
-        newEvent.setEnd(new EventDateTime().setDateTime(new DateTime(endDateTime)));
+        Event createdEvent = calendar.events().insert(calendarId, newEvent).execute();
 
-        Event createdEvent;
-
-        try {
-            createdEvent = calendar.events().insert(mainCalendarId, newEvent).execute();
-        } catch (IOException e) {
-            throw new RuntimeException(e);
-        }
-
-        EventDto eventDto = buildEvent(createdEvent, CalendarType.MAIN);
-
-        return eventDto;
+        return buildEvent(createdEvent, CalendarType.MAIN);
     }
 
     private List<EventDto> getEventsBetweenDatesInternal(String calendarId, CalendarType calendarType, LocalDateTime leftDate, LocalDateTime rightDate, String eventName) {
@@ -213,8 +205,7 @@ public class GoogleCalendarClient implements CalendarClient {
                     .eventStart(event.getStart().getDateTime())
                     .build();
 
-                eventStatus = eventStatusService.getEventStatus(primaryEventData);
-
+            eventStatus = eventStatusService.getEventStatus(primaryEventData);
         }
 
         try {

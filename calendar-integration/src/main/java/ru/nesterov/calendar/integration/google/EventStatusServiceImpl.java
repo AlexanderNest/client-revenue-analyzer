@@ -8,7 +8,6 @@ import ru.nesterov.calendar.integration.exception.UnknownEventColorIdIntegration
 import ru.nesterov.calendar.integration.service.EventStatusService;
 
 import java.util.List;
-import java.util.Random;
 
 @Service
 public class EventStatusServiceImpl implements EventStatusService {
@@ -59,21 +58,24 @@ public class EventStatusServiceImpl implements EventStatusService {
     }
 
     public String getColorId(EventStatus eventStatus) {
+
+        List<String> colorList;
+
         if (eventStatus == EventStatus.PLANNED) {
-            return plannedColorCodes.getFirst();
+            colorList = plannedColorCodes;
         } else if (eventStatus == EventStatus.SUCCESS) {
-            Random random = new Random();
-            int index = random.nextInt(successColorCodes.size());
-            return successColorCodes.get(index);
+            colorList = successColorCodes;
         } else if (eventStatus == EventStatus.REQUIRES_SHIFT) {
-            return requiresShiftColorCodes.getFirst();
+            colorList = requiresShiftColorCodes;
         } else if (eventStatus == EventStatus.PLANNED_CANCELLED) {
-            plannedCancelledColorCodes.getFirst();
+            colorList = plannedCancelledColorCodes;
         } else if (eventStatus == EventStatus.UNPLANNED_CANCELLED) {
-            plannedCancelledColorCodes.getFirst();
+            colorList = plannedCancelledColorCodes;
+        } else {
+            throw new IllegalArgumentException("Неизвестный статус");
         }
 
-        return null; // исправить
+        return colorList.getFirst();
     }
 
     private boolean addNullCode(List<String> codes, boolean nullWasUsed) {

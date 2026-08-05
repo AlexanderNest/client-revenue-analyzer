@@ -47,7 +47,7 @@ public class TestDataService {
         }
     }
 
-    public TestDataCreationStatus tryToCreateTestData(String username) {
+    public TestDataCreationStatus tryToCreateTestData(String username) { //TODO пересмотреть решение
         AtomicReference<TestDataCreationStatus> status = new AtomicReference<>(TestDataCreationStatus.LIMIT_NOT_REACHED);
 
         if(requestCounterMap.getOrDefault(username, (byte) 0) == 3) {
