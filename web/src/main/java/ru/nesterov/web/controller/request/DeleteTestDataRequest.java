@@ -1,12 +1,11 @@
 package ru.nesterov.web.controller.request;
 
-import lombok.Builder;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
+import ru.nesterov.web.controller.request.user.RequestWithUsername;
 
 @EqualsAndHashCode(callSuper = true)
-@Builder
 @Data
-public class DeleteTestDataRequest extends CreateTestDataRequest {
+public class DeleteTestDataRequest extends RequestWithUsername {
 
 }

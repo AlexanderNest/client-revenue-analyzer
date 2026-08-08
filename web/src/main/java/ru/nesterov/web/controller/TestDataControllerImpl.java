@@ -8,8 +8,7 @@ import ru.nesterov.core.service.testdata.TestDataService;
 import ru.nesterov.core.entity.TestDataCreationStatus;
 import ru.nesterov.web.controller.request.CreateTestDataRequest;
 import ru.nesterov.web.controller.request.DeleteTestDataRequest;
-import ru.nesterov.web.controller.response.CreateTestDataResponse;
-import ru.nesterov.web.controller.response.DeleteTestDataResponse;
+import ru.nesterov.web.controller.response.ResponseWithMessage;
 
 @ConditionalOnProperty(name = "app.test.data.enabled", havingValue = "true")
 @RestController
@@ -18,7 +17,7 @@ public class TestDataControllerImpl implements TestDataController {
     private final TestDataService testDataService;
 
     @Override
-    public CreateTestDataResponse createTestData(@RequestBody CreateTestDataRequest createTestDataRequest) {
+    public ResponseWithMessage createTestData(@RequestBody CreateTestDataRequest createTestDataRequest) {
         TestDataCreationStatus status = testDataService.tryToCreateTestData(createTestDataRequest.getUsername());
 
         String message = switch (status) {
@@ -28,17 +27,18 @@ public class TestDataControllerImpl implements TestDataController {
             case ERROR -> "Ошибка при создании тестовых данных";
         };
 
-        return CreateTestDataResponse.builder()
-                .message(message)
-                .build();
+        ResponseWithMessage responseWithMessage = new ResponseWithMessage();
+        responseWithMessage.setMessage(message);
+        return responseWithMessage;
     }
 
     @Override
-    public DeleteTestDataResponse deleteTestData(DeleteTestDataRequest deleteTestDataRequest) {
+    public ResponseWithMessage deleteTestData(DeleteTestDataRequest deleteTestDataRequest) {
         testDataService.deleteTestData(deleteTestDataRequest.getUsername());
 
-        return DeleteTestDataResponse.builder()
-                .message("Тестовые данные удалены").build();
+        ResponseWithMessage responseWithMessage = new ResponseWithMessage();
+        responseWithMessage.setMessage("Тестовые данные удалены");
+        return responseWithMessage;
     }
 
 }

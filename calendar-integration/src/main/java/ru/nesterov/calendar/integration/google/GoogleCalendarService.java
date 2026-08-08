@@ -5,9 +5,11 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.stereotype.Component;
 import ru.nesterov.calendar.integration.dto.CalendarType;
+import ru.nesterov.calendar.integration.dto.CreateEventDto;
 import ru.nesterov.calendar.integration.dto.EventDto;
 import ru.nesterov.calendar.integration.dto.EventStatus;
 import ru.nesterov.calendar.integration.dto.EventsFilter;
+import ru.nesterov.calendar.integration.dto.ResponseCreateEventDto;
 import ru.nesterov.calendar.integration.service.CalendarService;
 
 import java.time.LocalDateTime;
@@ -44,8 +46,13 @@ public class GoogleCalendarService implements CalendarService {
     }
 
     @Override
-    public EventDto createEvent(String mainCalendarId, String summary, String description, String startDataTime, String endDataTime, EventStatus status) {
-        return googleCalendarClient.createEvent(mainCalendarId, summary, description, startDataTime, endDataTime, status);
+    public ResponseCreateEventDto createEvent(String calendarId, String summary, String description, String startDataTime, String endDataTime, EventStatus status) {
+        return googleCalendarClient.createEvent(calendarId, summary, description, startDataTime, endDataTime, status);
+    }
+
+    @Override
+    public List<ResponseCreateEventDto> batchCreateEvents(String calendarId, List<CreateEventDto> createEventDtoList) {
+        return googleCalendarClient.batchCreateEvent(calendarId, createEventDtoList);
     }
 
     private List<EventDto> mergeEvents(List<EventDto> eventsFromMainCalendar, List<EventDto> eventsFromCancelledCalendar) {

@@ -2,7 +2,7 @@ package ru.nesterov.web.mapper;
 
 import ru.nesterov.core.service.dto.BusynessAnalysisResult;
 import ru.nesterov.core.service.dto.UserDto;
-import ru.nesterov.web.controller.request.CreateUserRequest;
+import ru.nesterov.web.controller.request.user.CreateUserRequest;
 import ru.nesterov.web.controller.response.CreateUserResponse;
 import ru.nesterov.web.controller.response.GetUserIdsResponse;
 import ru.nesterov.web.controller.response.GetUserResponse;

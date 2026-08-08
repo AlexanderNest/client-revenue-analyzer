@@ -1,7 +1,11 @@
 package ru.nesterov.calendar.integration.google;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.google.api.client.googleapis.batch.BatchRequest;
+import com.google.api.client.googleapis.batch.json.JsonBatchCallback;
 import com.google.api.client.googleapis.javanet.GoogleNetHttpTransport;
+import com.google.api.client.googleapis.json.GoogleJsonError;
+import com.google.api.client.http.HttpHeaders;
 import com.google.api.client.json.gson.GsonFactory;
 import com.google.api.client.util.DateTime;
 import com.google.api.services.calendar.Calendar;
@@ -16,10 +20,12 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.stereotype.Component;
 import ru.nesterov.calendar.integration.dto.CalendarType;
+import ru.nesterov.calendar.integration.dto.CreateEventDto;
 import ru.nesterov.calendar.integration.dto.EventDto;
 import ru.nesterov.calendar.integration.dto.EventExtensionDto;
 import ru.nesterov.calendar.integration.dto.EventStatus;
 import ru.nesterov.calendar.integration.dto.PrimaryEventData;
+import ru.nesterov.calendar.integration.dto.ResponseCreateEventDto;
 import ru.nesterov.calendar.integration.exception.CannotBuildEventIntegrationException;
 import ru.nesterov.calendar.integration.service.CalendarClient;
 import ru.nesterov.calendar.integration.service.EventStatusService;
@@ -110,7 +116,7 @@ public class GoogleCalendarClient implements CalendarClient {
     }
 
     @SneakyThrows
-    public EventDto createEvent(String calendarId, String summary, String description, String startDateTime, String endDateTime, EventStatus status) {
+    public ResponseCreateEventDto createEvent(String calendarId, String summary, String description, String startDateTime, String endDateTime, EventStatus status) {
         String colorId = eventStatusService.getColorId(status);
 
         Event newEvent = new Event()
@@ -122,7 +128,47 @@ public class GoogleCalendarClient implements CalendarClient {
 
         Event createdEvent = calendar.events().insert(calendarId, newEvent).execute();
 
-        return buildEvent(createdEvent, CalendarType.MAIN);
+        return ResponseCreateEventDto.builder()
+                .eventId(createdEvent.getId())
+                .build();
+    }
+
+    @SneakyThrows
+    @Override
+    public List<ResponseCreateEventDto> batchCreateEvent(String calendarId, List<CreateEventDto> createEventDtoList) {
+        BatchRequest batchRequest = calendar.batch();
+
+        List<ResponseCreateEventDto> responseList = new ArrayList<>();
+
+        for (CreateEventDto event : createEventDtoList) {
+        JsonBatchCallback<Event> callback = new JsonBatchCallback<>() {
+            @Override
+            public void onFailure(GoogleJsonError e, HttpHeaders responseHeaders) throws IOException {
+
+            }
+
+            @Override
+            public void onSuccess(Event event, HttpHeaders responseHeaders) throws IOException {
+                responseList.add(ResponseCreateEventDto.builder()
+                        .eventId(event.getId())
+                        .build());
+            }
+        };
+
+            String colorId = eventStatusService.getColorId(event.getStatus());
+
+            Event newEvent = new Event()
+                    .setSummary(event.getSummary())
+                    .setDescription(event.getDescription())
+                    .setColorId(colorId)
+                    .setStart(new EventDateTime().setDateTime(new DateTime(event.getStart())))
+                    .setEnd(new EventDateTime().setDateTime(new DateTime(event.getEnd())));
+
+            calendar.events().insert(calendarId, newEvent).queue(batchRequest, callback);
+        }
+
+        batchRequest.execute();
+        return responseList;
     }
 
     private List<EventDto> getEventsBetweenDatesInternal(String calendarId, CalendarType calendarType, LocalDateTime leftDate, LocalDateTime rightDate, String eventName) {

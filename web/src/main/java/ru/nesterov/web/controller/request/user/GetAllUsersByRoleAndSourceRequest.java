@@ -1,4 +1,4 @@
-package ru.nesterov.web.controller.request;
+package ru.nesterov.web.controller.request.user;
 
 import lombok.Data;
 import ru.nesterov.core.entity.Role;

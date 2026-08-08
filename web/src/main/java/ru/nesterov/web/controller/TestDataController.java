@@ -4,16 +4,15 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import ru.nesterov.web.controller.request.CreateTestDataRequest;
 import ru.nesterov.web.controller.request.DeleteTestDataRequest;
-import ru.nesterov.web.controller.response.CreateTestDataResponse;
-import ru.nesterov.web.controller.response.DeleteTestDataResponse;
+import ru.nesterov.web.controller.response.ResponseWithMessage;
 
 
 @RequestMapping("/test")
 public interface TestDataController {
 
     @PostMapping("/createTestData")
-    CreateTestDataResponse createTestData(CreateTestDataRequest createTestDataRequest);
+    ResponseWithMessage createTestData(CreateTestDataRequest createTestDataRequest);
 
     @DeleteMapping("/deleteTestData")
-    DeleteTestDataResponse deleteTestData(DeleteTestDataRequest deleteTestDataRequest);
+    ResponseWithMessage deleteTestData(DeleteTestDataRequest deleteTestDataRequest);
 }
