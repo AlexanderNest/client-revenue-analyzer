@@ -2,12 +2,10 @@ package ru.nesterov.web.controller;
 
 import lombok.RequiredArgsConstructor;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
-import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestHeader;
 import org.springframework.web.bind.annotation.RestController;
 import ru.nesterov.core.service.testdata.TestDataService;
 import ru.nesterov.core.entity.TestDataCreationStatus;
-import ru.nesterov.web.controller.request.CreateTestDataRequest;
-import ru.nesterov.web.controller.request.DeleteTestDataRequest;
 import ru.nesterov.web.controller.response.ResponseWithMessage;
 
 @ConditionalOnProperty(name = "app.test.data.enabled", havingValue = "true")
@@ -17,8 +15,8 @@ public class TestDataControllerImpl implements TestDataController {
     private final TestDataService testDataService;
 
     @Override
-    public ResponseWithMessage createTestData(@RequestBody CreateTestDataRequest createTestDataRequest) {
-        TestDataCreationStatus status = testDataService.tryToCreateTestData(createTestDataRequest.getUsername());
+    public ResponseWithMessage createTestData(@RequestHeader(name = "X-username") String username) {
+        TestDataCreationStatus status = testDataService.tryToCreateTestData(username);
 
         String message = switch (status) {
             case ALREADY_CREATED -> "Тестовые данные уже были созданы ранее.";
@@ -33,12 +31,11 @@ public class TestDataControllerImpl implements TestDataController {
     }
 
     @Override
-    public ResponseWithMessage deleteTestData(DeleteTestDataRequest deleteTestDataRequest) {
-        testDataService.deleteTestData(deleteTestDataRequest.getUsername());
+    public ResponseWithMessage deleteTestData(@RequestHeader("X-username") String username) {
+        testDataService.deleteTestData(username);
 
         ResponseWithMessage responseWithMessage = new ResponseWithMessage();
         responseWithMessage.setMessage("Тестовые данные удалены");
         return responseWithMessage;
     }
-
 }
