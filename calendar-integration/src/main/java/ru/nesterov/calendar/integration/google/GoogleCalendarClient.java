@@ -139,21 +139,25 @@ public class GoogleCalendarClient implements CalendarClient {
         BatchRequest batchRequest = calendar.batch();
 
         List<ResponseCreateEventDto> responseList = new ArrayList<>();
+        List<String> createdEventsId = new ArrayList<>();
+        List<Throwable> errors = new ArrayList<>();
 
         for (CreateEventDto event : createEventDtoList) {
-        JsonBatchCallback<Event> callback = new JsonBatchCallback<>() {
-            @Override
-            public void onFailure(GoogleJsonError e, HttpHeaders responseHeaders) throws IOException {
+            JsonBatchCallback<Event> callback = new JsonBatchCallback<>() {
+                @Override
+                public void onFailure(GoogleJsonError e, HttpHeaders responseHeaders) throws IOException {
+                    errors.add(new RuntimeException("Ошибка при создании " + e.getMessage()));//TODO если есть неуспешные, то наверное надо откатывать
+                }
 
-            }
-
-            @Override
-            public void onSuccess(Event event, HttpHeaders responseHeaders) throws IOException {
-                responseList.add(ResponseCreateEventDto.builder()
-                        .eventId(event.getId())
-                        .build());
-            }
-        };
+                @Override
+                public void onSuccess(Event event, HttpHeaders responseHeaders) throws IOException {
+                    createdEventsId.add(event.getId());
+                    responseList.add(ResponseCreateEventDto.builder()
+                            .eventId(event.getId())
+                            .summary(event.getSummary())
+                            .build());
+                }
+            };
 
             String colorId = eventStatusService.getColorId(event.getStatus());
 
@@ -168,7 +172,40 @@ public class GoogleCalendarClient implements CalendarClient {
         }
 
         batchRequest.execute();
+
+        if(!errors.isEmpty()) {
+            if(!createdEventsId.isEmpty()) {
+                try {
+                    batchDeleteEvents(calendarId, createdEventsId);
+                    log.info("Удалены все созданные события из-за ошибок при попытке создать event");
+                } catch (Exception e) {
+                    log.info("Не найдены созданные события для удаления");
+                }
+            }
+            throw new RuntimeException("Создание событий завершилось с ошибкой ");
+        }
+
         return responseList;
+    }
+
+    @SneakyThrows
+    public void batchDeleteEvents(String calendarId, List<String> eventIdList) {
+        BatchRequest batchRequest = calendar.batch();
+
+        for (String eventId : eventIdList) {
+            calendar.events().delete(calendarId, eventId).queue(batchRequest, new JsonBatchCallback<Void>() {
+                @Override
+                public void onFailure(GoogleJsonError e, HttpHeaders responseHeaders) throws IOException {
+                    log.debug("Не удалось удалить событие {}: {}", eventId, e.getMessage());
+                }
+
+                @Override
+                public void onSuccess(Void unused, HttpHeaders responseHeaders) throws IOException {
+                    log.debug("Удалено событие {}", eventId);
+                }
+            });
+        }
+        batchRequest.execute();
     }
 
     private List<EventDto> getEventsBetweenDatesInternal(String calendarId, CalendarType calendarType, LocalDateTime leftDate, LocalDateTime rightDate, String eventName) {

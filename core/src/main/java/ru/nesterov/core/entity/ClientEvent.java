@@ -5,20 +5,18 @@ import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
-import jakarta.persistence.SequenceGenerator;
 import jakarta.persistence.Table;
 import lombok.Data;
 
 @Entity
 @Data
 @Table(name = "client_events")
-public class ClientEventEntity {
+public class ClientEvent {
     @Id
-    @GeneratedValue(strategy = GenerationType.SEQUENCE, generator = "client_events_seq")
-    @SequenceGenerator(name = "client_events_seq", sequenceName = "client_events_seq", allocationSize = 1)
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
-    @Column(name = "client_id")
+    @Column(name = "client_Id")
     private Long clientId;
-    @Column(name = "event_id")
+    @Column(name = "event_Id")
     private String eventId;
 }

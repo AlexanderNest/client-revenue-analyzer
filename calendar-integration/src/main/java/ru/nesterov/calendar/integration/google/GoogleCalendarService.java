@@ -55,6 +55,11 @@ public class GoogleCalendarService implements CalendarService {
         return googleCalendarClient.batchCreateEvent(calendarId, createEventDtoList);
     }
 
+    @Override
+    public void batchDeleteEvent(String calendarId, List<String> eventId) {
+        googleCalendarClient.batchDeleteEvents(calendarId, eventId);
+    }
+
     private List<EventDto> mergeEvents(List<EventDto> eventsFromMainCalendar, List<EventDto> eventsFromCancelledCalendar) {
         List<EventDto> eventDtos = new ArrayList<>(eventsFromMainCalendar);
         eventDtos.addAll(eventsFromCancelledCalendar);

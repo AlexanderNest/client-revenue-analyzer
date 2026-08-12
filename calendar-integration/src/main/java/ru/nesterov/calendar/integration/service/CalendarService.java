@@ -18,4 +18,6 @@ public interface CalendarService {
 
     List<ResponseCreateEventDto> batchCreateEvents(String calendarId, List<CreateEventDto> createEventDtoList);
 
+    void batchDeleteEvent(String calendarId, List<String> eventIdList);
+
 }

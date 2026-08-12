@@ -126,6 +126,11 @@ public class ClientServiceImpl implements ClientService {
         clientRepository.delete(client);
     }
 
+    @Transactional
+    public void deleteAllClientsByUserId(UserDto userDto) {
+        clientRepository.deleteAllClientsByUserId(userDto.getId());
+    }
+
     @Override
     @Transactional
     public ClientDto updateClient(UserDto userDto, UpdateClientDto updateClientDto) {
@@ -135,19 +140,19 @@ public class ClientServiceImpl implements ClientService {
             throw new ClientNotFoundException(updateClientDto.getOldClientName());
         }
 
-        if (updateClientDto.getNewName() != null){
+        if (updateClientDto.getNewName() != null) {
             clientForUpdate.setName(updateClientDto.getNewName());
         }
 
-        if (updateClientDto.getDescription() != null){
+        if (updateClientDto.getDescription() != null) {
             clientForUpdate.setDescription(updateClientDto.getDescription());
         }
 
-        if (updateClientDto.getPhone() != null){
+        if (updateClientDto.getPhone() != null) {
             clientForUpdate.setPhone(updateClientDto.getPhone());
         }
 
-        if (updateClientDto.getPricePerHour() != null){
+        if (updateClientDto.getPricePerHour() != null) {
             savePriceToHistory(clientForUpdate, updateClientDto.getPricePerHour());
         }
 

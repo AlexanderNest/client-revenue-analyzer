@@ -12,7 +12,6 @@ import ru.nesterov.calendar.integration.dto.ResponseCreateEventDto;
 import ru.nesterov.calendar.integration.service.CalendarService;
 import ru.nesterov.core.entity.TestDataCreationStatus;
 import ru.nesterov.core.service.ClientEventService;
-import ru.nesterov.core.service.client.ClientBatchService;
 import ru.nesterov.core.service.client.ClientService;
 import ru.nesterov.core.service.dto.ClientDto;
 import ru.nesterov.calendar.integration.dto.ClientEventDto;
@@ -29,10 +28,10 @@ import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 import java.util.Random;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ThreadLocalRandom;
-import java.util.stream.Collectors;
 
 @ConditionalOnProperty(name = "app.test.data.enabled", havingValue = "true")
 @Service
@@ -40,11 +39,10 @@ import java.util.stream.Collectors;
 @RequiredArgsConstructor
 public class TestDataService {
     private final CalendarService calendarService;
-    private final ClientService clientService;
     private final UserService userService;
     private final ClientEventService clientEventService;
+    private final ClientService clientService;
     private final static byte MAX_COUNT = 2;
-    private final ClientBatchService clientBatchService;
     @Value("${app.test.data.client.limit}")
     private int clientLimit;
 
@@ -72,6 +70,10 @@ public class TestDataService {
 
         TestDataCreationStatus status = TestDataCreationStatus.LIMIT_NOT_REACHED;
 
+        if (status == TestDataCreationStatus.CREATED_NOW) {
+         return TestDataCreationStatus.ALREADY_CREATED;
+        }
+
         if (requestsCount >= MAX_COUNT) {
             try {
                 createTestData(username);
@@ -91,55 +93,55 @@ public class TestDataService {
 
         List<ClientDto> clientDtoList = createRandomClient(userDto, random);
 
-        Map<ClientDto, List<CreateEventDto>> clientEventsMap = createRandomEventForClients(random, userDto, clientDtoList);
+        List<ResponseCreateEventDto> responseCreateEventDtoList = createRandomEventForClients(random, userDto, clientDtoList);
 
-        List<CreateEventDto> createEventDtoList = clientEventsMap.values().stream()
-                .flatMap(List::stream)
-                .collect(Collectors.toList());
+        for (ClientDto client : clientDtoList) {
+            String clientName = client.getName();
+            for (ResponseCreateEventDto eventDto : responseCreateEventDtoList) {
+                if (Objects.equals(clientName, eventDto.getSummary())) {
+                    ClientEventDto clientEventDto = ClientEventDto.builder()
+                            .clientId(client.getId())
+                            .eventId(eventDto.getEventId())
+                            .build();
+                    clientEventService.createRelation(clientEventDto);
+                }
+            }
+        }
 
-        calendarService.batchCreateEvents(userDto.getMainCalendar(), createEventDtoList);
-
-        List<ClientEventDto> clientEventDtoList = new ArrayList<>();
-
-        clientEventService.batchCreateRelation(clientEventDtoList);
     }
 
     public void deleteTestData(String username) {
-//        requestCounterMap.remove(username);
-
         UserDto userDto = userService.getUserByUsername(username);
 
-        clientService.deleteClient(userDto, "Василий");
-        clientService.deleteClient(userDto, "Антон");
-        clientService.deleteClient(userDto, "Павел");
-        clientService.deleteClient(userDto, "Артём");
+        clientService.deleteAllClientsByUserId(userDto);
 
+//        calendarService.batchDeleteEvents(userDto.getMainCalendar(),  );
 
     }
 
     private List<ClientDto> createRandomClient(UserDto userDto, Random random) {
-        List<ClientDto> clientDtoList = new ArrayList<>();
+        List<ClientDto> clientList = new ArrayList<>();
 
         for (int i = 0; i < clientLimit; i++) {
-            clientDtoList.add(ClientDto.builder()
+            ClientDto clientDto = ClientDto.builder()
                     .name("testName" + random.nextInt(1241241241))
                     .pricePerHour(random.nextInt(1000, 100000))
                     .description("testDescription" + random.nextInt(312312412))
                     .active(random.nextBoolean())
                     .startDate(getRandomDateForClient())
                     .phone(getRandomPhoneNumber(random))
-                    .build());
-        }
+                    .build();
 
-        return clientBatchService.createClient(userDto, clientDtoList);
+            clientList.add(clientService.createClient(userDto, clientDto, true));
+
+        }
+        return clientList;
     }
 
-    private Map<ClientDto, List<CreateEventDto>> createRandomEventForClients(Random random, UserDto userDto, List<ClientDto> clientDtoList) {
-        Map<ClientDto, List<CreateEventDto>> clientEventsMap = new HashMap<>();
+    private List<ResponseCreateEventDto> createRandomEventForClients(Random random, UserDto userDto, List<ClientDto> clientDtoList) {
+        List<CreateEventDto> eventsForClient = new ArrayList<>();
 
         for (ClientDto client : clientDtoList) {
-            List<CreateEventDto> eventsForClient = new ArrayList<>();
-
             for (int i = 0; i < random.nextInt(5, 10); i++) {
                 String startDate = getDateForEvent(random).get("start");
                 String endDate = getDateForEvent(random).get("end");
@@ -155,17 +157,18 @@ public class TestDataService {
 
                 eventsForClient.add(event);
             }
-            clientEventsMap.put(client, eventsForClient);
         }
 
-        return clientEventsMap;
+        return calendarService.batchCreateEvents(userDto.getMainCalendar(), eventsForClient);
     }
 
     private String getRandomPhoneNumber(Random random) {
         StringBuilder stringBuilder = new StringBuilder();
 
+        stringBuilder.append(8);
+
         for (int i = 0; i < 10; i++) {
-            stringBuilder.append(random.nextInt(10));
+            stringBuilder.append(random.nextInt(9));
         }
         return stringBuilder.toString();
     }

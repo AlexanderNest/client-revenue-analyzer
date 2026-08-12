@@ -20,5 +20,7 @@ public interface ClientService {
 
     void deleteClient(UserDto userDto, String clientName);
 
+    void deleteAllClientsByUserId(UserDto userDto);
+
     ClientDto updateClient(UserDto userDto, UpdateClientDto updateClientDto);
 }
