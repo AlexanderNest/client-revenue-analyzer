@@ -71,7 +71,7 @@ public class TestDataService {
         TestDataCreationStatus status = TestDataCreationStatus.LIMIT_NOT_REACHED;
 
         if (status == TestDataCreationStatus.CREATED_NOW) {
-         return TestDataCreationStatus.ALREADY_CREATED;
+            return TestDataCreationStatus.ALREADY_CREATED;
         }
 
         if (requestsCount >= MAX_COUNT) {
@@ -103,7 +103,7 @@ public class TestDataService {
                             .clientId(client.getId())
                             .eventId(eventDto.getEventId())
                             .build();
-                    clientEventService.createRelation(clientEventDto);
+                    clientEventService.createClientEventLink(clientEventDto);
                 }
             }
         }

@@ -14,7 +14,7 @@ public class ClientEventServiceImpl implements ClientEventService {
 
     @Transactional
     @Override
-    public ClientEventDto createRelation(ClientEventDto clientEventDto) {
+    public ClientEventDto createClientEventLink(ClientEventDto clientEventDto) {
         ClientEvent clientEvent = clientEventRepository.save(converterClientEventDtoToClientEvent(clientEventDto));
         return converterClientEventToClientEventDto(clientEvent);
     }
@@ -33,5 +33,4 @@ public class ClientEventServiceImpl implements ClientEventService {
                 .eventId(c.getEventId())
                 .build();
     }
-
 }
