@@ -126,11 +126,6 @@ public class ClientServiceImpl implements ClientService {
         clientRepository.delete(client);
     }
 
-    @Transactional
-    public void deleteAllClientsByUserId(UserDto userDto) {
-        clientRepository.deleteAllClientsByUserId(userDto.getId());
-    }
-
     @Override
     @Transactional
     public ClientDto updateClient(UserDto userDto, UpdateClientDto updateClientDto) {
@@ -160,6 +155,15 @@ public class ClientServiceImpl implements ClientService {
         int actualPrice = (int) getPricePerHourForDate(savedClient, LocalDateTime.now());
 
         return ClientMapper.mapToClientDto(savedClient, actualPrice);
+    }
+
+    @Override
+    public List<ClientDto> getClientByUserId(UserDto userDto) {
+        return clientRepository.getClientsByUserId(userDto.getId()).stream()
+                .map(client -> {
+                    int actualPrice = (int) getPricePerHourForDate(client, LocalDateTime.now());
+                    return ClientMapper.mapToClientDto(client, actualPrice);
+                }).toList();
     }
 
     private String generateUniqueClientName(String baseName, long userId, boolean isIdGenerationNeeded) {

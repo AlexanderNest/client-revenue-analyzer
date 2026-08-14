@@ -41,5 +41,5 @@ public interface ClientRepository extends JpaRepository<Client, Long> {
 
     int deleteClientByNameAndUserId(String name, long userId);
 
-    void deleteAllClientsByUserId(long id);
+    List<Client> getClientsByUserId(Long userId);
 }

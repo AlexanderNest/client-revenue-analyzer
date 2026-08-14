@@ -7,6 +7,8 @@ import ru.nesterov.core.entity.ClientEvent;
 import ru.nesterov.core.repository.ClientEventRepository;
 import ru.nesterov.calendar.integration.dto.ClientEventDto;
 
+import java.util.List;
+
 @Service
 @RequiredArgsConstructor
 public class ClientEventServiceImpl implements ClientEventService {
@@ -19,9 +21,14 @@ public class ClientEventServiceImpl implements ClientEventService {
         return converterClientEventToClientEventDto(clientEvent);
     }
 
+    @Override
+    public List<String> getEventIdsByClientId(Long clientId) {
+        return clientEventRepository.getEventIdsByClientId(clientId);
+    }
+
     private ClientEvent converterClientEventDtoToClientEvent(ClientEventDto clientEventDto) {
         ClientEvent clientEvent = new ClientEvent();
-        clientEvent.setClientId(clientEvent.getClientId());
+        clientEvent.setClientId(clientEventDto.getClientId());
         clientEvent.setEventId(clientEventDto.getEventId());
 
         return clientEvent;

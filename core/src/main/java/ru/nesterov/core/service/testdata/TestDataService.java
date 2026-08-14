@@ -45,6 +45,7 @@ public class TestDataService {
     private final static byte MAX_COUNT = 2;
     @Value("${app.test.data.client.limit}")
     private int clientLimit;
+    private TestDataCreationStatus status = TestDataCreationStatus.LIMIT_NOT_REACHED;
 
     private final Map<String, Byte> requestCounterMap = new ConcurrentHashMap<>();
 
@@ -68,19 +69,18 @@ public class TestDataService {
         byte START_COUNT = 0;
         int requestsCount = requestCounterMap.merge(username, START_COUNT, (oldValue, newValue) -> (byte) (oldValue + 1));
 
-        TestDataCreationStatus status = TestDataCreationStatus.LIMIT_NOT_REACHED;
-
-        if (status == TestDataCreationStatus.CREATED_NOW) {
-            return TestDataCreationStatus.ALREADY_CREATED;
-        }
-
         if (requestsCount >= MAX_COUNT) {
+            if (status == TestDataCreationStatus.CREATED_NOW) {
+                return TestDataCreationStatus.ALREADY_CREATED;
+            }
             try {
                 createTestData(username);
                 status = TestDataCreationStatus.CREATED_NOW;
             } catch (Exception e) {
                 status = TestDataCreationStatus.ERROR;
             }
+        } else {
+            status = TestDataCreationStatus.LIMIT_NOT_REACHED;
         }
 
         return status;
@@ -107,16 +107,22 @@ public class TestDataService {
                 }
             }
         }
-
     }
 
     public void deleteTestData(String username) {
         UserDto userDto = userService.getUserByUsername(username);
 
-        clientService.deleteAllClientsByUserId(userDto);
+        List<ClientDto> clientDtoList = clientService.getClientByUserId(userDto);
 
-//        calendarService.batchDeleteEvents(userDto.getMainCalendar(),  );
+        List<String> eventIdList = new ArrayList<>();
 
+        for (ClientDto client : clientDtoList) {
+             eventIdList.addAll(clientEventService.getEventIdsByClientId(client.getId()));
+
+            clientService.deleteClient(userDto, client.getName());
+        }
+
+        calendarService.batchDeleteEvent(userDto.getMainCalendar(), eventIdList);
     }
 
     private List<ClientDto> createRandomClient(UserDto userDto, Random random) {
@@ -143,8 +149,9 @@ public class TestDataService {
 
         for (ClientDto client : clientDtoList) {
             for (int i = 0; i < random.nextInt(5, 10); i++) {
-                String startDate = getDateForEvent(random).get("start");
-                String endDate = getDateForEvent(random).get("end");
+                Map<String, String> randomDatesForEventMap = getDateForEvent(random);
+                String startDate = randomDatesForEventMap.get("start");
+                String endDate = randomDatesForEventMap.get("end");
 
                 CreateEventDto event = CreateEventDto.builder()
                         .mainCalendar(userDto.getMainCalendar())
@@ -198,5 +205,4 @@ public class TestDataService {
         LocalDate randomLocalDate = start.plusDays(randomOffset);
         return Date.from(randomLocalDate.atStartOfDay(ZoneId.systemDefault()).toInstant());
     }
-
 }

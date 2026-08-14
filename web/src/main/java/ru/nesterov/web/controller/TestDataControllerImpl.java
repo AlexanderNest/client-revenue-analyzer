@@ -31,7 +31,7 @@ public class TestDataControllerImpl implements TestDataController {
     }
 
     @Override
-    public ResponseWithMessage deleteTestData(@RequestHeader("X-username") String username) {
+    public ResponseWithMessage deleteTestData(@RequestHeader(name = "X-username") String username) {
         testDataService.deleteTestData(username);
 
         ResponseWithMessage responseWithMessage = new ResponseWithMessage();
