@@ -19,8 +19,7 @@ public class TestDataControllerImpl implements TestDataController {
         TestDataCreationStatus status = testDataService.tryToCreateTestData(username);
 
         String message = switch (status) {
-            case ALREADY_CREATED -> "Тестовые данные уже были созданы ранее.";
-            case CREATED_NOW -> "Тестовые данные были созданы";
+            case CREATED -> "Тестовые данные были созданы";
             case LIMIT_NOT_REACHED -> "Вы точно хотите создать тестовые данные?";
             case ERROR -> "Ошибка при создании тестовых данных";
         };

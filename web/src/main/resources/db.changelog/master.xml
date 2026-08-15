@@ -404,14 +404,6 @@
     </changeSet>
 
     <changeSet id="create-test-table-for-client" author="Leonid Velikanov">
-        <preConditions>
-            <and>
-                <not>
-                    <tableExists tableName="client_test_events"/>
-                </not>
-                <tableExists tableName="client"/>
-            </and>
-        </preConditions>
         <createTable tableName="client_test_events">
             <column name="id" type="BIGINT" autoIncrement="true">
                 <constraints primaryKey="true" nullable="false"/>

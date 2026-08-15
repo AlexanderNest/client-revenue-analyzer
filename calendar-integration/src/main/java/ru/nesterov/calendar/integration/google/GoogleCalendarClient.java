@@ -116,26 +116,8 @@ public class GoogleCalendarClient implements CalendarClient {
     }
 
     @SneakyThrows
-    public ResponseCreateEventDto createEvent(String calendarId, String summary, String description, String startDateTime, String endDateTime, EventStatus status) {
-        String colorId = eventStatusService.getColorId(status);
-
-        Event newEvent = new Event()
-                .setSummary(summary)
-                .setDescription(description)
-                .setColorId(colorId)
-                .setStart(new EventDateTime().setDateTime(new DateTime(startDateTime)))
-                .setEnd(new EventDateTime().setDateTime(new DateTime(endDateTime)));
-
-        Event createdEvent = calendar.events().insert(calendarId, newEvent).execute();
-
-        return ResponseCreateEventDto.builder()
-                .eventId(createdEvent.getId())
-                .build();
-    }
-
-    @SneakyThrows
     @Override
-    public List<ResponseCreateEventDto> batchCreateEvent(String calendarId, List<CreateEventDto> createEventDtoList) {
+    public List<ResponseCreateEventDto> createEvents(String calendarId, List<CreateEventDto> createEventDtoList) {
         BatchRequest batchRequest = calendar.batch(httpRequest -> httpRequest.setReadTimeout(3 * 60000));
 
         List<ResponseCreateEventDto> responseList = new ArrayList<>();
@@ -146,6 +128,7 @@ public class GoogleCalendarClient implements CalendarClient {
             JsonBatchCallback<Event> callback = new JsonBatchCallback<>() {
                 @Override
                 public void onFailure(GoogleJsonError e, HttpHeaders responseHeaders) {
+                    log.error("Ошибка создания события {}", e);
                     errors.add(e);
                 }
 
@@ -175,11 +158,8 @@ public class GoogleCalendarClient implements CalendarClient {
         batchRequest.execute();
 
         if(!errors.isEmpty() && !createdEventsId.isEmpty()) {
-            batchDeleteEvents(calendarId, createdEventsId);
+            deleteEvents(calendarId, createdEventsId);
             log.info("Удалены все созданные события из-за ошибок при попытке создать event");
-            for(GoogleJsonError e: errors) {
-                log.info(e.getMessage());
-            }
             throw new RuntimeException("Создание событий завершилось с ошибкой");
         }
 
@@ -187,19 +167,19 @@ public class GoogleCalendarClient implements CalendarClient {
     }
 
     @SneakyThrows
-    public void batchDeleteEvents(String calendarId, List<String> eventIdList) {
+    public void deleteEvents(String calendarId, List<String> eventIdList) {
         BatchRequest batchRequest = calendar.batch(httpRequest -> httpRequest.setReadTimeout(3 * 60000));
 
         for (String eventId : eventIdList) {
             calendar.events().delete(calendarId, eventId).queue(batchRequest, new JsonBatchCallback<>() {
                 @Override
                 public void onFailure(GoogleJsonError e, HttpHeaders responseHeaders) {
-                    log.debug("Не удалось удалить событие {}: {}", eventId, e.getMessage());
+                    log.error("Не удалось удалить событие {}: {}", eventId, e.getMessage());
                 }
 
                 @Override
                 public void onSuccess(Void unused, HttpHeaders responseHeaders) {
-                    log.debug("Удалено событие {}", eventId);
+                    log.trace("Удалено событие {}", eventId);
                 }
             });
         }

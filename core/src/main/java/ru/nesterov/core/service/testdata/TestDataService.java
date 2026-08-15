@@ -38,16 +38,16 @@ import java.util.concurrent.ThreadLocalRandom;
 @Slf4j
 @RequiredArgsConstructor
 public class TestDataService {
+    private final Map<String, Byte> requestCounterMap = new ConcurrentHashMap<>();
+
+    @Value("${app.test.data.client.limit}")
+    private int clientLimit;
+    private final static byte MAX_COUNT = 2;
+
     private final CalendarService calendarService;
     private final UserService userService;
     private final ClientEventService clientEventService;
     private final ClientService clientService;
-    private final static byte MAX_COUNT = 2;
-    @Value("${app.test.data.client.limit}")
-    private int clientLimit;
-    private TestDataCreationStatus status = TestDataCreationStatus.LIMIT_NOT_REACHED;
-
-    private final Map<String, Byte> requestCounterMap = new ConcurrentHashMap<>();
 
     @Scheduled(fixedDelay = 600000)
     public void cleanup() {
@@ -69,21 +69,18 @@ public class TestDataService {
         byte START_COUNT = 0;
         int requestsCount = requestCounterMap.merge(username, START_COUNT, (oldValue, newValue) -> (byte) (oldValue + 1));
 
-        if (requestsCount >= MAX_COUNT) {
-            if (status == TestDataCreationStatus.CREATED_NOW) {
-                return TestDataCreationStatus.ALREADY_CREATED;
-            }
-            try {
-                createTestData(username);
-                status = TestDataCreationStatus.CREATED_NOW;
-            } catch (Exception e) {
-                status = TestDataCreationStatus.ERROR;
-            }
-        } else {
-            status = TestDataCreationStatus.LIMIT_NOT_REACHED;
+        if (requestsCount < MAX_COUNT) {
+            return TestDataCreationStatus.LIMIT_NOT_REACHED;
         }
 
-        return status;
+        try {
+            createTestData(username);
+            return TestDataCreationStatus.CREATED;
+        } catch (Exception e) {
+            return TestDataCreationStatus.ERROR;
+        } finally {
+            requestCounterMap.remove(username);
+        }
     }
 
     private void createTestData(String username) {
@@ -91,14 +88,13 @@ public class TestDataService {
 
         UserDto userDto = userService.getUserByUsername(username);
 
-        List<ClientDto> clientDtoList = createRandomClient(userDto, random);
+        List<ClientDto> clientDtoList = createRandomClients(userDto, random);
 
         List<ResponseCreateEventDto> responseCreateEventDtoList = createRandomEventForClients(random, userDto, clientDtoList);
 
-        for (ClientDto client : clientDtoList) {
-            String clientName = client.getName();
+        for (ClientDto client : clientDtoList) { //TODO здесь явно что-то не то. связь делается точно проще, чем тут и как будто сопоставление по имени тоже не должно быть
             for (ResponseCreateEventDto eventDto : responseCreateEventDtoList) {
-                if (Objects.equals(clientName, eventDto.getSummary())) {
+                if (Objects.equals(client.getName(), eventDto.getSummary())) {
                     ClientEventDto clientEventDto = ClientEventDto.builder()
                             .clientId(client.getId())
                             .eventId(eventDto.getEventId())
@@ -122,10 +118,10 @@ public class TestDataService {
             clientService.deleteClient(userDto, client.getName());
         }
 
-        calendarService.batchDeleteEvent(userDto.getMainCalendar(), eventIdList);
+        calendarService.deleteEvens(userDto.getMainCalendar(), eventIdList);
     }
 
-    private List<ClientDto> createRandomClient(UserDto userDto, Random random) {
+    private List<ClientDto> createRandomClients(UserDto userDto, Random random) {
         List<ClientDto> clientList = new ArrayList<>();
 
         for (int i = 0; i < clientLimit; i++) {
@@ -139,8 +135,8 @@ public class TestDataService {
                     .build();
 
             clientList.add(clientService.createClient(userDto, clientDto, true));
-
         }
+
         return clientList;
     }
 
@@ -166,7 +162,8 @@ public class TestDataService {
             }
         }
 
-        return calendarService.batchCreateEvents(userDto.getMainCalendar(), eventsForClient);
+        List<ResponseCreateEventDto> createdEvents = calendarService.createEvents(userDto.getMainCalendar(), eventsForClient);
+        return createdEvents;
     }
 
     private String getRandomPhoneNumber(Random random) {

@@ -7,7 +7,6 @@ import org.springframework.stereotype.Component;
 import ru.nesterov.calendar.integration.dto.CalendarType;
 import ru.nesterov.calendar.integration.dto.CreateEventDto;
 import ru.nesterov.calendar.integration.dto.EventDto;
-import ru.nesterov.calendar.integration.dto.EventStatus;
 import ru.nesterov.calendar.integration.dto.EventsFilter;
 import ru.nesterov.calendar.integration.dto.ResponseCreateEventDto;
 import ru.nesterov.calendar.integration.service.CalendarService;
@@ -46,18 +45,13 @@ public class GoogleCalendarService implements CalendarService {
     }
 
     @Override
-    public ResponseCreateEventDto createEvent(String calendarId, String summary, String description, String startDataTime, String endDataTime, EventStatus status) {
-        return googleCalendarClient.createEvent(calendarId, summary, description, startDataTime, endDataTime, status);
+    public List<ResponseCreateEventDto> createEvents(String calendarId, List<CreateEventDto> createEventDtoList) {
+        return googleCalendarClient.createEvents(calendarId, createEventDtoList);
     }
 
     @Override
-    public List<ResponseCreateEventDto> batchCreateEvents(String calendarId, List<CreateEventDto> createEventDtoList) {
-        return googleCalendarClient.batchCreateEvent(calendarId, createEventDtoList);
-    }
-
-    @Override
-    public void batchDeleteEvent(String calendarId, List<String> eventId) {
-        googleCalendarClient.batchDeleteEvents(calendarId, eventId);
+    public void deleteEvens(String calendarId, List<String> eventId) {
+        googleCalendarClient.deleteEvents(calendarId, eventId);
     }
 
     private List<EventDto> mergeEvents(List<EventDto> eventsFromMainCalendar, List<EventDto> eventsFromCancelledCalendar) {
