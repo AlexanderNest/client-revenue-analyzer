@@ -187,6 +187,7 @@ public class GoogleCalendarClient implements CalendarClient {
     }
 
     @SneakyThrows
+    @Override
     public void batchDeleteEvents(String calendarId, List<String> eventIdList) {
         BatchRequest batchRequest = calendar.batch(httpRequest -> httpRequest.setReadTimeout(3 * 60000));
 
