@@ -15,6 +15,4 @@ public interface CalendarClient {
     ResponseCreateEventDto createEvent(String calendarId, String summary, String description, String startDataTime, String endDataTime, EventStatus status);
 
     List<ResponseCreateEventDto> batchCreateEvent(String calendarId, List<CreateEventDto> createEventDtoList);
-
-    void batchDeleteEvents(String calendarId, List<String> eventIdList);
 }
