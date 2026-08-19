@@ -23,6 +23,8 @@ public class ClientMeetingsStatistic {
     private int plannedCancelledEventsCount;
     private int notPlannedCancelledEventsCount;
     private double totalIncome;
+    private double promoMeetingsHours;
+    private int promoEventsCount;
 
     public ClientMeetingsStatistic(double incomePerHour) {
         this.incomePerHour = incomePerHour;
@@ -38,6 +40,14 @@ public class ClientMeetingsStatistic {
 
     public void increaseCancelledHours(double hours) {
         cancelledMeetingsHours += hours;
+    }
+
+    public void increasePromoHours(double hours) {
+        promoMeetingsHours += hours;
+    }
+
+    public void increasePromoEvents(int events) {
+        promoEventsCount += events;
     }
 
     public double getSuccessfulMeetingsPercentage() {
@@ -74,11 +84,13 @@ public class ClientMeetingsStatistic {
                 || incomePerHour != 0.0
                 || successfulEventsCount != 0
                 || plannedCancelledEventsCount != 0
-                || notPlannedCancelledEventsCount != 0;
+                || notPlannedCancelledEventsCount != 0
+                || promoMeetingsHours != 0.0
+                || promoEventsCount != 0;
     }
 
     public int getTotalEventsCount() {
-        return successfulEventsCount + plannedCancelledEventsCount + notPlannedCancelledEventsCount;
+        return successfulEventsCount + plannedCancelledEventsCount + notPlannedCancelledEventsCount + promoEventsCount;
     }
 
     @Override
@@ -99,6 +111,8 @@ public class ClientMeetingsStatistic {
                 ", successfulEvents=" + successfulEventsCount +
                 ", plannedCancelledEvents=" + plannedCancelledEventsCount +
                 ", notPlannedCancelledEvents=" + notPlannedCancelledEventsCount +
+                ", promoMeetingsHours=" + promoMeetingsHours +
+                ", promoEventsCount=" + promoEventsCount +
                 '}';
     }
 }

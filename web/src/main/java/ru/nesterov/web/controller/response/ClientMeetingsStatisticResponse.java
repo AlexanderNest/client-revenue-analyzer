@@ -21,4 +21,6 @@ public class ClientMeetingsStatisticResponse {
     private int plannedCancelledEventsCount;
     private int notPlannedCancelledEventsCount;
     private double totalIncome;
+    private double promoMeetingsHours;
+    private int promoEventsCount;
 }

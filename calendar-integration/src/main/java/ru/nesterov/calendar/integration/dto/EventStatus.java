@@ -5,7 +5,8 @@ public enum EventStatus {
     REQUIRES_SHIFT("Требуется перенос", false),
     PLANNED("Запланировано", false),
     PLANNED_CANCELLED("Запланированная отмена", true),
-    UNPLANNED_CANCELLED("Незапланированная отмена", true);
+    UNPLANNED_CANCELLED("Незапланированная отмена", true),
+    PROMO("Промо встреча", false);
 
     private final String description;
     private final boolean isCancelledStatus;

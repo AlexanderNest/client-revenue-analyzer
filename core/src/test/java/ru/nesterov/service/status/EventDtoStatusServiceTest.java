@@ -22,9 +22,10 @@ public class EventDtoStatusServiceTest {
 
     @Test
     public void defaultColorAlreadyUsedTest() {
-        assertThrows(IllegalArgumentException.class, () -> new EventStatusServiceImpl(new ArrayList<>(), new ArrayList<>(), List.of("1"), List.of("2"), new ArrayList<>()));
-        assertThrows(IllegalArgumentException.class, () -> new EventStatusServiceImpl(List.of("1"), new ArrayList<>(), new ArrayList<>(), List.of("2"), new ArrayList<>()));
-        assertThrows(IllegalArgumentException.class, () -> new EventStatusServiceImpl(List.of("1"), List.of("2"), new ArrayList<>(), new ArrayList<>(), new ArrayList<>()));
+        assertThrows(IllegalArgumentException.class, () -> new EventStatusServiceImpl(new ArrayList<>(), new ArrayList<>(), List.of("1"), List.of("2"), new ArrayList<>(), new ArrayList<>()));
+        assertThrows(IllegalArgumentException.class, () -> new EventStatusServiceImpl(List.of("1"), new ArrayList<>(), new ArrayList<>(), List.of("2"), new ArrayList<>(), new ArrayList<>()));
+        assertThrows(IllegalArgumentException.class, () -> new EventStatusServiceImpl(List.of("1"), List.of("2"), new ArrayList<>(), new ArrayList<>(), new ArrayList<>(), new ArrayList<>()));
+        assertThrows(IllegalArgumentException.class, () -> new EventStatusServiceImpl(List.of("1"), List.of("2"), List.of("3"), List.of("4"), new ArrayList<>(), new ArrayList<>()));
     }
 
     @Test
@@ -84,5 +85,16 @@ public class EventDtoStatusServiceTest {
         EventStatus statusNull = eventStatusService.getEventStatus(primaryEventData);
 
         assertEquals(EventStatus.PLANNED, statusNull);
+    }
+
+    @Test
+    public void getPromoStatusTest() {
+        PrimaryEventData primaryEventData18 = PrimaryEventData.builder()
+                .colorId("18")
+                .build();
+
+        EventStatus eventStatus = eventStatusService.getEventStatus(primaryEventData18);
+
+        assertEquals(EventStatus.PROMO, eventStatus);
     }
 }
