@@ -18,13 +18,14 @@ public class ClientMeetingsStatistic {
     private String phone;
     private double successfulMeetingsHours;
     private double cancelledMeetingsHours;
+    private double promoMeetingsHours;
     private double incomePerHour;
     private int successfulEventsCount;
     private int plannedCancelledEventsCount;
     private int notPlannedCancelledEventsCount;
-    private double totalIncome;
-    private double promoMeetingsHours;
     private int promoEventsCount;
+    private double totalIncome;
+
 
     public ClientMeetingsStatistic(double incomePerHour) {
         this.incomePerHour = incomePerHour;
@@ -104,6 +105,7 @@ public class ClientMeetingsStatistic {
                 "phone=" + phone +
                 "successfulMeetingsHours=" + successfulMeetingsHours +
                 ", cancelledMeetingsHours=" + cancelledMeetingsHours +
+                ", promoMeetingsHours=" + promoMeetingsHours +
                 ", successfulMeetingsPercentage=" + getSuccessfulMeetingsPercentage() +
                 ", lostIncome=" + getLostIncome() +
                 ", actualIncome=" + getActualIncome() +
@@ -111,8 +113,7 @@ public class ClientMeetingsStatistic {
                 ", successfulEvents=" + successfulEventsCount +
                 ", plannedCancelledEvents=" + plannedCancelledEventsCount +
                 ", notPlannedCancelledEvents=" + notPlannedCancelledEventsCount +
-                ", promoMeetingsHours=" + promoMeetingsHours +
-                ", promoEventsCount=" + promoEventsCount +
+                ", promoEvents=" + promoEventsCount +
                 '}';
     }
 }

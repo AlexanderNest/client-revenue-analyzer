@@ -26,36 +26,23 @@ public class EventStatusServiceImpl implements EventStatusService {
                                   @Value("${app.calendar.color.promo}") List<String> promoColorCodes) {
 
         boolean nullWasUsed = false;
-
         this.successColorCodes = successColorCodes;
-        if (addNullCode(successColorCodes, nullWasUsed)) {
-            nullWasUsed = true;
-        }
+        nullWasUsed = addNullCode(successColorCodes, nullWasUsed);
 
         this.plannedCancelledColorCodes = plannedCancelledColorCodes;
-        if (addNullCode(plannedCancelledColorCodes, nullWasUsed)) {
-            nullWasUsed = true;
-        }
+        nullWasUsed = addNullCode(plannedCancelledColorCodes, nullWasUsed);
 
         this.requiresShiftColorCodes = requiresShiftColorCodes;
-        if (addNullCode(requiresShiftColorCodes, nullWasUsed)) {
-            nullWasUsed = true;
-        }
+        nullWasUsed = addNullCode(requiresShiftColorCodes, nullWasUsed);
 
         this.plannedColorCodes = plannedColorCodes;
-        if (addNullCode(plannedColorCodes, nullWasUsed)) {
-            nullWasUsed = true;
-        }
+        nullWasUsed = addNullCode(plannedColorCodes, nullWasUsed);
 
         this.unplannedCancelledColorCodes = unplannedCancelledColorCodes;
-        if (addNullCode(unplannedCancelledColorCodes, nullWasUsed)) {
-            nullWasUsed = true;
-        }
+        nullWasUsed = addNullCode(unplannedCancelledColorCodes, nullWasUsed);
 
         this.promoColorCodes = promoColorCodes;
-        if (addNullCode(promoColorCodes, nullWasUsed)) {
-            nullWasUsed = true;
-        }
+        nullWasUsed = addNullCode(promoColorCodes, nullWasUsed);
     }
 
     public EventStatus getEventStatus(PrimaryEventData primaryEventData) {
@@ -69,8 +56,6 @@ public class EventStatusServiceImpl implements EventStatusService {
             return EventStatus.REQUIRES_SHIFT;
         } else if (unplannedCancelledColorCodes.contains(primaryEventData.getColorId())) {
             return EventStatus.UNPLANNED_CANCELLED;
-        } else if (promoColorCodes.contains(primaryEventData.getColorId())) {
-            return EventStatus.PROMO;
         }
 
         throw new UnknownEventColorIdIntegrationException(primaryEventData.getColorId(), primaryEventData.getName(), primaryEventData.getEventStart());
@@ -84,7 +69,7 @@ public class EventStatusServiceImpl implements EventStatusService {
             codes.add(null);
             return true;
         }
-        
+
         return false;
     }
 }
