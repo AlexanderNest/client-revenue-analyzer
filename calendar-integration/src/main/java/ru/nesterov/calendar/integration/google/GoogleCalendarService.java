@@ -7,6 +7,7 @@ import org.springframework.stereotype.Component;
 import ru.nesterov.calendar.integration.dto.CalendarType;
 import ru.nesterov.calendar.integration.dto.CreateEventDto;
 import ru.nesterov.calendar.integration.dto.EventDto;
+import ru.nesterov.calendar.integration.dto.EventStatus;
 import ru.nesterov.calendar.integration.dto.EventsFilter;
 import ru.nesterov.calendar.integration.dto.ResponseCreateEventDto;
 import ru.nesterov.calendar.integration.service.CalendarService;
@@ -42,6 +43,11 @@ public class GoogleCalendarService implements CalendarService {
     @Override
     public List<EventDto> getHolidays(LocalDateTime leftDate, LocalDateTime rightDate) {
         return googleCalendarClient.getEventsBetweenDates(holidayCalendarId, CalendarType.PLAIN, leftDate, rightDate);
+    }
+
+    @Override
+    public ResponseCreateEventDto createEvent(String calendarId, String summary, String description, String startDataTime, String endDataTime, EventStatus status) {
+        return googleCalendarClient.createEvent(calendarId, summary, description, startDataTime, endDataTime, status);
     }
 
     @Override
