@@ -158,6 +158,7 @@ public class ClientServiceImpl implements ClientService {
     }
 
     @Override
+    @Transactional
     public List<ClientDto> getClientByUserId(UserDto userDto) {
         return clientRepository.getClientsByUserId(userDto.getId()).stream()
                 .map(client -> {
