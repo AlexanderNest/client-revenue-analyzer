@@ -6,6 +6,7 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
+import ru.nesterov.calendar.integration.dto.ClientEventDto;
 import ru.nesterov.calendar.integration.dto.CreateEventDto;
 import ru.nesterov.calendar.integration.dto.EventStatus;
 import ru.nesterov.calendar.integration.dto.ResponseCreateEventDto;
@@ -14,7 +15,6 @@ import ru.nesterov.core.entity.TestDataCreationStatus;
 import ru.nesterov.core.service.ClientEventService;
 import ru.nesterov.core.service.client.ClientService;
 import ru.nesterov.core.service.dto.ClientDto;
-import ru.nesterov.calendar.integration.dto.ClientEventDto;
 import ru.nesterov.core.service.dto.UserDto;
 import ru.nesterov.core.service.user.UserService;
 
@@ -25,7 +25,6 @@ import java.time.ZoneOffset;
 import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.Date;
-import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
@@ -113,7 +112,7 @@ public class TestDataService {
         List<String> eventIdList = new ArrayList<>();
 
         for (ClientDto client : clientDtoList) {
-             eventIdList.addAll(clientEventService.getEventIdsByClientId(client.getId()));
+            eventIdList.addAll(clientEventService.getEventIdsByClientId(client.getId()));
 
             clientService.deleteClient(userDto, client.getName());
         }
@@ -145,9 +144,9 @@ public class TestDataService {
 
         for (ClientDto client : clientDtoList) {
             for (int i = 0; i < random.nextInt(5, 10); i++) {
-                Map<String, String> randomDatesForEventMap = getDateForEvent(random);
-                String startDate = randomDatesForEventMap.get("start");
-                String endDate = randomDatesForEventMap.get("end");
+                DatesPair datesPairForEvent = getDateForEvent(random);
+                String startDate = datesPairForEvent.getStartDate();
+                String endDate = datesPairForEvent.getEndDate();
 
                 CreateEventDto event = CreateEventDto.builder()
                         .mainCalendar(userDto.getMainCalendar())
@@ -177,9 +176,17 @@ public class TestDataService {
         return stringBuilder.toString();
     }
 
-    private Map<String, String> getDateForEvent(Random random) {
-        long startSec = Instant.parse("2026-01-01T00:00:00.000Z").getEpochSecond();
-        long endSec = Instant.parse("2026-12-31T23:00:00.000Z").getEpochSecond();
+    private DatesPair getDateForEvent(Random random) {
+        int currentYear = LocalDate.now().getYear();
+
+        long startSec = LocalDate.of(currentYear, 1, 1)
+                .atStartOfDay(ZoneOffset.UTC)
+                .toInstant().getEpochSecond();
+
+        long endSec = LocalDate.of(currentYear, 12, 31)
+                .atTime(23, 0, 0)
+                .atZone(ZoneOffset.UTC)
+                .toInstant().getEpochSecond();
 
         long randomStart = startSec + random.nextLong(endSec - startSec + 1);
         Instant start = Instant.ofEpochSecond(randomStart);
@@ -188,11 +195,10 @@ public class TestDataService {
         DateTimeFormatter fmt = DateTimeFormatter.ofPattern("yyyy-MM-dd'T'HH:mm:ss.SSS'Z'")
                 .withZone(ZoneOffset.UTC);
 
-        Map<String, String> map = new HashMap<>();
-        map.put("start", fmt.format(start));
-        map.put("end", fmt.format(end));
-
-        return map;
+        return DatesPair.builder()
+                .startDate(fmt.format(start))
+                .endDate(fmt.format(end))
+                .build();
     }
 
     private Date getRandomDateForClient() {
