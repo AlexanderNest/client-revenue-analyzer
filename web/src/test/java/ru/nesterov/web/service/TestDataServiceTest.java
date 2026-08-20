@@ -62,7 +62,7 @@ public class TestDataServiceTest {
 
     @BeforeEach
     public void mockGoogleCalendarCreation() {
-        when(googleCalendarClient.batchCreateEvent(anyString(), any())).thenAnswer(invocation -> {
+        when(googleCalendarClient.createEvents(anyString(), any())).thenAnswer(invocation -> {
             List<CreateEventDto> requestedEvents = invocation.getArgument(1);
             return requestedEvents.stream()
                     .map(event -> ResponseCreateEventDto.builder()
@@ -79,7 +79,7 @@ public class TestDataServiceTest {
 
         TestDataCreationStatus status = tryToCreateTestData(user.getUsername());
 
-        assertEquals(TestDataCreationStatus.CREATED_NOW, status);
+        assertEquals(TestDataCreationStatus.CREATED, status);
 
         List<Client> createdClients = clientRepository.getClientsByUserId(user.getId());
 
@@ -90,7 +90,7 @@ public class TestDataServiceTest {
             assertTrue(eventIds.size() >= 5 && eventIds.size() <= 10);
         }
 
-        verify(googleCalendarClient).batchCreateEvent(eq(user.getMainCalendar()), any());
+        verify(googleCalendarClient).createEvents(eq(user.getMainCalendar()), any());
     }
 
     @Test
@@ -113,7 +113,7 @@ public class TestDataServiceTest {
 
         assertTrue(clientRepository.getClientsByUserId(user.getId()).isEmpty());
 
-        verify(googleCalendarClient).batchDeleteEvents(
+        verify(googleCalendarClient).deleteEvents(
                 eq(user.getMainCalendar()),
                 argThat((List<String> list) ->
                         list.size() == expectedEventIds.size() && list.containsAll(expectedEventIds)
