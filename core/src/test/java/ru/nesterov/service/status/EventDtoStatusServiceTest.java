@@ -89,11 +89,11 @@ public class EventDtoStatusServiceTest {
 
     @Test
     public void getPromoStatusTest() {
-        PrimaryEventData primaryEventData18 = PrimaryEventData.builder()
-                .colorId("18")
+        PrimaryEventData primaryEventData9 = PrimaryEventData.builder()
+                .colorId("9")
                 .build();
 
-        EventStatus eventStatus = eventStatusService.getEventStatus(primaryEventData18);
+        EventStatus eventStatus = eventStatusService.getEventStatus(primaryEventData9);
 
         assertEquals(EventStatus.PROMO, eventStatus);
     }

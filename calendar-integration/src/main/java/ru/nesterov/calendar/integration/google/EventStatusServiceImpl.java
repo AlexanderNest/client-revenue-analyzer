@@ -56,6 +56,8 @@ public class EventStatusServiceImpl implements EventStatusService {
             return EventStatus.REQUIRES_SHIFT;
         } else if (unplannedCancelledColorCodes.contains(primaryEventData.getColorId())) {
             return EventStatus.UNPLANNED_CANCELLED;
+        } else if (promoColorCodes.contains(primaryEventData.getColorId())) {
+            return EventStatus.PROMO;
         }
 
         throw new UnknownEventColorIdIntegrationException(primaryEventData.getColorId(), primaryEventData.getName(), primaryEventData.getEventStart());
