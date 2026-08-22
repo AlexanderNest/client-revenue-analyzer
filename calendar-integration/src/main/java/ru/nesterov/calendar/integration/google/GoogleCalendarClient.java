@@ -168,6 +168,11 @@ public class GoogleCalendarClient implements CalendarClient {
 
     @SneakyThrows
     public void deleteEvents(String calendarId, List<String> eventIdList) {
+        if (eventIdList == null || eventIdList.isEmpty()) {
+            log.debug("Список событий для удаления пуст");
+            return;
+        }
+
         BatchRequest batchRequest = calendar.batch(httpRequest -> httpRequest.setReadTimeout(3 * 60000));
 
         for (String eventId : eventIdList) {

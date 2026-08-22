@@ -17,7 +17,11 @@ import ru.nesterov.core.entity.User;
 import ru.nesterov.core.repository.ClientEventRepository;
 import ru.nesterov.core.repository.ClientRepository;
 import ru.nesterov.core.repository.UserRepository;
+import ru.nesterov.core.service.client.ClientService;
+import ru.nesterov.core.service.dto.ClientDto;
+import ru.nesterov.core.service.dto.UserDto;
 import ru.nesterov.core.service.testdata.TestDataService;
+import ru.nesterov.core.service.user.UserService;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -47,6 +51,10 @@ public class TestDataServiceTest {
     private ClientEventRepository clientEventRepository;
     @Autowired
     private ClientRepository clientRepository;
+    @Autowired
+    private ClientService clientService;
+    @Autowired
+    private UserService userService;
 
     private User createUser(String username) {
         User user = new User();
@@ -109,9 +117,15 @@ public class TestDataServiceTest {
             expectedEventIds.addAll(eventIds);
         }
 
+        ClientDto realClient = createRealClient(user, "Клиент созданный не для тестовых данных");
+
         testDataService.deleteTestData(user.getUsername());
 
-        assertTrue(clientRepository.getClientsByUserId(user.getId()).isEmpty());
+        List<Client> remainingClients = clientRepository.getClientsByUserId(user.getId());
+
+        assertEquals(1, remainingClients.size());
+        assertEquals(realClient.getName(), remainingClients.getFirst().getName());
+        assertTrue(clientEventRepository.getEventIdsByClientId(remainingClients.getFirst().getId()).isEmpty());
 
         verify(googleCalendarClient).deleteEvents(
                 eq(user.getMainCalendar()),
@@ -120,6 +134,20 @@ public class TestDataServiceTest {
                 )
         );
 
+    }
+
+    private ClientDto createRealClient(User user, String name) {
+        UserDto userDto = userService.getUserByUsername(user.getUsername());
+
+        ClientDto clientDto = ClientDto.builder()
+                .name(name)
+                .description("Не тестовый клиент")
+                .pricePerHour(1000)
+                .active(true)
+                .phone("89000000000")
+                .build();
+
+        return clientService.createClient(userDto, clientDto, false);
     }
 
     private TestDataCreationStatus tryToCreateTestData(String username) {

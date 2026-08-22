@@ -112,12 +112,17 @@ public class TestDataService {
         List<String> eventIdList = new ArrayList<>();
 
         for (ClientDto client : clientDtoList) {
-            eventIdList.addAll(clientEventService.getEventIdsByClientId(client.getId()));
+            List<String> clientEventIds = clientEventService.getEventIdsByClientId(client.getId());
 
+            if (clientEventIds.isEmpty()) {
+                continue;
+            }
+
+            eventIdList.addAll(clientEventIds);
             clientService.deleteClient(userDto, client.getName());
         }
 
-        calendarService.deleteEvens(userDto.getMainCalendar(), eventIdList);
+        calendarService.deleteEvents(userDto.getMainCalendar(), eventIdList);
     }
 
     private List<ClientDto> createRandomClients(UserDto userDto, Random random) {

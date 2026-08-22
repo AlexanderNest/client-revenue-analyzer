@@ -15,5 +15,5 @@ public interface CalendarService {
 
     List<ResponseCreateEventDto> createEvents(String calendarId, List<CreateEventDto> createEventDtoList);
 
-    void deleteEvens(String calendarId, List<String> eventIdList);
+    void deleteEvents(String calendarId, List<String> eventIdList);
 }

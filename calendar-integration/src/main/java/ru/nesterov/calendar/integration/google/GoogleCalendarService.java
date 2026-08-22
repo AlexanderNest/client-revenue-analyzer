@@ -50,7 +50,7 @@ public class GoogleCalendarService implements CalendarService {
     }
 
     @Override
-    public void deleteEvens(String calendarId, List<String> eventId) {
+    public void deleteEvents(String calendarId, List<String> eventId) {
         googleCalendarClient.deleteEvents(calendarId, eventId);
     }
 
