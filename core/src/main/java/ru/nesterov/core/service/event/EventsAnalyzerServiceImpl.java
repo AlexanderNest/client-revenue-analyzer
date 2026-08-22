@@ -23,12 +23,14 @@ import ru.nesterov.core.service.dto.UserDto;
 
 import java.time.LocalDateTime;
 import java.util.Arrays;
+import java.util.EnumMap;
 import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
+import java.util.stream.Stream;
 
 @Service
 @Slf4j
@@ -223,13 +225,14 @@ public class EventsAnalyzerServiceImpl implements EventsAnalyzerService {
 
         List<EventDto> eventDtos = calendarService.getEventsBetweenDates(eventsFilter);
 
-        Map<EventStatus, Integer> statuses = new HashMap<>();
-        Arrays.stream(EventStatus.values()).forEach(v -> statuses.computeIfAbsent(v, k -> 0));
+        Map<EventStatus, Integer> statuses = new EnumMap<>(EventStatus.class);
 
-        for (EventDto eventDto : eventDtos) {
-            EventStatus eventStatus = eventDto.getStatus();
-            statuses.computeIfPresent(eventStatus, (k, v) -> v + 1);
-        }
+        Stream.of(EventStatus.values())
+                .forEach(status -> statuses.put(status, 0));
+
+        eventDtos.stream()
+                .map(EventDto::getStatus)
+                .forEach(status -> statuses.merge(status, 1, Integer::sum));
 
         return statuses;
     }
