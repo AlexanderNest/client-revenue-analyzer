@@ -102,7 +102,15 @@ public class EventsAnalyzerControllerTest extends AbstractControllerTest {
                 .eventExtensionDto(eventExtensionDto6)
                 .build();
 
-        when(googleCalendarClient.getEventsBetweenDates(eq("someCalendar1"), eq(CalendarType.MAIN), any(), any(), isNull())).thenReturn(List.of(eventDto1, eventDto2, eventDto3, eventDto4, eventDto5, eventDto6, eventDto7, eventDto8));
+        EventDto eventDto9 = EventDto.builder()
+                .summary("testName1")
+                .status(EventStatus.PROMO)
+                .start(LocalDateTime.of(2024, 8, 14, 16, 30))
+                .end(LocalDateTime.of(2024, 8, 14, 17, 30))
+                .eventExtensionDto(eventExtensionDto6)
+                .build();
+
+        when(googleCalendarClient.getEventsBetweenDates(eq("someCalendar1"), eq(CalendarType.MAIN), any(), any(), isNull())).thenReturn(List.of(eventDto1, eventDto2, eventDto3, eventDto4, eventDto5, eventDto6, eventDto7, eventDto8, eventDto9));
     }
 
     @AfterEach
@@ -149,6 +157,8 @@ public class EventsAnalyzerControllerTest extends AbstractControllerTest {
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.testName1.successfulMeetingsHours").value(1))
                 .andExpect(jsonPath("$.testName1.cancelledMeetingsHours").value(2))
+                .andExpect(jsonPath("$.testName1.promoMeetingsHours").value(1))
+                .andExpect(jsonPath("$.testName1.promoEventsCount").value(1))
                 .andExpect(jsonPath("$.testName1.successfulEventsCount").value(1))
                 .andExpect(jsonPath("$.testName1.plannedCancelledEventsCount").value(1))
                 .andExpect(jsonPath("$.testName1.notPlannedCancelledEventsCount").value(1))
@@ -157,6 +167,8 @@ public class EventsAnalyzerControllerTest extends AbstractControllerTest {
                 .andExpect(jsonPath("$.testName1.lostIncome").value(2000))
                 .andExpect(jsonPath("$.testName2.successfulMeetingsHours").value(1))
                 .andExpect(jsonPath("$.testName2.cancelledMeetingsHours").value(1))
+                .andExpect(jsonPath("$.testName2.promoMeetingsHours").value(0))
+                .andExpect(jsonPath("$.testName2.promoEventsCount").value(0))
                 .andExpect(jsonPath("$.testName2.successfulEventsCount").value(1))
                 .andExpect(jsonPath("$.testName2.plannedCancelledEventsCount").value(1))
                 .andExpect(jsonPath("$.testName2.notPlannedCancelledEventsCount").value(0))
@@ -199,8 +211,15 @@ public class EventsAnalyzerControllerTest extends AbstractControllerTest {
                 .end(LocalDateTime.of(2024, 8, 10, 12, 30))
                 .build();
 
+        EventDto eventDto5 = EventDto.builder()
+                .summary(client.getName())
+                .status(EventStatus.PROMO)
+                .start(LocalDateTime.of(2024, 8, 10, 17, 30))
+                .end(LocalDateTime.of(2024, 8, 10, 19, 30))
+                .build();
+
         when(googleCalendarClient.getEventsBetweenDates(eq("someCalendar1"), eq(CalendarType.MAIN), any(), any(), eq(client.getName())))
-                .thenReturn(List.of(eventDto1, eventDto2, eventDto3, eventDto4));
+                .thenReturn(List.of(eventDto1, eventDto2, eventDto3, eventDto4, eventDto5));
 
         mockMvc.perform(get("/events/analyzer/getClientStatistic")
                         .header("X-username", "myUser")
@@ -216,9 +235,11 @@ public class EventsAnalyzerControllerTest extends AbstractControllerTest {
                 .andExpect(jsonPath("$.phone").isEmpty())
                 .andExpect(jsonPath("$.successfulMeetingsHours").value(1.0))
                 .andExpect(jsonPath("$.cancelledMeetingsHours").value(2.0))
+                .andExpect(jsonPath("$.promoMeetingsHours").value(2))
                 .andExpect(jsonPath("$.incomePerHour").value(1000))
                 .andExpect(jsonPath("$.successfulEventsCount").value(1))
                 .andExpect(jsonPath("$.plannedCancelledEventsCount").value(1))
+                .andExpect(jsonPath("$.promoEventsCount").value(1))
                 .andExpect(jsonPath("$.notPlannedCancelledEventsCount").value(1));
 
         clientRepository.delete(client);

@@ -16,11 +16,11 @@ public class ClientMeetingsStatisticResponse {
     private String phone;
     private double successfulMeetingsHours;
     private double cancelledMeetingsHours;
+    private double promoMeetingsHours;
     private double incomePerHour;
     private int successfulEventsCount;
     private int plannedCancelledEventsCount;
     private int notPlannedCancelledEventsCount;
-    private double totalIncome;
-    private double promoMeetingsHours;
     private int promoEventsCount;
+    private double totalIncome;
 }

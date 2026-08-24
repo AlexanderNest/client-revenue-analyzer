@@ -62,6 +62,7 @@ public class EventsAnalyzerServiceImpl implements EventsAnalyzerService {
 
         return getStatisticsOfClientMeetings(userDto, eventDtos);
     }
+
     private ClientMeetingsStatistic createEmptyStatistic(GetStatisticsByClientMeetingsDto statsDto) {
         Client client = clientRepository.findClientByNameAndUserId(statsDto.getClientName(), statsDto.getUserDto().getId());
         if (client == null) {
@@ -279,7 +280,7 @@ public class EventsAnalyzerServiceImpl implements EventsAnalyzerService {
                 throw new ClientNotFoundException(eventDto.getSummary(), eventDto.getStart());
             }
 
-            if (eventDto.getStatus() == EventStatus.SUCCESS) {
+            if (eventDto.getStatus() == EventStatus.SUCCESS || eventDto.getStatus() == EventStatus.PROMO) {
                 double eventDuration = eventService.getEventDuration(eventDto);
                 String monthName = MonthHelper.getMonthNameByNumber(eventDto.getStart().getMonthValue());
                 monthHours.merge(monthName, eventDuration, Double::sum);
