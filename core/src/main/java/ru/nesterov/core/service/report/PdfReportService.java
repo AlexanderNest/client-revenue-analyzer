@@ -2,6 +2,7 @@ package ru.nesterov.core.service.report;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.openpdf.text.Chunk;
 import org.openpdf.text.Document;
 import org.openpdf.text.Element;
 import org.openpdf.text.Font;
@@ -14,6 +15,7 @@ import org.openpdf.text.pdf.PdfPTable;
 import org.openpdf.text.pdf.PdfWriter;
 import org.springframework.stereotype.Service;
 import ru.nesterov.calendar.integration.dto.EventDto;
+import ru.nesterov.calendar.integration.dto.EventStatus;
 import ru.nesterov.calendar.integration.dto.EventsFilter;
 import ru.nesterov.calendar.integration.service.CalendarService;
 import ru.nesterov.core.entity.Client;
@@ -129,17 +131,37 @@ public class PdfReportService {
         List<EventDto> eventDtoList = calendarService.getEventsBetweenDates(eventsFilter);
         Client client = clientRepository.findClientByNameAndUserId(reportDto.getClientName(), reportDto.getUserDto().getId());
 
+        Font strikeFont = new Font(normalFont.getBaseFont(), NORMAL_FONT_SIZE, Font.BOLD | Font.STRIKETHRU);
+
         for (EventDto event : eventDtoList) {
+            double eventIncome = eventService.getEventIncome(client, event);
+
             addTableCell(table, event.getStart().format(DATE_FORMATTER), normalFont);
             addTableCell(table, event.getEnd().format(DATE_FORMATTER), normalFont);
             addTableCell(table, event.getStatus().getDescription(), normalFont);
-            addTableCell(table, String.format("%.0f", eventService.getEventIncome(client, event)), normalFont);
+
+            if (event.getStatus() == EventStatus.PROMO) {
+                addPromoIncomeCell(table, eventIncome, normalFont, strikeFont);
+            } else {
+                addTableCell(table, String.format("%.0f", eventIncome), normalFont);
+            }
         }
         document.add(table);
     }
 
     private void addTableCell(PdfPTable table, String title, Font font) {
         PdfPCell cell = new PdfPCell(new Phrase(title, font));
+        cell.setHorizontalAlignment(Element.ALIGN_CENTER);
+        cell.setPadding(CELL_PADDING);
+        table.addCell(cell);
+    }
+
+    private void addPromoIncomeCell(PdfPTable table, double income, Font normalFont, Font strikeFont) {
+        Phrase phrase = new Phrase();
+        phrase.add(new Chunk(String.format("%.0f", income), strikeFont));
+        phrase.add(new Chunk("  0", normalFont));
+
+        PdfPCell cell = new PdfPCell(phrase);
         cell.setHorizontalAlignment(Element.ALIGN_CENTER);
         cell.setPadding(CELL_PADDING);
         table.addCell(cell);
