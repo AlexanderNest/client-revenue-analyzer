@@ -32,14 +32,14 @@ public class EventStatusServiceImpl implements EventStatusService {
         this.plannedCancelledColorCodes = plannedCancelledColorCodes;
         nullWasUsed = addNullCode(plannedCancelledColorCodes, nullWasUsed);
 
+        this.unplannedCancelledColorCodes = unplannedCancelledColorCodes;
+        nullWasUsed = addNullCode(unplannedCancelledColorCodes, nullWasUsed);
+
         this.requiresShiftColorCodes = requiresShiftColorCodes;
         nullWasUsed = addNullCode(requiresShiftColorCodes, nullWasUsed);
 
         this.plannedColorCodes = plannedColorCodes;
         nullWasUsed = addNullCode(plannedColorCodes, nullWasUsed);
-
-        this.unplannedCancelledColorCodes = unplannedCancelledColorCodes;
-        nullWasUsed = addNullCode(unplannedCancelledColorCodes, nullWasUsed);
 
         this.promoColorCodes = promoColorCodes;
         nullWasUsed = addNullCode(promoColorCodes, nullWasUsed);
@@ -72,6 +72,6 @@ public class EventStatusServiceImpl implements EventStatusService {
             return true;
         }
 
-        return false;
+        return nullWasUsed;
     }
 }
