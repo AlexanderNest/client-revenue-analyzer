@@ -124,7 +124,7 @@ public class GoogleCalendarClient implements CalendarClient {
         List<String> createdEventsId = new ArrayList<>();
         List<GoogleJsonError> errors = new ArrayList<>();
 
-        for (CreateEventDto event : createEventDtoList) {
+        for (CreateEventDto eventToCreate : createEventDtoList) {
             JsonBatchCallback<Event> callback = new JsonBatchCallback<>() {
                 @Override
                 public void onFailure(GoogleJsonError e, HttpHeaders responseHeaders) {
@@ -133,31 +133,31 @@ public class GoogleCalendarClient implements CalendarClient {
                 }
 
                 @Override
-                public void onSuccess(Event event, HttpHeaders responseHeaders) {
-                    log.debug("Было создано событие c id: {}", event.getId());
-                    createdEventsId.add(event.getId());
+                public void onSuccess(Event createdEvent, HttpHeaders responseHeaders) {
+                    log.debug("Было создано событие c id: {}", createdEvent.getId());
+                    createdEventsId.add(createdEvent.getId());
                     responseList.add(ResponseCreateEventDto.builder()
-                            .eventId(event.getId())
-                            .summary(event.getSummary())
+                            .eventId(createdEvent.getId())
+                            .clientId(eventToCreate.getClientId())
                             .build());
                 }
             };
 
-            String colorId = eventStatusService.getColorId(event.getStatus());
+            String colorId = eventStatusService.getColorId(eventToCreate.getStatus());
 
             Event newEvent = new Event()
-                    .setSummary(event.getSummary())
-                    .setDescription(event.getDescription())
+                    .setSummary(eventToCreate.getSummary())
+                    .setDescription(eventToCreate.getDescription())
                     .setColorId(colorId)
-                    .setStart(new EventDateTime().setDateTime(new DateTime(event.getStart())))
-                    .setEnd(new EventDateTime().setDateTime(new DateTime(event.getEnd())));
+                    .setStart(new EventDateTime().setDateTime(new DateTime(eventToCreate.getStart())))
+                    .setEnd(new EventDateTime().setDateTime(new DateTime(eventToCreate.getEnd())));
 
             calendar.events().insert(calendarId, newEvent).queue(batchRequest, callback);
         }
 
         batchRequest.execute();
 
-        if(!errors.isEmpty() && !createdEventsId.isEmpty()) {
+        if (!errors.isEmpty()) {
             deleteEvents(calendarId, createdEventsId);
             log.info("Удалены все созданные события из-за ошибок при попытке создать event");
             throw new RuntimeException("Создание событий завершилось с ошибкой");
@@ -167,6 +167,7 @@ public class GoogleCalendarClient implements CalendarClient {
     }
 
     @SneakyThrows
+    @Override
     public void deleteEvents(String calendarId, List<String> eventIdList) {
         if (eventIdList == null || eventIdList.isEmpty()) {
             log.debug("Список событий для удаления пуст");

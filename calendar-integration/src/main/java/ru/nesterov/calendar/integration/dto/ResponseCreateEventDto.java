@@ -7,5 +7,5 @@ import lombok.Data;
 @Data
 public class ResponseCreateEventDto {
     private String eventId;
-    private String summary;
+    private Long clientId;
 }

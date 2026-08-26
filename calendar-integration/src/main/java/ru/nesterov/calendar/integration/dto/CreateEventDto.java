@@ -12,5 +12,6 @@ public class CreateEventDto {
     private String start;
     private String end;
     private EventStatus status;
+    private Long clientId;
 
 }

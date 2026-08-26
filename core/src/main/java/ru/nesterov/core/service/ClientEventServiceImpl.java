@@ -16,9 +16,14 @@ public class ClientEventServiceImpl implements ClientEventService {
 
     @Transactional
     @Override
-    public ClientEventDto createClientEventLink(ClientEventDto clientEventDto) {
-        ClientEvent clientEvent = clientEventRepository.save(converterClientEventDtoToClientEvent(clientEventDto));
-        return converterClientEventToClientEventDto(clientEvent);
+    public List<ClientEventDto> createClientEventLinks(List<ClientEventDto> clientEventDtoList) {
+        List<ClientEvent> clientEvents = clientEventDtoList.stream()
+                .map(this::converterClientEventDtoToClientEvent)
+                .toList();
+
+        return clientEventRepository.saveAll(clientEvents).stream()
+                .map(this::converterClientEventToClientEventDto)
+                .toList();
     }
 
     @Override
@@ -34,10 +39,10 @@ public class ClientEventServiceImpl implements ClientEventService {
         return clientEvent;
     }
 
-    private ClientEventDto converterClientEventToClientEventDto(ClientEvent c) {
+    private ClientEventDto converterClientEventToClientEventDto(ClientEvent clientEvent) {
         return ClientEventDto.builder()
-                .clientId(c.getClientId())
-                .eventId(c.getEventId())
+                .clientId(clientEvent.getClientId())
+                .eventId(clientEvent.getEventId())
                 .build();
     }
 }

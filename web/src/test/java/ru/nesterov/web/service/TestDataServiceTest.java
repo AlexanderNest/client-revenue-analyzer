@@ -75,7 +75,7 @@ public class TestDataServiceTest {
             return requestedEvents.stream()
                     .map(event -> ResponseCreateEventDto.builder()
                             .eventId(UUID.randomUUID().toString())
-                            .summary(event.getSummary())
+                            .clientId(event.getClientId())
                             .build())
                     .collect(Collectors.toList());
         });

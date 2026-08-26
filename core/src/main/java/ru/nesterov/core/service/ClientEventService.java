@@ -5,7 +5,7 @@ import ru.nesterov.calendar.integration.dto.ClientEventDto;
 import java.util.List;
 
 public interface ClientEventService {
-    ClientEventDto createClientEventLink(ClientEventDto clientEventDto);
+    List<ClientEventDto> createClientEventLinks(List<ClientEventDto> clientEventDtoList);
 
     List<String> getEventIdsByClientId(Long clientId);
 }

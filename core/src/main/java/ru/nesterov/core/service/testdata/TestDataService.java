@@ -27,7 +27,6 @@ import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 import java.util.Map;
-import java.util.Objects;
 import java.util.Random;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ThreadLocalRandom;
@@ -91,17 +90,14 @@ public class TestDataService {
 
         List<ResponseCreateEventDto> responseCreateEventDtoList = createRandomEventForClients(random, userDto, clientDtoList);
 
-        for (ClientDto client : clientDtoList) { //TODO здесь явно что-то не то. связь делается точно проще, чем тут и как будто сопоставление по имени тоже не должно быть
-            for (ResponseCreateEventDto eventDto : responseCreateEventDtoList) {
-                if (Objects.equals(client.getName(), eventDto.getSummary())) {
-                    ClientEventDto clientEventDto = ClientEventDto.builder()
-                            .clientId(client.getId())
-                            .eventId(eventDto.getEventId())
-                            .build();
-                    clientEventService.createClientEventLink(clientEventDto);
-                }
-            }
-        }
+        List<ClientEventDto> clientEventLinks = responseCreateEventDtoList.stream() //TODO здесь явно что-то не то. связь делается точно проще, чем тут и как будто сопоставление по имени тоже не должно быть
+                .map(eventDto -> ClientEventDto.builder()
+                        .clientId(eventDto.getClientId())
+                        .eventId(eventDto.getEventId())
+                        .build())
+                .toList();
+
+        clientEventService.createClientEventLinks(clientEventLinks);
     }
 
     public void deleteTestData(String username) {
@@ -155,6 +151,7 @@ public class TestDataService {
 
                 CreateEventDto event = CreateEventDto.builder()
                         .mainCalendar(userDto.getMainCalendar())
+                        .clientId(client.getId())
                         .summary(client.getName())
                         .description(client.getDescription())
                         .start(startDate)
