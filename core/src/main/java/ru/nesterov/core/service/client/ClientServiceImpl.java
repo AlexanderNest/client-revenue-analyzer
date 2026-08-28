@@ -135,19 +135,19 @@ public class ClientServiceImpl implements ClientService {
             throw new ClientNotFoundException(updateClientDto.getOldClientName());
         }
 
-        if (updateClientDto.getNewName() != null){
+        if (updateClientDto.getNewName() != null) {
             clientForUpdate.setName(updateClientDto.getNewName());
         }
 
-        if (updateClientDto.getDescription() != null){
+        if (updateClientDto.getDescription() != null) {
             clientForUpdate.setDescription(updateClientDto.getDescription());
         }
 
-        if (updateClientDto.getPhone() != null){
+        if (updateClientDto.getPhone() != null) {
             clientForUpdate.setPhone(updateClientDto.getPhone());
         }
 
-        if (updateClientDto.getPricePerHour() != null){
+        if (updateClientDto.getPricePerHour() != null) {
             savePriceToHistory(clientForUpdate, updateClientDto.getPricePerHour());
         }
 
@@ -155,6 +155,16 @@ public class ClientServiceImpl implements ClientService {
         int actualPrice = (int) getPricePerHourForDate(savedClient, LocalDateTime.now());
 
         return ClientMapper.mapToClientDto(savedClient, actualPrice);
+    }
+
+    @Override
+    @Transactional
+    public List<ClientDto> getClientByUserId(UserDto userDto) {
+        return clientRepository.getClientsByUserId(userDto.getId()).stream()
+                .map(client -> {
+                    int actualPrice = (int) getPricePerHourForDate(client, LocalDateTime.now());
+                    return ClientMapper.mapToClientDto(client, actualPrice);
+                }).toList();
     }
 
     private String generateUniqueClientName(String baseName, long userId, boolean isIdGenerationNeeded) {

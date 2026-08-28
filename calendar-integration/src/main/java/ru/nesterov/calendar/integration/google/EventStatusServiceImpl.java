@@ -26,10 +26,10 @@ public class EventStatusServiceImpl implements EventStatusService {
         boolean nullWasUsed = false;
         this.successColorCodes = successColorCodes;
         nullWasUsed = addNullCode(successColorCodes, nullWasUsed);
-        
+
         this.plannedCancelledColorCodes = plannedCancelledColorCodes;
         nullWasUsed = addNullCode(plannedCancelledColorCodes, nullWasUsed);
-        
+
         this.requiresShiftColorCodes = requiresShiftColorCodes;
         nullWasUsed = addNullCode(requiresShiftColorCodes, nullWasUsed);
 
@@ -57,6 +57,27 @@ public class EventStatusServiceImpl implements EventStatusService {
         throw new UnknownEventColorIdIntegrationException(primaryEventData.getColorId(), primaryEventData.getName(), primaryEventData.getEventStart());
     }
 
+    public String getColorId(EventStatus eventStatus) {
+
+        List<String> colorList;
+
+        if (eventStatus == EventStatus.PLANNED) {
+            colorList = plannedColorCodes;
+        } else if (eventStatus == EventStatus.SUCCESS) {
+            colorList = successColorCodes;
+        } else if (eventStatus == EventStatus.REQUIRES_SHIFT) {
+            colorList = requiresShiftColorCodes;
+        } else if (eventStatus == EventStatus.PLANNED_CANCELLED) {
+            colorList = plannedCancelledColorCodes;
+        } else if (eventStatus == EventStatus.UNPLANNED_CANCELLED) {
+            colorList = unplannedCancelledColorCodes;
+        } else {
+            throw new IllegalArgumentException("Неизвестный статус");
+        }
+
+        return colorList.getFirst();
+    }
+
     private boolean addNullCode(List<String> codes, boolean nullWasUsed) {
         if (codes.isEmpty()) {
             if (nullWasUsed) {
@@ -65,7 +86,7 @@ public class EventStatusServiceImpl implements EventStatusService {
             codes.add(null);
             return true;
         }
-        
+
         return false;
     }
 }

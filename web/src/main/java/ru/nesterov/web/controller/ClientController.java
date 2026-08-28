@@ -11,9 +11,9 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestHeader;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
-import ru.nesterov.web.controller.request.CreateClientRequest;
-import ru.nesterov.web.controller.request.GetClientScheduleRequest;
-import ru.nesterov.web.controller.request.UpdateClientRequest;
+import ru.nesterov.web.controller.request.client.CreateClientRequest;
+import ru.nesterov.web.controller.request.client.GetClientScheduleRequest;
+import ru.nesterov.web.controller.request.client.UpdateClientRequest;
 import ru.nesterov.web.controller.response.ClientResponse;
 import ru.nesterov.web.controller.response.ClientScheduleResponse;
 
