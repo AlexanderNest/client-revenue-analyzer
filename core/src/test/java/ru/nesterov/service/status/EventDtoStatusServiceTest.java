@@ -25,7 +25,7 @@ public class EventDtoStatusServiceTest {
         assertThrows(IllegalArgumentException.class, () -> new EventStatusServiceImpl(new ArrayList<>(), new ArrayList<>(), List.of("1"), List.of("2"), new ArrayList<>(), new ArrayList<>()));
         assertThrows(IllegalArgumentException.class, () -> new EventStatusServiceImpl(List.of("1"), new ArrayList<>(), new ArrayList<>(), List.of("2"), new ArrayList<>(), new ArrayList<>()));
         assertThrows(IllegalArgumentException.class, () -> new EventStatusServiceImpl(List.of("1"), List.of("2"), new ArrayList<>(), new ArrayList<>(), new ArrayList<>(), new ArrayList<>()));
-        assertThrows(IllegalArgumentException.class, () -> new EventStatusServiceImpl(List.of("1"), List.of("2"), List.of("3"), List.of("4"), new ArrayList<>(), new ArrayList<>()));
+        assertThrows(IllegalArgumentException.class, () -> new EventStatusServiceImpl(new ArrayList<>(), List.of("1"), List.of("2"), List.of("3"), List.of("4"), new ArrayList<>()));
     }
 
     @Test

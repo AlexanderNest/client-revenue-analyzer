@@ -108,6 +108,10 @@ public class PdfReportService {
         document.add(new Paragraph("Часов отработано: " + statistics.getSuccessfulMeetingsHours(), normalFont));
         document.add(new Paragraph("Всего встреч было запланировано: " + statistics.getTotalEventsCount(), normalFont));
         document.add(new Paragraph("Из них проведено успешно: " + statistics.getSuccessfulEventsCount(), normalFont));
+        document.add(new Paragraph("Из них промо-встреч (бесплатных): " + statistics.getPromoEventsCount(), normalFont));
+        document.add(new Paragraph("Часов затрачено на промо-встречи: " + statistics.getPromoMeetingsHours(), normalFont));
+        document.add(new Paragraph("Из них запланировано: " + statistics.getPlannedEventsCount(), normalFont));
+        document.add(new Paragraph("Из них требуется перенос: " + statistics.getRequiresShiftEventsCount(), normalFont));
         document.add(new Paragraph(" "));
 
         PdfPTable table = new PdfPTable(4);

@@ -52,6 +52,7 @@ import static org.mockito.Mockito.when;
 class EventsAnalyzerServiceImplTest {
     @Autowired
     private EventsAnalyzerServiceImpl eventsAnalyzerService;
+
     @MockitoBean
     private ClientRepository clientRepository;
     @MockitoBean
@@ -342,7 +343,6 @@ class EventsAnalyzerServiceImplTest {
                 .build();
 
         ClientMeetingsStatistic meetingsStatistics = eventsAnalyzerService.getStatisticsByClientMeetings(dto);
-
         assertEquals("testName", meetingsStatistics.getName());
         assertEquals(1, meetingsStatistics.getId());
         assertEquals("description", meetingsStatistics.getDescription());

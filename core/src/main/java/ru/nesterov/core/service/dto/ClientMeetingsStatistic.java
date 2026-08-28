@@ -24,8 +24,9 @@ public class ClientMeetingsStatistic {
     private int plannedCancelledEventsCount;
     private int notPlannedCancelledEventsCount;
     private int promoEventsCount;
+    private int plannedEventsCount;
+    private int requiresShiftEventsCount;
     private double totalIncome;
-
 
     public ClientMeetingsStatistic(double incomePerHour) {
         this.incomePerHour = incomePerHour;
@@ -52,7 +53,12 @@ public class ClientMeetingsStatistic {
     }
 
     public double getSuccessfulMeetingsPercentage() {
-        return 100.0 * successfulMeetingsHours / (successfulMeetingsHours + cancelledMeetingsHours);
+        double paidMeetingsHours = successfulMeetingsHours + cancelledMeetingsHours;
+        if (paidMeetingsHours == 0.0) {
+            return 0.0;
+        }
+
+        return 100.0 * successfulMeetingsHours / paidMeetingsHours;
     }
 
     public long getServiceDuration() {
@@ -79,6 +85,14 @@ public class ClientMeetingsStatistic {
         notPlannedCancelledEventsCount += events;
     }
 
+    public void increasePlannedEvents(int events) {
+        plannedEventsCount += events;
+    }
+
+    public void increaseRequiresShiftEvents(int events) {
+        requiresShiftEventsCount += events;
+    }
+
     public boolean isFilledStatistic() {
         return successfulMeetingsHours != 0.0
                 || cancelledMeetingsHours != 0.0
@@ -87,11 +101,18 @@ public class ClientMeetingsStatistic {
                 || plannedCancelledEventsCount != 0
                 || notPlannedCancelledEventsCount != 0
                 || promoMeetingsHours != 0.0
-                || promoEventsCount != 0;
+                || promoEventsCount != 0
+                || plannedEventsCount != 0
+                || requiresShiftEventsCount != 0;
     }
 
     public int getTotalEventsCount() {
-        return successfulEventsCount + plannedCancelledEventsCount + notPlannedCancelledEventsCount + promoEventsCount;
+        return successfulEventsCount
+                + plannedCancelledEventsCount
+                + notPlannedCancelledEventsCount
+                + promoEventsCount
+                + plannedEventsCount
+                + requiresShiftEventsCount;
     }
 
     @Override
@@ -114,6 +135,8 @@ public class ClientMeetingsStatistic {
                 ", plannedCancelledEvents=" + plannedCancelledEventsCount +
                 ", notPlannedCancelledEvents=" + notPlannedCancelledEventsCount +
                 ", promoEvents=" + promoEventsCount +
+                ", plannedEvents=" + plannedEventsCount +
+                ", requiresShiftEvents=" + requiresShiftEventsCount +
                 '}';
     }
 }

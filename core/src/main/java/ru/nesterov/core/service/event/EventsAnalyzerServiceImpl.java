@@ -102,6 +102,10 @@ public class EventsAnalyzerServiceImpl implements EventsAnalyzerService {
                 handleUnplannedCancelledEvent(clientMeetingsStatistic, eventDto);
             } else if (eventStatus == EventStatus.PROMO) {
                 handlePromoEvent(clientMeetingsStatistic, eventDto);
+            } else if (eventStatus == EventStatus.PLANNED) {
+                clientMeetingsStatistic.increasePlannedEvents(1);
+            } else if (eventStatus == EventStatus.REQUIRES_SHIFT) {
+                clientMeetingsStatistic.increaseRequiresShiftEvents(1);
             }
         }
 
