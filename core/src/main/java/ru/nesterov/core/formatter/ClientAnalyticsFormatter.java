@@ -18,6 +18,8 @@ public class ClientAnalyticsFormatter {
                         .append(",")
                         .append("CancelledHours|").append(stat.getCancelledMeetingsHours())
                         .append(",")
+                        .append("PromoHours|").append(stat.getPromoMeetingsHours())
+                        .append(",")
                         .append("SuccessRate|")
                         .append(String.format("%.2f", stat.getSuccessfulMeetingsPercentage()))
                         .append("%,")
@@ -35,6 +37,9 @@ public class ClientAnalyticsFormatter {
                         .append(",")
                         .append("NotPlannedCancelledEvents|")
                         .append(stat.getNotPlannedCancelledEventsCount())
+                        .append(",")
+                        .append("PromoEvents|")
+                        .append(stat.getPromoEventsCount())
                         .append(";");
             });
         }

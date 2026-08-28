@@ -18,10 +18,14 @@ public class ClientMeetingsStatistic {
     private String phone;
     private double successfulMeetingsHours;
     private double cancelledMeetingsHours;
+    private double promoMeetingsHours;
     private double incomePerHour;
     private int successfulEventsCount;
     private int plannedCancelledEventsCount;
     private int notPlannedCancelledEventsCount;
+    private int promoEventsCount;
+    private int plannedEventsCount;
+    private int requiresShiftEventsCount;
     private double totalIncome;
 
     public ClientMeetingsStatistic(double incomePerHour) {
@@ -40,8 +44,21 @@ public class ClientMeetingsStatistic {
         cancelledMeetingsHours += hours;
     }
 
+    public void increasePromoHours(double hours) {
+        promoMeetingsHours += hours;
+    }
+
+    public void increasePromoEvents(int events) {
+        promoEventsCount += events;
+    }
+
     public double getSuccessfulMeetingsPercentage() {
-        return 100.0 * successfulMeetingsHours / (successfulMeetingsHours + cancelledMeetingsHours);
+        double paidMeetingsHours = successfulMeetingsHours + cancelledMeetingsHours;
+        if (paidMeetingsHours == 0.0) {
+            return 0.0;
+        }
+
+        return 100.0 * successfulMeetingsHours / paidMeetingsHours;
     }
 
     public long getServiceDuration() {
@@ -68,17 +85,34 @@ public class ClientMeetingsStatistic {
         notPlannedCancelledEventsCount += events;
     }
 
+    public void increasePlannedEvents(int events) {
+        plannedEventsCount += events;
+    }
+
+    public void increaseRequiresShiftEvents(int events) {
+        requiresShiftEventsCount += events;
+    }
+
     public boolean isFilledStatistic() {
         return successfulMeetingsHours != 0.0
                 || cancelledMeetingsHours != 0.0
                 || incomePerHour != 0.0
                 || successfulEventsCount != 0
                 || plannedCancelledEventsCount != 0
-                || notPlannedCancelledEventsCount != 0;
+                || notPlannedCancelledEventsCount != 0
+                || promoMeetingsHours != 0.0
+                || promoEventsCount != 0
+                || plannedEventsCount != 0
+                || requiresShiftEventsCount != 0;
     }
 
     public int getTotalEventsCount() {
-        return successfulEventsCount + plannedCancelledEventsCount + notPlannedCancelledEventsCount;
+        return successfulEventsCount
+                + plannedCancelledEventsCount
+                + notPlannedCancelledEventsCount
+                + promoEventsCount
+                + plannedEventsCount
+                + requiresShiftEventsCount;
     }
 
     @Override
@@ -92,6 +126,7 @@ public class ClientMeetingsStatistic {
                 "phone=" + phone +
                 "successfulMeetingsHours=" + successfulMeetingsHours +
                 ", cancelledMeetingsHours=" + cancelledMeetingsHours +
+                ", promoMeetingsHours=" + promoMeetingsHours +
                 ", successfulMeetingsPercentage=" + getSuccessfulMeetingsPercentage() +
                 ", lostIncome=" + getLostIncome() +
                 ", actualIncome=" + getActualIncome() +
@@ -99,6 +134,9 @@ public class ClientMeetingsStatistic {
                 ", successfulEvents=" + successfulEventsCount +
                 ", plannedCancelledEvents=" + plannedCancelledEventsCount +
                 ", notPlannedCancelledEvents=" + notPlannedCancelledEventsCount +
+                ", promoEvents=" + promoEventsCount +
+                ", plannedEvents=" + plannedEventsCount +
+                ", requiresShiftEvents=" + requiresShiftEventsCount +
                 '}';
     }
 }

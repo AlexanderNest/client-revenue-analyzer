@@ -62,6 +62,7 @@ public class EventsAnalyzerServiceImpl implements EventsAnalyzerService {
 
         return getStatisticsOfClientMeetings(userDto, eventDtos);
     }
+
     private ClientMeetingsStatistic createEmptyStatistic(GetStatisticsByClientMeetingsDto statsDto) {
         Client client = clientRepository.findClientByNameAndUserId(statsDto.getClientName(), statsDto.getUserDto().getId());
         if (client == null) {
@@ -99,6 +100,12 @@ public class EventsAnalyzerServiceImpl implements EventsAnalyzerService {
                 handlePlannedCancelledEvent(clientMeetingsStatistic, eventDto);
             } else if (eventStatus == EventStatus.UNPLANNED_CANCELLED ) {
                 handleUnplannedCancelledEvent(clientMeetingsStatistic, eventDto);
+            } else if (eventStatus == EventStatus.PROMO) {
+                handlePromoEvent(clientMeetingsStatistic, eventDto);
+            } else if (eventStatus == EventStatus.PLANNED) {
+                clientMeetingsStatistic.increasePlannedEvents(1);
+            } else if (eventStatus == EventStatus.REQUIRES_SHIFT) {
+                clientMeetingsStatistic.increaseRequiresShiftEvents(1);
             }
         }
 
@@ -126,6 +133,12 @@ public class EventsAnalyzerServiceImpl implements EventsAnalyzerService {
         clientMeetingsStatistic.increaseNotPlannedCancelledEvents(1);
     }
 
+    private void handlePromoEvent(ClientMeetingsStatistic clientMeetingsStatistic, EventDto eventDto){
+        double eventDuration = eventService.getEventDuration(eventDto);
+        clientMeetingsStatistic.increasePromoHours(eventDuration);
+        clientMeetingsStatistic.increasePromoEvents(1);
+    }
+
     public IncomeAnalysisResult getIncomeAnalysisByMonth(UserDto userDto, String monthName, int year) {
         List<EventDto> eventDtos = getEventsByMonth(userDto, monthName, year);
 
@@ -134,6 +147,7 @@ public class EventsAnalyzerServiceImpl implements EventsAnalyzerService {
         double potentialIncome = 0;
         double expectedIncome = 0;
         double lostIncomeDueToHoliday = 0;
+        double promoIncome = 0;
 
         MonthDatesPair monthDatesPair = MonthHelper.getFirstAndLastDayOfMonth(monthName, year);
         List<EventDto> holidayDtos = calendarService.getHolidays(monthDatesPair.getFirstDate(), monthDatesPair.getLastDate());
@@ -160,6 +174,8 @@ public class EventsAnalyzerServiceImpl implements EventsAnalyzerService {
                 }
             } else if (eventStatus == EventStatus.REQUIRES_SHIFT || eventStatus == EventStatus.PLANNED) {
                 expectedIncome += eventPrice;
+            } else if (eventStatus == EventStatus.PROMO) {
+                promoIncome += eventPrice;
             } else {
                 throw new UnknownEventStatusException(eventStatus);
             }
@@ -171,6 +187,7 @@ public class EventsAnalyzerServiceImpl implements EventsAnalyzerService {
         incomeAnalysisResult.setActualIncome(actualIncome);
         incomeAnalysisResult.setExpectedIncome(expectedIncome);
         incomeAnalysisResult.setLostIncomeDueToHoliday(lostIncomeDueToHoliday);
+        incomeAnalysisResult.setPromoIncome(promoIncome);
 
         return incomeAnalysisResult;
     }
@@ -267,7 +284,7 @@ public class EventsAnalyzerServiceImpl implements EventsAnalyzerService {
                 throw new ClientNotFoundException(eventDto.getSummary(), eventDto.getStart());
             }
 
-            if (eventDto.getStatus() == EventStatus.SUCCESS) {
+            if (eventDto.getStatus() == EventStatus.SUCCESS || eventDto.getStatus() == EventStatus.PROMO) {
                 double eventDuration = eventService.getEventDuration(eventDto);
                 String monthName = MonthHelper.getMonthNameByNumber(eventDto.getStart().getMonthValue());
                 monthHours.merge(monthName, eventDuration, Double::sum);

@@ -58,6 +58,10 @@ public class ClientMapper {
                 .plannedCancelledEventsCount(clientMeetingsStatistic.getPlannedCancelledEventsCount())
                 .notPlannedCancelledEventsCount(clientMeetingsStatistic.getNotPlannedCancelledEventsCount())
                 .totalIncome(clientMeetingsStatistic.getTotalIncome())
+                .promoMeetingsHours(clientMeetingsStatistic.getPromoMeetingsHours())
+                .promoEventsCount(clientMeetingsStatistic.getPromoEventsCount())
+                .plannedEventsCount(clientMeetingsStatistic.getPlannedEventsCount())
+                .requiresShiftEventsCount(clientMeetingsStatistic.getRequiresShiftEventsCount())
                 .build();
     }
 }
