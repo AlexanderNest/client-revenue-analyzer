@@ -1,7 +1,11 @@
 package ru.nesterov.calendar.integration.google;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.google.api.client.googleapis.batch.BatchRequest;
+import com.google.api.client.googleapis.batch.json.JsonBatchCallback;
 import com.google.api.client.googleapis.javanet.GoogleNetHttpTransport;
+import com.google.api.client.googleapis.json.GoogleJsonError;
+import com.google.api.client.http.HttpHeaders;
 import com.google.api.client.json.gson.GsonFactory;
 import com.google.api.client.util.DateTime;
 import com.google.api.services.calendar.Calendar;
@@ -16,10 +20,13 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.stereotype.Component;
 import ru.nesterov.calendar.integration.dto.CalendarType;
+import ru.nesterov.calendar.integration.dto.CreateEventDto;
 import ru.nesterov.calendar.integration.dto.EventDto;
 import ru.nesterov.calendar.integration.dto.EventExtensionDto;
 import ru.nesterov.calendar.integration.dto.EventStatus;
 import ru.nesterov.calendar.integration.dto.PrimaryEventData;
+import ru.nesterov.calendar.integration.dto.ResponseCreateEventDto;
+import ru.nesterov.calendar.integration.exception.CalendarIntegrationException;
 import ru.nesterov.calendar.integration.exception.CannotBuildEventIntegrationException;
 import ru.nesterov.calendar.integration.service.CalendarClient;
 import ru.nesterov.calendar.integration.service.EventStatusService;
@@ -78,6 +85,12 @@ import java.util.stream.Stream;
 @ConditionalOnProperty("app.google.calendar.integration.enabled")
 public class GoogleCalendarClient implements CalendarClient {
     private static final String DEFAULT_EVENT_TYPE = "default";
+    /**
+     * Максимальное количество запросов в одном батче Google Calendar API
+     */
+    private static final int MAX_BATCH_SIZE = 50;
+    private static final int EVENT_NOT_FOUND_CODE = 404;
+    private static final int EVENT_ALREADY_DELETED_CODE = 410;
 
     private final Calendar calendar;
     private final GoogleCalendarProperties properties;
@@ -94,7 +107,7 @@ public class GoogleCalendarClient implements CalendarClient {
 
     private Calendar createCalendarService() throws GeneralSecurityException, IOException {
         GoogleCredentials credentials = GoogleCredentials.fromStream(new FileInputStream(properties.getServiceAccountFilePath()))
-                    .createScoped(List.of(CalendarScopes.CALENDAR_READONLY));
+                .createScoped(List.of(CalendarScopes.CALENDAR));
 
         return new Calendar.Builder(GoogleNetHttpTransport.newTrustedTransport(), GsonFactory.getDefaultInstance(), new HttpCredentialsAdapter(credentials))
                 .setApplicationName(properties.getApplicationName())
@@ -107,6 +120,135 @@ public class GoogleCalendarClient implements CalendarClient {
 
     public List<EventDto> getEventsBetweenDates(String calendarId, CalendarType calendarType, LocalDateTime leftDate, LocalDateTime rightDate, String clientName) {
         return getEventsBetweenDatesInternal(calendarId, calendarType, leftDate, rightDate, clientName);
+    }
+
+    @SneakyThrows
+    @Override
+    public List<ResponseCreateEventDto> createEvents(String calendarId, List<CreateEventDto> createEventDtoList) {
+        List<ResponseCreateEventDto> responseList = new ArrayList<>();
+        List<GoogleJsonError> errors = new ArrayList<>();
+
+        for (List<CreateEventDto> eventsChunk : partition(createEventDtoList, MAX_BATCH_SIZE)) {
+            BatchRequest batchRequest = calendar.batch(httpRequest -> httpRequest.setReadTimeout(3 * 60000));
+
+            for (CreateEventDto eventToCreate : eventsChunk) {
+                JsonBatchCallback<Event> callback = new JsonBatchCallback<>() {
+                    @Override
+                    public void onFailure(GoogleJsonError e, HttpHeaders responseHeaders) {
+                        log.error("Ошибка создания события {}", e);
+                        errors.add(e);
+                    }
+
+                    @Override
+                    public void onSuccess(Event createdEvent, HttpHeaders responseHeaders) {
+                        log.debug("Было создано событие c id: {}", createdEvent.getId());
+                        responseList.add(ResponseCreateEventDto.builder()
+                                .eventId(createdEvent.getId())
+                                .clientId(eventToCreate.getClientId())
+                                .build());
+                    }
+                };
+
+                String colorId = eventStatusService.getColorId(eventToCreate.getStatus());
+
+                Event newEvent = new Event()
+                        .setSummary(eventToCreate.getSummary())
+                        .setDescription(eventToCreate.getDescription())
+                        .setColorId(colorId)
+                        .setStart(new EventDateTime().setDateTime(new DateTime(eventToCreate.getStart())))
+                        .setEnd(new EventDateTime().setDateTime(new DateTime(eventToCreate.getEnd())));
+
+                calendar.events().insert(calendarId, newEvent).queue(batchRequest, callback);
+            }
+
+            batchRequest.execute();
+
+            if (!errors.isEmpty()) {
+                break;
+            }
+        }
+
+        if (!errors.isEmpty()) {
+            rollbackCreatedEvents(calendarId, responseList);
+            throw new CalendarIntegrationException("Создание событий завершилось с ошибкой");
+        }
+
+        return responseList;
+    }
+
+    @SneakyThrows
+    @Override
+    public void deleteEvents(String calendarId, List<String> eventIdList) {
+        if (eventIdList == null || eventIdList.isEmpty()) {
+            log.debug("Список событий для удаления пуст");
+            return;
+        }
+
+        List<GoogleJsonError> errors = new ArrayList<>();
+
+        for (List<String> eventIdsChunk : partition(eventIdList, MAX_BATCH_SIZE)) {
+            BatchRequest batchRequest = calendar.batch(httpRequest -> httpRequest.setReadTimeout(3 * 60000));
+
+            for (String eventId : eventIdsChunk) {
+                calendar.events().delete(calendarId, eventId).queue(batchRequest, new JsonBatchCallback<>() {
+                    @Override
+                    public void onFailure(GoogleJsonError e, HttpHeaders responseHeaders) {
+                        if (isAlreadyDeleted(e)) {
+                            log.debug("Событие {} уже было удалено ранее", eventId);
+                            return;
+                        }
+
+                        log.error("Не удалось удалить событие {}: {}", eventId, e.getMessage());
+                        errors.add(e);
+                    }
+
+                    @Override
+                    public void onSuccess(Void unused, HttpHeaders responseHeaders) {
+                        log.trace("Удалено событие {}", eventId);
+                    }
+                });
+            }
+
+            batchRequest.execute();
+        }
+
+        if (!errors.isEmpty()) {
+            throw new CalendarIntegrationException("Не удалось удалить событий: " + errors.size());
+        }
+    }
+
+    /**
+     * Удаление уже удаленного события не считаем ошибкой: это делает повторный вызов удаления безопасным
+     */
+    private boolean isAlreadyDeleted(GoogleJsonError error) {
+        return error.getCode() == EVENT_ALREADY_DELETED_CODE || error.getCode() == EVENT_NOT_FOUND_CODE;
+    }
+
+    private void rollbackCreatedEvents(String calendarId, List<ResponseCreateEventDto> createdEvents) {
+        List<String> createdEventsId = createdEvents.stream()
+                .map(ResponseCreateEventDto::getEventId)
+                .toList();
+
+        try {
+            deleteEvents(calendarId, createdEventsId);
+            log.info("Удалены все созданные события из-за ошибок при попытке создать event");
+        } catch (Exception e) {
+            log.error("Не удалось удалить события после неудачного создания. Их придется удалить вручную: {}",
+                    createdEventsId, e);
+        }
+    }
+
+    /**
+     * Google ограничивает батч 50 запросами, поэтому большие списки отправляем частями
+     */
+    private <T> List<List<T>> partition(List<T> source, int chunkSize) {
+        List<List<T>> partitions = new ArrayList<>();
+
+        for (int i = 0; i < source.size(); i += chunkSize) {
+            partitions.add(source.subList(i, Math.min(i + chunkSize, source.size())));
+        }
+
+        return partitions;
     }
 
     private List<EventDto> getEventsBetweenDatesInternal(String calendarId, CalendarType calendarType, LocalDateTime leftDate, LocalDateTime rightDate, String eventName) {
@@ -205,9 +347,9 @@ public class GoogleCalendarClient implements CalendarClient {
         }
     }
 
-    private LocalDateTime getLocalDateTime (EventDateTime eventDateTime) {
+    private LocalDateTime getLocalDateTime(EventDateTime eventDateTime) {
         DateTime date;
-        if(eventDateTime.getDateTime() != null) {
+        if (eventDateTime.getDateTime() != null) {
             date = eventDateTime.getDateTime();  // событие со временем и датой
         } else {
             date = eventDateTime.getDate(); // событие с датой на весь день
