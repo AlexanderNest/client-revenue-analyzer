@@ -4,8 +4,8 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.web.bind.annotation.RequestHeader;
 import org.springframework.web.bind.annotation.RestController;
+import ru.nesterov.core.service.testdata.TestDataCreationStatus;
 import ru.nesterov.core.service.testdata.TestDataService;
-import ru.nesterov.core.entity.TestDataCreationStatus;
 import ru.nesterov.web.controller.response.ResponseWithMessage;
 
 @ConditionalOnProperty(name = "app.test.data.enabled", havingValue = "true")
@@ -21,20 +21,20 @@ public class TestDataControllerImpl implements TestDataController {
         String message = switch (status) {
             case CREATED -> "Тестовые данные были созданы";
             case LIMIT_NOT_REACHED -> "Вы точно хотите создать тестовые данные?";
-            case ERROR -> "Ошибка при создании тестовых данных";
         };
 
-        ResponseWithMessage responseWithMessage = new ResponseWithMessage();
-        responseWithMessage.setMessage(message);
-        return responseWithMessage;
+        return buildResponse(message);
     }
 
     @Override
     public ResponseWithMessage deleteTestData(@RequestHeader(name = "X-username") String username) {
         testDataService.deleteTestData(username);
+        return buildResponse("Тестовые данные удалены");
+    }
 
+    private ResponseWithMessage buildResponse(String message) {
         ResponseWithMessage responseWithMessage = new ResponseWithMessage();
-        responseWithMessage.setMessage("Тестовые данные удалены");
+        responseWithMessage.setMessage(message);
         return responseWithMessage;
     }
 }

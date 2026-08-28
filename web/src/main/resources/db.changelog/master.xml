@@ -418,4 +418,16 @@
         </createTable>
     </changeSet>
 
+    <changeSet id="create client id index for client_test_events" author="Leonid Velikanov">
+        <preConditions onFail="MARK_RAN">
+            <not>
+                <indexExists tableName="client_test_events" indexName="IDX_CLIENT_TEST_EVENTS_CLIENT_ID"/>
+            </not>
+        </preConditions>
+
+        <createIndex tableName="client_test_events" indexName="IDX_CLIENT_TEST_EVENTS_CLIENT_ID">
+            <column name="client_id"/>
+        </createIndex>
+    </changeSet>
+
 </databaseChangeLog>

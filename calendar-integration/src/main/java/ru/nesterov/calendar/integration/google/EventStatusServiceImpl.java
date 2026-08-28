@@ -70,7 +70,7 @@ public class EventStatusServiceImpl implements EventStatusService {
         } else if (eventStatus == EventStatus.PLANNED_CANCELLED) {
             colorList = plannedCancelledColorCodes;
         } else if (eventStatus == EventStatus.UNPLANNED_CANCELLED) {
-            colorList = plannedCancelledColorCodes;
+            colorList = unplannedCancelledColorCodes;
         } else {
             throw new IllegalArgumentException("Неизвестный статус");
         }

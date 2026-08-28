@@ -9,6 +9,6 @@ import java.util.List;
 
 @Repository
 public interface ClientEventRepository extends JpaRepository<ClientEvent, Long> {
-    @Query("SELECT с.eventId FROM ClientEvent с WHERE с.clientId = :clientId")
+    @Query("SELECT ce.eventId FROM ClientEvent ce WHERE ce.clientId = :clientId")
     List<String> getEventIdsByClientId(Long clientId);
 }

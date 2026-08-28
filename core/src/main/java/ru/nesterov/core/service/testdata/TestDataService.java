@@ -11,47 +11,88 @@ import ru.nesterov.calendar.integration.dto.CreateEventDto;
 import ru.nesterov.calendar.integration.dto.EventStatus;
 import ru.nesterov.calendar.integration.dto.ResponseCreateEventDto;
 import ru.nesterov.calendar.integration.service.CalendarService;
-import ru.nesterov.core.entity.TestDataCreationStatus;
+import ru.nesterov.core.exception.TestDataCreationException;
+import ru.nesterov.core.exception.TestDataDeletionException;
 import ru.nesterov.core.service.ClientEventService;
 import ru.nesterov.core.service.client.ClientService;
 import ru.nesterov.core.service.dto.ClientDto;
 import ru.nesterov.core.service.dto.UserDto;
 import ru.nesterov.core.service.user.UserService;
 
+import java.time.Duration;
 import java.time.Instant;
-import java.time.LocalDate;
-import java.time.ZoneId;
+import java.time.LocalDateTime;
 import java.time.ZoneOffset;
 import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
-import java.util.Date;
 import java.util.List;
 import java.util.Map;
 import java.util.Random;
 import java.util.concurrent.ConcurrentHashMap;
-import java.util.concurrent.ThreadLocalRandom;
 
 @ConditionalOnProperty(name = "app.test.data.enabled", havingValue = "true")
 @Service
 @Slf4j
 @RequiredArgsConstructor
 public class TestDataService {
-    private final Map<String, Byte> requestCounterMap = new ConcurrentHashMap<>();
+    /**
+     * Реальное создание данных происходит только на третий подряд идущий запрос от одного пользователя
+     */
+    private static final int REQUIRED_ATTEMPTS_COUNT = 3;
+    /**
+     * Незавершенная серия запросов протухает, если пользователь не повторил запрос в течение этого времени
+     */
+    private static final Duration ATTEMPTS_TTL = Duration.ofMinutes(10);
+    private static final long CLEANUP_INTERVAL_MS = 600_000;
+
+    private static final int EVENT_DATE_RANGE_MONTHS = 3;
+    private static final int EVENT_DURATION_SECONDS = 3600;
+    private static final int MIN_EVENTS_PER_CLIENT = 5;
+    private static final int MAX_EVENTS_PER_CLIENT = 9;
+
+    private static final DateTimeFormatter EVENT_DATE_FORMATTER =
+            DateTimeFormatter.ofPattern("yyyy-MM-dd'T'HH:mm:ss.SSS'Z'").withZone(ZoneOffset.UTC);
+
+    /**
+     * У прошедших встреч статус SUCCESS должен встречаться заметно чаще остальных
+     */
+    private static final List<WeightedStatus> PAST_EVENT_STATUSES = List.of(
+            new WeightedStatus(EventStatus.SUCCESS, 60),
+            new WeightedStatus(EventStatus.PLANNED_CANCELLED, 15),
+            new WeightedStatus(EventStatus.UNPLANNED_CANCELLED, 15),
+            new WeightedStatus(EventStatus.PLANNED, 5),
+            new WeightedStatus(EventStatus.REQUIRES_SHIFT, 5)
+    );
+
+    /**
+     * Будущая встреча еще не могла состояться, поэтому SUCCESS для нее невозможен
+     */
+    private static final List<WeightedStatus> FUTURE_EVENT_STATUSES = List.of(
+            new WeightedStatus(EventStatus.PLANNED, 80),
+            new WeightedStatus(EventStatus.PLANNED_CANCELLED, 20)
+    );
+
+    private final Map<String, CreationAttempt> creationAttempts = new ConcurrentHashMap<>();
 
     @Value("${app.test.data.client.limit}")
     private int clientLimit;
-    private final static byte MAX_COUNT = 2;
 
     private final CalendarService calendarService;
     private final UserService userService;
     private final ClientEventService clientEventService;
     private final ClientService clientService;
 
-    @Scheduled(fixedDelay = 600000)
+    /**
+     * Убирает незавершенные серии запросов, по которым пользователь так и не дошел до создания данных.
+     * Завершенные серии удаляются сразу в {@link #tryToCreateTestData(String)}
+     */
+    @Scheduled(fixedDelay = CLEANUP_INTERVAL_MS)
     public void cleanup() {
-        boolean wasCleaned = requestCounterMap.entrySet().removeIf(entry -> {
-            if (entry.getValue() >= MAX_COUNT) {
-                log.trace("Удален {} из списка", entry);
+        Instant now = Instant.now();
+
+        boolean wasCleaned = creationAttempts.entrySet().removeIf(entry -> {
+            if (isExpired(entry.getValue(), now)) {
+                log.trace("Удалена протухшая серия запросов пользователя [{}]", entry.getKey());
                 return true;
             }
 
@@ -59,15 +100,24 @@ public class TestDataService {
         });
 
         if (wasCleaned) {
-            log.debug("Были найдены и удалены мусорные элементы");
+            log.debug("Были найдены и удалены протухшие серии запросов на создание тестовых данных");
         }
     }
 
     public TestDataCreationStatus tryToCreateTestData(String username) {
-        byte START_COUNT = 0;
-        int requestsCount = requestCounterMap.merge(username, START_COUNT, (oldValue, newValue) -> (byte) (oldValue + 1));
+        Instant now = Instant.now();
 
-        if (requestsCount < MAX_COUNT) {
+        CreationAttempt attempt = creationAttempts.compute(username, (key, currentAttempt) -> {
+            if (currentAttempt == null || isExpired(currentAttempt, now)) {
+                return new CreationAttempt(1, now);
+            }
+
+            return new CreationAttempt(currentAttempt.count() + 1, now);
+        });
+
+        if (attempt.count() < REQUIRED_ATTEMPTS_COUNT) {
+            log.debug("Запрос [{}] из [{}] на создание тестовых данных для пользователя [{}]",
+                    attempt.count(), REQUIRED_ATTEMPTS_COUNT, username);
             return TestDataCreationStatus.LIMIT_NOT_REACHED;
         }
 
@@ -75,50 +125,112 @@ public class TestDataService {
             createTestData(username);
             return TestDataCreationStatus.CREATED;
         } catch (Exception e) {
-            return TestDataCreationStatus.ERROR;
+            throw new TestDataCreationException(username, e);
         } finally {
-            requestCounterMap.remove(username);
+            creationAttempts.remove(username);
         }
     }
 
-    private void createTestData(String username) {
-        Random random = new Random();
-
-        UserDto userDto = userService.getUserByUsername(username);
-
-        List<ClientDto> clientDtoList = createRandomClients(userDto, random);
-
-        List<ResponseCreateEventDto> responseCreateEventDtoList = createRandomEventForClients(random, userDto, clientDtoList);
-
-        List<ClientEventDto> clientEventLinks = responseCreateEventDtoList.stream() //TODO здесь явно что-то не то. связь делается точно проще, чем тут и как будто сопоставление по имени тоже не должно быть
-                .map(eventDto -> ClientEventDto.builder()
-                        .clientId(eventDto.getClientId())
-                        .eventId(eventDto.getEventId())
-                        .build())
-                .toList();
-
-        clientEventService.createClientEventLinks(clientEventLinks);
-    }
-
+    /**
+     * Удаляет тестовые данные пользователя. Клиент считается тестовым, если на него есть ссылки
+     * в таблице связей с событиями.
+     * <p>
+     * Сначала удаляются события в календаре и только после этого клиенты из базы: если календарь ответил
+     * ошибкой, база остается нетронутой и повторный вызов доудалит остатки. Повторное удаление уже
+     * удаленного события в Google идемпотентно
+     */
     public void deleteTestData(String username) {
         UserDto userDto = userService.getUserByUsername(username);
 
-        List<ClientDto> clientDtoList = clientService.getClientByUserId(userDto);
+        List<ClientDto> testClients = new ArrayList<>();
+        List<String> eventIds = new ArrayList<>();
 
-        List<String> eventIdList = new ArrayList<>();
-
-        for (ClientDto client : clientDtoList) {
+        for (ClientDto client : clientService.getClientByUserId(userDto)) {
             List<String> clientEventIds = clientEventService.getEventIdsByClientId(client.getId());
 
             if (clientEventIds.isEmpty()) {
                 continue;
             }
 
-            eventIdList.addAll(clientEventIds);
-            clientService.deleteClient(userDto, client.getName());
+            testClients.add(client);
+            eventIds.addAll(clientEventIds);
         }
 
-        calendarService.deleteEvents(userDto.getMainCalendar(), eventIdList);
+        if (testClients.isEmpty()) {
+            log.debug("Тестовые данные для пользователя [{}] не найдены", username);
+            return;
+        }
+
+        try {
+            calendarService.deleteEvents(userDto.getMainCalendar(), eventIds);
+        } catch (Exception e) {
+            throw new TestDataDeletionException(username, e);
+        }
+
+        for (ClientDto testClient : testClients) {
+            clientService.deleteClient(userDto, testClient.getName());
+        }
+
+        log.info("Для пользователя [{}] удалено тестовых клиентов: [{}], событий: [{}]",
+                username, testClients.size(), eventIds.size());
+    }
+
+    /**
+     * Если создание упало на любом шаге, все уже созданное откатывается: сначала события в календаре,
+     * затем клиенты в базе
+     */
+    private void createTestData(String username) {
+        Random random = new Random();
+
+        UserDto userDto = userService.getUserByUsername(username);
+
+        List<ClientDto> createdClients = new ArrayList<>();
+        List<ResponseCreateEventDto> createdEvents = new ArrayList<>();
+
+        try {
+            createdClients.addAll(createRandomClients(userDto, random));
+            createdEvents.addAll(createRandomEventsForClients(random, userDto, createdClients));
+
+            List<ClientEventDto> clientEventLinks = createdEvents.stream()
+                    .map(event -> ClientEventDto.builder()
+                            .clientId(event.getClientId())
+                            .eventId(event.getEventId())
+                            .build())
+                    .toList();
+
+            clientEventService.createClientEventLinks(clientEventLinks);
+
+            log.info("Для пользователя [{}] создано клиентов: [{}], событий: [{}]",
+                    username, createdClients.size(), createdEvents.size());
+        } catch (Exception e) {
+            rollbackCreatedTestData(userDto, createdClients, createdEvents, e);
+            throw e;
+        }
+    }
+
+    private void rollbackCreatedTestData(UserDto userDto, List<ClientDto> createdClients,
+                                         List<ResponseCreateEventDto> createdEvents, Exception cause) {
+        log.error("Создание тестовых данных для пользователя [{}] упало, откатываем уже созданное",
+                userDto.getUsername(), cause);
+
+        List<String> eventIds = createdEvents.stream()
+                .map(ResponseCreateEventDto::getEventId)
+                .toList();
+
+        try {
+            calendarService.deleteEvents(userDto.getMainCalendar(), eventIds);
+        } catch (Exception e) {
+            log.error("При откате не удалось удалить события из календаря [{}]. Их придется удалить вручную: {}",
+                    userDto.getMainCalendar(), eventIds, e);
+        }
+
+        for (ClientDto createdClient : createdClients) {
+            try {
+                clientService.deleteClient(userDto, createdClient.getName());
+            } catch (Exception e) {
+                log.error("При откате не удалось удалить клиента [{}]", createdClient.getName(), e);
+            }
+        }
     }
 
     private List<ClientDto> createRandomClients(UserDto userDto, Random random) {
@@ -130,7 +242,6 @@ public class TestDataService {
                     .pricePerHour(random.nextInt(1000, 100000))
                     .description("testDescription" + random.nextInt(312312412))
                     .active(random.nextBoolean())
-                    .startDate(getRandomDateForClient())
                     .phone(getRandomPhoneNumber(random))
                     .build();
 
@@ -140,31 +251,65 @@ public class TestDataService {
         return clientList;
     }
 
-    private List<ResponseCreateEventDto> createRandomEventForClients(Random random, UserDto userDto, List<ClientDto> clientDtoList) {
-        List<CreateEventDto> eventsForClient = new ArrayList<>();
+    private List<ResponseCreateEventDto> createRandomEventsForClients(Random random, UserDto userDto,
+                                                                      List<ClientDto> clientDtoList) {
+        List<CreateEventDto> eventsForClients = new ArrayList<>();
 
         for (ClientDto client : clientDtoList) {
-            for (int i = 0; i < random.nextInt(5, 10); i++) {
-                DatesPair datesPairForEvent = getDateForEvent(random);
-                String startDate = datesPairForEvent.getStartDate();
-                String endDate = datesPairForEvent.getEndDate();
+            int eventsCount = random.nextInt(MIN_EVENTS_PER_CLIENT, MAX_EVENTS_PER_CLIENT + 1);
 
-                CreateEventDto event = CreateEventDto.builder()
-                        .mainCalendar(userDto.getMainCalendar())
-                        .clientId(client.getId())
-                        .summary(client.getName())
-                        .description(client.getDescription())
-                        .start(startDate)
-                        .end(endDate)
-                        .status(EventStatus.values()[random.nextInt(EventStatus.values().length)])
-                        .build();
-
-                eventsForClient.add(event);
+            for (int i = 0; i < eventsCount; i++) {
+                eventsForClients.add(createRandomEvent(random, userDto, client));
             }
         }
 
-        List<ResponseCreateEventDto> createdEvents = calendarService.createEvents(userDto.getMainCalendar(), eventsForClient);
-        return createdEvents;
+        return calendarService.createEvents(userDto.getMainCalendar(), eventsForClients);
+    }
+
+    private CreateEventDto createRandomEvent(Random random, UserDto userDto, ClientDto client) {
+        Instant start = getRandomEventStart(random);
+
+        return CreateEventDto.builder()
+                .mainCalendar(userDto.getMainCalendar())
+                .clientId(client.getId())
+                .summary(client.getName())
+                .description(client.getDescription())
+                .start(EVENT_DATE_FORMATTER.format(start))
+                .end(EVENT_DATE_FORMATTER.format(start.plusSeconds(EVENT_DURATION_SECONDS)))
+                .status(getRandomEventStatus(random, start))
+                .build();
+    }
+
+    /**
+     * Дата встречи выбирается случайно в интервале +-3 месяца от текущей даты
+     */
+    private Instant getRandomEventStart(Random random) {
+        LocalDateTime now = LocalDateTime.now(ZoneOffset.UTC);
+
+        long startSec = now.minusMonths(EVENT_DATE_RANGE_MONTHS).toEpochSecond(ZoneOffset.UTC);
+        long endSec = now.plusMonths(EVENT_DATE_RANGE_MONTHS).toEpochSecond(ZoneOffset.UTC) - EVENT_DURATION_SECONDS;
+
+        return Instant.ofEpochSecond(random.nextLong(startSec, endSec + 1));
+    }
+
+    private EventStatus getRandomEventStatus(Random random, Instant eventStart) {
+        List<WeightedStatus> statuses = eventStart.isBefore(Instant.now()) ? PAST_EVENT_STATUSES : FUTURE_EVENT_STATUSES;
+
+        int totalWeight = statuses.stream()
+                .mapToInt(WeightedStatus::weight)
+                .sum();
+
+        int roll = random.nextInt(totalWeight);
+
+        for (WeightedStatus weightedStatus : statuses) {
+            roll -= weightedStatus.weight();
+
+            if (roll < 0) {
+                return weightedStatus.status();
+            }
+        }
+
+        return statuses.getLast().status();
     }
 
     private String getRandomPhoneNumber(Random random) {
@@ -175,39 +320,17 @@ public class TestDataService {
         for (int i = 0; i < 10; i++) {
             stringBuilder.append(random.nextInt(9));
         }
+
         return stringBuilder.toString();
     }
 
-    private DatesPair getDateForEvent(Random random) {
-        int currentYear = LocalDate.now().getYear();
-
-        long startSec = LocalDate.of(currentYear, 1, 1)
-                .atStartOfDay(ZoneOffset.UTC)
-                .toInstant().getEpochSecond();
-
-        long endSec = LocalDate.of(currentYear, 12, 31)
-                .atTime(23, 0, 0)
-                .atZone(ZoneOffset.UTC)
-                .toInstant().getEpochSecond();
-
-        long randomStart = startSec + random.nextLong(endSec - startSec + 1);
-        Instant start = Instant.ofEpochSecond(randomStart);
-        Instant end = start.plusSeconds(3600);
-
-        DateTimeFormatter fmt = DateTimeFormatter.ofPattern("yyyy-MM-dd'T'HH:mm:ss.SSS'Z'")
-                .withZone(ZoneOffset.UTC);
-
-        return DatesPair.builder()
-                .startDate(fmt.format(start))
-                .endDate(fmt.format(end))
-                .build();
+    private boolean isExpired(CreationAttempt attempt, Instant now) {
+        return attempt.lastAttemptDate().plus(ATTEMPTS_TTL).isBefore(now);
     }
 
-    private Date getRandomDateForClient() {
-        LocalDate start = LocalDate.of(2026, 1, 1);
-        int daysInYear = start.lengthOfYear();
-        int randomOffset = ThreadLocalRandom.current().nextInt(daysInYear);
-        LocalDate randomLocalDate = start.plusDays(randomOffset);
-        return Date.from(randomLocalDate.atStartOfDay(ZoneId.systemDefault()).toInstant());
+    private record CreationAttempt(int count, Instant lastAttemptDate) {
+    }
+
+    private record WeightedStatus(EventStatus status, int weight) {
     }
 }
