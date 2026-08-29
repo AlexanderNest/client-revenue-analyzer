@@ -4,7 +4,6 @@ import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.http.MediaType;
-import org.springframework.test.web.servlet.ResultActions;
 import ru.nesterov.calendar.integration.dto.CalendarType;
 import ru.nesterov.calendar.integration.dto.EventDto;
 import ru.nesterov.calendar.integration.dto.EventExtensionDto;
@@ -141,7 +140,7 @@ public class EventsAnalyzerControllerTest extends AbstractControllerTest {
     }
 
     @Test
-    public void getEventsStatusesForMonthTest() throws Exception {
+    public void getEventsStatusesForMonthShouldReturnZeroForNotOccurredStatuses() throws Exception {
         User user = createUser("eventsUser", "calendar1");
         Client client = createClient("clientStat", user);
 
@@ -152,26 +151,69 @@ public class EventsAnalyzerControllerTest extends AbstractControllerTest {
                 .end(LocalDateTime.of(2024, 8, 9, 12, 30))
                 .build();
 
+        EventDto eventDto2 = EventDto.builder()
+                .summary(client.getName())
+                .status(EventStatus.PLANNED)
+                .start(LocalDateTime.of(2024, 8, 10, 11, 30))
+                .end(LocalDateTime.of(2024, 8, 10, 12, 30))
+                .build();
+
+        EventDto eventDto3 = EventDto.builder()
+                .summary(client.getName())
+                .status(EventStatus.SUCCESS)
+                .start(LocalDateTime.of(2024, 8, 11, 11, 30))
+                .end(LocalDateTime.of(2024, 8, 11, 12, 30))
+                .build();
+
         when(googleCalendarClient.getEventsBetweenDates(eq(user.getMainCalendar()), eq(CalendarType.MAIN), any(), any(), isNull()))
-                .thenReturn(List.of(eventDto1));
+                .thenReturn(List.of(eventDto1, eventDto2, eventDto3));
 
         GetForYearAndMonthRequest request = new GetForYearAndMonthRequest();
-        request.setMonthName("July");
+        request.setMonthName("August");
+        request.setYear(2024);
 
-        ResultActions resultActions = mockMvc.perform(post("/events/analyzer/getEventsStatusesForMonth")
-                .header("X-username", user.getUsername())
-                .contentType(MediaType.APPLICATION_JSON)
-                .content(objectMapper.writeValueAsString(request))
-        );
-
-        resultActions
+        mockMvc.perform(post("/events/analyzer/getEventsStatusesForMonth")
+                        .header("X-username", user.getUsername())
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(objectMapper.writeValueAsString(request))
+                )
                 .andExpect(status().isOk())
-                .andExpect(jsonPath("$", aMapWithSize(5)))
+                .andExpect(jsonPath("$", aMapWithSize(EventStatus.values().length)))
+                .andExpect(jsonPath("$.PLANNED").value(2))
+                .andExpect(jsonPath("$.SUCCESS").value(1))
+                .andExpect(jsonPath("$.REQUIRES_SHIFT").value(0))
                 .andExpect(jsonPath("$.PLANNED_CANCELLED").value(0))
-                .andExpect(jsonPath("$.UNPLANNED_CANCELLED").value(0))
-                .andExpect(jsonPath("$.PLANNED").value(1))
+                .andExpect(jsonPath("$.UNPLANNED_CANCELLED").value(0));
+
+        clientRepository.delete(client);
+        userRepository.delete(user);
+    }
+
+    @Test
+    public void getEventsStatusesForMonthShouldReturnAllStatusesWithZeroWhenNoEvents() throws Exception {
+        User user = createUser("emptyEventsUser", "calendar2");
+
+        when(googleCalendarClient.getEventsBetweenDates(eq(user.getMainCalendar()), eq(CalendarType.MAIN), any(), any(), isNull()))
+                .thenReturn(List.of());
+
+        GetForYearAndMonthRequest request = new GetForYearAndMonthRequest();
+        request.setMonthName("August");
+        request.setYear(2024);
+
+        mockMvc.perform(post("/events/analyzer/getEventsStatusesForMonth")
+                        .header("X-username", user.getUsername())
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(objectMapper.writeValueAsString(request))
+                )
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$", aMapWithSize(EventStatus.values().length)))
                 .andExpect(jsonPath("$.SUCCESS").value(0))
-                .andExpect(jsonPath("$.REQUIRES_SHIFT").value(0));
+                .andExpect(jsonPath("$.REQUIRES_SHIFT").value(0))
+                .andExpect(jsonPath("$.PLANNED").value(0))
+                .andExpect(jsonPath("$.PLANNED_CANCELLED").value(0))
+                .andExpect(jsonPath("$.UNPLANNED_CANCELLED").value(0));
+
+        userRepository.delete(user);
     }
 
     @Test

@@ -226,6 +226,21 @@ class EventsAnalyzerServiceImplTest {
     }
 
     @Test
+    void getEventStatusesByMonthNameShouldReturnAllStatusesWithZeroWhenNoEvents() {
+        UserDto userDto = UserDto.builder()
+                .username("testUsername")
+                .id(1)
+                .build();
+
+        Map<EventStatus, Integer> statuses = eventsAnalyzerService.getEventStatusesByMonthName(userDto, "august", 2023);
+
+        assertEquals(EventStatus.values().length, statuses.size());
+        for (EventStatus eventStatus : EventStatus.values()) {
+            assertEquals(0, statuses.get(eventStatus));
+        }
+    }
+
+    @Test
     void getBusynessStatisticsByYearShouldThrowClientNotFoundExceptionWhenClientIsNotInDatabase() {
         UserDto userDto = UserDto.builder()
                 .username("testUsername")
