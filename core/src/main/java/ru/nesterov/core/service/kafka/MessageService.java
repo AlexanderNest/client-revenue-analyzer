@@ -5,23 +5,23 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.kafka.core.KafkaTemplate;
 import org.springframework.stereotype.Service;
-import ru.nesterov.core.service.kafka.dto.EventUserActionDto;
+import ru.nesterov.core.service.kafka.dto.KafkaMessage;
 
 @Data
 @Service
-public class KafkaService {
+public class MessageService {
 
     @Value("${app.kafka.default-topic}")
     private String topicName;
 
-    private KafkaTemplate<String, EventUserActionDto> kafkaTemplate;
+    private KafkaTemplate<String, KafkaMessage> kafkaTemplate;
 
     @Autowired
-    public KafkaService(KafkaTemplate<String, EventUserActionDto> kafkaTemplate) {
+    public MessageService(KafkaTemplate<String, KafkaMessage> kafkaTemplate) {
         this.kafkaTemplate = kafkaTemplate;
     }
 
-    public void sendToQueue(EventUserActionDto message) {
+    public void send(KafkaMessage message) {
         kafkaTemplate.send(topicName, message);
     }
 }
