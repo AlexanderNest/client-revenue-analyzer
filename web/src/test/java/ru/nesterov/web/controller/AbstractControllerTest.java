@@ -51,6 +51,7 @@ public abstract class AbstractControllerTest {
         User user1 = new User();
         user1.setUsername(username);
         user1.setMainCalendar(calendarName);
+        user1.setRole(Role.USER);
 
         return userRepository.save(user1);
     }

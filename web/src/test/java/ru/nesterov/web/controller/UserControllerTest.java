@@ -4,9 +4,9 @@ import org.junit.jupiter.api.Test;
 import org.springframework.http.MediaType;
 import ru.nesterov.core.entity.Role;
 import ru.nesterov.core.entity.User;
-import ru.nesterov.web.controller.request.CreateUserRequest;
-import ru.nesterov.web.controller.request.GetAllUsersByRoleAndSourceRequest;
-import ru.nesterov.web.controller.request.GetUserRequest;
+import ru.nesterov.web.controller.request.user.CreateUserRequest;
+import ru.nesterov.web.controller.request.user.GetAllUsersByRoleAndSourceRequest;
+import ru.nesterov.web.controller.request.user.GetUserRequest;
 
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
