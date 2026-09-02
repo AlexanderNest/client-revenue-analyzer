@@ -5,8 +5,10 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.stereotype.Component;
 import ru.nesterov.calendar.integration.dto.CalendarType;
+import ru.nesterov.calendar.integration.dto.CreateEventDto;
 import ru.nesterov.calendar.integration.dto.EventDto;
 import ru.nesterov.calendar.integration.dto.EventsFilter;
+import ru.nesterov.calendar.integration.dto.ResponseCreateEventDto;
 import ru.nesterov.calendar.integration.service.CalendarService;
 
 import java.time.LocalDateTime;
@@ -18,12 +20,12 @@ import java.util.List;
 @ConditionalOnProperty("app.google.calendar.integration.enabled")
 public class GoogleCalendarService implements CalendarService {
     private final GoogleCalendarClient googleCalendarClient;
-    private final String calendarId;
+    private final String holidayCalendarId;
 
     public GoogleCalendarService(GoogleCalendarClient googleCalendarClient,
-                                 @Value("${app.google.calendar.holiday.calendar}") String calendarId) {
+                                 @Value("${app.google.calendar.holiday.calendar}") String holidayCalendarId) {
         this.googleCalendarClient = googleCalendarClient;
-        this.calendarId = calendarId;
+        this.holidayCalendarId = holidayCalendarId;
     }
 
     @Override
@@ -39,7 +41,17 @@ public class GoogleCalendarService implements CalendarService {
 
     @Override
     public List<EventDto> getHolidays(LocalDateTime leftDate, LocalDateTime rightDate) {
-        return googleCalendarClient.getEventsBetweenDates(calendarId, CalendarType.PLAIN, leftDate, rightDate);
+        return googleCalendarClient.getEventsBetweenDates(holidayCalendarId, CalendarType.PLAIN, leftDate, rightDate);
+    }
+
+    @Override
+    public List<ResponseCreateEventDto> createEvents(String calendarId, List<CreateEventDto> createEventDtoList) {
+        return googleCalendarClient.createEvents(calendarId, createEventDtoList);
+    }
+
+    @Override
+    public void deleteEvents(String calendarId, List<String> eventId) {
+        googleCalendarClient.deleteEvents(calendarId, eventId);
     }
 
     private List<EventDto> mergeEvents(List<EventDto> eventsFromMainCalendar, List<EventDto> eventsFromCancelledCalendar) {

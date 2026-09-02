@@ -3,8 +3,8 @@ package ru.nesterov.web.mapper;
 import ru.nesterov.core.service.dto.ClientDto;
 import ru.nesterov.core.service.dto.ClientMeetingsStatistic;
 import ru.nesterov.core.service.dto.UpdateClientDto;
-import ru.nesterov.web.controller.request.CreateClientRequest;
-import ru.nesterov.web.controller.request.UpdateClientRequest;
+import ru.nesterov.web.controller.request.client.CreateClientRequest;
+import ru.nesterov.web.controller.request.client.UpdateClientRequest;
 import ru.nesterov.web.controller.response.ClientMeetingsStatisticResponse;
 import ru.nesterov.web.controller.response.ClientResponse;
 
@@ -58,6 +58,10 @@ public class ClientMapper {
                 .plannedCancelledEventsCount(clientMeetingsStatistic.getPlannedCancelledEventsCount())
                 .notPlannedCancelledEventsCount(clientMeetingsStatistic.getNotPlannedCancelledEventsCount())
                 .totalIncome(clientMeetingsStatistic.getTotalIncome())
+                .promoMeetingsHours(clientMeetingsStatistic.getPromoMeetingsHours())
+                .promoEventsCount(clientMeetingsStatistic.getPromoEventsCount())
+                .plannedEventsCount(clientMeetingsStatistic.getPlannedEventsCount())
+                .requiresShiftEventsCount(clientMeetingsStatistic.getRequiresShiftEventsCount())
                 .build();
     }
 }

@@ -125,6 +125,12 @@ class EventsAnalyzerServiceImplTest {
                 .end(end)
                 .build();
 
+        EventDto promoDto = EventDto.builder()
+                .summary("testName")
+                .status(EventStatus.PROMO)
+                .start(start)
+                .end(end)
+                .build();
 
         EventExtensionDto eventExtensionDto = new EventExtensionDto();
         eventExtensionDto.setIncome(2500);
@@ -171,7 +177,7 @@ class EventsAnalyzerServiceImplTest {
                 .build();
 
         when(googleCalendarService.getHolidays(any(), any())).thenReturn(List.of(holidayEvent));
-        when(googleCalendarService.getEventsBetweenDates(argThat(f -> f != null && f.getLeftDate().getYear() == 2024))).thenReturn(List.of(eventDto1, eventDto2, eventDto3, eventDto4, eventDto5, eventDto6, eventDto7, eventDto8));
+        when(googleCalendarService.getEventsBetweenDates(argThat(f -> f != null && f.getLeftDate().getYear() == 2024))).thenReturn(List.of(eventDto1, eventDto2, eventDto3, eventDto4, eventDto5, eventDto6, eventDto7, eventDto8, promoDto));
         when(googleCalendarService.getEventsBetweenDates(argThat(f -> f != null && f.getLeftDate().getYear() == 2025))).thenReturn(List.of(eventDto9));
     }
 
@@ -189,9 +195,40 @@ class EventsAnalyzerServiceImplTest {
         IncomeAnalysisResult incomeAnalysisResult = eventsAnalyzerService.getIncomeAnalysisByMonth(userDto, "august", 2024);
         assertEquals(9000, incomeAnalysisResult.getLostIncome());
         assertEquals(8500, incomeAnalysisResult.getActualIncome());
-        assertEquals(23500, incomeAnalysisResult.getPotentialIncome());
+        assertEquals(26500, incomeAnalysisResult.getPotentialIncome());
         assertEquals(14500, incomeAnalysisResult.getExpectedIncome());
         assertEquals(9000, incomeAnalysisResult.getLostIncomeDueToHoliday());
+        assertEquals(3000, incomeAnalysisResult.getPromoIncome());
+    }
+
+    @Test
+    void getIncomeAnalysisByMonthShouldTakePromoIncomeFromEventExtension() {
+        UserDto userDto = UserDto.builder()
+                .username("testUsername")
+                .id(1)
+                .build();
+
+        EventExtensionDto promoExtension = new EventExtensionDto();
+        promoExtension.setIncome(500);
+
+        EventDto promoWithPrice = EventDto.builder()
+                .summary("testName")
+                .status(EventStatus.PROMO)
+                .start(LocalDateTime.of(2024, 8, 9, 20, 30))
+                .end(LocalDateTime.of(2024, 8, 9, 23, 30))
+                .eventExtensionDto(promoExtension)
+                .build();
+
+        when(googleCalendarService.getEventsBetweenDates(argThat(f -> f != null && f.getLeftDate().getYear() == 2024)))
+                .thenReturn(List.of(promoWithPrice));
+
+        IncomeAnalysisResult incomeAnalysisResult = eventsAnalyzerService.getIncomeAnalysisByMonth(userDto, "august", 2024);
+
+        assertEquals(500, incomeAnalysisResult.getPromoIncome());
+        assertEquals(500, incomeAnalysisResult.getPotentialIncome());
+        assertEquals(0, incomeAnalysisResult.getActualIncome());
+        assertEquals(0, incomeAnalysisResult.getExpectedIncome());
+        assertEquals(0, incomeAnalysisResult.getLostIncome());
     }
 
     @Test
@@ -207,6 +244,7 @@ class EventsAnalyzerServiceImplTest {
         assertEquals(1000.0, incomeAnalysisResult.getPotentialIncome());
         assertEquals(1000.0, incomeAnalysisResult.getExpectedIncome());
         assertEquals(0, incomeAnalysisResult.getLostIncomeDueToHoliday());
+        assertEquals(0, incomeAnalysisResult.getPromoIncome());
     }
 
     @Test
@@ -217,12 +255,28 @@ class EventsAnalyzerServiceImplTest {
                 .build();
 
         Map<EventStatus, Integer> statuses = eventsAnalyzerService.getEventStatusesByMonthName(userDto, "august", 2024);
-        assertEquals(5, statuses.size());
+        assertEquals(6, statuses.size());
         assertEquals(3, statuses.get(EventStatus.SUCCESS));
         assertEquals(2, statuses.get(EventStatus.PLANNED_CANCELLED));
         assertEquals(1, statuses.get(EventStatus.UNPLANNED_CANCELLED));
         assertEquals(1, statuses.get(EventStatus.PLANNED));
         assertEquals(1, statuses.get(EventStatus.REQUIRES_SHIFT));
+        assertEquals(1, statuses.get(EventStatus.PROMO));
+    }
+
+    @Test
+    void getEventStatusesByMonthNameShouldReturnAllStatusesWithZeroWhenNoEvents() {
+        UserDto userDto = UserDto.builder()
+                .username("testUsername")
+                .id(1)
+                .build();
+
+        Map<EventStatus, Integer> statuses = eventsAnalyzerService.getEventStatusesByMonthName(userDto, "august", 2023);
+
+        assertEquals(EventStatus.values().length, statuses.size());
+        for (EventStatus eventStatus : EventStatus.values()) {
+            assertEquals(0, statuses.get(eventStatus));
+        }
     }
 
     @Test
@@ -311,6 +365,7 @@ class EventsAnalyzerServiceImplTest {
         assertEquals("phone", meetingsStatistics.getPhone());
         assertEquals(9, meetingsStatistics.getSuccessfulMeetingsHours());
         assertEquals(9, meetingsStatistics.getCancelledMeetingsHours());
+        assertEquals(3, meetingsStatistics.getPromoMeetingsHours());
         assertEquals(50, meetingsStatistics.getSuccessfulMeetingsPercentage());
         assertEquals(9000, meetingsStatistics.getLostIncome());
         assertEquals(9000, meetingsStatistics.getActualIncome());
@@ -318,5 +373,6 @@ class EventsAnalyzerServiceImplTest {
         assertEquals(3, meetingsStatistics.getSuccessfulEventsCount());
         assertEquals(2, meetingsStatistics.getPlannedCancelledEventsCount());
         assertEquals(1, meetingsStatistics.getNotPlannedCancelledEventsCount());
+        assertEquals(1, meetingsStatistics.getPromoEventsCount());
     }
 }

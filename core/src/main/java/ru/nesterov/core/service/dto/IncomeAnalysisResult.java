@@ -9,4 +9,5 @@ public class IncomeAnalysisResult {
     private double lostIncome;
     private double potentialIncome;
     private double lostIncomeDueToHoliday;
+    private double promoIncome;
 }

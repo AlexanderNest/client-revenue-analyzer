@@ -9,9 +9,9 @@ import ru.nesterov.calendar.integration.dto.EventStatus;
 import ru.nesterov.core.entity.Client;
 import ru.nesterov.core.entity.Role;
 import ru.nesterov.core.entity.User;
-import ru.nesterov.web.controller.request.CreateClientRequest;
-import ru.nesterov.web.controller.request.GetClientScheduleRequest;
-import ru.nesterov.web.controller.request.UpdateClientRequest;
+import ru.nesterov.web.controller.request.client.CreateClientRequest;
+import ru.nesterov.web.controller.request.client.GetClientScheduleRequest;
+import ru.nesterov.web.controller.request.client.UpdateClientRequest;
 
 import java.time.LocalDateTime;
 import java.util.List;

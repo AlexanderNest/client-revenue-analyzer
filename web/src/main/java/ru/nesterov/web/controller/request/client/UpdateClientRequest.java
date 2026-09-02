@@ -1,4 +1,4 @@
-package ru.nesterov.web.controller.request;
+package ru.nesterov.web.controller.request.client;
 
 import jakarta.validation.constraints.NotBlank;
 import lombok.Data;
