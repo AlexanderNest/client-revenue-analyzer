@@ -9,7 +9,7 @@ import ru.nesterov.web.controller.AbstractControllerTest;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
-@TestPropertySource(properties = ("app.secret-token.enabled=true"))
+@TestPropertySource(properties = {"app.secret-token.enabled=true", "app.kafka.default-topic=client-revenue-analyzer"})
 public class WebSecurityTest extends AbstractControllerTest {
     private final String TEST_URL = "/events/analyzer/getUnpaidEvents";
     private final String HEADER = "X-secret-token";

@@ -11,10 +11,14 @@ import ru.nesterov.core.service.kafka.dto.KafkaMessage;
 @Service
 public class MessageService {
 
-    @Value("${app.kafka.default-topic}")
     private String topicName;
 
     private KafkaTemplate<String, KafkaMessage> kafkaTemplate;
+
+    public MessageService(@Value("${app.kafka.default-topic}") String topicName, KafkaTemplate<String, KafkaMessage> kafkaTemplate) {
+        this.topicName = topicName;
+        this.kafkaTemplate = kafkaTemplate;
+    }
 
     @Autowired
     public MessageService(KafkaTemplate<String, KafkaMessage> kafkaTemplate) {
