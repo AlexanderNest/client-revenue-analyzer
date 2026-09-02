@@ -9,6 +9,5 @@ import java.time.LocalDate;
 public class GetForYearAndMonthRequest {
     @NotBlank
     private String monthName;
-
     private Integer year = LocalDate.now().getYear();
 }
