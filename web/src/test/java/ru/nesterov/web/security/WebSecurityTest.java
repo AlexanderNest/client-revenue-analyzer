@@ -3,6 +3,7 @@ package ru.nesterov.web.security;
 import org.junit.jupiter.api.Test;
 import org.springframework.http.MediaType;
 import org.springframework.test.context.TestPropertySource;
+import ru.nesterov.core.entity.Role;
 import ru.nesterov.core.entity.User;
 import ru.nesterov.web.controller.AbstractControllerTest;
 
@@ -42,6 +43,7 @@ public class WebSecurityTest extends AbstractControllerTest {
         user.setUsername(USERNAME + id);
         user.setMainCalendar("mainCalendarId");
         user.setCancelledCalendar("cancelCalendarId");
+        user.setRole(Role.USER);
 
         userRepository.save(user);
     }

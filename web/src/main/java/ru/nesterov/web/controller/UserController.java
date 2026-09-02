@@ -7,6 +7,7 @@ import io.swagger.v3.oas.annotations.parameters.RequestBody;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import ru.nesterov.web.controller.request.user.CreateUserRequest;
@@ -52,7 +53,6 @@ public interface UserController {
     @PostMapping("/getUserByUsername")
     ResponseEntity<GetUserResponse> getUserByUsername(GetUserRequest request);
 
-
     @Operation(
             summary = "Получить всех пользователей",
             description = "Возвращает список всех пользователей по роли и по источнику создания пользователя",
@@ -66,6 +66,7 @@ public interface UserController {
                     @ApiResponse(responseCode = "500", description = "Внутренняя ошибка сервера")
             }
     )
+    @PreAuthorize("hasRole('ADMIN')")
     @PostMapping("/getUsersIdByRoleAndSource")
     GetUserIdsResponse getUsersIdByRoleAndSource(GetAllUsersByRoleAndSourceRequest getAllUsersByRoleAndSourceRequest);
 }

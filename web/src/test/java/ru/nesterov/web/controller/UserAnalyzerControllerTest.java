@@ -5,6 +5,7 @@ import org.springframework.http.MediaType;
 import ru.nesterov.calendar.integration.dto.EventDto;
 import ru.nesterov.calendar.integration.dto.EventStatus;
 import ru.nesterov.core.entity.Client;
+import ru.nesterov.core.entity.Role;
 import ru.nesterov.core.entity.User;
 import ru.nesterov.web.controller.request.GetForYearRequest;
 
@@ -26,6 +27,7 @@ class UserAnalyzerControllerTest extends AbstractControllerTest {
         User user = new User();
         user.setUsername("UACT_testUser1");
         user.setMainCalendar("someCalendar1");
+        user.setRole(Role.USER);
         userRepository.save(user);
 
         Client client1 = new Client();
@@ -70,6 +72,7 @@ class UserAnalyzerControllerTest extends AbstractControllerTest {
         User user = new User();
         user.setUsername("UACT_testUser2");
         user.setMainCalendar("someCalendar1");
+        user.setRole(Role.USER);
         userRepository.save(user);
 
         EventDto eventDto1 = EventDto.builder()

@@ -6,6 +6,7 @@ import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.parameters.RequestBody;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.tags.Tag;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestHeader;
@@ -36,6 +37,7 @@ public interface ClientController {
                     @ApiResponse(responseCode = "500", description = "Внутренняя ошибка сервера")
             }
     )
+    @PreAuthorize("hasAnyRole('USER', 'ADMIN')")
     @PostMapping("/getSchedule")
     ClientScheduleResponse getClientSchedule(@RequestHeader(name = "X-username") String username, @RequestBody GetClientScheduleRequest request);
 
@@ -52,6 +54,7 @@ public interface ClientController {
                     @ApiResponse(responseCode = "500", description = "Внутренняя ошибка сервера")
             }
     )
+    @PreAuthorize("hasAnyRole('USER', 'ADMIN')")
     @PostMapping("/create")
     ClientResponse createClient(@RequestHeader(name = "X-username") String username, @RequestBody CreateClientRequest createClientRequest);
 
@@ -63,6 +66,7 @@ public interface ClientController {
                     @ApiResponse(responseCode = "500", description = "Внутренняя ошибка сервера")
             }
     )
+    @PreAuthorize("hasAnyRole('USER', 'ADMIN')")
     @PostMapping("/getActiveClients")
     List<ClientResponse> getActiveClients(@RequestHeader(name = "X-username") String username);
 
@@ -78,6 +82,7 @@ public interface ClientController {
                     @ApiResponse(responseCode = "500", description = "Внутренняя ошибка сервера")
             }
     )
+    @PreAuthorize("hasAnyRole('USER', 'ADMIN')")
     @DeleteMapping
     void deleteClient(@RequestHeader(name = "X-username") String username, @RequestParam String clientName);
 
@@ -94,6 +99,7 @@ public interface ClientController {
                     @ApiResponse(responseCode = "500", description = "Внутренняя ошибка сервера")
             }
     )
+    @PreAuthorize("hasAnyRole('USER', 'ADMIN')")
     @PostMapping("/update")
     ClientResponse updateClient(@RequestHeader(name = "X-username") String username, @RequestBody UpdateClientRequest updateClientRequest);
 }
