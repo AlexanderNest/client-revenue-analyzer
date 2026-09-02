@@ -6,6 +6,7 @@ import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import io.swagger.v3.oas.annotations.tags.Tag;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestHeader;
@@ -24,7 +25,7 @@ public interface AiAnalyzerController {
             @ApiResponse(responseCode = "200", description = "Успешный анализ и генерация рекомендаций",
                     content = @Content(mediaType = "application/json", schema = @Schema(implementation = GetClientAnalyticResponse.class))),
     })
-
+    @PreAuthorize("hasAnyRole('USER', 'ADMIN')")
     @PostMapping("/generateRecommendation")
     GetClientAnalyticResponse analyzeClients(@RequestHeader(name = "X-username") String username, @RequestBody GetForMonthRequest request);
 }
