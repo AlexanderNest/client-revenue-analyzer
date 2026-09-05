@@ -1,6 +1,7 @@
 package ru.nesterov.web.controller;
 
 import lombok.RequiredArgsConstructor;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestHeader;
 import org.springframework.web.bind.annotation.RestController;
@@ -8,6 +9,8 @@ import ru.nesterov.core.service.client.ClientService;
 import ru.nesterov.core.service.dto.ClientDto;
 import ru.nesterov.core.service.dto.ClientScheduleDto;
 import ru.nesterov.core.service.dto.UpdateClientDto;
+import ru.nesterov.core.service.kafka.MessageService;
+import ru.nesterov.core.service.kafka.dto.KafkaMessage;
 import ru.nesterov.core.service.user.UserService;
 import ru.nesterov.web.controller.request.client.CreateClientRequest;
 import ru.nesterov.web.controller.request.client.GetClientScheduleRequest;
@@ -18,12 +21,23 @@ import ru.nesterov.web.controller.response.EventScheduleResponse;
 import ru.nesterov.web.mapper.ClientMapper;
 
 import java.util.List;
+import java.util.Objects;
+import java.util.Optional;
 
 @RestController
 @RequiredArgsConstructor
 public class ClientControllerImpl implements ClientController {
     private final ClientService clientService;
     private final UserService userService;
+    private final MessageService messageService;
+
+    @Autowired
+    public ClientControllerImpl(ClientService clientService, UserService userService, Optional<MessageService> messageService) {
+        this.clientService = clientService;
+        this.userService = userService;
+        this.messageService = messageService.orElse(null);
+    }
+
 
     public ClientScheduleResponse getClientSchedule(@RequestHeader(name = "X-username") String username,
                                                     @RequestBody GetClientScheduleRequest request) {
@@ -58,6 +72,10 @@ public class ClientControllerImpl implements ClientController {
     @Override
     public List<ClientResponse> getActiveClients(@RequestHeader(name = "X-username") String username) {
         List<ClientDto> activeClients = clientService.getActiveClientsOrderedByPrice(userService.getUserByUsername(username));
+
+        if (Objects.nonNull(messageService)) {
+            messageService.send(new KafkaMessage(username, "Список клиентов скоро будет готов"));
+        }
 
         return activeClients.stream()
                 .map(ClientMapper::mapToClientResponse)
