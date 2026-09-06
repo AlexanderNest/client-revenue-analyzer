@@ -1,6 +1,5 @@
 package ru.nesterov.core.service.kafka.dto;
 
-import lombok.AllArgsConstructor;
 import lombok.Value;
 
 @Value
