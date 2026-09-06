@@ -1,20 +1,19 @@
 package ru.nesterov.core.service.kafka;
 
-import lombok.Data;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.kafka.core.KafkaTemplate;
 import org.springframework.stereotype.Service;
 import ru.nesterov.core.service.kafka.dto.KafkaMessage;
 
-@Data
 @Service
 @Slf4j
+@ConditionalOnProperty(value = "app.kafka.enabled", havingValue = "true")
 public class MessageService {
-
-    private String topicName;
-    private KafkaTemplate<String, KafkaMessage> kafkaTemplate;
+    private final String topicName;
+    private final KafkaTemplate<String, KafkaMessage> kafkaTemplate;
 
     @Autowired
     public MessageService(@Value("${app.kafka.default-topic}") String topicName, KafkaTemplate<String, KafkaMessage> kafkaTemplate) {
@@ -23,10 +22,6 @@ public class MessageService {
     }
 
     public void send(KafkaMessage message) {
-        try {
-            kafkaTemplate.send(topicName, message);
-        } catch (Exception e) {
-            log.error(e.getMessage());
-        }
+        kafkaTemplate.send(topicName, message);
     }
 }

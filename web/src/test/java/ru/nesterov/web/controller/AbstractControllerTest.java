@@ -21,7 +21,6 @@ import java.util.ArrayList;
 import java.util.List;
 
 @AutoConfigureMockMvc
-@TestPropertySource(properties = {"app.kafka.default-topic=client-revenue-analyzer"})
 @SpringBootTest
 public abstract class AbstractControllerTest {
     @Autowired

@@ -53,7 +53,7 @@ import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 @SpringBootTest
-@TestPropertySource(properties = {"app.test.data.enabled=true", "app.test.data.client.limit=3", "app.kafka.default-topic=client-revenue-analyzer"})
+@TestPropertySource(properties = {"app.test.data.enabled=true", "app.test.data.client.limit=3"})
 public class TestDataServiceTest {
     private static final int EXPECTED_CLIENTS_COUNT = 3;
     private static final int MIN_EVENTS_PER_CLIENT = 5;

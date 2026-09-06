@@ -20,7 +20,7 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 
 @AutoConfigureMockMvc
 @SpringBootTest
-@TestPropertySource(properties = {"app.calendar.events.backup.enabled=true", "app.kafka.default-topic=client-revenue-analyzer"})
+@TestPropertySource(properties = {"app.calendar.events.backup.enabled=true"})
 public class EventsBackupServiceTest {
     @Autowired
     private UserRepository userRepository;
