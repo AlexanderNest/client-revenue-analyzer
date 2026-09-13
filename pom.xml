@@ -20,6 +20,7 @@
         <module>calendar-integration</module>
         <module>web</module>
         <module>ai-integration</module>
+        <module>reporting</module>
     </modules>
 
     <properties>
@@ -39,6 +40,7 @@
         <micrometer.trasing.version>1.7.0-M3</micrometer.trasing.version>
         <openpdf.version>3.0.3</openpdf.version>
         <zalando.version>4.0.4</zalando.version>
+        <jacoco.version>0.8.15</jacoco.version>
     </properties>
 
     <dependencyManagement>
@@ -113,8 +115,16 @@
                 <version>${reflections.version}</version>
                 <scope>test</scope>
             </dependency>
+
+            <dependency>
+                <groupId>org.jacoco</groupId>
+                <artifactId>jacoco-maven-plugin</artifactId>
+                <version>${jacoco.version}</version>
+                <scope>compile</scope>
+            </dependency>
         </dependencies>
     </dependencyManagement>
+
     <build>
         <plugins>
             <plugin>
@@ -132,6 +142,19 @@
                         </path>
                     </annotationProcessorPaths>
                 </configuration>
+            </plugin>
+            <plugin>
+                <groupId>org.jacoco</groupId>
+                <artifactId>jacoco-maven-plugin</artifactId>
+                <executions>
+                    <execution>
+                        <goals>
+                            <goal>prepare-agent</goal>
+                        </goals>
+                        <configuration>
+                        </configuration>
+                    </execution>
+                </executions>
             </plugin>
         </plugins>
     </build>
