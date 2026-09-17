@@ -7,7 +7,6 @@ import io.swagger.v3.oas.annotations.parameters.RequestBody;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import org.springframework.http.ResponseEntity;
-import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestHeader;
@@ -44,7 +43,6 @@ public interface EventsAnalyzerController {
                     @ApiResponse(responseCode = "500", description = "Внутренняя ошибка сервера")
             }
     )
-    @PreAuthorize("hasAnyRole('USER', 'ADMIN')")
     @PostMapping("/getClientsStatistics")
     Map<String, ClientMeetingsStatistic> getClientsStatistics(@RequestHeader(name = "X-username") String username, @RequestBody GetForMonthRequest request);
 
@@ -63,7 +61,6 @@ public interface EventsAnalyzerController {
                     @ApiResponse(responseCode = "500", description = "Внутренняя ошибка сервера")
             }
     )
-    @PreAuthorize("hasAnyRole('USER', 'ADMIN')")
     @GetMapping("/getClientStatistic")
     ResponseEntity<ClientMeetingsStatisticResponse> getClientStatistic(@RequestHeader(name = "X-username") String username, @RequestParam String clientName);
 
@@ -81,7 +78,6 @@ public interface EventsAnalyzerController {
                     @ApiResponse(responseCode = "500", description = "Внутренняя ошибка сервера")
             }
     )
-    @PreAuthorize("hasAnyRole('USER', 'ADMIN')")
     @PostMapping("/getEventsStatusesForMonth")
     Map<EventStatus, Integer> getEventsStatusesForMonth(@RequestHeader(name = "X-username") String username, @RequestBody GetForYearAndMonthRequest request);
 
@@ -98,7 +94,6 @@ public interface EventsAnalyzerController {
                     @ApiResponse(responseCode = "500", description = "Внутренняя ошибка сервера")
             }
     )
-    @PreAuthorize("hasAnyRole('USER', 'ADMIN')")
     @PostMapping("/getIncomeAnalysisForMonth")
     ResponseEntity<IncomeAnalysisResult> getIncomeAnalysisForMonth(@RequestHeader(name = "X-username") String username, @RequestBody GetForYearAndMonthRequest request);
 
@@ -110,7 +105,6 @@ public interface EventsAnalyzerController {
                     @ApiResponse(responseCode = "500", description = "Внутренняя ошибка сервера")
             }
     )
-    @PreAuthorize("hasAnyRole('USER', 'ADMIN')")
     @GetMapping("/getUnpaidEvents")
     List<EventResponse> getUnpaidEvents(@RequestHeader(name = "X-username") String username);
 
@@ -127,7 +121,6 @@ public interface EventsAnalyzerController {
                     @ApiResponse(responseCode = "500", description = "Внутренняя ошибка сервера")
             }
     )
-    @PreAuthorize("hasAnyRole('USER', 'ADMIN')")
     @PostMapping("/getAverageMeetingPriceBetweenDates")
     AveragePriceResponse getAverageMeetingPriceBetweenDates(@RequestHeader(name = "X-username") String username, @RequestBody GetBetweenDatesRequest request);
 }
