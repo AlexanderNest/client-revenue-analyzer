@@ -12,4 +12,5 @@ public class UpdateClientRequest {
     private String description;
     private Boolean idGenerationNeeded;
     private String phone;
+    private String acquisitionSource;
 }

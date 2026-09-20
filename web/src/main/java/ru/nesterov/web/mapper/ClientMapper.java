@@ -17,6 +17,7 @@ public class ClientMapper {
                 .newName(request.getNewName())
                 .oldClientName(request.getClientName())
                 .phone(request.getPhone())
+                .acquisitionSource(request.getAcquisitionSource())
                 .build();
     }
 
@@ -28,6 +29,7 @@ public class ClientMapper {
                 .name(request.getName())
                 .active(true)
                 .phone(request.getPhone())
+                .acquisitionSource(request.getAcquisitionSource())
                 .build();
     }
 
@@ -40,6 +42,7 @@ public class ClientMapper {
                 .active(clientDto.isActive())
                 .startDate(clientDto.getStartDate())
                 .phone(clientDto.getPhone())
+                .acquisitionSource(clientDto.getAcquisitionSource())
                 .build();
     }
 
@@ -51,6 +54,7 @@ public class ClientMapper {
                 .startDate(clientMeetingsStatistic.getStartDate())
                 .serviceDuration(clientMeetingsStatistic.getServiceDuration())
                 .phone(clientMeetingsStatistic.getPhone())
+                .acquisitionSource(clientMeetingsStatistic.getAcquisitionSource())
                 .successfulMeetingsHours(clientMeetingsStatistic.getSuccessfulMeetingsHours())
                 .cancelledMeetingsHours(clientMeetingsStatistic.getCancelledMeetingsHours())
                 .incomePerHour(clientMeetingsStatistic.getIncomePerHour())

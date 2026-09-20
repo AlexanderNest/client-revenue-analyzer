@@ -43,6 +43,7 @@ class ClientControllerTest extends AbstractControllerTest {
         createClientRequest.setPricePerHour(100);
         createClientRequest.setIdGenerationNeeded(false);
         createClientRequest.setPhone("89001112233");
+        createClientRequest.setAcquisitionSource("instagram");
 
         mockMvc.perform(
                 post(CREATE_CLIENT_URL)
@@ -56,6 +57,7 @@ class ClientControllerTest extends AbstractControllerTest {
                 .andExpect(jsonPath("$.description").value("desc"))
                 .andExpect(jsonPath("$.active").value(true))
                 .andExpect(jsonPath("$.phone").value("89001112233"))
+                .andExpect(jsonPath("$.acquisitionSource").value("instagram"))
                 .andExpect(jsonPath("$.pricePerHour").value(100));
     }
 
@@ -168,6 +170,7 @@ class ClientControllerTest extends AbstractControllerTest {
         client.setName("oldName");
         client.setDescription("oldDesc");
         client.setPhone("89000000000");
+        client.setAcquisitionSource("referral");
         client.setUser(user);
         saveClientWithPrice(client, 500);
 
@@ -176,6 +179,7 @@ class ClientControllerTest extends AbstractControllerTest {
         updateRequest.setNewName("newName");
         updateRequest.setDescription("newDesc");
         updateRequest.setPhone("89999999999");
+        updateRequest.setAcquisitionSource("instagram");
         updateRequest.setPricePerHour(1000);
         updateRequest.setIdGenerationNeeded(false);
 
@@ -189,6 +193,7 @@ class ClientControllerTest extends AbstractControllerTest {
                 .andExpect(jsonPath("$.name").value(updateRequest.getNewName()))
                 .andExpect(jsonPath("$.description").value(updateRequest.getDescription()))
                 .andExpect(jsonPath("$.phone").value(updateRequest.getPhone()))
+                .andExpect(jsonPath("$.acquisitionSource").value(updateRequest.getAcquisitionSource()))
                 .andExpect(jsonPath("$.pricePerHour").value(updateRequest.getPricePerHour()));
     }
 

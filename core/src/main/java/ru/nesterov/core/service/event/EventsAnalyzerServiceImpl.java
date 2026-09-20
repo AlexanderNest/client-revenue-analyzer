@@ -93,6 +93,7 @@ public class EventsAnalyzerServiceImpl implements EventsAnalyzerService {
                 clientMeetingsStatistic.setDescription(client.getDescription());
                 clientMeetingsStatistic.setStartDate(client.getStartDate());
                 clientMeetingsStatistic.setPhone(client.getPhone());
+                clientMeetingsStatistic.setAcquisitionSource(client.getAcquisitionSource());
                 meetingsStatistics.put(eventDto.getSummary(), clientMeetingsStatistic);
             }
 
