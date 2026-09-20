@@ -75,6 +75,7 @@ class EventsAnalyzerServiceImplTest {
         client.setDescription("description");
         client.setStartDate(new Date(2025, Calendar.JUNE, 1));
         client.setPhone("phone");
+        client.setAcquisitionSource("acquisitionSource");
         client.setPriceChangeHistory(List.of(pch));
         when(clientRepository.findClientByNameAndUserId("testName", 1)).thenReturn(client);
         when(clientService.getPricePerHourForDate(eq(client), any(LocalDateTime.class))).thenReturn(1000.0);
@@ -363,6 +364,7 @@ class EventsAnalyzerServiceImplTest {
         assertEquals("description", meetingsStatistics.getDescription());
         assertEquals(date, meetingsStatistics.getStartDate());
         assertEquals("phone", meetingsStatistics.getPhone());
+        assertEquals("acquisitionSource", meetingsStatistics.getAcquisitionSource());
         assertEquals(9, meetingsStatistics.getSuccessfulMeetingsHours());
         assertEquals(9, meetingsStatistics.getCancelledMeetingsHours());
         assertEquals(3, meetingsStatistics.getPromoMeetingsHours());

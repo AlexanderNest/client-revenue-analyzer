@@ -3,7 +3,6 @@ package ru.nesterov.core.service.mapper;
 import ru.nesterov.core.entity.Client;
 import ru.nesterov.core.service.dto.ClientDto;
 
-
 public class ClientMapper {
     public static ClientDto mapToClientDto(Client client, Integer price) {
         return ClientDto.builder()
@@ -14,6 +13,7 @@ public class ClientMapper {
                 .active(client.isActive())
                 .startDate(client.getStartDate())
                 .phone(client.getPhone())
+                .acquisitionSource(client.getAcquisitionSource())
                 .build();
     }
 
@@ -25,6 +25,7 @@ public class ClientMapper {
         client.setActive(clientDto.isActive());
         client.setPhone(clientDto.getPhone());
         client.setStartDate(clientDto.getStartDate());
+        client.setAcquisitionSource(clientDto.getAcquisitionSource());
         return client;
     }
 }

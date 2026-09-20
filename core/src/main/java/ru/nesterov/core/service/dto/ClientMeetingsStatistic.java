@@ -16,6 +16,7 @@ public class ClientMeetingsStatistic {
     private String description;
     private Date startDate;
     private String phone;
+    private String acquisitionSource;
     private double successfulMeetingsHours;
     private double cancelledMeetingsHours;
     private double promoMeetingsHours;
@@ -124,7 +125,8 @@ public class ClientMeetingsStatistic {
                 "startDate=" + startDate +
                 "serviceDuration=" + getServiceDuration() +
                 "phone=" + phone +
-                "successfulMeetingsHours=" + successfulMeetingsHours +
+                ", acquisitionSource=" + acquisitionSource +
+                ", successfulMeetingsHours=" + successfulMeetingsHours +
                 ", cancelledMeetingsHours=" + cancelledMeetingsHours +
                 ", promoMeetingsHours=" + promoMeetingsHours +
                 ", successfulMeetingsPercentage=" + getSuccessfulMeetingsPercentage() +

@@ -309,6 +309,7 @@ public class EventsAnalyzerControllerTest extends AbstractControllerTest {
                 .andExpect(jsonPath("$.startDate").isNotEmpty())
                 .andExpect(jsonPath("$.serviceDuration").value(0))
                 .andExpect(jsonPath("$.phone").isEmpty())
+                .andExpect(jsonPath("$.acquisitionSource").isEmpty())
                 .andExpect(jsonPath("$.successfulMeetingsHours").value(1.0))
                 .andExpect(jsonPath("$.cancelledMeetingsHours").value(2.0))
                 .andExpect(jsonPath("$.promoMeetingsHours").value(2))
