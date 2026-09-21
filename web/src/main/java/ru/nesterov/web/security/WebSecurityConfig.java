@@ -13,9 +13,11 @@ import org.springframework.security.web.authentication.UsernamePasswordAuthentic
 @EnableMethodSecurity
 public class WebSecurityConfig {
     private final SecretTokenFilter secretTokenFilter;
+    private final UsernameHeaderFilter usernameHeaderFilter;
 
-    public WebSecurityConfig(SecretTokenFilter secretTokenFilter) {
+    public WebSecurityConfig(SecretTokenFilter secretTokenFilter, UsernameHeaderFilter usernameHeaderFilter) {
         this.secretTokenFilter = secretTokenFilter;
+        this.usernameHeaderFilter = usernameHeaderFilter;
     }
 
     @Bean
@@ -32,6 +34,7 @@ public class WebSecurityConfig {
                                 .hasAnyRole("USER", "ADMIN")
                 )
                 .addFilterBefore(secretTokenFilter, UsernamePasswordAuthenticationFilter.class)
+                .addFilterAfter(usernameHeaderFilter, SecretTokenFilter.class)
                 .build();
     }
 }
