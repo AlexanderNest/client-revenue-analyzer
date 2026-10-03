@@ -430,4 +430,15 @@
         </createIndex>
     </changeSet>
 
+    <changeSet id="add column acquisitionSource in client table" author="Leonid Velikanov">
+        <preConditions onFail="MARK_RAN">
+            <not>
+                <columnExists tableName="client" columnName="acquisition_source"/>
+            </not>
+        </preConditions>
+        <addColumn tableName="client">
+            <column name="acquisition_source" type="VARCHAR"></column>
+        </addColumn>
+    </changeSet>
+
 </databaseChangeLog>

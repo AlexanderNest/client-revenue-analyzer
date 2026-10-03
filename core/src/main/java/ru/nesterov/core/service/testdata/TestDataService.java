@@ -53,6 +53,8 @@ public class TestDataService {
     private static final DateTimeFormatter EVENT_DATE_FORMATTER =
             DateTimeFormatter.ofPattern("yyyy-MM-dd'T'HH:mm:ss.SSS'Z'").withZone(ZoneOffset.UTC);
 
+    private static final List<String> ACQUISITION_SOURCES = List.of("instagram", "telegram", "vk", "referal");
+
     /**
      * У прошедших встреч статус SUCCESS должен встречаться заметно чаще остальных
      */
@@ -243,6 +245,7 @@ public class TestDataService {
                     .description("testDescription" + random.nextInt(312312412))
                     .active(random.nextBoolean())
                     .phone(getRandomPhoneNumber(random))
+                    .acquisitionSource(getRandomAcquisitionSource(random))
                     .build();
 
             clientList.add(clientService.createClient(userDto, clientDto, true));
@@ -322,6 +325,10 @@ public class TestDataService {
         }
 
         return stringBuilder.toString();
+    }
+
+    private String getRandomAcquisitionSource(Random random) {
+        return ACQUISITION_SOURCES.get(random.nextInt(ACQUISITION_SOURCES.size()));
     }
 
     private boolean isExpired(CreationAttempt attempt, Instant now) {

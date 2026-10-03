@@ -15,4 +15,5 @@ public class ClientResponse {
     private boolean active;
     private Date startDate;
     private String phone;
+    private String acquisitionSource;
 }

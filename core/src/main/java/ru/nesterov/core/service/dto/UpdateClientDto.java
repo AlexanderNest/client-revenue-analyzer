@@ -11,4 +11,5 @@ public class UpdateClientDto {
     private Integer pricePerHour;
     private String description;
     private String phone;
+    private String acquisitionSource;
 }

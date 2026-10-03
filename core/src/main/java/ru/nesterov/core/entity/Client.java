@@ -34,6 +34,7 @@ public class Client {
     @CreationTimestamp
     private Date startDate;
     private String phone;
+    private String acquisitionSource;
 
     @OneToMany(mappedBy = "client", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<PriceChangeHistory> priceChangeHistory;

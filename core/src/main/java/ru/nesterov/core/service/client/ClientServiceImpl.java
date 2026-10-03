@@ -151,6 +151,10 @@ public class ClientServiceImpl implements ClientService {
             savePriceToHistory(clientForUpdate, updateClientDto.getPricePerHour());
         }
 
+        if (updateClientDto.getAcquisitionSource() != null) {
+            clientForUpdate.setAcquisitionSource(updateClientDto.getAcquisitionSource());
+        }
+
         Client savedClient = clientRepository.save(clientForUpdate);
         int actualPrice = (int) getPricePerHourForDate(savedClient, LocalDateTime.now());
 

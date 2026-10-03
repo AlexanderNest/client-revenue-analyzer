@@ -14,6 +14,7 @@ public class ClientMeetingsStatisticResponse {
     private Date startDate;
     private long serviceDuration;
     private String phone;
+    private String acquisitionSource;
     private double successfulMeetingsHours;
     private double cancelledMeetingsHours;
     private double promoMeetingsHours;

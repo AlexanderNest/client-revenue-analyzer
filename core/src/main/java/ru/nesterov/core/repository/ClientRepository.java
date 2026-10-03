@@ -15,7 +15,7 @@ public interface ClientRepository extends JpaRepository<Client, Long> {
     Client findClientByNameAndUserId(String name, long userId);
 
     @Query(value = """
-            SELECT id, name, description, active, user_id, start_date, phone
+            SELECT id, name, description, active, user_id, start_date, phone, acquisition_source
             FROM client
             WHERE (name = :name
                 OR name ~ CONCAT ('^', :name, ' [0-9]+$'))

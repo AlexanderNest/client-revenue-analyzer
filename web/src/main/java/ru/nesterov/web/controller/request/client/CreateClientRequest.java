@@ -9,4 +9,5 @@ public class CreateClientRequest {
     private String description;
     private boolean idGenerationNeeded;
     private String phone;
+    private String acquisitionSource;
 }
