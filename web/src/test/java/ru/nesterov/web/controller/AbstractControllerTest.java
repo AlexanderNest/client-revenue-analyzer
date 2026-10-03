@@ -10,6 +10,7 @@ import ru.nesterov.calendar.integration.google.GoogleCalendarClient;
 import ru.nesterov.calendar.integration.service.CalendarService;
 import ru.nesterov.core.entity.Client;
 import ru.nesterov.core.entity.PriceChangeHistory;
+import ru.nesterov.core.entity.Role;
 import ru.nesterov.core.entity.User;
 import ru.nesterov.core.repository.ClientRepository;
 import ru.nesterov.core.repository.PriceChangeHistoryRepository;
@@ -34,7 +35,6 @@ public abstract class AbstractControllerTest {
     private CalendarService calendarService;
     @Autowired
     protected PriceChangeHistoryRepository priceChangeHistoryRepository;
-
     @MockitoBean
     protected GoogleCalendarClient googleCalendarClient;
 
@@ -42,6 +42,7 @@ public abstract class AbstractControllerTest {
         User user1 = new User();
         user1.setUsername(username);
         user1.setMainCalendar("someCalendar1");
+        user1.setRole(Role.USER);
 
         return userRepository.save(user1);
     }
@@ -50,6 +51,7 @@ public abstract class AbstractControllerTest {
         User user1 = new User();
         user1.setUsername(username);
         user1.setMainCalendar(calendarName);
+        user1.setRole(Role.USER);
 
         return userRepository.save(user1);
     }

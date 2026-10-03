@@ -7,6 +7,7 @@ import ru.nesterov.calendar.integration.dto.CalendarType;
 import ru.nesterov.calendar.integration.dto.EventDto;
 import ru.nesterov.calendar.integration.dto.EventStatus;
 import ru.nesterov.core.entity.Client;
+import ru.nesterov.core.entity.Role;
 import ru.nesterov.core.entity.User;
 import ru.nesterov.web.controller.request.client.CreateClientRequest;
 import ru.nesterov.web.controller.request.client.GetClientScheduleRequest;
@@ -35,6 +36,7 @@ class ClientControllerTest extends AbstractControllerTest {
         user.setUsername("testUser2");
         user.setMainCalendar("mainCalendar");
         user.setCancelledCalendar("cancelCalendar");
+        user.setRole(Role.USER);
         user = userRepository.save(user);
 
         CreateClientRequest createClientRequest = new CreateClientRequest();
@@ -65,6 +67,7 @@ class ClientControllerTest extends AbstractControllerTest {
         user.setUsername("testUser4");
         user.setMainCalendar("mainCalendar");
         user.setCancelledCalendar("cancelCalendar");
+        user.setRole(Role.USER);
         user = userRepository.save(user);
 
         CreateClientRequest createClientRequest = new CreateClientRequest();
@@ -119,6 +122,7 @@ class ClientControllerTest extends AbstractControllerTest {
         user.setUsername("testUser15");
         user.setMainCalendar("mainCalendar");
         user.setCancelledCalendar("cancelCalendar");
+        user.setRole(Role.USER);
         user = userRepository.save(user);
 
         Client client = new Client();
@@ -143,6 +147,7 @@ class ClientControllerTest extends AbstractControllerTest {
         user.setUsername("testUser6");
         user.setMainCalendar("mainCalendar");
         user.setCancelledCalendar("cancelCalendar");
+        user.setRole(Role.USER);
         user = userRepository.save(user);
 
         String nonExistentClientName = "nonExistentClient";
@@ -161,6 +166,7 @@ class ClientControllerTest extends AbstractControllerTest {
         user.setUsername("testUser7");
         user.setMainCalendar("mainCalendar");
         user.setCancelledCalendar("cancelCalendar");
+        user.setRole(Role.USER);
         user = userRepository.save(user);
 
         Client client = new Client();
@@ -198,6 +204,7 @@ class ClientControllerTest extends AbstractControllerTest {
         user.setUsername("testUser5");
         user.setMainCalendar("mainCalendar");
         user.setCancelledCalendar("cancelCalendar");
+        user.setRole(Role.USER);
         user = userRepository.save(user);
 
         CreateClientRequest createClientRequest0 = new CreateClientRequest();
@@ -290,6 +297,7 @@ class ClientControllerTest extends AbstractControllerTest {
         user.setUsername("testUser3");
         user.setMainCalendar("mainCalendar");
         user.setCancelledCalendar("cancelCalendar");
+        user.setRole(Role.USER);
         user = userRepository.save(user);
 
         Client client1 = new Client();

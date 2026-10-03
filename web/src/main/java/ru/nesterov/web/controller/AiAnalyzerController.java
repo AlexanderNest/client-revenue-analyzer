@@ -24,7 +24,6 @@ public interface AiAnalyzerController {
             @ApiResponse(responseCode = "200", description = "Успешный анализ и генерация рекомендаций",
                     content = @Content(mediaType = "application/json", schema = @Schema(implementation = GetClientAnalyticResponse.class))),
     })
-
     @PostMapping("/generateRecommendation")
     GetClientAnalyticResponse analyzeClients(@RequestHeader(name = "X-username") String username, @RequestBody GetForMonthRequest request);
 }
