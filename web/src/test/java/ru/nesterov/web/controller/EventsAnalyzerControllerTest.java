@@ -321,4 +321,51 @@ public class EventsAnalyzerControllerTest extends AbstractControllerTest {
         clientRepository.delete(client);
         userRepository.delete(user);
     }
+
+    @Test
+    public void getIncomeAnalysisForMonthTest() throws Exception {
+        EventDto holiday = EventDto.builder()
+                .summary("holiday")
+                .start(LocalDateTime.of(2024, 8, 13, 0, 0))
+                .end(LocalDateTime.of(2024, 8, 14, 0, 0))
+                .build();
+
+        when(googleCalendarClient.getEventsBetweenDates(any(), eq(CalendarType.PLAIN), any(), any()))
+                .thenReturn(List.of(holiday));
+
+        GetForYearAndMonthRequest getForYearAndMonthRequest = new GetForYearAndMonthRequest();
+        getForYearAndMonthRequest.setYear(2024);
+        getForYearAndMonthRequest.setMonthName("august");
+
+        mockMvc.perform(post("/events/analyzer/getIncomeAnalysisForMonth")
+                        .header("X-username", USERNAME)
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(objectMapper.writeValueAsString(getForYearAndMonthRequest)))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.actualIncome").value(2000))
+                .andExpect(jsonPath("$.expectedIncome").value(5000))
+                .andExpect(jsonPath("$.lostIncome").value(3000))
+                .andExpect(jsonPath("$.potentialIncome").value(9000))
+                .andExpect(jsonPath("$.lostIncomeDueToHoliday").value(1000))
+                .andExpect(jsonPath("$.promoIncome").value(1000));
+    }
+
+    @Test
+    public void getEventsStatusesByMonthTest() throws Exception {
+        GetForYearAndMonthRequest getForYearAndMonthRequest = new GetForYearAndMonthRequest();
+        getForYearAndMonthRequest.setYear(2024);
+        getForYearAndMonthRequest.setMonthName("august");
+
+        mockMvc.perform(post("/events/analyzer/getEventsStatusesForMonth")
+                        .header("X-username", USERNAME)
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(objectMapper.writeValueAsString(getForYearAndMonthRequest)))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.SUCCESS").value(2))
+                .andExpect(jsonPath("$.REQUIRES_SHIFT").value(1))
+                .andExpect(jsonPath("$.PLANNED").value(2))
+                .andExpect(jsonPath("$.PLANNED_CANCELLED").value(2))
+                .andExpect(jsonPath("$.UNPLANNED_CANCELLED").value(1))
+                .andExpect(jsonPath("$.PROMO").value(1));
+    }
 }
